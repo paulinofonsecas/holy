@@ -1,0 +1,23 @@
+name: bible_handler
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.8.1
+
+# Add regular dependencies here.
+dependencies:
+  xml: ^6.6.1
+  path: ^1.9.1
+  sqlite3: ^2.4.0
+  sqflite_common_ffi: ^2.3.6
+  http: ^1.2.1
+  archive: ^3.5.1
+  shared_preferences: ^2.5.3
+  # bible_books: ^1.0.0
+  # path: ^1.8.0
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.24.0
