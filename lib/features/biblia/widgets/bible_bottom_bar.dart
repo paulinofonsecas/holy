@@ -35,10 +35,18 @@ class BibleBottomBar extends StatelessWidget {
         final bibleBloc = context.read<BibliaBloc>();
 
         if (state is! BibleChapterLoaded) {
-          return Container(
-            child: Center(
-              child: Text("Carregando..."),
-            ),
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Carregando..."),
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: const LinearProgressIndicator(
+                  minHeight: 4,
+                ),
+              ),
+            ],
           );
         }
         final chapter = state.chapter;
