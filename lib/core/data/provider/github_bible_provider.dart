@@ -1,11 +1,24 @@
+import 'dart:io';
+
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
+typedef BibleUrlLoader = Future<Bible> Function(String version);
+typedef BibleDirLoader = Future<Bible> Function(String path);
 
 class GithubBibleProvider extends IBibleProvider {
-  GithubBibleProvider(this.dio);
+  GithubBibleProvider(
+    this.dio, {
+    this.urlLoader = loadBibleFromUrl,
+    this.dirLoader = loadBibleFromDirectory,
+  });
 
   final Dio dio;
+  final BibleUrlLoader urlLoader;
+  final BibleDirLoader dirLoader;
   final Map<String, Bible> _cache = {};
   static const String _repoContentsUrl =
       'https://api.github.com/repos/paulinofonsecas/biblias/contents/inst/usx/traducao';
@@ -16,14 +29,51 @@ class GithubBibleProvider extends IBibleProvider {
     }
 
     try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final bibleDir = Directory(p.join(appDir.path, 'bibles', versionId));
+
+      if (await bibleDir.exists()) {
+        if (await File(p.join(bibleDir.path, 'metadata.xml')).exists()) {
+          try {
+            final bible = await dirLoader(bibleDir.path);
+            _cache[versionId] = bible;
+            return bible;
+          } catch (e) {
+            print('Failed to load from local storage: $e');
+          }
+        }
+      }
+
       // loadBibleFromUrl is a top-level function exported by bible_handler
-      final bible = await loadBibleFromUrl(versionId);
+      final bible = await urlLoader(versionId);
+
+      if (bible.directoryPathSaved != null) {
+        final tempDir = Directory(bible.directoryPathSaved!);
+        if (await tempDir.exists()) {
+          await _copyDirectory(tempDir, bibleDir);
+        }
+      }
+
       _cache[versionId] = bible;
       return bible;
     } catch (e) {
       throw Exception('Failed to load bible version $versionId: $e');
     }
   }
+
+  Future<void> _copyDirectory(Directory source, Directory destination) async {
+    await destination.create(recursive: true);
+    await for (final entity in source.list(recursive: false)) {
+      if (entity is Directory) {
+        final newDirectory =
+            Directory(p.join(destination.path, p.basename(entity.path)));
+        await _copyDirectory(entity, newDirectory);
+      } else if (entity is File) {
+        await entity.copy(p.join(destination.path, p.basename(entity.path)));
+      }
+    }
+  }
+
 
   @override
   Future<List<String>> getVersoes() async {
