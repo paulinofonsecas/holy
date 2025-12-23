@@ -18,23 +18,23 @@ class TelaDeLeitura extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Text(
-                  state.chapter.bookName ?? state.chapter.bookId,
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                Text(
-                  state.chapter.number.toString(),
-                  style: TextStyle(
-                    fontSize: 89,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                Gap(18),
+                // Text(
+                //   state.chapter.bookName ?? state.chapter.bookId,
+                //   style: TextStyle(
+                //     fontSize: 32,
+                //     fontWeight: FontWeight.w400,
+                //     color: Theme.of(context).colorScheme.onSurface,
+                //   ),
+                // ),
+                // Text(
+                //   state.chapter.number.toString(),
+                //   style: TextStyle(
+                //     fontSize: 89,
+                //     fontWeight: FontWeight.bold,
+                //     color: Theme.of(context).colorScheme.onSurface,
+                //   ),
+                // ),
+                // Gap(18),
                 ChapterVisualizerWidget(
                   chapter: state.chapter,
                 ),

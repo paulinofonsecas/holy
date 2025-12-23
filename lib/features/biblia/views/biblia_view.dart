@@ -3,7 +3,6 @@ import 'package:eu_sou/features/biblia/widgets/tela_de_leitura.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 
 import '../widgets/biblia_app_bar.dart';
-import '../widgets/bible_bottom_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:flutter/material.dart';
@@ -49,13 +48,50 @@ class BibliaView extends StatelessWidget {
           child: Column(
             children: [
               Gap(16),
-              BibleAppBar(),
-              Gap(8),
-              Expanded(child: TelaDeLeitura()),
-              BibleBottomBar(
-                onTap: () {
+              BibleAppBar(
+                onBookTap: () {
                   SwitchBookModal.show(context);
                 },
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onHorizontalDragEnd: (details) {
+                    final bibleBloc = context.read<BibliaBloc>();
+                    final state = bibleBloc.state;
+
+                    if (state is! BibleChapterLoaded) return;
+
+                    final chapter = state.chapter;
+                    // TODO: Use the correct version from Cubit instead of hardcoded if needed,
+                    // but here we can access the cubit.
+                    final bibleVersion =
+                        context.read<BibleVersionCubit>().state.version;
+
+                    // Sensitivity adjustment if needed
+                    if (details.primaryVelocity! > 0) {
+                      // Swipe Right -> Previous Chapter
+                      if (chapter.number > 1) {
+                        bibleBloc.add(
+                          GetChapter(
+                            bibleVersion.id,
+                            chapter.bookId,
+                            (chapter.number - 1).toString(),
+                          ),
+                        );
+                      }
+                    } else if (details.primaryVelocity! < 0) {
+                      // Swipe Left -> Next Chapter
+                      bibleBloc.add(
+                        GetChapter(
+                          bibleVersion.id,
+                          chapter.bookId,
+                          (chapter.number + 1).toString(),
+                        ),
+                      );
+                    }
+                  },
+                  child: TelaDeLeitura(),
+                ),
               ),
             ],
           ),
