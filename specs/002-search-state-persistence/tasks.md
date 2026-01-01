@@ -15,7 +15,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Verify `flutter_bloc` and `RepositorioBusca` are correctly configured in `lib/main.dart`
+- [x] T001 [P] Verify `flutter_bloc` and `RepositorioBusca` are correctly configured in `lib/main.dart`
 
 ---
 
@@ -23,9 +23,9 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T002 Lift `SearchBloc` instantiation to `BibliaPage` in `lib/features/biblia/views/biblia_view.dart`
-- [ ] T003 Provide `SearchBloc` to `BibliaView` using `BlocProvider` in `lib/features/biblia/views/biblia_view.dart`
-- [ ] T004 Update `BibliaAppBar` to use `BlocProvider.value` when pushing `TelaBusca` in `lib/features/biblia/widgets/biblia_app_bar.dart`
+- [x] T002 Lift `SearchBloc` instantiation to `BibliaPage` in `lib/features/biblia/views/biblia_view.dart`
+- [x] T003 Provide `SearchBloc` to `BibliaView` using `BlocProvider` in `lib/features/biblia/views/biblia_view.dart`
+- [x] T004 Update `BibliaAppBar` to use `BlocProvider.value` when pushing `TelaBusca` in `lib/features/biblia/widgets/biblia_app_bar.dart`
 
 ---
 
@@ -35,9 +35,9 @@
 
 **Independent Test**: Search for "fé", click a result, go back to search, and verify results are still there.
 
-- [ ] T005 [P] [US1] Ensure `SearchBloc` does not reset state on initialization if it already has results in `lib/features/search/presentation/bloc/search_bloc.dart`
-- [ ] T006 [US1] Update `TelaBusca` to display the current state of `SearchBloc` immediately upon opening in `lib/features/search/presentation/pages/search_screen.dart`
-- [ ] T007 [US1] Verify that navigating back from the reader to `TelaBusca` preserves the scroll position and results
+- [x] T005 [P] [US1] Ensure `SearchBloc` does not reset state on initialization if it already has results in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [x] T006 [US1] Update `TelaBusca` to display the current state of `SearchBloc` immediately upon opening in `lib/features/search/presentation/pages/search_screen.dart`
+- [x] T007 [US1] Verify that navigating back from the reader to `TelaBusca` preserves the scroll position and results
 
 ---
 
@@ -47,9 +47,9 @@
 
 **Independent Test**: Click "Close" in search, reopen, and verify it's empty.
 
-- [ ] T008 [P] [US2] Add a "Close" or "Clear" button to the search bar in `lib/features/search/presentation/pages/search_screen.dart`
-- [ ] T009 [US2] Dispatch `LimparBusca` event when the explicit close action is triggered in `lib/features/search/presentation/pages/search_screen.dart`
-- [ ] T010 [US2] Ensure `SearchBloc` correctly handles `LimparBusca` by emitting `BuscaInicial` in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [x] T008 [P] [US2] Add a "Close" or "Clear" button to the search bar in `lib/features/search/presentation/pages/search_screen.dart`
+- [x] T009 [US2] Dispatch `LimparBusca` event when the explicit close action is triggered in `lib/features/search/presentation/pages/search_screen.dart`
+- [x] T010 [US2] Ensure `SearchBloc` correctly handles `LimparBusca` by emitting `BuscaInicial` in `lib/features/search/presentation/bloc/search_bloc.dart`
 
 ---
 
@@ -59,8 +59,8 @@
 
 **Independent Test**: Verify the search icon in the reader takes the user back to their active search session.
 
-- [ ] T011 [US3] Update `BibliaAppBar` search icon behavior to indicate an active search session (e.g., different icon or badge) in `lib/features/biblia/widgets/biblia_app_bar.dart`
-- [ ] T012 [US3] Ensure the search icon always opens the existing `SearchBloc` session in `lib/features/biblia/widgets/biblia_app_bar.dart`
+- [x] T011 [US3] Update `BibliaAppBar` search icon behavior to indicate an active search session (e.g., different icon or badge) in `lib/features/biblia/widgets/biblia_app_bar.dart`
+- [x] T012 [US3] Ensure the search icon always opens the existing `SearchBloc` session in `lib/features/biblia/widgets/biblia_app_bar.dart`
 
 ---
 
@@ -68,7 +68,7 @@
 
 **Purpose**: UX improvements and edge case handling.
 
-- [ ] T013 [P] Handle Bible version changes: Clear or update search results when the active version changes in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [x] T013 [P] Handle Bible version changes: Clear or update search results when the active version changes in `lib/features/search/presentation/bloc/search_bloc.dart`
 - [ ] T014 [P] Add unit tests for `SearchBloc` to verify state persistence and reset logic in `test/features/search/search_bloc_test.dart`
 - [ ] T015 [P] Add widget test to verify `TelaBusca` preserves state after navigation in `test/features/search/search_screen_test.dart`
 

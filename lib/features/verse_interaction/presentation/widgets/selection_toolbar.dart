@@ -39,7 +39,7 @@ class SelectionToolbar extends StatelessWidget {
               ),
               const Spacer(),
               IconButton(
-                icon: const Icon(Icons.highlight),
+                icon: const Icon(Icons.border_color),
                 onPressed: () {
                   _showHighlightOptions(context, state);
                 },

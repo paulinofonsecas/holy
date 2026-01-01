@@ -14,6 +14,10 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   String _termoAtual = '';
   bool _buscarTodasVersoes = false;
   String? _idVersao;
+  double _scrollOffset = 0;
+
+  String get termoAtual => _termoAtual;
+  double get scrollOffset => _scrollOffset;
 
   SearchBloc(this._repositorioBusca, {String? idVersao})
       : _idVersao = idVersao,
@@ -22,6 +26,11 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     on<AlternarBuscaTodasVersoes>(_onToggleSearchAllVersions);
     on<LimparBusca>(_onClearSearch);
     on<CarregarVersao>(_onLoadVersion);
+    on<AtualizarScrollBusca>(_onUpdateScroll);
+  }
+
+  void _onUpdateScroll(AtualizarScrollBusca event, Emitter<EstadoBusca> emit) {
+    _scrollOffset = event.offset;
   }
 
   Future<void> _onSearchQueryChanged(
@@ -58,6 +67,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   ) {
     _registrador.debug('🧹 Limpando busca');
     _termoAtual = '';
+    _scrollOffset = 0;
     emit(BuscaInicial());
   }
 
@@ -100,19 +110,13 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   ) async {
     _registrador.info(
         '📦 Carregando versão: ${event.nomeVersao} (ID: ${event.idVersao})');
-    emit(VersaoCarregando(nomeVersao: event.nomeVersao));
+    _idVersao = event.idVersao;
 
-    try {
-      // Simula o carregamento da versão com um pequeno atraso para permitir que a UI atualize
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      _registrador.info('✅ Versão ${event.nomeVersao} carregada com sucesso');
-      // Após o carregamento da versão, volta ao estado inicial para preparar para nova busca
+    if (_termoAtual.isNotEmpty) {
+      emit(BuscaCarregando());
+      await _realizarBusca(emit);
+    } else {
       emit(BuscaInicial());
-    } catch (e, rastroPilha) {
-      _registrador.error(
-          '❌ Erro ao carregar versão ${event.nomeVersao}', e, rastroPilha);
-      emit(BuscaErro('Falha ao carregar versão: ${event.nomeVersao}'));
     }
   }
 }

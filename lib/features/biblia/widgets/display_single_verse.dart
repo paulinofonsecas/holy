@@ -31,7 +31,10 @@ class DisplaySingleVerse extends StatelessWidget {
 
             Color? backgroundColor;
             if (isSelected) {
-              backgroundColor = Theme.of(context).colorScheme.primaryContainer;
+              backgroundColor = Theme.of(context)
+                  .colorScheme
+                  .primaryContainer
+                  .withValues(alpha: 0.2);
             } else if (highlightState is HighlightsLoaded) {
               final highlight = highlightState.highlights[verseRef];
               if (highlight != null) {

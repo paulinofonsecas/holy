@@ -1,5 +1,6 @@
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/widgets/tela_de_leitura.dart';
+import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/widgets/selection_toolbar.dart';
@@ -37,6 +38,12 @@ class BibliaPage extends StatelessWidget {
         BlocProvider(
           create: (context) => VerseSelectionBloc(),
         ),
+        BlocProvider(
+          create: (context) => SearchBloc(
+            context.read(),
+            idVersao: context.read<BibleVersionCubit>().state.version.id,
+          ),
+        ),
       ],
       child: SafeArea(child: BibliaView()),
     );
@@ -50,11 +57,15 @@ class BibliaView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<BibleVersionCubit, BibleVersionState>(
       listener: (context, state) {
-        final bibleVersion = context.read<BibleVersionCubit>().state.version;
+        final bibleVersion = state.version;
 
-        context
-            .read<BibliaBloc>()
-            .add(GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'));
+        context.read<BibliaBloc>().add(
+              GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
+            );
+
+        context.read<SearchBloc>().add(
+              CarregarVersao(idVersao: bibleVersion.id),
+            );
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,

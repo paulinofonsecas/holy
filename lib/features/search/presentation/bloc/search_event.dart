@@ -27,13 +27,21 @@ class LimparBusca extends EventoBusca {}
 
 class CarregarVersao extends EventoBusca {
   final String idVersao;
-  final String nomeVersao;
+  final String? nomeVersao;
 
   const CarregarVersao({
     required this.idVersao,
-    required this.nomeVersao,
+    this.nomeVersao,
   });
 
   @override
   List<Object?> get props => [idVersao, nomeVersao];
+}
+
+class AtualizarScrollBusca extends EventoBusca {
+  final double offset;
+  const AtualizarScrollBusca(this.offset);
+
+  @override
+  List<Object?> get props => [offset];
 }

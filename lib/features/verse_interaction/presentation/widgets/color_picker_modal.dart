@@ -88,7 +88,7 @@ class ColorPickerModal extends StatelessWidget {
             const Divider(),
           ],
           ListTile(
-            leading: const Icon(Icons.format_color_reset),
+            leading: const Icon(Icons.remove_circle_outline),
             title: const Text('Remover Destaque'),
             onTap: () {
               onRemoveHighlight();

@@ -14,18 +14,40 @@ class TelaBusca extends StatefulWidget {
 
 class _TelaBuscaState extends State<TelaBusca> {
   final TextEditingController _controladorBusca = TextEditingController();
+  final ScrollController _controladorScroll = ScrollController();
   final LoggerService _registrador = LoggerService();
 
   @override
   void initState() {
     super.initState();
     _registrador.info('🎬 TelaBusca inicializada');
+    final searchBloc = context.read<SearchBloc>();
+    _controladorBusca.text = searchBloc.termoAtual;
+
+    // Restaurar scroll após o primeiro frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_controladorScroll.hasClients && searchBloc.scrollOffset > 0) {
+        _controladorScroll.jumpTo(searchBloc.scrollOffset);
+      }
+    });
+
+    _controladorScroll.addListener(_aoMudarScroll);
+  }
+
+  void _aoMudarScroll() {
+    if (_controladorScroll.hasClients) {
+      context
+          .read<SearchBloc>()
+          .add(AtualizarScrollBusca(_controladorScroll.offset));
+    }
   }
 
   @override
   void dispose() {
     _registrador.debug('🧹 TelaBusca descartada');
+    _controladorScroll.removeListener(_aoMudarScroll);
     _controladorBusca.dispose();
+    _controladorScroll.dispose();
     super.dispose();
   }
 
@@ -34,6 +56,18 @@ class _TelaBuscaState extends State<TelaBusca> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Buscar Versículos'),
+        actions: [
+          if (_controladorBusca.text.isNotEmpty)
+            IconButton(
+              tooltip: 'Limpar busca',
+              icon: const Icon(Icons.delete_sweep_outlined),
+              onPressed: () {
+                _controladorBusca.clear();
+                context.read<SearchBloc>().add(LimparBusca());
+                setState(() {});
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [
@@ -135,6 +169,7 @@ class _TelaBuscaState extends State<TelaBusca> {
 
                 return Expanded(
                   child: CustomScrollView(
+                    controller: _controladorScroll,
                     slivers: [
                       if (estado.correspondenciasLivros.isNotEmpty) ...[
                         const SliverToBoxAdapter(
