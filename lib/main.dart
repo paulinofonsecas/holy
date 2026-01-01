@@ -39,6 +39,7 @@ void main() async {
   final dbHelper = DatabaseHelper();
   final db = await dbHelper.database;
   final searchProvider = SqlBibleSearchProvider(db);
+  final cacheProvider = BibleCacheProvider(db);
 
   runApp(
     MultiRepositoryProvider(
@@ -47,7 +48,10 @@ void main() async {
           create: (context) => Dio(),
         ),
         RepositoryProvider<IBibleProvider>(
-          create: (context) => GithubBibleProvider(context.read()),
+          create: (context) => GithubBibleProvider(
+            context.read(),
+            cacheProvider,
+          ),
         ),
         RepositoryProvider<IBibleRepository>(
           create: (context) => BibleRepository(context.read()),
