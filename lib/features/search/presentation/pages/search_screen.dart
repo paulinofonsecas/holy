@@ -135,14 +135,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   backgroundColor: Colors.yellow,
                                 ),
                               ),
-                              trailing: state.searchAllVersions
-                                  ? Text(
-                                      result.book.version,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall,
-                                    )
-                                  : null,
+                              // version label could be added here with additional context
                               onTap: () {
                                 // Navigate to verse
                                 Navigator.pop(context, result);

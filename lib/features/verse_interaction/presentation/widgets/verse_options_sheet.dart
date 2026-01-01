@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/services/share_service.dart';
 
 class VerseOptionsSheet extends StatefulWidget {
   final String verseRef;

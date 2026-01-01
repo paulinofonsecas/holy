@@ -11,6 +11,8 @@ class SearchInitial extends SearchState {}
 
 class SearchLoading extends SearchState {}
 
+class SearchMinQueryLength extends SearchState {}
+
 class SearchLoaded extends SearchState {
   final SearchResults results;
   final String query;

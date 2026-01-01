@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../data/repositories/category_repository.dart';
-import '../domain/models/category.dart';
+import '../../data/repositories/category_repository.dart';
+import '../../domain/models/category.dart';
 
 class CategoriesScreen extends StatefulWidget {
   final CategoryRepository categoryRepository;
