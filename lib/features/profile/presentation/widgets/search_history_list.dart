@@ -35,8 +35,7 @@ class SearchHistoryList extends StatelessWidget {
           if (state.history.isEmpty) {
             return Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(
-                  l10n?.noSearchHistory ?? 'Your search history is empty.'),
+              child: Text(l10n.noSearchHistory),
             );
           }
 
