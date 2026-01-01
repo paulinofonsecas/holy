@@ -16,20 +16,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DotEnv().load(fileName: ".env", mergeWith: {
     'version': '0.1.0',
   });
-  if (Platform.isWindows ||
-      Platform.isLinux ||
-      Platform.isMacOS ||
-      Platform.isAndroid) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
+  // Android uses native SQLite implementation via sqflite
+  // FFI initialization not needed for Android-only app
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
