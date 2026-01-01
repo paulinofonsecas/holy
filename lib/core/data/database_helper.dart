@@ -80,7 +80,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE VIRTUAL TABLE verses_fts USING fts5(
+      CREATE VIRTUAL TABLE verses_fts USING fts4(
         version_id,
         book_id,
         chapter,

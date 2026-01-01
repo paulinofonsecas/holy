@@ -53,6 +53,8 @@ dependencies:
   #   path: "../../dart/my_packages/net_bible_service"
   flutter_smartdio: ^1.0.4
   wolt_modal_sheet: ^0.11.0
+  sqflite_common_ffi: ^2.3.6
+  sqlite3_flutter_libs: ^0.5.41
 
 dev_dependencies:
   flutter_test:
