@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../data/repositories/category_repository.dart';
 import '../../domain/models/category.dart';
 
@@ -91,7 +92,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.category_outlined, size: 64, color: Colors.grey),
+                  const Icon(Icons.category_outlined,
+                      size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
                   const Text(
                     'No categories yet',
@@ -116,7 +118,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () async {
-                    await widget.categoryRepository.deleteCategory(category.id!);
+                    await widget.categoryRepository
+                        .deleteCategory(category.id!);
                     _refresh();
                   },
                 ),

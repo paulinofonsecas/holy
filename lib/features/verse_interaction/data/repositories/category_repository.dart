@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../../domain/models/category.dart';
 
 class CategoryRepository {
