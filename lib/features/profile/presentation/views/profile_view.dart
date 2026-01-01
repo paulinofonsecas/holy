@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
-import '../../../biblia/bloc/biblia_bloc.dart';
 import '../bloc/marked_verses_bloc.dart';
-import '../widgets/marked_verse_item.dart';
-import '../widgets/search_history_list.dart';
-import '../widgets/theme_color_picker.dart';
+import '../pages/marked_verses_list_page.dart';
+import '../pages/search_history_page.dart';
+import '../pages/theme_settings_page.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -27,90 +26,92 @@ class ProfileView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 16),
           children: [
-            _buildSectionHeader(context, l10n.markedVersesTitle),
-            const _MarkedVersesList(),
-            const Divider(height: 32),
-            _buildSectionHeader(context, l10n.themeColorTitle),
-            const ThemeColorPicker(),
-            const Divider(height: 32),
-            _buildSectionHeader(context, l10n.searchHistoryTitle),
-            const SearchHistoryList(),
+            _buildProfileOption(
+              context,
+              icon: Icons.bookmark,
+              title: l10n.markedVersesTitle,
+              subtitle: 'Ver todos os versículos marcados',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MarkedVersesListPage(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildProfileOption(
+              context,
+              icon: Icons.palette,
+              title: l10n.themeColorTitle,
+              subtitle: 'Personalizar cores e tema',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ThemeSettingsPage(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildProfileOption(
+              context,
+              icon: Icons.history,
+              title: l10n.searchHistoryTitle,
+              subtitle: 'Ver histórico de pesquisas',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SearchHistoryPage(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+  Widget _buildProfileOption(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        ),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: onTap,
       ),
-    );
-  }
-}
-
-class _MarkedVersesList extends StatelessWidget {
-  const _MarkedVersesList();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<MarkedVersesBloc, MarkedVersesState>(
-      builder: (context, state) {
-        if (state is MarkedVersesLoading) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        if (state is MarkedVersesError) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(state.message),
-            ),
-          );
-        }
-
-        if (state is MarkedVersesLoaded) {
-          if (state.markedVerses.isEmpty) {
-            return const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text('Nenhum versículo marcado ainda.'),
-            );
-          }
-
-          return Column(
-            children: state.markedVerses.take(3).map((verse) {
-              return MarkedVerseItem(
-                markedVerse: verse,
-                onTap: () {
-                  // Navigate to bible view at this verse
-                  Navigator.pop(context); // Pop back to biblia view
-                  context.read<BibliaBloc>().add(
-                        GetChapter(
-                          verse.versionId,
-                          verse.bookId,
-                          verse.chapter.toString(),
-                          verse: verse.verse,
-                        ),
-                      );
-                },
-              );
-            }).toList(),
-          );
-        }
-
-        return const SizedBox.shrink();
-      },
     );
   }
 }

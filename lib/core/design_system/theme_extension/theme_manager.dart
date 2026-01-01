@@ -12,7 +12,14 @@ enum ThemeModeEnum {
 
   /// Convert ThemeModeEnum to Flutter's ThemeMode
   ThemeMode toThemeMode() {
-    return ThemeMode.light;
+    switch (this) {
+      case ThemeModeEnum.light:
+        return ThemeMode.light;
+      case ThemeModeEnum.dark:
+        return ThemeMode.dark;
+      case ThemeModeEnum.system:
+        return ThemeMode.system;
+    }
   }
 
   /// Get the string name of the theme mode
