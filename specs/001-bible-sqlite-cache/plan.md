@@ -69,7 +69,6 @@ lib/
 
 **Structure Decision**: The core logic will reside in `packages/bible_handler` to comply with the project constitution. The main app will be updated to use the new cache-aware repository and provider.
 
-
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**

@@ -22,5 +22,14 @@
   "sendTestNotification": "Enviar notificação de teste",
   "deviceToken": "Token do dispositivo",
   "loading": "Carregando...",
-  "notAvailable": "Não disponível"
+  "notAvailable": "Não disponível",
+  "profile": "Perfil",
+  "markedVerses": "Versículos Marcados",
+  "searchHistory": "Histórico de Pesquisas",
+  "clearHistory": "Limpar Histórico",
+  "themeColor": "Cor do Tema",
+  "themeColorTitle": "Cor do Tema",
+  "searchHistoryTitle": "Histórico de Pesquisa",
+  "noMarkedVerses": "Você ainda não marcou nenhum versículo.",
+  "noSearchHistory": "Seu histórico de pesquisas está vazio."
 }

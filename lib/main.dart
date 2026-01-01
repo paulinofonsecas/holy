@@ -7,6 +7,12 @@ import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
 import 'package:eu_sou/core/data/repositories/bibleRepository.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
+import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
+import 'package:eu_sou/features/profile/data/repositories/profile_repository.dart';
+import 'package:eu_sou/features/profile/data/repositories/search_history_repository.dart';
+import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
+import 'package:eu_sou/features/profile/domain/repositories/i_profile_repository.dart';
+import 'package:eu_sou/features/profile/domain/repositories/i_search_history_repository.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
 import 'package:eu_sou/firebase_options.dart';
@@ -62,6 +68,18 @@ void main() async {
         ),
         RepositoryProvider(
           create: (context) => HighlightRepository(db),
+        ),
+        RepositoryProvider<VerseInteractionProvider>(
+          create: (context) => SqlVerseInteractionProvider(db),
+        ),
+        RepositoryProvider<ISearchHistoryRepository>(
+          create: (context) => SearchHistoryRepository(db),
+        ),
+        RepositoryProvider<IMarkedVersesRepository>(
+          create: (context) => MarkedVersesRepository(db),
+        ),
+        RepositoryProvider<IProfileRepository>(
+          create: (context) => ProfileRepository(),
         ),
       ],
       child: App(),

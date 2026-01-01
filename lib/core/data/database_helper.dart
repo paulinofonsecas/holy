@@ -31,7 +31,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -40,6 +40,15 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE versions ADD COLUMN lng TEXT');
+    }
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE search_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          query TEXT NOT NULL,
+          timestamp INTEGER NOT NULL
+        )
+      ''');
     }
   }
 
@@ -93,6 +102,14 @@ class DatabaseHelper {
         PRIMARY KEY (marked_verse_id, category_id),
         FOREIGN KEY (marked_verse_id) REFERENCES marked_verses (id) ON DELETE CASCADE,
         FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE search_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        query TEXT NOT NULL,
+        timestamp INTEGER NOT NULL
       )
     ''');
 

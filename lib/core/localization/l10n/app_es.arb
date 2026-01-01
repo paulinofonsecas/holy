@@ -17,10 +17,19 @@
   "systemMode": "Modo del Sistema",
   "notifications": "Notificaciones",
   "notificationSent": "Notificación enviada",
-  "enableNotifications": "Activar Notificaciones",
+  "enableNotifications": "Ativar Notificaciones",
   "receiveNotifications": "Recibir notificaciones push",
   "sendTestNotification": "Enviar Notificación de Prueba",
   "deviceToken": "Token del Dispositivo",
   "loading": "Cargando...",
-  "notAvailable": "No disponible"
+  "notAvailable": "No disponible",
+  "profile": "Perfil",
+  "markedVerses": "Versículos Marcados",
+  "searchHistory": "Historial de Búsquedas",
+  "clearHistory": "Limpiar Historial",
+  "themeColor": "Color del Tema",
+  "themeColorTitle": "Color del Tema",
+  "searchHistoryTitle": "Historial de Búsqueda",
+  "noMarkedVerses": "Aún no has marcado ningún versículo.",
+  "noSearchHistory": "Tu historial de búsquedas está vacío."
 }

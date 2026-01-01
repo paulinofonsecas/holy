@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../features/profile/domain/repositories/i_profile_repository.dart';
+
 /// Enum representing different theme modes
 enum ThemeModeEnum {
   light,
@@ -91,27 +93,62 @@ final themeManager = ThemeManager();
 /// Bloc implementation for theme management
 class ThemeState {
   final ThemeModeEnum themeMode;
+  final Color accentColor;
 
-  ThemeState(this.themeMode);
+  ThemeState(this.themeMode, {this.accentColor = const Color(0xFF78350F)});
+
+  ThemeState copyWith({
+    ThemeModeEnum? themeMode,
+    Color? accentColor,
+  }) {
+    return ThemeState(
+      themeMode ?? this.themeMode,
+      accentColor: accentColor ?? this.accentColor,
+    );
+  }
 }
 
 class ThemeCubit extends Cubit<ThemeState> {
-  ThemeCubit() : super(ThemeState(ThemeModeEnum.system)) {
-    // Initialize from shared preferences
-    themeManager.initialize().then((_) {
-      emit(ThemeState(themeManager.currentTheme));
-    });
+  final IProfileRepository? _profileRepository;
 
-    // Add listener for theme changes
+  ThemeCubit([this._profileRepository])
+      : super(ThemeState(ThemeModeEnum.system)) {
+    _initialize();
     themeManager.addListener(_onThemeChanged);
+  }
+
+  Future<void> _initialize() async {
+    await themeManager.initialize();
+
+    Color accentColor = state.accentColor;
+    if (_profileRepository != null) {
+      final colorHex = await _profileRepository.getAccentColor();
+      if (colorHex != null) {
+        accentColor = Color(int.parse(colorHex, radix: 16));
+      }
+    }
+
+    emit(state.copyWith(
+      themeMode: themeManager.currentTheme,
+      accentColor: accentColor,
+    ));
   }
 
   void setTheme(ThemeModeEnum theme) {
     themeManager.setTheme(theme);
+    emit(state.copyWith(themeMode: theme));
   }
 
   void _onThemeChanged(ThemeModeEnum theme) {
-    emit(ThemeState(theme));
+    emit(state.copyWith(themeMode: theme));
+  }
+
+  Future<void> setAccentColor(Color color) async {
+    if (_profileRepository != null) {
+      final colorHex = color.value.toRadixString(16).padLeft(8, '0');
+      await _profileRepository.setAccentColor(colorHex);
+    }
+    emit(state.copyWith(accentColor: color));
   }
 
   @override

@@ -92,4 +92,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notAvailable => 'Not available';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get markedVerses => 'Marked Verses';
+
+  @override
+  String get markedVersesTitle => 'Marked Verses';
+
+  @override
+  String get searchHistory => 'Search History';
+
+  @override
+  String get clearHistory => 'Clear History';
+
+  @override
+  String get themeColor => 'Theme Color';
+
+  @override
+  String get themeColorTitle => 'Theme Color';
+
+  @override
+  String get searchHistoryTitle => 'Search History';
+
+  @override
+  String get noMarkedVerses => 'You haven\'t marked any verses yet.';
+
+  @override
+  String get noSearchHistory => 'Your search history is empty.';
 }

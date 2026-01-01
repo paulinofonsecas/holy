@@ -13,20 +13,20 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create feature directory structure in lib/features/profile/
-- [ ] T002 [P] Add profile-related localization strings in lib/core/localization/l10n/app_pt.arb, app_en.arb, and app_es.arb
+- [X] T001 [P] Create feature directory structure in lib/features/profile/
+- [X] T002 [P] Add profile-related localization strings in lib/core/localization/l10n/app_pt.arb, app_en.arb, and app_es.arb
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T003 Update DatabaseHelper to include search_history table in lib/core/data/database_helper.dart
-- [ ] T004 [P] Implement SearchHistory model in lib/features/profile/data/models/search_history_model.dart
-- [ ] T005 [P] Define ISearchHistoryRepository interface in lib/features/profile/domain/repositories/i_search_history_repository.dart
-- [ ] T006 Implement SearchHistoryRepository in lib/features/profile/data/repositories/search_history_repository.dart
-- [ ] T007 [P] Define IProfileRepository interface in lib/features/profile/domain/repositories/i_profile_repository.dart
-- [ ] T008 Implement ProfileRepository (SharedPreferences) in lib/features/profile/data/repositories/profile_repository.dart
-- [ ] T009 Register new repositories in lib/main.dart MultiRepositoryProvider
+- [X] T003 Update DatabaseHelper to include search_history table in lib/core/data/database_helper.dart
+- [X] T004 [P] Implement SearchHistory model in lib/features/profile/data/models/search_history_model.dart
+- [X] T005 [P] Define ISearchHistoryRepository interface in lib/features/profile/domain/repositories/i_search_history_repository.dart
+- [X] T006 Implement SearchHistoryRepository in lib/features/profile/data/repositories/search_history_repository.dart
+- [X] T007 [P] Define IProfileRepository interface in lib/features/profile/domain/repositories/i_profile_repository.dart
+- [X] T008 Implement ProfileRepository (SharedPreferences) in lib/features/profile/data/repositories/profile_repository.dart
+- [X] T009 Register new repositories in lib/main.dart MultiRepositoryProvider
 
 ## Phase 3: User Story 1 - Access and View Marked Verses (Priority: P1) 🎯 MVP
 
@@ -36,7 +36,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Create MarkedVersesBloc to handle loading marked verses in lib/features/profile/presentation/bloc/marked_verses_bloc.dart
+- [X] T010 [P] [US1] Create MarkedVersesBloc to handle loading marked verses in lib/features/profile/presentation/bloc/marked_verses_bloc.dart
 - [ ] T011 [P] [US1] Create MarkedVerseItem widget in lib/features/profile/presentation/widgets/marked_verse_item.dart
 - [ ] T012 [US1] Implement ProfileView with "Marked Verses" section in lib/features/profile/presentation/views/profile_view.dart
 - [ ] T013 [US1] Implement navigation from MarkedVerseItem to BibliaPage in lib/features/profile/presentation/widgets/marked_verse_item.dart

@@ -92,4 +92,37 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get notAvailable => 'Não disponível';
+
+  @override
+  String get profile => 'Perfil';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get markedVerses => 'Versículos Marcados';
+
+  @override
+  String get markedVersesTitle => 'Marked Verses';
+
+  @override
+  String get searchHistory => 'Histórico de Pesquisas';
+
+  @override
+  String get clearHistory => 'Limpar Histórico';
+
+  @override
+  String get themeColor => 'Cor do Tema';
+
+  @override
+  String get themeColorTitle => 'Cor do Tema';
+
+  @override
+  String get searchHistoryTitle => 'Histórico de Pesquisa';
+
+  @override
+  String get noMarkedVerses => 'Você ainda não marcou nenhum versículo.';
+
+  @override
+  String get noSearchHistory => 'Seu histórico de pesquisas está vazio.';
 }
