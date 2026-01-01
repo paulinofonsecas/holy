@@ -1,12 +1,8 @@
 import 'package:bible_handler/bible_handler.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:test/test.dart';
 
 void main() {
-  // Initialize sqflite for ffi
-  sqfliteFfiInit();
-  databaseFactory = databaseFactoryFfi;
-
   group('BibleCacheProvider, BibleMemoryLoader & BibleSearchProvider Tests', () {
     late Database db;
     late BibleCacheProvider cacheProvider;
@@ -14,17 +10,21 @@ void main() {
     late SqlBibleSearchProvider searchProvider;
 
     setUp(() async {
-      db = await openDatabase(inMemoryDatabasePath);
-
-      // Create schema
-      await db.execute(
-        'CREATE TABLE versions (id TEXT PRIMARY KEY, name TEXT, last_cached INTEGER)',
-      );
-      await db.execute(
-        'CREATE TABLE books (version_id TEXT, id TEXT, name TEXT, long_name TEXT, abbreviation TEXT, PRIMARY KEY (version_id, id))',
-      );
-      await db.execute(
-        'CREATE VIRTUAL TABLE verses_fts USING fts5(version_id, book_id, chapter, verse, text)',
+      db = await openDatabase(
+        ':memory:',
+        version: 1,
+        onCreate: (db, version) async {
+          // Create schema
+          await db.execute(
+            'CREATE TABLE versions (id TEXT PRIMARY KEY, name TEXT, last_cached INTEGER)',
+          );
+          await db.execute(
+            'CREATE TABLE books (version_id TEXT, id TEXT, name TEXT, long_name TEXT, abbreviation TEXT, PRIMARY KEY (version_id, id))',
+          );
+          await db.execute(
+            'CREATE VIRTUAL TABLE verses_fts USING fts5(version_id, book_id, chapter, verse, text)',
+          );
+        },
       );
 
       cacheProvider = BibleCacheProvider(db);

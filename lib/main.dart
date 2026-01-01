@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/app/app.dart';

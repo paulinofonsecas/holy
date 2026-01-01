@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,9 +14,17 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final LoggerService _logger = LoggerService();
+
+  @override
+  void initState() {
+    super.initState();
+    _logger.info('🎬 SearchScreen initialized');
+  }
 
   @override
   void dispose() {
+    _logger.debug('🧹 SearchScreen disposed');
     _searchController.dispose();
     super.dispose();
   }

@@ -3,16 +3,23 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../services/logger_service.dart';
+
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   static Database? _database;
+  final LoggerService _logger = LoggerService();
 
   factory DatabaseHelper() => _instance;
 
   DatabaseHelper._internal();
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
+    if (_database != null) {
+      _logger.debug('📦 Using existing database connection');
+      return _database!;
+    }
+    _logger.info('🗄️ Initializing database...');
     _database = await _initDatabase();
     return _database!;
   }
@@ -20,6 +27,7 @@ class DatabaseHelper {
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'holy_bible.db');
+    _logger.info('📁 Database path: $path');
 
     return await openDatabase(
       path,
@@ -29,6 +37,7 @@ class DatabaseHelper {
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    _logger.info('🏗️ Creating database tables...');
     await db.execute('''
       CREATE TABLE versions (
         id TEXT PRIMARY KEY,
@@ -79,6 +88,7 @@ class DatabaseHelper {
       )
     ''');
 
+    _logger.info('📑 Creating FTS4 virtual table for full-text search...');
     await db.execute('''
       CREATE VIRTUAL TABLE verses_fts USING fts4(
         version_id,
@@ -89,9 +99,11 @@ class DatabaseHelper {
         tokenize='unicode61'
       )
     ''');
+    _logger.info('✅ FTS4 virtual table created successfully');
   }
 
   Future<void> close() async {
+    _logger.info('🔌 Closing database connection...');
     final db = _database;
     if (db != null) {
       await db.close();
