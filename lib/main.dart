@@ -8,6 +8,7 @@ import 'package:eu_sou/core/data/repositories/bibleRepository.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
+import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
 import 'package:eu_sou/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,9 @@ void main() async {
         ),
         RepositoryProvider(
           create: (context) => RepositorioBusca(searchProvider),
+        ),
+        RepositoryProvider(
+          create: (context) => HighlightRepository(db),
         ),
       ],
       child: App(),

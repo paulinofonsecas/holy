@@ -1,30 +1,39 @@
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/widgets/tela_de_leitura.dart';
+import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
+import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
-
-import '../widgets/biblia_app_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:flutter/material.dart';
-import 'package:eu_sou/shared/bible_models.dart';
 
 import '../bloc/biblia_bloc.dart';
+import '../widgets/biblia_app_bar.dart';
 
 class BibliaPage extends StatelessWidget {
   const BibliaPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bibleVersion = context.read<BibleVersionCubit>().state.version;
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) {
+            final bibleVersion =
+                context.read<BibleVersionCubit>().state.version;
 
-        return BibliaBloc(context.read())
-          ..add(
-            GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-          );
-      },
-      child: BibliaView(),
+            return BibliaBloc(context.read())
+              ..add(
+                GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
+              );
+          },
+        ),
+        BlocProvider(
+          create: (context) =>
+              HighlightBloc(context.read())..add(LoadHighlights()),
+        ),
+      ],
+      child: SafeArea(child: BibliaView()),
     );
   }
 }

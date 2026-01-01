@@ -91,28 +91,33 @@
 
 ## Phase 7: User Story 4 - Verse Marking & Highlighting (Priority: P2)
 
-**Goal**: Allow users to highlight verses in the reader.
+**Goal**: Allow users to highlight verses in the reader with background colors.
 
-**Independent Test**: Long-press a verse, select a color, and see it highlighted.
+**Independent Test**: Long-press a verse, select a color from the modal, and see the verse background change.
 
 ### Implementation for User Story 4
 
-- [ ] T019 Create `HighlightRepository` in `lib/features/verse_interaction/data/highlight_repository.dart`
-- [ ] T020 Implement highlight selection overlay in `lib/features/verse_interaction/presentation/widgets/highlight_picker.dart`
-- [ ] T021 [US4] Integrate highlight picker into the Bible reader screen in `lib/features/biblia/pages/biblia_page.dart`
+- [x] T019 Create `HighlightRepository` in `lib/features/verse_interaction/data/repositories/highlight_repository.dart`
+- [x] T020 [US4] Implement `HighlightBloc` to manage highlight states in `lib/features/verse_interaction/presentation/bloc/highlight_bloc.dart`
+- [x] T021 [US4] Create `ColorPickerModal` for selecting background colors in `lib/features/verse_interaction/presentation/widgets/color_picker_modal.dart`
+- [x] T022 [US4] Update `DisplaySingleVerse` to handle long press and show `ColorPickerModal` in `lib/features/biblia/widgets/display_single_verse.dart`
+- [x] T023 [US4] Update `DisplaySingleVerse` to display background color based on highlight state in `lib/features/biblia/widgets/display_single_verse.dart`
 
 ---
 
-## Phase 8: User Story 5 - Sharing Verses (Priority: P3)
+## Phase 8: User Story 5 - Sharing & Multi-Verse Selection (Priority: P3)
 
-**Goal**: Share verses with other apps.
+**Goal**: Select multiple verses and share them with other apps.
 
-**Independent Test**: Tap "Share" on a verse and see the system share sheet.
+**Independent Test**: Long-press a verse to enter selection mode, select another verse, tap "Share", and see the system share sheet with both verses.
 
 ### Implementation for User Story 5
 
-- [ ] T022 Implement `ShareService` using `share_plus` in `lib/core/services/share_service.dart`
-- [ ] T023 [US5] Add share button to verse selection menu in `lib/features/verse_interaction/presentation/widgets/verse_options_sheet.dart`
+- [ ] T031 [US5] Implement `VerseSelectionBloc` to manage multi-verse selection in `lib/features/verse_interaction/presentation/bloc/selection_bloc.dart`
+- [ ] T032 [US5] Update `DisplaySingleVerse` to support selection state and tap-to-select in `lib/features/biblia/widgets/display_single_verse.dart`
+- [ ] T033 [US5] Create `SelectionToolbar` to show actions (Highlight, Share) when verses are selected in `lib/features/verse_interaction/presentation/widgets/selection_toolbar.dart`
+- [ ] T034 [US5] Implement `ShareService` to format and share single/multiple verses in `lib/core/services/share_service.dart`
+- [ ] T035 [US5] Integrate `ShareService` into `SelectionToolbar` and `ColorPickerModal` in `lib/features/verse_interaction/presentation/widgets/selection_toolbar.dart`
 
 ---
 

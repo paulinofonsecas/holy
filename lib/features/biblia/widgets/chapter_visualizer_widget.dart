@@ -22,6 +22,7 @@ class ChapterVisualizerWidget extends StatelessWidget {
           return DisplaySingleVerse(
             key: verseKeys[verse.number] ?? Key("${verse.number}"),
             verse: verse,
+            chapter: chapter,
           );
         }).toList(),
       ),
