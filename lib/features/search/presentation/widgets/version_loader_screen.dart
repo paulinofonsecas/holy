@@ -144,7 +144,7 @@ class _VersionLoaderScreenState extends State<VersionLoaderScreen>
                       final animationValue =
                           (_animationController.value + delay) % 1.0;
                       final scale =
-                          0.5 + (animationValue * 0.5).abs().sin() * 0.5;
+                          0.5 + (animationValue * 0.5).abs().sign * 0.5;
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
