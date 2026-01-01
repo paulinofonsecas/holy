@@ -10,6 +10,9 @@ abstract class BibleSearchProvider {
 
   /// Searches for verses containing the given [query] across all available versions.
   Future<SearchResults> searchAllVersions({required String query});
+
+  /// Searches for books whose name, long name, or abbreviation matches the [query].
+  Future<List<Book>> matchBooks({required String query, String? versionId});
 }
 
 /// Interface for verse interaction functionality (marking, sharing, categories).

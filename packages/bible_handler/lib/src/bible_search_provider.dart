@@ -1,4 +1,4 @@
-import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'interfaces.dart';
 import 'models.dart';
@@ -20,42 +20,28 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
       // We escape the query to prevent SQL injection and handle special characters
       final escapedQuery = query.replaceAll("'", "''");
 
-      String sql = 'SELECT * FROM verses_fts WHERE text MATCH ?';
+      String sql = '''
+        SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation
+        FROM verses_fts v
+        JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
+        WHERE v.text MATCH ?
+      ''';
       List<dynamic> args = [escapedQuery];
 
       if (versionId != null) {
-        sql += ' AND version_id = ?';
+        sql += ' AND v.version_id = ?';
         args.add(versionId);
       }
-
-      print(await db.query('books'));
 
       final results = await db.rawQuery(sql, args);
 
       final searchResults = <SearchResult>[];
       for (final row in results) {
-        // Note: We don't have full Book/Chapter objects here,
-        // so we might need to fetch them or return a simplified SearchResult.
-        // The current SearchResult model requires Book and Chapter objects.
-
-        // For now, we'll create "stub" objects or we might need to join with the books table.
-        final bookId = row['book_id'] as String;
-
-        // Fetch book info
-        final bookRows = await db.query(
-          'books',
-          where: 'version_id = ? AND id = ?',
-          whereArgs: [row['version_id'], bookId],
-        );
-
-        if (bookRows.isEmpty) continue;
-        final bookData = bookRows.first;
-
         final book = Book(
-          id: bookId,
-          name: bookData['name'] as String,
-          longName: bookData['long_name'] as String,
-          abbreviation: bookData['abbreviation'] as String,
+          id: row['book_id'] as String,
+          name: row['book_name'] as String,
+          longName: row['book_long_name'] as String,
+          abbreviation: row['book_abbreviation'] as String,
           chapters: [], // Not needed for search result
         );
 
@@ -107,5 +93,69 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
   @override
   Future<SearchResults> searchAllVersions({required String query}) async {
     return search(query: query); // versionId is null, so it searches all
+  }
+
+  @override
+  Future<List<Book>> matchBooks({
+    required String query,
+    String? versionId,
+  }) async {
+    try {
+      // Fetch all books for the version (or all if versionId is null)
+      // Filtering in memory to handle accents/diacritics correctly
+      String sql = 'SELECT * FROM books';
+      List<dynamic> args = [];
+
+      if (versionId != null) {
+        sql += ' WHERE version_id = ? COLLATE NOCASE OR version_id LIKE ?';
+        args.add(versionId);
+        args.add('%$versionId%');
+      }
+
+      final results = await db.rawQuery(sql, args);
+      // ignore: avoid_print
+      print(
+        'Match books query returned ${results.length} rows for version $versionId. Query: "$query"',
+      );
+
+      final normalizedQuery = _removeDiacritics(query).toLowerCase().trim();
+      if (normalizedQuery.isEmpty) return [];
+
+      return results
+          .map(
+            (row) => Book(
+              id: row['id'] as String,
+              name: (row['name'] as String).trim(),
+              longName: (row['long_name'] as String).trim(),
+              abbreviation: (row['abbreviation'] as String).trim(),
+              chapters: [],
+            ),
+          )
+          .where((book) {
+            final name = _removeDiacritics(book.name).toLowerCase();
+            final longName = _removeDiacritics(book.longName).toLowerCase();
+            final abbr = _removeDiacritics(book.abbreviation).toLowerCase();
+
+            return name.contains(normalizedQuery) ||
+                longName.contains(normalizedQuery) ||
+                abbr.contains(normalizedQuery);
+          })
+          .toList();
+    } catch (e) {
+      // ignore: avoid_print
+      print('Match books for "$query" failed: $e');
+      return [];
+    }
+  }
+
+  String _removeDiacritics(String str) {
+    var withDia =
+        'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
+    var withoutDia =
+        'AAAAAAaaaaaaOOOOOOOoooooooEEEEeeeeecCdIIIIiiiiUUUUuuuuNnSsYyyZz';
+    for (int i = 0; i < withDia.length; i++) {
+      str = str.replaceAll(withDia[i], withoutDia[i]);
+    }
+    return str;
   }
 }

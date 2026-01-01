@@ -1,11 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
-import 'package:meta/meta.dart';
 import 'package:eu_sou/shared/bible_models.dart';
+import 'package:meta/meta.dart';
 
 part 'biblia_event.dart';
-
 part 'biblia_state.dart';
 
 class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
@@ -23,22 +22,31 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       return;
     }
 
+    // Se já estiver carregado o mesmo capítulo, apenas atualizamos o versículo alvo se necessário
+    if (state is BibleChapterLoaded) {
+      final currentState = state as BibleChapterLoaded;
+      if (currentState.chapter.number == event.chapter &&
+          currentState.chapter.bookId == event.book) {
+        // Se o versículo alvo for diferente, emitimos o novo estado para disparar o scroll
+        if (currentState.targetVerse != event.verse) {
+          emit(BibleChapterLoaded(currentState.chapter,
+              targetVerse: event.verse));
+        }
+        return;
+      }
+    }
+
     if (state is BibliaLoading) return;
     emit(BibliaLoading());
 
     try {
-      if (state is BibleChapterLoaded &&
-          (state as BibleChapterLoaded).chapter.number == event.chapter) {
-        return;
-      }
-
       final result = await _bibleReposity.getChapter(
         event.version,
         event.book,
         event.chapter,
       );
 
-      emit(BibleChapterLoaded(result));
+      emit(BibleChapterLoaded(result, targetVerse: event.verse));
     } catch (e) {
       emit(state);
       emit(BibleError(e.toString()));

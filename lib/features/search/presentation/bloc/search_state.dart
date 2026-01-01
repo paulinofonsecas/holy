@@ -1,46 +1,49 @@
 part of 'search_bloc.dart';
 
-abstract class SearchState extends Equatable {
-  const SearchState();
+abstract class EstadoBusca extends Equatable {
+  const EstadoBusca();
 
   @override
   List<Object?> get props => [];
 }
 
-class SearchInitial extends SearchState {}
+class BuscaInicial extends EstadoBusca {}
 
-class SearchLoading extends SearchState {}
+class BuscaCarregando extends EstadoBusca {}
 
-class SearchMinQueryLength extends SearchState {}
+class BuscaTermoCurto extends EstadoBusca {}
 
-class VersionLoading extends SearchState {
-  final String versionName;
+class VersaoCarregando extends EstadoBusca {
+  final String nomeVersao;
 
-  const VersionLoading({required this.versionName});
+  const VersaoCarregando({required this.nomeVersao});
 
   @override
-  List<Object?> get props => [versionName];
+  List<Object?> get props => [nomeVersao];
 }
 
-class SearchLoaded extends SearchState {
-  final SearchResults results;
-  final String query;
-  final bool searchAllVersions;
+class BuscaCarregada extends EstadoBusca {
+  final SearchResults resultados;
+  final List<Book> correspondenciasLivros;
+  final String termo;
+  final bool buscarTodasVersoes;
 
-  const SearchLoaded({
-    required this.results,
-    required this.query,
-    required this.searchAllVersions,
+  const BuscaCarregada({
+    required this.resultados,
+    this.correspondenciasLivros = const [],
+    required this.termo,
+    required this.buscarTodasVersoes,
   });
 
   @override
-  List<Object?> get props => [results, query, searchAllVersions];
+  List<Object?> get props =>
+      [resultados, correspondenciasLivros, termo, buscarTodasVersoes];
 }
 
-class SearchError extends SearchState {
-  final String message;
-  const SearchError(this.message);
+class BuscaErro extends EstadoBusca {
+  final String mensagem;
+  const BuscaErro(this.mensagem);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [mensagem];
 }

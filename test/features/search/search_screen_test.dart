@@ -1,17 +1,17 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
-import 'package:eu_sou/features/search/data/search_repository.dart';
+import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
-import 'package:eu_sou/features/search/presentation/search_screen.dart';
+import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockSearchRepository extends Mock implements SearchRepository {}
+class MockSearchRepository extends Mock implements RepositorioBusca {}
 
-class MockSearchBloc extends MockBloc<SearchEvent, SearchState>
+class MockSearchBloc extends MockBloc<EventoBusca, EstadoBusca>
     implements SearchBloc {}
 
 class MockBibliaBloc extends MockBloc<BibliaEvent, BibliaState>
@@ -33,22 +33,21 @@ void main() {
           BlocProvider.value(value: mockSearchBloc),
           BlocProvider.value(value: mockBibliaBloc),
         ],
-        child: const SearchScreen(),
+        child: const TelaBusca(),
       ),
     );
   }
 
-  testWidgets('SearchScreen displays initial message',
+  testWidgets('TelaBusca displays initial message',
       (WidgetTester tester) async {
-    when(() => mockSearchBloc.state).thenReturn(SearchInitial());
+    when(() => mockSearchBloc.state).thenReturn(BuscaInicial());
 
     await tester.pumpWidget(createTestWidget());
 
-    expect(find.text('Digite pelo menos 3 caracteres para pesquisar.'),
-        findsOneWidget);
+    expect(find.text('Digite um termo para começar a busca'), findsOneWidget);
   });
 
-  testWidgets('SearchScreen displays results when loaded',
+  testWidgets('TelaBusca displays results when loaded',
       (WidgetTester tester) async {
     final results = SearchResults(
       query: 'Jesus',
@@ -68,10 +67,10 @@ void main() {
       ],
     );
 
-    when(() => mockSearchBloc.state).thenReturn(SearchLoaded(
-      results: results,
-      query: 'Jesus',
-      searchAllVersions: false,
+    when(() => mockSearchBloc.state).thenReturn(BuscaCarregada(
+      resultados: results,
+      termo: 'Jesus',
+      buscarTodasVersoes: false,
     ));
 
     await tester.pumpWidget(createTestWidget());
@@ -100,10 +99,10 @@ void main() {
       ],
     );
 
-    when(() => mockSearchBloc.state).thenReturn(SearchLoaded(
-      results: results,
-      query: 'Jesus',
-      searchAllVersions: false,
+    when(() => mockSearchBloc.state).thenReturn(BuscaCarregada(
+      resultados: results,
+      termo: 'Jesus',
+      buscarTodasVersoes: false,
     ));
     when(() => mockBibliaBloc.state).thenReturn(BibliaInitial());
 

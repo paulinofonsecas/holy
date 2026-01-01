@@ -7,7 +7,7 @@ import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
 import 'package:eu_sou/core/data/repositories/bibleRepository.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
-import 'package:eu_sou/features/search/data/search_repository.dart';
+import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +57,7 @@ void main() async {
           create: (context) => BibleRepository(context.read()),
         ),
         RepositoryProvider(
-          create: (context) => SearchRepository(searchProvider),
+          create: (context) => RepositorioBusca(searchProvider),
         ),
       ],
       child: App(),

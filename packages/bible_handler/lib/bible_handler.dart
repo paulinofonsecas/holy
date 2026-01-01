@@ -9,3 +9,4 @@ export 'src/parsers/usx_parser.dart';
 export 'src/sorting/book_sorter.dart';
 export 'src/sorting/canonical_book_sorter.dart';
 export 'src/sorting/no_op_book_sorter.dart';
+export 'src/verse_interaction_provider.dart';

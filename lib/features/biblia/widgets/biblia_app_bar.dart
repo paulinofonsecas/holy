@@ -1,8 +1,10 @@
+import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
-import 'package:eu_sou/features/search/data/search_repository.dart';
+import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
-import 'package:eu_sou/features/search/presentation/search_screen.dart';
+import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -58,22 +60,51 @@ class BibleAppBar extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final resultado = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (newContext) => MultiBlocProvider(
                     providers: [
                       BlocProvider.value(value: context.read<BibliaBloc>()),
                       BlocProvider(
-                        create: (context) =>
-                            SearchBloc(context.read<SearchRepository>()),
+                        create: (context) => SearchBloc(
+                          context.read<RepositorioBusca>(),
+                          idVersao: context
+                              .read<BibleVersionCubit>()
+                              .state
+                              .version
+                              .id,
+                        ),
                       ),
                     ],
-                    child: const SearchScreen(),
+                    child: const TelaBusca(),
                   ),
                 ),
               );
+
+              if (resultado != null && context.mounted) {
+                if (resultado is SearchResult) {
+                  context.read<BibliaBloc>().add(
+                        GetChapter(
+                          resultado.versionId,
+                          resultado.book.id,
+                          resultado.chapter.number.toString(),
+                          verse: resultado.verse.number,
+                        ),
+                      );
+                } else if (resultado is Book) {
+                  final idVersao =
+                      context.read<BibleVersionCubit>().state.version.id;
+                  context.read<BibliaBloc>().add(
+                        GetChapter(
+                          idVersao,
+                          resultado.id,
+                          '1',
+                        ),
+                      );
+                }
+              }
             },
             icon: Icon(Icons.search),
           ),

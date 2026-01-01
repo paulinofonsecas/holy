@@ -1,39 +1,39 @@
 part of 'search_bloc.dart';
 
-abstract class SearchEvent extends Equatable {
-  const SearchEvent();
+abstract class EventoBusca extends Equatable {
+  const EventoBusca();
 
   @override
   List<Object?> get props => [];
 }
 
-class SearchQueryChanged extends SearchEvent {
-  final String query;
-  const SearchQueryChanged(this.query);
+class TermoBuscaAlterado extends EventoBusca {
+  final String termo;
+  const TermoBuscaAlterado(this.termo);
 
   @override
-  List<Object?> get props => [query];
+  List<Object?> get props => [termo];
 }
 
-class ToggleSearchAllVersions extends SearchEvent {
-  final bool searchAllVersions;
-  const ToggleSearchAllVersions(this.searchAllVersions);
+class AlternarBuscaTodasVersoes extends EventoBusca {
+  final bool buscarTodasVersoes;
+  const AlternarBuscaTodasVersoes(this.buscarTodasVersoes);
 
   @override
-  List<Object?> get props => [searchAllVersions];
+  List<Object?> get props => [buscarTodasVersoes];
 }
 
-class ClearSearch extends SearchEvent {}
+class LimparBusca extends EventoBusca {}
 
-class LoadVersion extends SearchEvent {
-  final String versionId;
-  final String versionName;
+class CarregarVersao extends EventoBusca {
+  final String idVersao;
+  final String nomeVersao;
 
-  const LoadVersion({
-    required this.versionId,
-    required this.versionName,
+  const CarregarVersao({
+    required this.idVersao,
+    required this.nomeVersao,
   });
 
   @override
-  List<Object?> get props => [versionId, versionName];
+  List<Object?> get props => [idVersao, nomeVersao];
 }

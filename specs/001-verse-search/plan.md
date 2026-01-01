@@ -7,7 +7,13 @@
 
 ## Summary
 
-Implement a comprehensive Bible search and verse interaction system. This includes verse-by-verse keyword search (active version vs. all versions), SQL-based caching for performance, in-memory loading of the active version, and user interactions like highlighting, sharing, and categorizing verses. The technical approach leverages the `bible_handler` package for data abstraction and `sqflite` for persistent storage.
+Implement a comprehensive Bible search and verse interaction system. This includes:
+1. **Verse Search**: Keyword search across the active version or all versions using SQLite FTS.
+2. **Book Matching**: Real-time matching of book names/abbreviations (e.g., "exo" -> "Êxodo") for quick navigation.
+3. **Verse Interaction**: Support for highlighting, sharing, and categorizing verses.
+4. **Persistence**: SQL-based caching for performance and user data storage.
+
+The technical approach leverages the `bible_handler` package for data abstraction and `sqflite` for persistent storage.
 
 ## Technical Context
 

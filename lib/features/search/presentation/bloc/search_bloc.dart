@@ -3,103 +3,116 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../core/services/logger_service.dart';
-import '../../data/search_repository.dart';
+import '../../data/repositories/search_repository.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
 
-class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final SearchRepository _searchRepository;
-  final LoggerService _logger = LoggerService();
-  String _currentQuery = '';
-  bool _searchAllVersions = false;
+class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
+  final RepositorioBusca _repositorioBusca;
+  final LoggerService _registrador = LoggerService();
+  String _termoAtual = '';
+  bool _buscarTodasVersoes = false;
+  String? _idVersao;
 
-  SearchBloc(this._searchRepository) : super(SearchInitial()) {
-    on<SearchQueryChanged>(_onSearchQueryChanged);
-    on<ToggleSearchAllVersions>(_onToggleSearchAllVersions);
-    on<ClearSearch>(_onClearSearch);
-    on<LoadVersion>(_onLoadVersion);
+  SearchBloc(this._repositorioBusca, {String? idVersao})
+      : _idVersao = idVersao,
+        super(BuscaInicial()) {
+    on<TermoBuscaAlterado>(_onSearchQueryChanged);
+    on<AlternarBuscaTodasVersoes>(_onToggleSearchAllVersions);
+    on<LimparBusca>(_onClearSearch);
+    on<CarregarVersao>(_onLoadVersion);
   }
 
   Future<void> _onSearchQueryChanged(
-    SearchQueryChanged event,
-    Emitter<SearchState> emit,
+    TermoBuscaAlterado event,
+    Emitter<EstadoBusca> emit,
   ) async {
-    _logger.debug('📝 Search query changed: "${event.query}"');
-    _currentQuery = event.query;
-    if (_currentQuery.length < 3) {
-      _logger.debug(
-          '⚠️ Query too short (${_currentQuery.length} chars), minimum 3 required');
-      emit(SearchInitial());
+    _registrador.debug('📝 Termo de busca alterado: "${event.termo}"');
+    _termoAtual = event.termo;
+    if (_termoAtual.length < 3) {
+      _registrador.debug(
+          '⚠️ Termo muito curto (${_termoAtual.length} caracteres), mínimo 3 necessário');
+      emit(BuscaInicial());
       return;
     }
 
-    await _performSearch(emit);
+    await _realizarBusca(emit);
   }
 
   Future<void> _onToggleSearchAllVersions(
-    ToggleSearchAllVersions event,
-    Emitter<SearchState> emit,
+    AlternarBuscaTodasVersoes event,
+    Emitter<EstadoBusca> emit,
   ) async {
-    _logger.info('🔄 Toggle search all versions: ${event.searchAllVersions}');
-    _searchAllVersions = event.searchAllVersions;
-    if (_currentQuery.length >= 3) {
-      await _performSearch(emit);
+    _registrador.info(
+        '🔄 Alternar busca em todas as versões: ${event.buscarTodasVersoes}');
+    _buscarTodasVersoes = event.buscarTodasVersoes;
+    if (_termoAtual.length >= 3) {
+      await _realizarBusca(emit);
     }
   }
 
   void _onClearSearch(
-    ClearSearch event,
-    Emitter<SearchState> emit,
+    LimparBusca event,
+    Emitter<EstadoBusca> emit,
   ) {
-    _logger.debug('🧹 Clearing search');
-    _currentQuery = '';
-    emit(SearchInitial());
+    _registrador.debug('🧹 Limpando busca');
+    _termoAtual = '';
+    emit(BuscaInicial());
   }
 
-  Future<void> _performSearch(Emitter<SearchState> emit) async {
-    _logger.info(
-      '🔎 Performing search - Query: "$_currentQuery", AllVersions: $_searchAllVersions',
+  Future<void> _realizarBusca(Emitter<EstadoBusca> emit) async {
+    _registrador.info(
+      '🔎 Realizando busca - Termo: "$_termoAtual", TodasVersoes: $_buscarTodasVersoes',
     );
-    emit(SearchLoading());
+    emit(BuscaCarregando());
     try {
-      final results = _searchAllVersions
-          ? await _searchRepository.searchAllVersions(_currentQuery)
-          : await _searchRepository.search(_currentQuery);
+      // Busca correspondência de livros em paralelo com a busca de versículos
+      final buscaLivrosFuture = _repositorioBusca.corresponderLivros(
+        _termoAtual,
+        idVersao: _buscarTodasVersoes ? null : _idVersao,
+      );
 
-      _logger.info(
-          '✅ Search emitting success state with ${results.results.length} results');
-      emit(SearchLoaded(
-        results: results,
-        query: _currentQuery,
-        searchAllVersions: _searchAllVersions,
+      final resultadosFuture = _buscarTodasVersoes
+          ? _repositorioBusca.buscarEmTodasVersoes(_termoAtual)
+          : _repositorioBusca.buscar(_termoAtual, idVersao: _idVersao);
+
+      final resultados = await resultadosFuture;
+      final correspondenciasLivros = await buscaLivrosFuture;
+
+      _registrador.info(
+          '✅ Busca emitindo estado de sucesso com ${resultados.results.length} resultados e ${correspondenciasLivros.length} correspondências de livros (Termo: "$_termoAtual", Versão: $_idVersao)');
+      emit(BuscaCarregada(
+        resultados: resultados,
+        correspondenciasLivros: correspondenciasLivros,
+        termo: _termoAtual,
+        buscarTodasVersoes: _buscarTodasVersoes,
       ));
-    } catch (e, stackTrace) {
-      _logger.error('❌ Search error in bloc', e, stackTrace);
-      emit(SearchError(e.toString()));
+    } catch (e, rastroPilha) {
+      _registrador.error('❌ Erro na busca no bloc', e, rastroPilha);
+      emit(BuscaErro(e.toString()));
     }
   }
 
   Future<void> _onLoadVersion(
-    LoadVersion event,
-    Emitter<SearchState> emit,
+    CarregarVersao event,
+    Emitter<EstadoBusca> emit,
   ) async {
-    _logger.info(
-        '📦 Loading version: ${event.versionName} (ID: ${event.versionId})');
-    emit(VersionLoading(versionName: event.versionName));
+    _registrador.info(
+        '📦 Carregando versão: ${event.nomeVersao} (ID: ${event.idVersao})');
+    emit(VersaoCarregando(nomeVersao: event.nomeVersao));
 
     try {
-      // Simulate version loading with a small delay to allow UI to update
-      // In a real scenario, this would trigger actual version loading
+      // Simula o carregamento da versão com um pequeno atraso para permitir que a UI atualize
       await Future.delayed(const Duration(milliseconds: 500));
 
-      _logger.info('✅ Version ${event.versionName} loaded successfully');
-      // After version loads, go back to initial state to prepare for new search
-      emit(SearchInitial());
-    } catch (e, stackTrace) {
-      _logger.error(
-          '❌ Error loading version ${event.versionName}', e, stackTrace);
-      emit(SearchError('Failed to load version: ${event.versionName}'));
+      _registrador.info('✅ Versão ${event.nomeVersao} carregada com sucesso');
+      // Após o carregamento da versão, volta ao estado inicial para preparar para nova busca
+      emit(BuscaInicial());
+    } catch (e, rastroPilha) {
+      _registrador.error(
+          '❌ Erro ao carregar versão ${event.nomeVersao}', e, rastroPilha);
+      emit(BuscaErro('Falha ao carregar versão: ${event.nomeVersao}'));
     }
   }
 }

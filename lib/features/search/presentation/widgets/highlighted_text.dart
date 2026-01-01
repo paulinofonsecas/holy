@@ -14,35 +14,58 @@ class HighlightedText extends StatelessWidget {
     this.highlightStyle,
   }) : super(key: key);
 
+  String _removeDiacritics(String str) {
+    var withDia =
+        'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
+    var withoutDia =
+        'AAAAAAaaaaaaOOOOOOOoooooooEEEEeeeeecCdIIIIiiiiUUUUuuuuNnSsYyyZz';
+    for (int i = 0; i < withDia.length; i++) {
+      str = str.replaceAll(withDia[i], withoutDia[i]);
+    }
+    return str;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (highlightedWord.isEmpty) {
       return Text(text, style: style);
     }
 
-    final parts = text.split(RegExp(highlightedWord, caseSensitive: false));
-    final matches =
-        RegExp(highlightedWord, caseSensitive: false).allMatches(text).toList();
+    final normalizedText = _removeDiacritics(text).toLowerCase();
+    final normalizedQuery = _removeDiacritics(highlightedWord).toLowerCase();
 
     final widgets = <InlineSpan>[];
+    int start = 0;
+    int index;
 
-    for (int i = 0; i < parts.length; i++) {
-      // Add normal text
-      if (parts[i].isNotEmpty) {
-        widgets.add(TextSpan(text: parts[i], style: style));
-      }
-
-      // Add highlighted text
-      if (i < matches.length) {
+    while ((index = normalizedText.indexOf(normalizedQuery, start)) != -1) {
+      // Add text before match
+      if (index > start) {
         widgets.add(TextSpan(
-          text: matches[i].group(0),
-          style: highlightStyle ??
-              (style ?? const TextStyle()).copyWith(
-                fontWeight: FontWeight.bold,
-                backgroundColor: Colors.yellow,
-              ),
+          text: text.substring(start, index),
+          style: style,
         ));
       }
+
+      // Add matched text (from original string to preserve accents)
+      widgets.add(TextSpan(
+        text: text.substring(index, index + highlightedWord.length),
+        style: highlightStyle ??
+            (style ?? const TextStyle()).copyWith(
+              fontWeight: FontWeight.bold,
+              backgroundColor: Colors.yellow,
+            ),
+      ));
+
+      start = index + highlightedWord.length;
+    }
+
+    // Add remaining text
+    if (start < text.length) {
+      widgets.add(TextSpan(
+        text: text.substring(start),
+        style: style,
+      ));
     }
 
     return RichText(

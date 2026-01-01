@@ -94,6 +94,22 @@ As a user, I want to group my marked verses into categories (e.g., "Hope", "Fait
 
 ---
 
+### User Story 7 - Book Name Matching (Priority: P2)
+
+As a user, I want to see a list of books that match my search text so that I can quickly navigate to a specific book.
+
+**Why this priority**: Improves navigation speed. If a user types "exo", they likely want to go to Exodus, not just find verses with the word "exo".
+
+**Independent Test**: Type "joao" and verify that "João", "1 João", "2 João", "3 João" appear in a separate section above or alongside the verse results.
+
+**Acceptance Scenarios**:
+
+1. **Given** the user is on the search screen, **When** they type "exo", **Then** "Êxodo" is displayed in a "Books" section.
+2. **Given** the user types "1", **Then** books like "1 Samuel", "1 Reis", "1 João", etc., are displayed in the "Books" section.
+3. **Given** a book is displayed in the results, **When** the user taps it, **Then** the Bible reader opens at the first chapter of that book.
+
+---
+
 ### Edge Cases
 
 - **Empty Results**: How does the system handle a search that returns no matches? (Default: Display a "No results found" message).

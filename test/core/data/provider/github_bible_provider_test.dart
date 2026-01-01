@@ -4,9 +4,9 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/core/data/provider/github_bible_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:path/path.dart' as p;
 
 class MockPathProviderPlatform extends Fake
     with MockPlatformInterfaceMixin
@@ -41,9 +41,24 @@ class MockDio extends Fake implements Dio {
   }
 }
 
+class MockBibleCacheProvider extends Fake implements BibleCacheProvider {
+  final Map<String, Bible> _cache = {};
+
+  @override
+  Future<Bible?> getBible(String versionId) async {
+    return _cache[versionId];
+  }
+
+  @override
+  Future<void> cacheVersion(Bible bible, {String? versionId}) async {
+    _cache[versionId ?? bible.abbreviation] = bible;
+  }
+}
+
 void main() {
   late GithubBibleProvider provider;
   late MockDio mockDio;
+  late MockBibleCacheProvider mockCache;
   late Directory tempDownloadDir;
   late Directory appDocsDir;
 
@@ -51,6 +66,7 @@ void main() {
     appDocsDir = await Directory.systemTemp.createTemp('app_docs');
     PathProviderPlatform.instance = MockPathProviderPlatform(appDocsDir.path);
     mockDio = MockDio();
+    mockCache = MockBibleCacheProvider();
     tempDownloadDir = await Directory.systemTemp.createTemp('bible_download');
   });
 
@@ -63,7 +79,9 @@ void main() {
     }
   });
 
-  test('should load bible from url and save to local storage, then load from storage', () async {
+  test(
+      'should load bible from url and save to local storage, then load from storage',
+      () async {
     final bible = Bible(
       name: 'Test Bible',
       abbreviation: 'TB',
@@ -79,6 +97,7 @@ void main() {
 
     provider = GithubBibleProvider(
       mockDio,
+      mockCache,
       urlLoader: (version) async {
         urlLoaderCalled = true;
         return bible;
@@ -96,9 +115,11 @@ void main() {
     expect(dirLoaderCalled, isFalse);
 
     // Verify files were copied to appDocsDir
-    final savedBibleDir = Directory(p.join(appDocsDir.path, 'bibles', 'test_version'));
+    final savedBibleDir =
+        Directory(p.join(appDocsDir.path, 'bibles', 'test_version'));
     expect(savedBibleDir.existsSync(), isTrue);
-    expect(File(p.join(savedBibleDir.path, 'metadata.xml')).existsSync(), isTrue);
+    expect(
+        File(p.join(savedBibleDir.path, 'metadata.xml')).existsSync(), isTrue);
     expect(File(p.join(savedBibleDir.path, 'book.usx')).existsSync(), isTrue);
 
     // 2. Second call (new instance): Should use dirLoader
@@ -107,6 +128,7 @@ void main() {
 
     final newProvider = GithubBibleProvider(
       mockDio,
+      mockCache,
       urlLoader: (version) async {
         urlLoaderCalled = true;
         return bible;
