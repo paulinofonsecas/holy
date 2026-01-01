@@ -92,7 +92,12 @@ class Bible {
       for (final chapter in book.chapters) {
         for (final verse in chapter.verses) {
           if (verse.text.toLowerCase().contains(lowerCaseQuery)) {
-            results.add(SearchResult(book: book, chapter: chapter, verse: verse));
+            results.add(SearchResult(
+              versionId: abbreviation,
+              book: book,
+              chapter: chapter,
+              verse: verse,
+            ));
           }
         }
       }

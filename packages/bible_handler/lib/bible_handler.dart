@@ -1,7 +1,11 @@
-export 'src/models.dart';
-export 'src/parsers/usx_parser.dart';
-export 'src/parsers/sqlite_parser.dart';
+export 'src/bible_cache_provider.dart';
 export 'src/bible_importer.dart';
+export 'src/bible_memory_loader.dart';
+export 'src/bible_search_provider.dart';
+export 'src/interfaces.dart';
+export 'src/models.dart';
+export 'src/parsers/sqlite_parser.dart';
+export 'src/parsers/usx_parser.dart';
 export 'src/sorting/book_sorter.dart';
 export 'src/sorting/canonical_book_sorter.dart';
 export 'src/sorting/no_op_book_sorter.dart';

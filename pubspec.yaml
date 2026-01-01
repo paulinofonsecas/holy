@@ -46,6 +46,9 @@ dependencies:
   stacked: ^3.4.1
   stacked_services: ^1.3.0
   gap: ^3.0.1
+  sqflite: ^2.3.0
+  path: ^1.9.0
+  share_plus: ^10.1.4
   # net_bible_service:
   #   path: "../../dart/my_packages/net_bible_service"
   flutter_smartdio: ^1.0.4
@@ -60,6 +63,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   source_gen: ^1.4.0
   bloc_test: ^9.1.4
+  mocktail: ^1.0.4
   json_serializable: ^6.7.1
   freezed: ^2.4.5
   internet_connection_checker: ^3.0.1

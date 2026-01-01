@@ -3,11 +3,13 @@ import 'dart:convert';
 import '../models.dart';
 
 class SearchResult {
+  final String versionId;
   final Book book;
   final Chapter chapter;
   final Verse verse;
 
   SearchResult({
+    required this.versionId,
     required this.book,
     required this.chapter,
     required this.verse,
@@ -15,18 +17,14 @@ class SearchResult {
 
   @override
   String toString() {
-    return '${book.name} ${chapter.number}:${verse.number} - ${verse.text}';
+    return '[$versionId] ${book.name} ${chapter.number}:${verse.number} - ${verse.text}';
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'book': {
-        'id': book.id,
-        'name': book.name,
-      },
-      'chapter': {
-        'number': chapter.number,
-      },
+      'versionId': versionId,
+      'book': {'id': book.id, 'name': book.name},
+      'chapter': {'number': chapter.number},
       'verse': verse.toMap(),
     };
   }
