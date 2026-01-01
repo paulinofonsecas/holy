@@ -4,12 +4,14 @@ class ColorPickerModal extends StatelessWidget {
   final String verseRef;
   final Function(String colorHex) onColorSelected;
   final VoidCallback onRemoveHighlight;
+  final VoidCallback? onShare;
 
   const ColorPickerModal({
     Key? key,
     required this.verseRef,
     required this.onColorSelected,
     required this.onRemoveHighlight,
+    this.onShare,
   }) : super(key: key);
 
   static const List<Map<String, dynamic>> colors = [
@@ -44,7 +46,7 @@ class ColorPickerModal extends StatelessWidget {
             ),
           ),
           Text(
-            'Highlight Verse',
+            'Destacar Versículo',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 20),
@@ -74,9 +76,20 @@ class ColorPickerModal extends StatelessWidget {
             }).toList(),
           ),
           const SizedBox(height: 20),
+          if (onShare != null) ...[
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Compartilhar'),
+              onTap: () {
+                Navigator.pop(context);
+                onShare!();
+              },
+            ),
+            const Divider(),
+          ],
           ListTile(
             leading: const Icon(Icons.format_color_reset),
-            title: const Text('Remove Highlight'),
+            title: const Text('Remover Destaque'),
             onTap: () {
               onRemoveHighlight();
               Navigator.pop(context);

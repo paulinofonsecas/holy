@@ -113,11 +113,11 @@
 
 ### Implementation for User Story 5
 
-- [ ] T031 [US5] Implement `VerseSelectionBloc` to manage multi-verse selection in `lib/features/verse_interaction/presentation/bloc/selection_bloc.dart`
-- [ ] T032 [US5] Update `DisplaySingleVerse` to support selection state and tap-to-select in `lib/features/biblia/widgets/display_single_verse.dart`
-- [ ] T033 [US5] Create `SelectionToolbar` to show actions (Highlight, Share) when verses are selected in `lib/features/verse_interaction/presentation/widgets/selection_toolbar.dart`
-- [ ] T034 [US5] Implement `ShareService` to format and share single/multiple verses in `lib/core/services/share_service.dart`
-- [ ] T035 [US5] Integrate `ShareService` into `SelectionToolbar` and `ColorPickerModal` in `lib/features/verse_interaction/presentation/widgets/selection_toolbar.dart`
+- [x] T031 [US5] Implement `VerseSelectionBloc` to manage multi-verse selection in `lib/features/verse_interaction/presentation/bloc/selection_bloc.dart`
+- [x] T032 [US5] Update `DisplaySingleVerse` to support selection state and tap-to-select in `lib/features/biblia/widgets/display_single_verse.dart`
+- [x] T033 [US5] Create `SelectionToolbar` to show actions (Highlight, Share) when verses are selected in `lib/features/verse_interaction/presentation/widgets/selection_toolbar.dart`
+- [x] T034 [US5] Implement `ShareService` to format and share single/multiple verses in `lib/core/services/share_service.dart`
+- [x] T035 [US5] Integrate `ShareService` into `SelectionToolbar` and `ColorPickerModal` in `lib/features/verse_interaction/presentation/widgets/selection_toolbar.dart`
 
 ---
 
@@ -141,6 +141,7 @@
 - [x] T028 [P] Add loading indicators for search operations in `lib/features/search/presentation/pages/search_screen.dart`
 - [x] T029 [P] Ensure all SQL operations are wrapped in try-catch with proper logging in `packages/bible_handler/lib/src/bible_search_provider.dart`
 - [x] T030 [US1] Add total results count to `TelaBusca` header in `lib/features/search/presentation/pages/search_screen.dart`
+- [x] T036 [US1] Prioritize highlighted verses in search results (order by highlight status) in `lib/features/search/data/repositories/search_repository.dart`
 
 ---
 

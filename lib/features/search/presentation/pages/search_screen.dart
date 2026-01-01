@@ -192,6 +192,10 @@ class _TelaBuscaState extends State<TelaBusca> {
                                 title: Text(
                                   '${resultado.book.name} ${resultado.chapter.number}:${resultado.verse.number}',
                                 ),
+                                trailing: resultado.isHighlighted
+                                    ? const Icon(Icons.bookmark,
+                                        color: Colors.amber, size: 18)
+                                    : null,
                                 subtitle: HighlightedText(
                                   text: resultado.verse.text,
                                   style: TextStyle(

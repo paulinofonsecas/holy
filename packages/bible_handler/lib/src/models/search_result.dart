@@ -7,12 +7,14 @@ class SearchResult {
   final Book book;
   final Chapter chapter;
   final Verse verse;
+  final bool isHighlighted;
 
   SearchResult({
     required this.versionId,
     required this.book,
     required this.chapter,
     required this.verse,
+    this.isHighlighted = false,
   });
 
   @override

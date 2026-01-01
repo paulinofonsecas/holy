@@ -6,7 +6,11 @@ abstract class BibleSearchProvider {
   ///
   /// If [versionId] is provided, searches only in that version.
   /// Otherwise, searches in the active version.
-  Future<SearchResults> search({required String query, String? versionId});
+  Future<SearchResults> search({
+    required String query,
+    String? versionId,
+    bool prioritizeHighlights = false,
+  });
 
   /// Searches for verses containing the given [query] across all available versions.
   Future<SearchResults> searchAllVersions({required String query});

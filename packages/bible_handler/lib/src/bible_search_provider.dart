@@ -13,6 +13,7 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
   Future<SearchResults> search({
     required String query,
     String? versionId,
+    bool prioritizeHighlights = false,
   }) async {
     final stopwatch = Stopwatch()..start();
     try {
@@ -20,17 +21,38 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
       // We escape the query to prevent SQL injection and handle special characters
       final escapedQuery = query.replaceAll("'", "''");
 
-      String sql = '''
-        SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation
-        FROM verses_fts v
-        JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
-        WHERE v.text MATCH ?
-      ''';
+      String sql;
+      if (prioritizeHighlights) {
+        sql = '''
+          SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation,
+                 (SELECT 1 FROM marked_verses mv 
+                  WHERE mv.version_id = v.version_id 
+                    AND mv.book_id = v.book_id 
+                    AND mv.chapter = v.chapter 
+                    AND mv.verse = v.verse LIMIT 1) as is_highlighted
+          FROM verses_fts v
+          JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
+          WHERE v.text MATCH ?
+        ''';
+      } else {
+        sql = '''
+          SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation
+          FROM verses_fts v
+          JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
+          WHERE v.text MATCH ?
+        ''';
+      }
+
       List<dynamic> args = [escapedQuery];
 
       if (versionId != null) {
         sql += ' AND v.version_id = ?';
         args.add(versionId);
+      }
+
+      if (prioritizeHighlights) {
+        sql +=
+            ' ORDER BY is_highlighted DESC, v.book_id ASC, v.chapter ASC, v.verse ASC';
       }
 
       final results = await db.rawQuery(sql, args);
@@ -61,6 +83,7 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
             book: book,
             chapter: chapter,
             verse: verse,
+            isHighlighted: prioritizeHighlights && row['is_highlighted'] == 1,
           ),
         );
       }

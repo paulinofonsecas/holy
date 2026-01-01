@@ -19,6 +19,7 @@ class RepositorioBusca {
       final resultados = await _provedorBusca.search(
         query: termo,
         versionId: idVersao,
+        prioritizeHighlights: true,
       );
       final duracao = DateTime.now().difference(tempoInicio);
       _registrador.info(
@@ -36,7 +37,10 @@ class RepositorioBusca {
         .info('🔍 Iniciando busca em todas as versões - Termo: "$termo"');
     try {
       final tempoInicio = DateTime.now();
-      final resultados = await _provedorBusca.search(query: termo);
+      final resultados = await _provedorBusca.search(
+        query: termo,
+        prioritizeHighlights: true,
+      );
       final duracao = DateTime.now().difference(tempoInicio);
       _registrador.info(
         '✅ Busca em todas as versões concluída - Encontrados ${resultados.results.length} resultados em ${duracao.inMilliseconds}ms',
