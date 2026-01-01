@@ -1,126 +1,88 @@
 # Tasks: Bible Search & Verse Interaction
 
-**Input**: Design documents from `/specs/001-verse-search/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Feature**: Bible Search & Verse Interaction
+**Status**: Pending
+**Spec**: [spec.md](spec.md)
+**Plan**: [plan.md](plan.md)
 
-**Tests**: Unit and Widget tests are included as requested in the implementation plan.
+## Phase 1: Setup
+**Goal**: Initialize project dependencies and structure.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [x] T001 Verify `sqlite3` and `sqlite3_flutter_libs` dependencies in [pubspec.yaml](pubspec.yaml)
+- [x] T002 Add `share_plus` dependency to [pubspec.yaml](pubspec.yaml)
+- [x] T003 Create feature directory structure in [lib/features/search](lib/features/search) and [lib/features/verse_interaction](lib/features/verse_interaction)
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 2: Foundational
+**Goal**: Establish database infrastructure and core data models.
+**Independent Test**: Database can be opened, and tables can be created/migrated.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [x] T004 Create `DatabaseService` using `sqlite3` in [lib/core/services/database_service.dart](lib/core/services/database_service.dart)
+- [x] T005 Create `BibleVerse` model in [packages/bible_handler/lib/src/models/bible_verse.dart](packages/bible_handler/lib/src/models/bible_verse.dart)
+- [x] T006 Implement `BibleDatabase` helper with FTS5 table creation in [packages/bible_handler/lib/src/data/bible_database.dart](packages/bible_handler/lib/src/data/bible_database.dart)
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 3: User Story 1 - Basic Keyword Search (P1)
+**Goal**: Enable users to search for verses by keyword.
+**Independent Test**: Searching for 'Jesus' returns relevant verses.
 
-**Purpose**: Project initialization and basic structure
+- [x] T007 [US1] Create `SearchRepository` interface and implementation in [lib/features/search/data/repositories/search_repository.dart](lib/features/search/data/repositories/search_repository.dart)
+- [x] T008 [US1] Create `SearchState` and `SearchBloc` in [lib/features/search/presentation/bloc/search_bloc.dart](lib/features/search/presentation/bloc/search_bloc.dart)
+- [x] T009 [US1] Create `SearchScreen` UI in [lib/features/search/presentation/pages/search_screen.dart](lib/features/search/presentation/pages/search_screen.dart)
+- [x] T010 [US1] Implement search logic connecting UI to Bloc to Repository in [lib/features/search/presentation/pages/search_screen.dart](lib/features/search/presentation/pages/search_screen.dart)
 
-- [X] T001 Add `sqflite`, `path`, and `share_plus` dependencies to `pubspec.yaml`
-- [X] T002 [P] Create feature directory structure in `lib/features/search/` and `lib/features/verse_interaction/`
-- [X] T003 [P] Define `BibleSearchProvider` and `VerseInteractionProvider` interfaces in `packages/bible_handler/lib/src/interfaces.dart`
-- [X] T004 Initialize SQLite database helper in `lib/core/data/database_helper.dart`
+## Phase 4: User Story 2 - Search Result Highlighting (P2)
+**Goal**: Highlight search terms in results.
+**Independent Test**: Search terms appear visually distinct in results.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [x] T011 [US2] Update `SearchRepository` to support highlighting data in [lib/features/search/data/repositories/search_repository.dart](lib/features/search/data/repositories/search_repository.dart)
+- [x] T012 [US2] Create `HighlightedText` widget in [lib/features/search/presentation/widgets/highlighted_text.dart](lib/features/search/presentation/widgets/highlighted_text.dart)
+- [x] T013 [US2] Integrate `HighlightedText` into `SearchScreen` results in [lib/features/search/presentation/pages/search_screen.dart](lib/features/search/presentation/pages/search_screen.dart)
 
-**Purpose**: Core data persistence and caching logic
+## Phase 5: User Story 3 - Version-Specific Search (P2)
+**Goal**: Filter search results by Bible version.
+**Independent Test**: Switching versions changes search results.
 
-- [X] T005 Implement SQLite schema for `BibleVerse` with FTS5 support in `lib/core/data/database_helper.dart`
-- [X] T006 Implement `cacheVersion` logic in `packages/bible_handler/lib/src/bible_cache_provider.dart`
-- [X] T007 Implement in-memory loading of active Bible version in `packages/bible_handler/lib/src/bible_memory_loader.dart`
-- [X] T008 Create unit tests for SQL caching and FTS5 search logic in `packages/bible_handler/test/cache_test.dart`
+- [x] T014 [US3] Update `SearchRepository` to accept `versionId` in [lib/features/search/data/repositories/search_repository.dart](lib/features/search/data/repositories/search_repository.dart)
+- [x] T015 [US3] Update `SearchBloc` to handle version selection in [lib/features/search/presentation/bloc/search_bloc.dart](lib/features/search/presentation/bloc/search_bloc.dart)
+- [x] T016 [US3] Add version selector to `SearchScreen` in [lib/features/search/presentation/pages/search_screen.dart](lib/features/search/presentation/pages/search_screen.dart)
 
-## Phase 3: User Story 1 - Basic Keyword Search (Priority: P1)
+## Phase 6: User Story 4 - Verse Marking & Highlighting (P2)
+**Goal**: Allow users to highlight verses.
+**Independent Test**: Highlighted verses persist after restart.
 
-**Story Goal**: Search for words/phrases across verses and navigate to results.
-**Independent Test**: Enter "Jesus" in search bar, see results, tap one, and verify reader opens at correct location.
+- [x] T017 [US4] Create `Highlight` model in [lib/features/verse_interaction/domain/models/highlight.dart](lib/features/verse_interaction/domain/models/highlight.dart)
+- [x] T018 [US4] Create `HighlightRepository` in [lib/features/verse_interaction/data/repositories/highlight_repository.dart](lib/features/verse_interaction/data/repositories/highlight_repository.dart)
+- [x] T019 [US4] Implement `addHighlight` and `getHighlights` in `DatabaseService` in [lib/core/services/database_service.dart](lib/core/services/database_service.dart)
+- [x] T020 [US4] Create `VerseOptionsSheet` with highlight action in [lib/features/verse_interaction/presentation/widgets/verse_options_sheet.dart](lib/features/verse_interaction/presentation/widgets/verse_options_sheet.dart)
 
-- [X] T009 [US1] Implement `search` method using FTS5 in `packages/bible_handler/lib/src/bible_search_provider.dart`
-- [X] T010 [US1] Create `SearchRepository` in `lib/features/search/data/search_repository.dart`
-- [X] T011 [US1] Implement `SearchBloc` in `lib/features/search/presentation/bloc/search_bloc.dart`
-- [X] T012 [US1] Create search screen UI with `ListView.builder` in `lib/features/search/presentation/search_screen.dart`
-- [X] T013 [US1] Implement navigation from search result to Bible reader in `lib/features/search/presentation/search_screen.dart`
-- [ ] T014 [US1] Create widget tests for search screen in `test/features/search/search_screen_test.dart`
+## Phase 7: User Story 5 - Sharing Verses (P3)
+**Goal**: Enable sharing of verses.
+**Independent Test**: Share sheet opens with correct text.
 
-## Phase 4: User Story 2 - Search Result Highlighting (Priority: P2)
+- [x] T021 [US5] Implement `ShareService` in [lib/core/services/share_service.dart](lib/core/services/share_service.dart)
+- [x] T022 [US5] Add 'Share' action to `VerseOptionsSheet` in [lib/features/verse_interaction/presentation/widgets/verse_options_sheet.dart](lib/features/verse_interaction/presentation/widgets/verse_options_sheet.dart)
 
-**Story Goal**: Highlight search terms within results.
-**Independent Test**: Search for "fé" and verify the word "fé" is bold/colored in the results list.
+## Phase 8: User Story 6 - Categorizing Verses (P3)
+**Goal**: Group verses into categories.
+**Independent Test**: Verses can be added to and viewed by category.
 
-- [ ] T015 [P] [US2] Implement text highlighting utility in `lib/core/utils/text_highlighter.dart`
-- [ ] T016 [US2] Update search result list item to use highlighting utility in `lib/features/search/presentation/widgets/search_result_tile.dart`
+- [x] T023 [US6] Create `Category` model in [lib/features/verse_interaction/domain/models/category.dart](lib/features/verse_interaction/domain/models/category.dart)
+- [x] T024 [US6] Create `CategoryRepository` in [lib/features/verse_interaction/data/repositories/category_repository.dart](lib/features/verse_interaction/data/repositories/category_repository.dart)
+- [x] T025 [US6] Implement category management UI in [lib/features/verse_interaction/presentation/pages/categories_screen.dart](lib/features/verse_interaction/presentation/pages/categories_screen.dart)
 
-## Phase 5: User Story 3 - Version-Specific Search (Priority: P2)
+## Phase 9: Polish
+**Goal**: Refine UI and handle edge cases.
 
-**Story Goal**: Search within selected version or all versions.
-**Independent Test**: Toggle "Search all versions" and verify results include multiple translations.
+- [x] T026 Add empty states for Search and Categories in [lib/features/search/presentation/pages/search_screen.dart](lib/features/search/presentation/pages/search_screen.dart)
+- [x] T027 Optimize FTS5 queries for performance in [packages/bible_handler/lib/src/data/bible_database.dart](packages/bible_handler/lib/src/data/bible_database.dart)
 
-- [ ] T017 [US3] Update `search` method to support version filtering and multi-version search in `packages/bible_handler/lib/src/bible_search_provider.dart`
-- [ ] T018 [US3] Add version toggle UI to search screen in `lib/features/search/presentation/search_screen.dart`
-- [ ] T019 [US3] Update search result UI to display version labels in `lib/features/search/presentation/widgets/search_result_tile.dart`
+## Dependencies
 
-## Phase 6: User Story 4 - Verse Marking & Highlighting (Priority: P2)
-
-**Story Goal**: Highlight verses in the reader and persist them.
-**Independent Test**: Highlight a verse, restart app, and verify highlight remains.
-
-- [ ] T020 [US4] Implement `Highlight` SQL schema and repository in `lib/features/verse_interaction/data/highlight_repository.dart`
-- [ ] T021 [US4] Implement `setHighlight` and `getHighlights` in `packages/bible_handler/lib/src/verse_interaction_provider.dart`
-- [ ] T022 [US4] Add highlight color picker UI to Bible reader in `lib/features/reader/presentation/widgets/verse_action_menu.dart`
-- [ ] T023 [US4] Update Bible reader to render highlights from SQL in `lib/features/reader/presentation/reader_screen.dart`
-
-## Phase 7: User Story 5 - Sharing Verses (Priority: P3)
-
-**Story Goal**: Share verses with formatted references.
-**Independent Test**: Tap "Share" on a verse and verify share sheet contains text + reference.
-
-- [ ] T024 [US5] Implement verse sharing service using `share_plus` in `lib/features/verse_interaction/domain/share_service.dart`
-- [ ] T025 [US5] Add "Share" action to verse selection menu in `lib/features/reader/presentation/widgets/verse_action_menu.dart`
-
-## Phase 8: User Story 6 - Categorizing Verses (Priority: P3)
-
-**Story Goal**: Group marked verses into custom categories.
-**Independent Test**: Create "Hope" category, add verse, and verify it appears in "Hope" list.
-
-- [ ] T026 [US6] Implement `Category` and `VerseCategory` SQL schemas in `lib/core/data/database_helper.dart`
-- [ ] T027 [US6] Create `CategoryRepository` in `lib/features/verse_interaction/data/category_repository.dart`
-- [ ] T028 [US6] Implement category management UI (create/delete) in `lib/features/verse_interaction/presentation/category_management_screen.dart`
-- [ ] T029 [US6] Add "Add to Category" action to verse menu in `lib/features/reader/presentation/widgets/verse_action_menu.dart`
-- [ ] T030 [US6] Create "Categorized Verses" view in `lib/features/verse_interaction/presentation/categorized_verses_screen.dart`
-
-## Final Phase: Polish & Cross-Cutting Concerns
-
-- [ ] T031 Implement accent-insensitive search logic in SQL/Dart
-- [ ] T032 Optimize SQL bulk inserts for caching with transactions
-- [ ] T033 Final integration testing of all user stories
-- [ ] T034 Documentation update in `README.md` for new features
-
-## Dependency Graph
-
-```mermaid
-graph TD
-    Setup[Phase 1: Setup] --> Foundational[Phase 2: Foundational]
-    Foundational --> US1[Phase 3: US1 - Basic Search]
-    US1 --> US2[Phase 4: US2 - Highlighting]
-    US1 --> US3[Phase 5: US3 - Version Search]
-    Foundational --> US4[Phase 6: US4 - Verse Marking]
-    US4 --> US6[Phase 8: US6 - Categorizing]
-    Foundational --> US5[Phase 7: US5 - Sharing]
-    US2 --> Polish[Final Phase: Polish]
-    US3 --> Polish
-    US5 --> Polish
-    US6 --> Polish
-```
-
-## Parallel Execution Examples
-
-### Per User Story
-- **US1**: T010 (Repository) and T012 (UI) can be developed in parallel once T011 (Bloc) interface is defined.
-- **US4**: T020 (Data) and T022 (UI) can be developed in parallel.
+- **US1** depends on **Foundational**
+- **US2** depends on **US1**
+- **US3** depends on **US1**
+- **US4** depends on **Foundational**
+- **US5** depends on **Foundational**
+- **US6** depends on **US4** (uses marked verses)
 
 ## Implementation Strategy
-
-1. **MVP First**: Complete Phase 1, 2, and 3 to deliver the core search functionality.
-2. **Incremental Delivery**: Deliver US4 (Marking) next as it's a high-value feature.
-3. **Polish**: Finalize with sharing and categorization.
+Start with the **Foundational** phase to set up the sqlite3 database and FTS5 tables. Then proceed to **US1** to get the core search working. **US2** and **US3** can be done in parallel after US1. **US4** is a separate vertical that can be started after Foundational.
