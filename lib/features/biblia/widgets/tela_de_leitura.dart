@@ -3,7 +3,6 @@ import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/chapter_visualizer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
 
 class TelaDeLeitura extends StatelessWidget {
   const TelaDeLeitura({
