@@ -23,9 +23,10 @@ final class BibleError extends BibliaState {
 
 final class BibleChapterLoaded extends BibliaState {
   final BibleChapter chapter;
+  final int? targetVerse;
 
-  BibleChapterLoaded(this.chapter);
+  BibleChapterLoaded(this.chapter, {this.targetVerse});
 
   @override
-  List<Object> get props => [chapter];
+  List<Object> get props => [chapter, targetVerse ?? 1];
 }

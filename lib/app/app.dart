@@ -1,13 +1,12 @@
+import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
+import 'package:eu_sou/core/design_system/theme_extension/theme_manager.dart';
+import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
+import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
+import 'package:eu_sou/features/profile/domain/repositories/i_profile_repository.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
-
-import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
-import 'package:eu_sou/core/design_system/theme_extension/theme_manager.dart';
-
-import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 
 /// Main App widget that configures the application using BLoC pattern.
 class App extends StatelessWidget {
@@ -18,7 +17,9 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(
+            create: (context) =>
+                ThemeCubit(context.read<IProfileRepository>())),
         BlocProvider(create: (_) => LocaleBloc()),
         BlocProvider(create: (_) => BibleVersionCubit()),
       ],

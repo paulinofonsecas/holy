@@ -237,6 +237,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not available'**
   String get notAvailable;
+
+  /// Profile screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// Profile screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// Title for marked verses section
+  ///
+  /// In en, this message translates to:
+  /// **'Marked Verses'**
+  String get markedVerses;
+
+  /// Title for marked verses section
+  ///
+  /// In en, this message translates to:
+  /// **'Marked Verses'**
+  String get markedVersesTitle;
+
+  /// Title for search history section
+  ///
+  /// In en, this message translates to:
+  /// **'Search History'**
+  String get searchHistory;
+
+  /// Button to clear search history
+  ///
+  /// In en, this message translates to:
+  /// **'Clear History'**
+  String get clearHistory;
+
+  /// Label for theme color customization
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Color'**
+  String get themeColor;
+
+  /// Title for theme color section
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Color'**
+  String get themeColorTitle;
+
+  /// Title for search history section
+  ///
+  /// In en, this message translates to:
+  /// **'Search History'**
+  String get searchHistoryTitle;
+
+  /// Message shown when there are no marked verses
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t marked any verses yet.'**
+  String get noMarkedVerses;
+
+  /// Message shown when search history is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Your search history is empty.'**
+  String get noSearchHistory;
 }
 
 class _AppLocalizationsDelegate

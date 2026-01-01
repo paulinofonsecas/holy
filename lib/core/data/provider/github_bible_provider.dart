@@ -1,22 +1,20 @@
-import 'dart:io';
-
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 typedef BibleUrlLoader = Future<Bible> Function(String version);
 typedef BibleDirLoader = Future<Bible> Function(String path);
 
 class GithubBibleProvider extends IBibleProvider {
   GithubBibleProvider(
-    this.dio, {
+    this.dio,
+    this.cacheProvider, {
     this.urlLoader = loadBibleFromUrl,
     this.dirLoader = loadBibleFromDirectory,
   });
 
   final Dio dio;
+  final BibleCacheProvider cacheProvider;
   final BibleUrlLoader urlLoader;
   final BibleDirLoader dirLoader;
   final Map<String, Bible> _cache = {};
@@ -29,30 +27,21 @@ class GithubBibleProvider extends IBibleProvider {
     }
 
     try {
-      final appDir = await getApplicationDocumentsDirectory();
-      final bibleDir = Directory(p.join(appDir.path, 'bibles', versionId));
-
-      if (await bibleDir.exists()) {
-        if (await File(p.join(bibleDir.path, 'metadata.xml')).exists()) {
-          try {
-            final bible = await dirLoader(bibleDir.path);
-            _cache[versionId] = bible;
-            return bible;
-          } catch (e) {
-            print('Failed to load from local storage: $e');
-          }
+      // 1. Check SQLite Cache
+      if (await cacheProvider.isVersionCached(versionId)) {
+        final bible = await cacheProvider.getBible(versionId);
+        if (bible != null) {
+          _cache[versionId] = bible;
+          return bible;
         }
       }
 
+      // 2. If not in SQLite, download from GitHub
       // loadBibleFromUrl is a top-level function exported by bible_handler
       final bible = await urlLoader(versionId);
 
-      if (bible.directoryPathSaved != null) {
-        final tempDir = Directory(bible.directoryPathSaved!);
-        if (await tempDir.exists()) {
-          await _copyDirectory(tempDir, bibleDir);
-        }
-      }
+      // 3. Save to SQLite Cache
+      await cacheProvider.cacheVersion(bible, versionId: versionId);
 
       _cache[versionId] = bible;
       return bible;
@@ -60,20 +49,6 @@ class GithubBibleProvider extends IBibleProvider {
       throw Exception('Failed to load bible version $versionId: $e');
     }
   }
-
-  Future<void> _copyDirectory(Directory source, Directory destination) async {
-    await destination.create(recursive: true);
-    await for (final entity in source.list(recursive: false)) {
-      if (entity is Directory) {
-        final newDirectory =
-            Directory(p.join(destination.path, p.basename(entity.path)));
-        await _copyDirectory(entity, newDirectory);
-      } else if (entity is File) {
-        await entity.copy(p.join(destination.path, p.basename(entity.path)));
-      }
-    }
-  }
-
 
   @override
   Future<List<String>> getVersoes() async {
@@ -106,9 +81,7 @@ class GithubBibleProvider extends IBibleProvider {
   Future<List<InfoBook>> getLivros(String versionId) async {
     try {
       final bible = await _getOrLoadBible(versionId);
-      return bible.books
-          .map((b) => InfoBook(id: b.id, name: b.name))
-          .toList();
+      return bible.books.map((b) => InfoBook(id: b.id, name: b.name)).toList();
     } catch (e) {
       print('Error fetching books for $versionId: $e');
       return [];

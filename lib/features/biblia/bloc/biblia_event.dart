@@ -4,12 +4,13 @@ part of 'biblia_bloc.dart';
 sealed class BibliaEvent extends Equatable {}
 
 class GetChapter extends BibliaEvent {
-  late final String version;
-  late final String book;
-  late final String chapter;
+  final String version;
+  final String book;
+  final String chapter;
+  final int? verse;
 
-  GetChapter(this.version, this.book, this.chapter);
+  GetChapter(this.version, this.book, this.chapter, {this.verse});
 
   @override
-  List<Object> get props => [version, book, chapter];
+  List<Object?> get props => [version, book, chapter, verse];
 }

@@ -76,7 +76,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notificationSent => 'Notificación enviada';
 
   @override
-  String get enableNotifications => 'Activar Notificaciones';
+  String get enableNotifications => 'Ativar Notificaciones';
 
   @override
   String get receiveNotifications => 'Recibir notificaciones push';
@@ -92,4 +92,37 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get notAvailable => 'No disponible';
+
+  @override
+  String get profile => 'Perfil';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get markedVerses => 'Versículos Marcados';
+
+  @override
+  String get markedVersesTitle => 'Marked Verses';
+
+  @override
+  String get searchHistory => 'Historial de Búsquedas';
+
+  @override
+  String get clearHistory => 'Limpiar Historial';
+
+  @override
+  String get themeColor => 'Color del Tema';
+
+  @override
+  String get themeColorTitle => 'Color del Tema';
+
+  @override
+  String get searchHistoryTitle => 'Historial de Búsqueda';
+
+  @override
+  String get noMarkedVerses => 'Aún no has marcado ningún versículo.';
+
+  @override
+  String get noSearchHistory => 'Tu historial de búsquedas está vacío.';
 }

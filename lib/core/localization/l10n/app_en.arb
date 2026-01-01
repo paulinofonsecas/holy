@@ -103,5 +103,49 @@
   "notAvailable": "Not available",
   "@notAvailable": {
     "description": "Text for when a feature is not available"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile screen title"
+  },
+  "profileTitle": "Profile",
+  "@profileTitle": {
+    "description": "Profile screen title"
+  },
+  "markedVerses": "Marked Verses",
+  "@markedVerses": {
+    "description": "Title for marked verses section"
+  },
+  "markedVersesTitle": "Marked Verses",
+  "@markedVersesTitle": {
+    "description": "Title for marked verses section"
+  },
+  "searchHistory": "Search History",
+  "@searchHistory": {
+    "description": "Title for search history section"
+  },
+  "clearHistory": "Clear History",
+  "@clearHistory": {
+    "description": "Button to clear search history"
+  },
+  "themeColor": "Theme Color",
+  "@themeColor": {
+    "description": "Label for theme color customization"
+  },
+  "themeColorTitle": "Theme Color",
+  "@themeColorTitle": {
+    "description": "Title for theme color section"
+  },
+  "searchHistoryTitle": "Search History",
+  "@searchHistoryTitle": {
+    "description": "Title for search history section"
+  },
+  "noMarkedVerses": "You haven't marked any verses yet.",
+  "@noMarkedVerses": {
+    "description": "Message shown when there are no marked verses"
+  },
+  "noSearchHistory": "Your search history is empty.",
+  "@noSearchHistory": {
+    "description": "Message shown when search history is empty"
   }
 }
