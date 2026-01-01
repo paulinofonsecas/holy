@@ -13,6 +13,15 @@ class SearchLoading extends SearchState {}
 
 class SearchMinQueryLength extends SearchState {}
 
+class VersionLoading extends SearchState {
+  final String versionName;
+
+  const VersionLoading({required this.versionName});
+
+  @override
+  List<Object?> get props => [versionName];
+}
+
 class SearchLoaded extends SearchState {
   final SearchResults results;
   final String query;

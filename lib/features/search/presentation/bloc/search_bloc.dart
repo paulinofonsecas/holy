@@ -18,6 +18,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchQueryChanged>(_onSearchQueryChanged);
     on<ToggleSearchAllVersions>(_onToggleSearchAllVersions);
     on<ClearSearch>(_onClearSearch);
+    on<LoadVersion>(_onLoadVersion);
   }
 
   Future<void> _onSearchQueryChanged(
@@ -76,6 +77,29 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     } catch (e, stackTrace) {
       _logger.error('❌ Search error in bloc', e, stackTrace);
       emit(SearchError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadVersion(
+    LoadVersion event,
+    Emitter<SearchState> emit,
+  ) async {
+    _logger.info(
+        '📦 Loading version: ${event.versionName} (ID: ${event.versionId})');
+    emit(VersionLoading(versionName: event.versionName));
+
+    try {
+      // Simulate version loading with a small delay to allow UI to update
+      // In a real scenario, this would trigger actual version loading
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      _logger.info('✅ Version ${event.versionName} loaded successfully');
+      // After version loads, go back to initial state to prepare for new search
+      emit(SearchInitial());
+    } catch (e, stackTrace) {
+      _logger.error(
+          '❌ Error loading version ${event.versionName}', e, stackTrace);
+      emit(SearchError('Failed to load version: ${event.versionName}'));
     }
   }
 }

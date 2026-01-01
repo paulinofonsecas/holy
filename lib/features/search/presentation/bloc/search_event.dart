@@ -24,3 +24,16 @@ class ToggleSearchAllVersions extends SearchEvent {
 }
 
 class ClearSearch extends SearchEvent {}
+
+class LoadVersion extends SearchEvent {
+  final String versionId;
+  final String versionName;
+
+  const LoadVersion({
+    required this.versionId,
+    required this.versionName,
+  });
+
+  @override
+  List<Object?> get props => [versionId, versionName];
+}

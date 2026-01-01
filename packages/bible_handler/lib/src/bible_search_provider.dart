@@ -28,6 +28,8 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
         args.add(versionId);
       }
 
+      print(await db.query('books'));
+
       final results = await db.rawQuery(sql, args);
 
       final searchResults = <SearchResult>[];

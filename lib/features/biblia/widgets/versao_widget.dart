@@ -18,49 +18,58 @@ class VersaoWidget extends StatelessWidget {
       onTap: () {
         showModalBottomSheet(
           context: context,
+          showDragHandle: true,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          useSafeArea: true,
           builder: (context) {
-            return Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-              ),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Gap(16),
-                  Text(
-                    'Escolha uma versão',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+            return SafeArea(
+              child: SingleChildScrollView(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
                   ),
-                  Gap(16),
-                  ...BibleVersions.values.map((e) {
-                    return Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: ListTile(
-                        onTap: () {
-                          context.read<BibleVersionCubit>().changeVersion(e);
-                          Navigator.pop(context);
-                        },
-                        title: Text(
-                          e.id + ' - ' + e.name,
-                          style: TextStyle(),
-                        ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: Theme.of(context).textTheme.bodyMedium!.color,
-                          size: 24,
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Escolha uma versão',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    );
-                  }).toList(),
-                ],
+                      Gap(16),
+                      ...BibleVersions.values.map((e) {
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          child: ListTile(
+                            onTap: () {
+                              context
+                                  .read<BibleVersionCubit>()
+                                  .changeVersion(e);
+                              Navigator.pop(context);
+                            },
+                            title: Text(
+                              e.id + ' - ' + e.name,
+                              style: TextStyle(),
+                            ),
+                            trailing: Icon(
+                              Icons.chevron_right,
+                              color:
+                                  Theme.of(context).textTheme.bodyMedium!.color,
+                              size: 24,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ),
               ),
             );
           },
