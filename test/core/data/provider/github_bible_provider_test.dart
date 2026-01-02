@@ -53,6 +53,26 @@ class MockBibleCacheProvider extends Fake implements BibleCacheProvider {
   Future<void> cacheVersion(Bible bible, {String? versionId}) async {
     _cache[versionId ?? bible.abbreviation] = bible;
   }
+
+  @override
+  Future<bool> isVersionCached(String versionId) async {
+    return _cache.containsKey(versionId);
+  }
+
+  @override
+  Future<List<Book>> getBooks(String versionId) async {
+    return _cache[versionId]?.books ?? [];
+  }
+
+  @override
+  Future<Chapter?> getChapter(
+      String versionId, String bookId, int chapterNumber) async {
+    final bible = _cache[versionId];
+    if (bible == null) return null;
+
+    final book = bible.books.firstWhere((b) => b.id == bookId);
+    return book.chapters.firstWhere((c) => c.number == chapterNumber);
+  }
 }
 
 void main() {

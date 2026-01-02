@@ -119,6 +119,47 @@ class BibleCacheProvider {
     );
   }
 
+  /// Retrieves only the books metadata for a cached version.
+  Future<List<Book>> getBooks(String versionId) async {
+    final bookResults = await db.query(
+      'books',
+      where: 'version_id = ?',
+      whereArgs: [versionId],
+    );
+
+    return bookResults.map((row) {
+      return Book(
+        id: row['id'] as String,
+        name: row['name'] as String,
+        longName: row['long_name'] as String,
+        abbreviation: row['abbreviation'] as String,
+        chapters: [], // Chapters loaded on demand
+      );
+    }).toList();
+  }
+
+  /// Retrieves a specific chapter for a cached version.
+  Future<Chapter?> getChapter(
+    String versionId,
+    String bookId,
+    int chapterNumber,
+  ) async {
+    final verseResults = await db.query(
+      'verses_fts',
+      where: 'version_id = ? AND book_id = ? AND chapter = ?',
+      whereArgs: [versionId, bookId, chapterNumber],
+      orderBy: 'verse',
+    );
+
+    if (verseResults.isEmpty) return null;
+
+    final verses = verseResults.map((row) {
+      return Verse(number: row['verse'] as int, text: row['text'] as String);
+    }).toList();
+
+    return Chapter(number: chapterNumber, verses: verses);
+  }
+
   /// Checks if a version is already cached.
   Future<bool> isVersionCached(String versionId) async {
     final results = await db.query(

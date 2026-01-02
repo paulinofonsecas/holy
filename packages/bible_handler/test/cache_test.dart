@@ -1,8 +1,11 @@
 import 'package:bible_handler/bible_handler.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:test/test.dart';
 
 void main() {
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
+
   group('BibleCacheProvider, BibleMemoryLoader & BibleSearchProvider Tests', () {
     late Database db;
     late BibleCacheProvider cacheProvider;
@@ -16,7 +19,7 @@ void main() {
         onCreate: (db, version) async {
           // Create schema
           await db.execute(
-            'CREATE TABLE versions (id TEXT PRIMARY KEY, name TEXT, last_cached INTEGER)',
+            'CREATE TABLE versions (id TEXT PRIMARY KEY, name TEXT, lng TEXT, last_cached INTEGER)',
           );
           await db.execute(
             'CREATE TABLE books (version_id TEXT, id TEXT, name TEXT, long_name TEXT, abbreviation TEXT, PRIMARY KEY (version_id, id))',
@@ -94,6 +97,26 @@ void main() {
 
       final results = await searchProvider.search(query: 'nonexistent');
       expect(results.totalResults, equals(0));
+    });
+
+    test('Should get books for a version', () async {
+      await cacheProvider.cacheVersion(mockBible);
+      final books = await cacheProvider.getBooks('MB');
+      expect(books.length, 1);
+      expect(books.first.id, 'GEN');
+      expect(books.first.name, 'Genesis');
+    });
+
+    test('Should get a specific chapter on-demand', () async {
+      await cacheProvider.cacheVersion(mockBible);
+      final chapter = await cacheProvider.getChapter('MB', 'GEN', 1);
+      expect(chapter, isNotNull);
+      expect(chapter!.number, 1);
+      expect(chapter.verses.length, 2);
+      expect(
+        chapter.verses.first.text,
+        'In the beginning God created the heaven and the earth.',
+      );
     });
   });
 }

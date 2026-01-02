@@ -8,6 +8,7 @@
     *   USX XML files within a local directory.
     *   SQLite database files.
     *   Remote ZIP archives hosted on a URL (e.g., GitHub).
+*   **On-Demand Loading (Lazy Loading)**: Efficiently fetch specific books and chapters from the local SQLite cache without loading the entire Bible into memory.
 *   **Bible Model**: Provides a structured Dart object model for Bibles, books, chapters, and verses.
 *   **Search Functionality**: Efficiently search for text within any loaded Bible version.
 *   **Book Sorting**: Supports canonical and no-op book sorting.
@@ -73,6 +74,33 @@ Future<void> main() async {
     print('Number of books: ${bible.books.length}');
   } catch (e) {
     print('Error loading Bible from URL: $e');
+  }
+}
+```
+
+### On-Demand Loading (Lazy Loading)
+
+For better performance and lower memory usage, you can use `BibleCacheProvider` to load only the necessary parts of a Bible version. This is the recommended way to access Bible data in mobile applications to avoid high memory consumption and slow initial load times.
+
+```dart
+import 'package:bible_handler/bible_handler.dart';
+
+Future<void> main() async {
+  final cacheProvider = BibleCacheProvider(db); // db is a sqflite Database instance
+
+  // Check if a version is cached
+  if (await cacheProvider.isVersionCached('KJA')) {
+    // Load only book metadata (ID, Name, Abbreviation)
+    // This is very fast as it doesn't load any verses.
+    final books = await cacheProvider.getBooks('KJA');
+    print('Found ${books.length} books in KJA');
+    
+    // Load a specific chapter on-demand
+    // This only fetches the verses for the requested chapter.
+    final chapter = await cacheProvider.getChapter('KJA', 'JHN', 3);
+    if (chapter != null) {
+      print('John 3:16: ${chapter.verses[15].text}');
+    }
   }
 }
 ```

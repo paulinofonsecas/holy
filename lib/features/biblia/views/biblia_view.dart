@@ -92,16 +92,48 @@ class BibliaView extends StatelessWidget {
                             (chapter.number - 1).toString(),
                           ),
                         );
+                      } else {
+                        // Previous Book
+                        final currentBookIndex = BibleBooks.values
+                            .indexWhere((b) => b.bookId == chapter.bookId);
+                        if (currentBookIndex > 0) {
+                          final prevBook =
+                              BibleBooks.values[currentBookIndex - 1];
+                          bibleBloc.add(
+                            GetChapter(
+                              bibleVersion.id,
+                              prevBook.bookId,
+                              prevBook.chapterCount.toString(),
+                            ),
+                          );
+                        }
                       }
                     } else if (details.primaryVelocity! < 0) {
                       // Swipe Left -> Next Chapter
-                      bibleBloc.add(
-                        GetChapter(
-                          bibleVersion.id,
-                          chapter.bookId,
-                          (chapter.number + 1).toString(),
-                        ),
-                      );
+                      if (chapter.number < chapter.totalChapters) {
+                        bibleBloc.add(
+                          GetChapter(
+                            bibleVersion.id,
+                            chapter.bookId,
+                            (chapter.number + 1).toString(),
+                          ),
+                        );
+                      } else {
+                        // Next Book
+                        final currentBookIndex = BibleBooks.values
+                            .indexWhere((b) => b.bookId == chapter.bookId);
+                        if (currentBookIndex < BibleBooks.values.length - 1) {
+                          final nextBook =
+                              BibleBooks.values[currentBookIndex + 1];
+                          bibleBloc.add(
+                            GetChapter(
+                              bibleVersion.id,
+                              nextBook.bookId,
+                              '1',
+                            ),
+                          );
+                        }
+                      }
                     }
                   },
                   child: TelaDeLeitura(),

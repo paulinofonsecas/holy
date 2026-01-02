@@ -47,6 +47,31 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       );
 
       emit(BibleChapterLoaded(result, targetVerse: event.verse));
+
+      // Pre-fetch adjacent chapters for smoother navigation
+      final currentChapterNum = int.tryParse(event.chapter) ?? 0;
+      if (currentChapterNum > 0) {
+        // Next chapter
+        if (currentChapterNum < result.totalChapters) {
+          _bibleReposity
+              .getChapter(
+                event.version,
+                event.book,
+                (currentChapterNum + 1).toString(),
+              )
+              .catchError((_) => null);
+        }
+        // Previous chapter
+        if (currentChapterNum > 1) {
+          _bibleReposity
+              .getChapter(
+                event.version,
+                event.book,
+                (currentChapterNum - 1).toString(),
+              )
+              .catchError((_) => null);
+        }
+      }
     } catch (e) {
       emit(state);
       emit(BibleError(e.toString()));

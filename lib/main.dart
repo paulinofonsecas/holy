@@ -92,13 +92,3 @@ void main() async {
     ),
   );
 }
-
-  // Set system UI overlay style
-  // SystemChrome.setSystemUIOverlayStyle(
-  //   const SystemUiOverlayStyle(
-  //     statusBarColor: Colors.transparent,
-  //     statusBarIconBrightness: Brightness.light,
-  //     systemNavigationBarColor: Colors.white,
-  //     systemNavigationBarIconBrightness: Brightness.dark,
-  //   ),
-  // );
