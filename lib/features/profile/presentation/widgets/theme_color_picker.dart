@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/design_system/theme_extension/theme_manager.dart';
+import '../../../theme/presentation/bloc/theme_bloc.dart';
 
 class ThemeColorPicker extends StatelessWidget {
   const ThemeColorPicker({super.key});
@@ -21,7 +21,7 @@ class ThemeColorPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeCubit, ThemeState>(
+    return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -41,10 +41,12 @@ class ThemeColorPicker extends StatelessWidget {
                   spacing: 12,
                   runSpacing: 12,
                   children: predefinedColors.map((color) {
-                    final isSelected = state.accentColor.value == color.value;
+                    final isSelected = state.primaryColor.value == color.value;
                     return GestureDetector(
                       onTap: () {
-                        context.read<ThemeCubit>().setAccentColor(color);
+                        context
+                            .read<ThemeBloc>()
+                            .add(PrimaryColorChanged(color));
                       },
                       child: Container(
                         width: 40,

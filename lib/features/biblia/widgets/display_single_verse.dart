@@ -96,7 +96,9 @@ class DisplaySingleVerse extends StatelessWidget {
                                         Brightness.light
                                     ? Colors.black
                                     : Colors.white
-                                : Theme.of(context).colorScheme.primary,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
                           ),
                         ),
                         TextSpan(
@@ -107,7 +109,9 @@ class DisplaySingleVerse extends StatelessWidget {
                                         Brightness.light
                                     ? Colors.black
                                     : Colors.white
-                                : Theme.of(context).colorScheme.primary,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
                           ),
                         ),
                       ],

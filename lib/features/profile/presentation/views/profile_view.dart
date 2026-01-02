@@ -1,8 +1,8 @@
-import 'package:eu_sou/core/design_system/theme_extension/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
+import '../../../theme/presentation/bloc/theme_bloc.dart';
 import '../bloc/marked_verses_bloc.dart';
 import '../pages/marked_verses_list_page.dart';
 import '../pages/search_history_page.dart';
@@ -20,7 +20,7 @@ class ProfileView extends StatelessWidget {
         title: Text(l10n.profileTitle),
         centerTitle: true,
       ),
-      body: BlocBuilder<ThemeCubit, ThemeState>(
+      body: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (context, state) {
           return RefreshIndicator(
             onRefresh: () async {

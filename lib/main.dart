@@ -6,7 +6,6 @@ import 'package:eu_sou/core/data/provider/github_bible_provider.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
 import 'package:eu_sou/core/data/repositories/bibleRepository.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
-import 'package:eu_sou/core/design_system/theme_extension/theme_manager.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/profile_repository.dart';
@@ -15,6 +14,7 @@ import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repo
 import 'package:eu_sou/features/profile/domain/repositories/i_profile_repository.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_search_history_repository.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
+import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
 import 'package:eu_sou/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -82,8 +82,8 @@ void main() async {
         RepositoryProvider<IProfileRepository>(
           create: (context) => ProfileRepository(),
         ),
-        RepositoryProvider<ThemeCubit>(
-          create: (context) => ThemeCubit(),
+        RepositoryProvider<ThemeBloc>(
+          create: (context) => ThemeBloc(context.read<IProfileRepository>()),
         ),
       ],
       child: App(),
