@@ -303,6 +303,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your search history is empty.'**
   String get noSearchHistory;
+
+  /// Bible bottom bar label
+  ///
+  /// In en, this message translates to:
+  /// **'Bible'**
+  String get bible;
+
+  /// Search bottom bar label
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
 }
 
 class _AppLocalizationsDelegate

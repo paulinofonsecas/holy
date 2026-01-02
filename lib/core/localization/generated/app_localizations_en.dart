@@ -125,4 +125,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noSearchHistory => 'Your search history is empty.';
+
+  @override
+  String get bible => 'Bible';
+
+  @override
+  String get search => 'Search';
 }

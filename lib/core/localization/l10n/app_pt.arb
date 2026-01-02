@@ -24,12 +24,16 @@
   "loading": "Carregando...",
   "notAvailable": "Não disponível",
   "profile": "Perfil",
+  "profileTitle": "Perfil",
   "markedVerses": "Versículos Marcados",
+  "markedVersesTitle": "Versículos Marcados",
   "searchHistory": "Histórico de Pesquisas",
   "clearHistory": "Limpar Histórico",
   "themeColor": "Cor do Tema",
   "themeColorTitle": "Cor do Tema",
   "searchHistoryTitle": "Histórico de Pesquisa",
   "noMarkedVerses": "Você ainda não marcou nenhum versículo.",
-  "noSearchHistory": "Seu histórico de pesquisas está vazio."
+  "noSearchHistory": "Seu histórico de pesquisas está vazio.",
+  "bible": "Bíblia",
+  "search": "Pesquisa"
 }

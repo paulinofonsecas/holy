@@ -100,7 +100,7 @@ class ProfileView extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            color: Theme.of(context).colorScheme.surface,
           ),
         ),
         title: Text(

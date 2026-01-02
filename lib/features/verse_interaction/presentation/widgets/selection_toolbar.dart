@@ -25,36 +25,43 @@ class SelectionToolbar extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.1),
                 blurRadius: 4,
                 offset: const Offset(0, -2),
               ),
             ],
           ),
-          child: Row(
+          child: Column(
             children: [
-              Text(
-                '${state.selectedVerses.length} selecionados',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.border_color),
-                onPressed: () {
-                  _showHighlightOptions(context, state);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () {
-                  _shareSelectedVerses(context, state);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  context.read<VerseSelectionBloc>().add(ClearSelection());
-                },
+              Row(
+                children: [
+                  Text(
+                    '${state.selectedVerses.length} selecionados',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.border_color),
+                    onPressed: () {
+                      _showHighlightOptions(context, state);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () {
+                      _shareSelectedVerses(context, state);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      context.read<VerseSelectionBloc>().add(ClearSelection());
+                    },
+                  ),
+                ],
               ),
             ],
           ),

@@ -1,7 +1,6 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
-import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
@@ -36,7 +35,7 @@ class BibleAppBar extends StatelessWidget {
                           horizontal: 8.0, vertical: 4.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisSize: MainAxisSize.max,
                         children: [
                           Flexible(
                             child: Text(
@@ -129,17 +128,6 @@ class BibleAppBar extends StatelessWidget {
                 ),
               );
             },
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProfilePage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.person_outline_rounded),
           ),
         ],
       ),

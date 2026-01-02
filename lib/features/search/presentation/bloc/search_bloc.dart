@@ -1,12 +1,15 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 import '../../../../core/services/logger_service.dart';
 import '../../data/repositories/search_repository.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
+
+const _debounceDuration = Duration(milliseconds: 500);
 
 class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   final RepositorioBusca _repositorioBusca;
@@ -22,7 +25,11 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   SearchBloc(this._repositorioBusca, {String? idVersao})
       : _idVersao = idVersao,
         super(BuscaInicial()) {
-    on<TermoBuscaAlterado>(_onSearchQueryChanged);
+    on<TermoBuscaAlterado>(
+      _onSearchQueryChanged,
+      transformer: (events, mapper) =>
+          events.debounce(_debounceDuration).switchMap(mapper),
+    );
     on<AlternarBuscaTodasVersoes>(_onToggleSearchAllVersions);
     on<LimparBusca>(_onClearSearch);
     on<CarregarVersao>(_onLoadVersion);

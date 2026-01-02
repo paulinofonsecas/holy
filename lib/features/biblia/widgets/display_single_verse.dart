@@ -28,6 +28,8 @@ class DisplaySingleVerse extends StatelessWidget {
           builder: (context, selectionState) {
             final isSelected =
                 selectionState.selectedVerses.containsKey(verse.number);
+            final isHighlighted = highlightState is HighlightsLoaded &&
+                highlightState.highlights.containsKey(verseRef);
 
             Color? backgroundColor;
             if (isSelected) {
@@ -39,7 +41,8 @@ class DisplaySingleVerse extends StatelessWidget {
               final highlight = highlightState.highlights[verseRef];
               if (highlight != null) {
                 backgroundColor =
-                    Color(int.parse(highlight.colorHex, radix: 16));
+                    Color(int.parse(highlight.colorHex, radix: 16))
+                        .withValues(alpha: .8);
               }
             }
 
@@ -88,15 +91,23 @@ class DisplaySingleVerse extends StatelessWidget {
                           text: verse.number.toString() + " ",
                           style: style.copyWith(
                             fontWeight: FontWeight.w500,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: !isHighlighted
+                                ? Theme.brightnessOf(context) ==
+                                        Brightness.light
+                                    ? Colors.black
+                                    : Colors.white
+                                : Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         TextSpan(
                           text: verse.text,
                           style: style.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: !isHighlighted
+                                ? Theme.brightnessOf(context) ==
+                                        Brightness.light
+                                    ? Colors.black
+                                    : Colors.white
+                                : Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],

@@ -1,0 +1,25 @@
+@startuml container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram for Holy App
+
+Person(user, "User", "A person who wants to read and search the Bible.")
+
+System_Boundary(holy_system, "Holy System") {
+    Container(flutter_app, "Flutter App", "Flutter", "Provides the user interface for reading and searching the Bible.")
+    ContainerDb(sqlite_db, "Local SQLite", "SQLite", "Caches Bible versions, books, and verses for offline access.")
+    Container(bible_server, "Bible Server", "Dart", "Handles Bible data synchronization and advanced search.")
+}
+
+System_Ext(firebase, "Firebase", "Cloud services for push notifications and analytics.")
+System_Ext(external_bible_api, "External Bible API", "External source for Bible versions and verses.")
+
+Rel(user, flutter_app, "Uses", "Mobile App")
+Rel(flutter_app, sqlite_db, "Reads from and writes to", "SQL")
+Rel(flutter_app, bible_server, "Fetches data and syncs", "HTTP/gRPC")
+Rel(flutter_app, firebase, "Sends analytics and receives notifications", "Firebase SDK")
+Rel(bible_server, external_bible_api, "Fetches Bible data", "HTTP")
+
+@enduml
