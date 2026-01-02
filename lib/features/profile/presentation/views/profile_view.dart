@@ -7,6 +7,7 @@ import '../bloc/marked_verses_bloc.dart';
 import '../pages/marked_verses_list_page.dart';
 import '../pages/search_history_page.dart';
 import '../pages/theme_settings_page.dart';
+import '../pages/verse_history_page.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -69,6 +70,21 @@ class ProfileView extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const SearchHistoryPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.menu_book,
+                  title: 'Histórico de Versículos',
+                  subtitle: 'Ver versículos visualizados recentemente',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const VerseHistoryPage(),
                       ),
                     );
                   },

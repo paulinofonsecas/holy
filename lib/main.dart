@@ -10,9 +10,11 @@ import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/profile_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/search_history_repository.dart';
+import 'package:eu_sou/features/profile/data/repositories/verse_history_repository.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_profile_repository.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_search_history_repository.dart';
+import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repository.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
@@ -76,6 +78,9 @@ void main() async {
         ),
         RepositoryProvider<ISearchHistoryRepository>(
           create: (context) => SearchHistoryRepository(db),
+        ),
+        RepositoryProvider<IVerseHistoryRepository>(
+          create: (context) => VerseHistoryRepository(db),
         ),
         RepositoryProvider<IMarkedVersesRepository>(
           create: (context) => MarkedVersesRepository(db),

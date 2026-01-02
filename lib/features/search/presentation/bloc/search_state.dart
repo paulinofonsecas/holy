@@ -27,17 +27,27 @@ class BuscaCarregada extends EstadoBusca {
   final List<Book> correspondenciasLivros;
   final String termo;
   final bool buscarTodasVersoes;
+  final String? idVersaoSelecionada;
+  final List<String> versoesDisponiveis;
 
   const BuscaCarregada({
     required this.resultados,
     this.correspondenciasLivros = const [],
     required this.termo,
     required this.buscarTodasVersoes,
+    this.idVersaoSelecionada,
+    this.versoesDisponiveis = const [],
   });
 
   @override
-  List<Object?> get props =>
-      [resultados, correspondenciasLivros, termo, buscarTodasVersoes];
+  List<Object?> get props => [
+        resultados,
+        correspondenciasLivros,
+        termo,
+        buscarTodasVersoes,
+        idVersaoSelecionada,
+        versoesDisponiveis,
+      ];
 }
 
 class BuscaErro extends EstadoBusca {

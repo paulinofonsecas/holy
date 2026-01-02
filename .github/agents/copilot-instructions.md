@@ -10,6 +10,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-01
 - Dart 3.x / Flutter 3.x + `stacked`, `bible_handler` (internal), `sqflite` or `sqlite3`, `shared_preferences` (004-user-profile)
 - SQLite (Marked Verses, Search History), SharedPreferences (Theme Color) (004-user-profile)
 - Dart / Flutter + `flutter`, `flutter_bloc` (007-bottom-navigation-bar)
+- Dart 3.6.0, Flutter 3.38.4 + `bloc`, `sqflite`, `bible_handler` (internal package) (009-premium-search-filters)
+- SQLite (via `sqflite`) (009-premium-search-filters)
 
 - Dart ^3.6.0, Flutter >=3.38.4 + `bible_handler` (internal), `sqflite`, `flutter_bloc` or `stacked`, `share_plus` (001-verse-search)
 
@@ -29,9 +31,9 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
+- 009-premium-search-filters: Added Dart 3.6.0, Flutter 3.38.4 + `bloc`, `sqflite`, `bible_handler` (internal package)
 - 007-bottom-navigation-bar: Added Dart / Flutter + `flutter`, `flutter_bloc`
 - 004-user-profile: Added Dart 3.x / Flutter 3.x + `stacked`, `bible_handler` (internal), `sqflite` or `sqlite3`, `shared_preferences`
-- 002-search-state-persistence: Added Dart ^3.6.0, Flutter >=3.38.4 + `flutter_bloc`, `bible_handler` (internal), `sqflite`
 
 
 <!-- MANUAL ADDITIONS START -->

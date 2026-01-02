@@ -28,4 +28,15 @@ class BibleVersionCubit extends Cubit<BibleVersionState> {
         break;
     }
   }
+
+  void changeVersionById(String id) {
+    try {
+      final version = BibleVersions.values.firstWhere(
+        (v) => v.id.toUpperCase() == id.toUpperCase(),
+      );
+      changeVersion(version);
+    } catch (_) {
+      // Version not found, ignore or handle as needed
+    }
+  }
 }

@@ -1,4 +1,8 @@
 import 'package:eu_sou/core/services/logger_service.dart';
+import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -117,6 +121,71 @@ class _TelaBuscaState extends State<TelaBusca> {
                     );
                   },
                 ),
+                BlocBuilder<SearchBloc, EstadoBusca>(
+                  builder: (context, estado) {
+                    if (estado is BuscaCarregada &&
+                        estado.buscarTodasVersoes &&
+                        estado.versoesDisponiveis.isNotEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              'Filtrar por Versão:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 40,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: ChoiceChip(
+                                    label: const Text('Todas'),
+                                    selected:
+                                        estado.idVersaoSelecionada == null,
+                                    onSelected: (selecionado) {
+                                      if (selecionado) {
+                                        context
+                                            .read<SearchBloc>()
+                                            .add(const FiltrarPorVersao(null));
+                                      }
+                                    },
+                                  ),
+                                ),
+                                ...estado.versoesDisponiveis.map((versao) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: ChoiceChip(
+                                      label: Text(versao),
+                                      selected:
+                                          estado.idVersaoSelecionada == versao,
+                                      onSelected: (selecionado) {
+                                        context.read<SearchBloc>().add(
+                                              FiltrarPorVersao(
+                                                selecionado ? versao : null,
+                                              ),
+                                            );
+                                      },
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ),
@@ -224,8 +293,72 @@ class _TelaBuscaState extends State<TelaBusca> {
                               final resultado =
                                   estado.resultados.results[indice];
                               return ListTile(
-                                title: Text(
-                                  '${resultado.book.name} ${resultado.chapter.number}:${resultado.verse.number}',
+                                onTap: () {
+                                  // Get BLoC reference before navigation
+                                  final bibliaBloc = context.read<BibliaBloc>();
+
+                                  // Adicionar ao histórico de versículos
+                                  context.read<VerseHistoryBloc>().add(
+                                        AddVerseToHistory(
+                                          verseRef:
+                                              '${resultado.book.id} ${resultado.chapter.number}:${resultado.verse.number}',
+                                          versionId: resultado.versionId,
+                                        ),
+                                      );
+
+                                  // Atualizar versão global se necessário
+                                  context
+                                      .read<BibleVersionCubit>()
+                                      .changeVersionById(resultado.versionId);
+
+                                  // Add event to show the resultado
+                                  bibliaBloc.add(
+                                    GetChapter(
+                                      resultado.versionId,
+                                      resultado.book.id,
+                                      resultado.chapter.number.toString(),
+                                      verse: resultado.verse.number,
+                                    ),
+                                  );
+
+                                  // Change to Bible tab and navigate back
+                                  context
+                                      .read<TabControllerCubit>()
+                                      .goToBible();
+                                },
+                                title: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '${resultado.book.name} ${resultado.chapter.number}:${resultado.verse.number}',
+                                      ),
+                                    ),
+                                    if (resultado.versionAbbreviation != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          resultado.versionAbbreviation!,
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                                 trailing: resultado.isHighlighted
                                     ? const Icon(Icons.bookmark,
@@ -249,9 +382,6 @@ class _TelaBuscaState extends State<TelaBusca> {
                                     backgroundColor: Colors.yellow,
                                   ),
                                 ),
-                                onTap: () {
-                                  Navigator.pop(context, resultado);
-                                },
                               );
                             },
                             childCount: estado.resultados.results.length,

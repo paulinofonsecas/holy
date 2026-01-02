@@ -27,12 +27,6 @@ class BibliaPage extends StatelessWidget {
         BlocProvider(
           create: (context) => VerseSelectionBloc(),
         ),
-        BlocProvider(
-          create: (context) => context.read<SearchBloc>()
-            ..add(CarregarVersao(
-              idVersao: context.read<BibleVersionCubit>().state.version.id,
-            )),
-        ),
       ],
       child: BibliaView(),
     );
@@ -47,10 +41,31 @@ class BibliaView extends StatelessWidget {
     return BlocListener<BibleVersionCubit, BibleVersionState>(
       listener: (context, state) {
         final bibleVersion = state.version;
+        final bibliaBloc = context.read<BibliaBloc>();
+        final bibliaState = bibliaBloc.state;
 
-        context.read<BibliaBloc>().add(
-              GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-            );
+        // Se o BibliaBloc já está na versão correta, não fazemos nada
+        // Isso evita recarregar desnecessariamente quando a mudança vem da busca
+        if (bibliaState is BibleChapterLoaded &&
+            bibliaState.versionId == bibleVersion.id) {
+          return;
+        }
+
+        if (bibliaState is BibleChapterLoaded) {
+          // Se já temos um capítulo carregado, mudamos para a nova versão no mesmo capítulo
+          bibliaBloc.add(
+            GetChapter(
+              bibleVersion.id,
+              bibliaState.chapter.bookId,
+              bibliaState.chapter.number.toString(),
+            ),
+          );
+        } else {
+          // Caso contrário, vai para o início
+          bibliaBloc.add(
+            GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
+          );
+        }
 
         context.read<SearchBloc>().add(
               CarregarVersao(idVersao: bibleVersion.id),

@@ -53,11 +53,11 @@ class DisplaySingleVerse extends StatelessWidget {
 
             return GestureDetector(
               onTap: () {
-                if (selectionState.isInSelectionMode) {
-                  context
-                      .read<VerseSelectionBloc>()
-                      .add(ToggleVerseSelection(verse));
-                }
+                // if (selectionState.isInSelectionMode) {
+                context
+                    .read<VerseSelectionBloc>()
+                    .add(ToggleVerseSelection(verse));
+                // }
               },
               onLongPress: () {
                 if (!selectionState.isInSelectionMode) {

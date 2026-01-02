@@ -25,6 +25,7 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
       if (prioritizeHighlights) {
         sql = '''
           SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation,
+                 ver.id as version_abbreviation,
                  (SELECT 1 FROM marked_verses mv 
                   WHERE mv.version_id = v.version_id 
                     AND mv.book_id = v.book_id 
@@ -32,13 +33,16 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
                     AND mv.verse = v.verse LIMIT 1) as is_highlighted
           FROM verses_fts v
           JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
+          JOIN versions ver ON v.version_id = ver.id
           WHERE v.text MATCH ?
         ''';
       } else {
         sql = '''
-          SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation
+          SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation,
+                 ver.id as version_abbreviation
           FROM verses_fts v
           JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
+          JOIN versions ver ON v.version_id = ver.id
           WHERE v.text MATCH ?
         ''';
       }
@@ -80,6 +84,7 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
         searchResults.add(
           SearchResult(
             versionId: row['version_id'] as String,
+            versionAbbreviation: row['version_abbreviation'] as String?,
             book: book,
             chapter: chapter,
             verse: verse,

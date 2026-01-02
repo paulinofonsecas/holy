@@ -1,4 +1,3 @@
-import 'package:eu_sou/core/design_system/app_colors/app_colors.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -81,17 +80,21 @@ class VersaoWidget extends StatelessWidget {
           vertical: 8,
         ),
         decoration: BoxDecoration(
-          color: AppColor.textTertiary.withValues(alpha: .3),
+          color: Theme.of(context).colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
           children: [
-            Icon(CupertinoIcons.globe, size: 18),
+            Icon(
+              CupertinoIcons.globe,
+              size: 18,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
             Gap(8),
             Text(
               bibleVersion.id,
               style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium!.color,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
                 fontSize: 12,
               ),
             ),
