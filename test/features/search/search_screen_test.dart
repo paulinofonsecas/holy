@@ -24,6 +24,10 @@ void main() {
   setUp(() {
     mockSearchBloc = MockSearchBloc();
     mockBibliaBloc = MockBibliaBloc();
+
+    // Stubbing getters
+    when(() => mockSearchBloc.termoAtual).thenReturn('');
+    when(() => mockSearchBloc.scrollOffset).thenReturn(0.0);
   });
 
   Widget createTestWidget() {

@@ -31,8 +31,8 @@ description: "Task list for Premium Search Filters & History implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [x] T002 Update `DatabaseService` to include `verse_history` table in [lib/core/services/database_service.dart](lib/core/services/database_service.dart)
-- [x] T003 [P] Update `SearchResult` model to include `versionId` and `versionAbbreviation` in [packages/bible_handler/lib/src/models/search_result.dart](packages/bible_handler/lib/src/models/search_result.dart)
+- [x] T002 Update `DatabaseHelper` to include `verse_history` table in [lib/core/data/database_helper.dart](lib/core/data/database_helper.dart)
+- [x] T003 Update `SearchResult` model to include `versionId` and `versionAbbreviation` in [packages/bible_handler/lib/src/models/search_result.dart](packages/bible_handler/lib/src/models/search_result.dart)
 - [x] T004 Update `SqlBibleSearchProvider` to return version metadata in [packages/bible_handler/lib/src/bible_search_provider.dart](packages/bible_handler/lib/src/bible_search_provider.dart)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
@@ -47,7 +47,6 @@ description: "Task list for Premium Search Filters & History implementation"
 
 ### Implementation for User Story 1
 
-- [x] T005 [P] [US1] Update `SearchResult` to include version abbreviation in [packages/bible_handler/lib/src/models/search_result.dart](packages/bible_handler/lib/src/models/search_result.dart)
 - [x] T006 [US1] Update `SearchScreen` result list to display version label in [lib/features/search/presentation/pages/search_screen.dart](lib/features/search/presentation/pages/search_screen.dart)
 
 **Checkpoint**: User Story 1 functional - version context visible in search results.
@@ -66,6 +65,7 @@ description: "Task list for Premium Search Filters & History implementation"
 - [x] T008 [US2] Add `FilterByVersion` event and update `SearchBloc` logic in [lib/features/search/presentation/bloc/search_bloc.dart](lib/features/search/presentation/bloc/search_bloc.dart)
 - [x] T009 [US2] Implement version selection UI (Dropdown or Chips) in [lib/features/search/presentation/pages/search_screen.dart](lib/features/search/presentation/pages/search_screen.dart)
 
+- [x] T017 [US2] Ensure version filter is persistent across search queries in [lib/features/search/presentation/bloc/search_bloc.dart](lib/features/search/presentation/bloc/search_bloc.dart)
 **Checkpoint**: User Story 2 functional - users can filter results by version.
 
 ---
@@ -81,6 +81,7 @@ description: "Task list for Premium Search Filters & History implementation"
 - [x] T010 [P] [US3] Create `VerseHistoryRepository` for SQLite operations in [lib/features/profile/data/repositories/verse_history_repository.dart](lib/features/profile/data/repositories/verse_history_repository.dart)
 - [x] T011 [US3] Create `VerseHistoryBloc` to manage history state in [lib/features/profile/presentation/bloc/verse_history_bloc.dart](lib/features/profile/presentation/bloc/verse_history_bloc.dart)
 - [x] T012 [US3] Update `SearchScreen` to trigger history save on result tap in [lib/features/search/presentation/pages/search_screen.dart](lib/features/search/presentation/pages/search_screen.dart)
+- [x] T018 [US3] Implement history limit (e.g., 50 items) in `VerseHistoryRepository` in [lib/features/profile/data/repositories/verse_history_repository.dart](lib/features/profile/data/repositories/verse_history_repository.dart)
 - [x] T013 [US3] Implement `VerseHistoryPage` to display the list of recently viewed verses in [lib/features/profile/presentation/pages/verse_history_page.dart](lib/features/profile/presentation/pages/verse_history_page.dart)
 
 **Checkpoint**: User Story 3 functional - verse history is tracked and viewable.

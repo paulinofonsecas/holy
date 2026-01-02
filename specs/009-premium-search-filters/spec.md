@@ -24,16 +24,16 @@ As a user, I want to see which Bible version each search result belongs to so th
 
 ### User Story 2 - Bible Version Filtering (Priority: P2)
 
-As a user, I want to filter my search results by specific Bible versions so that I can focus on the translations that are most relevant to me.
+As a user, I want to filter my search results by a specific Bible version so that I can focus on the translation that is most relevant to me.
 
 **Why this priority**: This addresses the "premium filter" request and allows users to manage large result sets more effectively.
 
-**Independent Test**: Open the search filters, select one or more specific Bible versions, and verify that the results list only contains verses from those selected versions.
+**Independent Test**: Open the search filters, select a specific Bible version, and verify that the results list only contains verses from that selected version.
 
 **Acceptance Scenarios**:
 
 1. **Given** the search screen is open, **When** the user accesses the filter options, **Then** they must see a list of available Bible versions to filter by.
-2. **Given** a version filter is active, **When** a search is performed, **Then** only results from the selected versions should be returned.
+2. **Given** a version filter is active, **When** a search is performed, **Then** only results from the selected version should be returned.
 3. **Given** a single-selection Bible filter, **When** selecting a version, **Then** the UI should reflect the selection state clearly and filter results accordingly.
 
 ---
@@ -69,7 +69,7 @@ As a user, I want the app to automatically save the verses I tap on in my histor
 - **FR-004**: Tapping a search result MUST trigger an update to the `VerseHistory` entity.
 - **FR-005**: The history update MUST include the specific Bible version of the verse that was tapped.
 - **FR-006**: The term "premium" refers to the advanced nature of the features; no paywall or special visual distinction is required for this implementation.
-- **FR-007**: Verse history MUST store the verse reference (book, chapter, verse); opening a history item will use the user's current default Bible version.
+- **FR-007**: Verse history MUST store the verse reference (book, chapter, verse) and the version ID; opening a history item MUST use the stored Bible version.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -89,19 +89,3 @@ As a user, I want the app to automatically save the verses I tap on in my histor
 - The app already has a mechanism for tracking verse history that can be extended.
 - "Premium" features are currently defined by their functionality, and any access control (paywall) will be handled by a separate system or defined later.
 - The "Bible filter" will default to "All Versions" if no specific filter is applied.
-
-- **[Entity 2]**: [What it represents, relationships to other entities]
-
-## Success Criteria *(mandatory)*
-
-<!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
--->
-
-### Measurable Outcomes
-
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]

@@ -1,0 +1,5 @@
+analyzer:
+  errors:
+    invalid_return_type_for_catch_error: ignore
+  exclude:
+    - "*.md"
