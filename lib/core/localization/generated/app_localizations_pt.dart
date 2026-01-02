@@ -97,13 +97,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get profile => 'Perfil';
 
   @override
-  String get profileTitle => 'Profile';
+  String get profileTitle => 'Perfil';
 
   @override
   String get markedVerses => 'Versículos Marcados';
 
   @override
-  String get markedVersesTitle => 'Marked Verses';
+  String get markedVersesTitle => 'Versículos Marcados';
 
   @override
   String get searchHistory => 'Histórico de Pesquisas';
@@ -125,4 +125,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get noSearchHistory => 'Seu histórico de pesquisas está vazio.';
+
+  @override
+  String get bible => 'Bíblia';
+
+  @override
+  String get search => 'Pesquisa';
 }

@@ -12,6 +12,8 @@ This directory contains the specifications for all features in the Holy applicat
 | 003 | Download Loader | Completed | [spec.md](./003-download-loader/spec.md) |
 | 004 | User Profile | Completed | [spec.md](./004-user-profile/spec.md) |
 | 005 | Feature Documentation Support | Completed | [spec.md](./005-feature-documentation-support/spec.md) |
+| 006 | User Documentation | Completed | [spec.md](./006-user-documentation/spec.md) |
+| 007 | Bottom Navigation Bar | Completed | [spec.md](./007-bottom-navigation-bar/spec.md) |
 
 ## Documentation Template
 

@@ -147,5 +147,13 @@
   "noSearchHistory": "Your search history is empty.",
   "@noSearchHistory": {
     "description": "Message shown when search history is empty"
+  },
+  "bible": "Bible",
+  "@bible": {
+    "description": "Bible bottom bar label"
+  },
+  "search": "Search",
+  "@search": {
+    "description": "Search bottom bar label"
   }
 }

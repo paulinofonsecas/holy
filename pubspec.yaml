@@ -42,6 +42,7 @@ dependencies:
   flutter_bloc: ^8.1.3
   bloc: ^8.1.2
   hydrated_bloc: ^8.0.0
+  stream_transform: ^2.1.0
   # MVVM Architecture dependencies
   stacked: ^3.4.1
   stacked_services: ^1.3.0
