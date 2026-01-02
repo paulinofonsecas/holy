@@ -85,7 +85,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _controladorBusca.clear();
-                              context.read<SearchBloc>().add(LimparBusca());
+                              // context.read<SearchBloc>().add(LimparBusca());
                             },
                           )
                         : null,

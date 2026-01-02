@@ -9,6 +9,8 @@ import '../../data/repositories/search_repository.dart';
 part 'search_event.dart';
 part 'search_state.dart';
 
+const _debounceDuration = Duration(milliseconds: 500);
+
 class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   final RepositorioBusca _repositorioBusca;
   final LoggerService _registrador = LoggerService();
@@ -25,9 +27,8 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         super(BuscaInicial()) {
     on<TermoBuscaAlterado>(
       _onSearchQueryChanged,
-      transformer: (events, mapper) => events
-          .debounce(const Duration(milliseconds: 500))
-          .switchMap(mapper),
+      transformer: (events, mapper) =>
+          events.debounce(_debounceDuration).switchMap(mapper),
     );
     on<AlternarBuscaTodasVersoes>(_onToggleSearchAllVersions);
     on<LimparBusca>(_onClearSearch);

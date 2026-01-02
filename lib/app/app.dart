@@ -3,6 +3,7 @@ import 'package:eu_sou/core/design_system/theme_extension/theme_manager.dart';
 import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_profile_repository.dart';
+import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class App extends StatelessWidget {
                 ThemeCubit(context.read<IProfileRepository>())),
         BlocProvider(create: (_) => LocaleBloc()),
         BlocProvider(create: (_) => BibleVersionCubit()),
+        BlocProvider(create: (_) => SearchBloc(context.read())),
       ],
       child: Builder(
         builder: (context) {

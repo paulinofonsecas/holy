@@ -3,7 +3,6 @@ import 'package:eu_sou/features/biblia/views/biblia_view.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
-import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
@@ -26,10 +25,10 @@ class _MainScaffoldState extends State<MainScaffold> {
     return [
       const BibliaPage(),
       BlocProvider(
-        create: (context) => SearchBloc(
-          context.read<RepositorioBusca>(),
-          idVersao: versionId,
-        ),
+        create: (context) => context.read<SearchBloc>()
+          ..add(CarregarVersao(
+            idVersao: versionId,
+          )),
         child: const TelaBusca(),
       ),
       BlocProvider(

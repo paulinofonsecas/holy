@@ -39,10 +39,10 @@ class BibliaPage extends StatelessWidget {
           create: (context) => VerseSelectionBloc(),
         ),
         BlocProvider(
-          create: (context) => SearchBloc(
-            context.read(),
-            idVersao: context.read<BibleVersionCubit>().state.version.id,
-          ),
+          create: (context) => context.read<SearchBloc>()
+            ..add(CarregarVersao(
+              idVersao: context.read<BibleVersionCubit>().state.version.id,
+            )),
         ),
       ],
       child: BibliaView(),
