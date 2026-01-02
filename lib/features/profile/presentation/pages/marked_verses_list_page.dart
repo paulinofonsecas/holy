@@ -1,4 +1,5 @@
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
+import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -112,16 +113,35 @@ class MarkedVersesListPage extends StatelessWidget {
                     return MarkedVerseItem(
                       markedVerse: verse,
                       onTap: () {
-                        // Navigate back to bible and show verse
-                        Navigator.pop(context);
-                        context.read<BibliaBloc>().add(
-                              GetChapter(
-                                verse.versionId,
-                                verse.bookId,
-                                verse.chapter.toString(),
-                                verse: verse.verse,
-                              ),
-                            );
+                        try {
+                          // Get BLoC reference before navigation
+                          final bibliaBloc = context.read<BibliaBloc>();
+
+                          // Add event to show the verse
+                          bibliaBloc.add(
+                            GetChapter(
+                              verse.versionId,
+                              verse.bookId,
+                              verse.chapter.toString(),
+                              verse: verse.verse,
+                            ),
+                          );
+
+                          // Change to Bible tab and navigate back
+                          context.read<TabControllerCubit>().goToBible();
+
+                          // Navigate back after changing tab
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                        } catch (e) {
+                          // If there's an error, at least try to navigate back
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                          // Log the error or show a message if needed
+                          print('Error navigating to verse: $e');
+                        }
                       },
                       onDelete: () {
                         _showDeleteDialog(context, verse.verseRef, () {

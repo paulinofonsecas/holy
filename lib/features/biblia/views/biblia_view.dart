@@ -21,17 +21,6 @@ class BibliaPage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) {
-            final bibleVersion =
-                context.read<BibleVersionCubit>().state.version;
-
-            return BibliaBloc(context.read())
-              ..add(
-                GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-              );
-          },
-        ),
-        BlocProvider(
           create: (context) =>
               HighlightBloc(context.read())..add(LoadHighlights()),
         ),
