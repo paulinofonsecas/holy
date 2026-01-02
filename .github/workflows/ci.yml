@@ -16,7 +16,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: '3.38.4'
           cache: true
 
       - name: Install dependencies (Root)
