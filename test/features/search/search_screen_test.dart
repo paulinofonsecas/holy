@@ -21,7 +21,8 @@ class MockSearchBloc extends MockBloc<EventoBusca, EstadoBusca>
 class MockBibliaBloc extends MockBloc<BibliaEvent, BibliaState>
     implements BibliaBloc {}
 
-class MockVerseHistoryBloc extends MockBloc<VerseHistoryEvent, VerseHistoryState>
+class MockVerseHistoryBloc
+    extends MockBloc<VerseHistoryEvent, VerseHistoryState>
     implements VerseHistoryBloc {}
 
 class MockBibleVersionCubit extends MockCubit<BibleVersionState>

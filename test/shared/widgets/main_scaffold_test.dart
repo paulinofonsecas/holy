@@ -82,11 +82,19 @@ void main() {
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       expect(bottomNavBar, findsOneWidget);
-      
-      expect(find.descendant(of: bottomNavBar, matching: find.byIcon(Icons.book)), findsOneWidget);
-      expect(find.descendant(of: bottomNavBar, matching: find.byIcon(Icons.search)), findsOneWidget);
-      expect(find.descendant(of: bottomNavBar, matching: find.byIcon(Icons.person)), findsOneWidget);
-      
+
+      expect(
+          find.descendant(of: bottomNavBar, matching: find.byIcon(Icons.book)),
+          findsOneWidget);
+      expect(
+          find.descendant(
+              of: bottomNavBar, matching: find.byIcon(Icons.search)),
+          findsOneWidget);
+      expect(
+          find.descendant(
+              of: bottomNavBar, matching: find.byIcon(Icons.person)),
+          findsOneWidget);
+
       expect(find.text('Bíblia'), findsWidgets); // Might be in multiple places
       expect(find.text('Pesquisa'), findsWidgets);
       expect(find.text('Perfil'), findsWidgets);
