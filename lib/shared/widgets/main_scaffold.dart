@@ -1,12 +1,10 @@
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
-import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
-import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
@@ -45,50 +43,35 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) {
-            final bibleVersion =
-                context.read<BibleVersionCubit>().state.version;
-            return BibliaBloc(context.read())
-              ..add(
-                GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-              );
-          },
-        ),
-        BlocProvider(create: (context) => TabControllerCubit()),
-      ],
-      child: BlocBuilder<TabControllerCubit, int>(
-        builder: (context, currentIndex) {
-          return Scaffold(
-            body: IndexedStack(
-              index: currentIndex,
-              children: _buildPages(context),
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: currentIndex,
-              onTap: (index) {
-                context.read<TabControllerCubit>().changeTo(index);
-              },
-              items: [
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.book),
-                  label: l10n.bible,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.search),
-                  label: l10n.search,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.person),
-                  label: l10n.profile,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    return BlocBuilder<TabControllerCubit, int>(
+      builder: (context, currentIndex) {
+        return Scaffold(
+          body: IndexedStack(
+            index: currentIndex,
+            children: _buildPages(context),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: (index) {
+              context.read<TabControllerCubit>().changeTo(index);
+            },
+            items: [
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.book),
+                label: l10n.bible,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.search),
+                label: l10n.search,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.person),
+                label: l10n.profile,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

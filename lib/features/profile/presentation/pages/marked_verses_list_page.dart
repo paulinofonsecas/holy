@@ -15,9 +15,13 @@ class MarkedVersesListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return BlocProvider(
-      create: (context) =>
-          MarkedVersesBloc(context.read())..add(LoadMarkedVerses()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              MarkedVersesBloc(context.read())..add(LoadMarkedVerses()),
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.markedVersesTitle),
@@ -140,7 +144,7 @@ class MarkedVersesListPage extends StatelessWidget {
                             Navigator.pop(context);
                           }
                           // Log the error or show a message if needed
-                          print('Error navigating to verse: $e');
+                          print('Error navigating to verse: //\n$e');
                         }
                       },
                       onDelete: () {

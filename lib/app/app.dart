@@ -2,8 +2,10 @@ import 'package:eu_sou/core/design_system/theme/theme_data.dart';
 import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
 import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
+import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,16 @@ class App extends StatelessWidget {
         BlocProvider(create: (context) => context.read<ThemeBloc>()),
         BlocProvider(create: (_) => LocaleBloc()),
         BlocProvider(create: (_) => BibleVersionCubit()),
+        BlocProvider(
+          create: (context) {
+            final bibleVersion =
+                context.read<BibleVersionCubit>().state.version;
+            return BibliaBloc(context.read())
+              ..add(
+                GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
+              );
+          },
+        ),
         BlocProvider(create: (_) => SearchBloc(context.read())),
       ],
       child: Builder(

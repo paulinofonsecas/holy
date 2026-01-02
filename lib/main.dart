@@ -17,6 +17,7 @@ import 'package:eu_sou/features/search/data/repositories/search_repository.dart'
 import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
 import 'package:eu_sou/firebase_options.dart';
+import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -85,6 +86,7 @@ void main() async {
         RepositoryProvider<ThemeBloc>(
           create: (context) => ThemeBloc(context.read<IProfileRepository>()),
         ),
+        BlocProvider(create: (context) => TabControllerCubit()),
       ],
       child: App(),
     ),
