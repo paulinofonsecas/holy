@@ -41,7 +41,8 @@ class DisplaySingleVerse extends StatelessWidget {
               final highlight = highlightState.highlights[verseRef];
               if (highlight != null) {
                 backgroundColor =
-                    Color(int.parse(highlight.colorHex, radix: 16));
+                    Color(int.parse(highlight.colorHex, radix: 16))
+                        .withValues(alpha: .8);
               }
             }
 
@@ -95,7 +96,7 @@ class DisplaySingleVerse extends StatelessWidget {
                                         Brightness.light
                                     ? Colors.black
                                     : Colors.white
-                                : Colors.white,
+                                : Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         TextSpan(
@@ -106,7 +107,7 @@ class DisplaySingleVerse extends StatelessWidget {
                                         Brightness.light
                                     ? Colors.black
                                     : Colors.white
-                                : Colors.white,
+                                : Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],

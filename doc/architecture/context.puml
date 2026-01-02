@@ -1,0 +1,18 @@
+@startuml context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram for Holy App
+
+Person(user, "User", "A person who wants to read and search the Bible.")
+System(holy_system, "Holy System", "Provides Bible reading, searching, and synchronization capabilities.")
+
+System_Ext(firebase, "Firebase", "Cloud services for push notifications and analytics.")
+System_Ext(external_bible_api, "External Bible API", "External source for Bible versions and verses.")
+
+Rel(user, holy_system, "Uses")
+Rel(holy_system, firebase, "Sends analytics and receives notifications")
+Rel(holy_system, external_bible_api, "Fetches Bible data")
+
+@enduml

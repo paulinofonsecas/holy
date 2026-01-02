@@ -45,7 +45,7 @@ class BibliaPage extends StatelessWidget {
           ),
         ),
       ],
-      child: SafeArea(child: BibliaView()),
+      child: BibliaView(),
     );
   }
 }
