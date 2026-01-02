@@ -1,9 +1,13 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
+import 'package:eu_sou/features/search/presentation/widgets/highlighted_text.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,17 +21,35 @@ class MockSearchBloc extends MockBloc<EventoBusca, EstadoBusca>
 class MockBibliaBloc extends MockBloc<BibliaEvent, BibliaState>
     implements BibliaBloc {}
 
+class MockVerseHistoryBloc extends MockBloc<VerseHistoryEvent, VerseHistoryState>
+    implements VerseHistoryBloc {}
+
+class MockBibleVersionCubit extends MockCubit<BibleVersionState>
+    implements BibleVersionCubit {}
+
+class MockTabControllerCubit extends MockCubit<int>
+    implements TabControllerCubit {}
+
 void main() {
   late SearchBloc mockSearchBloc;
   late BibliaBloc mockBibliaBloc;
+  late VerseHistoryBloc mockVerseHistoryBloc;
+  late BibleVersionCubit mockBibleVersionCubit;
+  late TabControllerCubit mockTabControllerCubit;
 
   setUp(() {
     mockSearchBloc = MockSearchBloc();
     mockBibliaBloc = MockBibliaBloc();
+    mockVerseHistoryBloc = MockVerseHistoryBloc();
+    mockBibleVersionCubit = MockBibleVersionCubit();
+    mockTabControllerCubit = MockTabControllerCubit();
 
     // Stubbing getters
     when(() => mockSearchBloc.termoAtual).thenReturn('');
     when(() => mockSearchBloc.scrollOffset).thenReturn(0.0);
+    when(() => mockBibleVersionCubit.state).thenReturn(BibleVersionStateKJA());
+    when(() => mockTabControllerCubit.state).thenReturn(0);
+    when(() => mockVerseHistoryBloc.state).thenReturn(VerseHistoryInitial());
   });
 
   Widget createTestWidget() {
@@ -36,6 +58,9 @@ void main() {
         providers: [
           BlocProvider.value(value: mockSearchBloc),
           BlocProvider.value(value: mockBibliaBloc),
+          BlocProvider.value(value: mockVerseHistoryBloc),
+          BlocProvider.value(value: mockBibleVersionCubit),
+          BlocProvider.value(value: mockTabControllerCubit),
         ],
         child: const TelaBusca(),
       ),
@@ -80,7 +105,7 @@ void main() {
     await tester.pumpWidget(createTestWidget());
 
     expect(find.text('João 3:16'), findsOneWidget);
-    expect(find.text('Porque Deus amou o mundo...'), findsOneWidget);
+    expect(find.byType(HighlightedText), findsOneWidget);
   });
 
   testWidgets('Tapping on a result dispatches GetChapter event and pops screen',
@@ -115,6 +140,11 @@ void main() {
     await tester.tap(find.text('João 3:16'));
     await tester.pumpAndSettle();
 
-    verify(() => mockBibliaBloc.add(GetChapter('NVI', 'JHN', '3'))).called(1);
+    verify(() => mockBibliaBloc.add(GetChapter(
+          'NVI',
+          'JHN',
+          '3',
+          verse: 16,
+        ))).called(1);
   });
 }
