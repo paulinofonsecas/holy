@@ -98,7 +98,7 @@ class _TelaDeLeituraState extends State<TelaDeLeitura> {
         return ShowErrorWidget(message: message);
       } else if (state is BibliaLoading) {
         return const LoadingWidget(
-          message: 'Baixando Bíblia...',
+          message: 'Carreegando a Bíblia...',
         );
       } else {
         return Container();

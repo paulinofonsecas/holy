@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/design_system/theme_extension/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,59 +20,63 @@ class ProfileView extends StatelessWidget {
         title: Text(l10n.profileTitle),
         centerTitle: true,
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          context.read<MarkedVersesBloc>().add(LoadMarkedVerses());
+      body: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) {
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<MarkedVersesBloc>().add(LoadMarkedVerses());
+            },
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              children: [
+                _buildProfileOption(
+                  context,
+                  icon: Icons.bookmark,
+                  title: l10n.markedVersesTitle,
+                  subtitle: 'Ver todos os versículos marcados',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MarkedVersesListPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.palette,
+                  title: l10n.themeColorTitle,
+                  subtitle: 'Personalizar cores e tema',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ThemeSettingsPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.history,
+                  title: l10n.searchHistoryTitle,
+                  subtitle: 'Ver histórico de pesquisas',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SearchHistoryPage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
         },
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          children: [
-            _buildProfileOption(
-              context,
-              icon: Icons.bookmark,
-              title: l10n.markedVersesTitle,
-              subtitle: 'Ver todos os versículos marcados',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MarkedVersesListPage(),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            _buildProfileOption(
-              context,
-              icon: Icons.palette,
-              title: l10n.themeColorTitle,
-              subtitle: 'Personalizar cores e tema',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ThemeSettingsPage(),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            _buildProfileOption(
-              context,
-              icon: Icons.history,
-              title: l10n.searchHistoryTitle,
-              subtitle: 'Ver histórico de pesquisas',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SearchHistoryPage(),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -85,11 +90,12 @@ class ProfileView extends StatelessWidget {
   }) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
+      color: Theme.of(context).colorScheme.surface,
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: Theme.of(context).colorScheme.onSurface,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

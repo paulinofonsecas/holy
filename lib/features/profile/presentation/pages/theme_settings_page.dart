@@ -60,6 +60,7 @@ class ThemeSettingsPage extends StatelessWidget {
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
         return Card(
+          color: Theme.of(context).colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -114,6 +115,7 @@ class ThemeSettingsPage extends StatelessWidget {
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
         return Card(
+          color: Theme.of(context).colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
