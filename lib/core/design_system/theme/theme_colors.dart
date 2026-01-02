@@ -52,7 +52,7 @@ class AppThemeColors {
 
   /// Obtém o nome da cor baseado no valor
   static String getColorName(Color color) {
-    final index = predefinedColors.indexWhere((c) => c.value == color.value);
+    final index = predefinedColors.indexWhere((c) => c == color);
     if (index != -1 && index < colorNames.length) {
       return colorNames[index];
     }
@@ -61,7 +61,7 @@ class AppThemeColors {
 
   /// Verifica se uma cor é uma das predefinidas
   static bool isPredefinedColor(Color color) {
-    return predefinedColors.any((c) => c.value == color.value);
+    return predefinedColors.any((c) => c == color);
   }
 
   /// Obtém uma cor baseada no índice
@@ -74,7 +74,7 @@ class AppThemeColors {
 
   /// Obtém o índice de uma cor predefinida
   static int getColorIndex(Color color) {
-    return predefinedColors.indexWhere((c) => c.value == color.value);
+    return predefinedColors.indexWhere((c) => c == color);
   }
 
   /// Cores para o tema Material 3

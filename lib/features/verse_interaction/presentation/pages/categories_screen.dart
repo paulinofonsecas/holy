@@ -7,9 +7,9 @@ class CategoriesScreen extends StatefulWidget {
   final CategoryRepository categoryRepository;
 
   const CategoriesScreen({
-    Key? key,
+    super.key,
     required this.categoryRepository,
-  }) : super(key: key);
+  });
 
   @override
   State<CategoriesScreen> createState() => _CategoriesScreenState();
@@ -52,7 +52,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 await widget.categoryRepository
                     .createCategory(_categoryNameController.text);
                 _refresh();
-                Navigator.pop(context);
+                // ignore: use_build_context_synchronously
+                if (mounted) Navigator.pop(context);
               }
             },
             child: const Text('Add'),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
+import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -47,7 +48,7 @@ class GithubBibleProvider extends IBibleProvider {
 
     if (_chapterCacheKeys.length >= _maxCachedChapters) {
       final oldestKey = _chapterCacheKeys.removeAt(0);
-      print('Evicting chapter from cache: $oldestKey');
+      LoggerService().debug('Evicting chapter from cache: $oldestKey');
       final parts = oldestKey.split('|');
       if (parts.length == 3) {
         final vId = parts[0];
@@ -142,7 +143,7 @@ class GithubBibleProvider extends IBibleProvider {
       }
     } catch (e) {
       // Log error or handle it
-      print('Error fetching versions: $e');
+      LoggerService().error('Error fetching versions: $e');
       return [];
     }
   }
@@ -153,7 +154,7 @@ class GithubBibleProvider extends IBibleProvider {
       final books = await _getOrLoadBooks(versionId);
       return books.map((b) => InfoBook(id: b.id, name: b.name)).toList();
     } catch (e) {
-      print('Error fetching books for $versionId: $e');
+      LoggerService().error('Error fetching books for $versionId: $e');
       return [];
     }
   }
@@ -190,7 +191,8 @@ class GithubBibleProvider extends IBibleProvider {
         return Chapter(number: row['chapter'] as int, verses: []);
       }).toList();
     } catch (e) {
-      print('Error fetching chapters for $versionId, $bookId: $e');
+      LoggerService()
+          .error('Error fetching chapters for $versionId, $bookId: $e');
       return [];
     }
   }
@@ -269,7 +271,8 @@ class GithubBibleProvider extends IBibleProvider {
 
       return chapter;
     } catch (e) {
-      print('Error fetching chapter $chapterId for $versionId, $bookId: $e');
+      LoggerService().error(
+          'Error fetching chapter $chapterId for $versionId, $bookId: $e');
       rethrow;
     }
   }

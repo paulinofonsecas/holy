@@ -64,7 +64,7 @@ lib/
 │       ├── provider/
 │       │   └── github_bible_provider.dart # Updated: Integration with cache
 │       └── repositories/
-│           └── bibleRepository.dart       # Updated: Use cache-aware provider
+│           └── bible_repository.dart       # Updated: Use cache-aware provider
 ```
 
 **Structure Decision**: The core logic will reside in `packages/bible_handler` to comply with the project constitution. The main app will be updated to use the new cache-aware repository and provider.

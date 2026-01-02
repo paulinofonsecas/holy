@@ -10,9 +10,9 @@ class UserProfileView extends StatelessWidget {
     // Use state management here to connect with viewmodel
     return Scaffold(
       appBar: AppBar(
-        title: Text('UserProfile'),
+        title: const Text('UserProfile'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('UserProfile View'),
       ),
     );

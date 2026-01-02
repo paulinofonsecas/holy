@@ -93,7 +93,7 @@ class ThemeColorPicker extends StatelessWidget {
                       ),
                 ),
                 Text(
-                  '#${currentColor.value.toRadixString(16).toUpperCase().substring(2)}',
+                  '#${currentColor.toARGB32().toRadixString(16).toUpperCase().substring(2)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontFamily: 'monospace',
@@ -121,7 +121,7 @@ class ThemeColorPicker extends StatelessWidget {
       itemBuilder: (context, index) {
         final color = AppThemeColors.predefinedColors[index];
         final colorName = AppThemeColors.colorNames[index];
-        final isSelected = currentColor.value == color.value;
+        final isSelected = currentColor == color;
 
         return _buildColorItem(
           context,

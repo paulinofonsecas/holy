@@ -4,7 +4,7 @@ import 'package:eu_sou/app/app.dart';
 import 'package:eu_sou/core/data/database_helper.dart';
 import 'package:eu_sou/core/data/provider/github_bible_provider.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
-import 'package:eu_sou/core/data/repositories/bibleRepository.dart';
+import 'package:eu_sou/core/data/repositories/bible_repository.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
@@ -93,7 +93,7 @@ void main() async {
         ),
         BlocProvider(create: (context) => TabControllerCubit()),
       ],
-      child: App(),
+      child: const App(),
     ),
   );
 }

@@ -152,7 +152,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
   Future<void> setAccentColor(Color color) async {
     if (_profileRepository != null) {
-      final colorHex = color.value.toRadixString(16).padLeft(8, '0');
+      final colorHex = color.toARGB32().toRadixString(16).padLeft(8, '0');
       await _profileRepository.setAccentColor(colorHex);
     }
     emit(state.copyWith(accentColor: color));

@@ -62,8 +62,8 @@ class _VersionLoaderScreenState extends State<VersionLoaderScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              colorScheme.primary.withOpacity(0.05),
-              colorScheme.secondary.withOpacity(0.05),
+              colorScheme.primary.withValues(alpha: 0.05),
+              colorScheme.secondary.withValues(alpha: 0.05),
             ],
           ),
         ),
@@ -91,7 +91,7 @@ class _VersionLoaderScreenState extends State<VersionLoaderScreen>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: colorScheme.primary.withOpacity(0.3),
+                          color: colorScheme.primary.withValues(alpha: 0.3),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -179,16 +179,16 @@ class VersionLoadingOverlay extends StatelessWidget {
   final String versionName;
 
   const VersionLoadingOverlay({
-    Key? key,
+    super.key,
     required this.versionName,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      color: Colors.black.withOpacity(0.3),
+      color: Colors.black.withValues(alpha: 0.3),
       child: Center(
         child: Card(
           elevation: 8,

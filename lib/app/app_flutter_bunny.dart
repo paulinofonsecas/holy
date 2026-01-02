@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FlutterBunnyScreen extends StatefulWidget {
-  const FlutterBunnyScreen({Key? key}) : super(key: key);
+  const FlutterBunnyScreen({super.key});
 
   @override
   State<FlutterBunnyScreen> createState() => _FlutterBunnyScreenState();
@@ -51,6 +51,8 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
     );
 
     await notificationHandler.showLocalNotification(notification);
+
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

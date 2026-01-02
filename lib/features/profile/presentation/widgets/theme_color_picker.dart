@@ -41,7 +41,7 @@ class ThemeColorPicker extends StatelessWidget {
                   spacing: 12,
                   runSpacing: 12,
                   children: predefinedColors.map((color) {
-                    final isSelected = state.primaryColor.value == color.value;
+                    final isSelected = state.primaryColor == color;
                     return GestureDetector(
                       onTap: () {
                         context

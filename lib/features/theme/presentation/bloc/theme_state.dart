@@ -29,6 +29,6 @@ class ThemeState extends Equatable {
 
   @override
   String toString() {
-    return 'ThemeState(themeMode: $themeMode, primaryColor: #${primaryColor.value.toRadixString(16)}, isInitialized: $isInitialized)';
+    return 'ThemeState(themeMode: $themeMode, primaryColor: #${primaryColor.toARGB32().toRadixString(16)}, isInitialized: $isInitialized)';
   }
 }

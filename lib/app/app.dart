@@ -16,7 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Main App widget that configures the application using BLoC pattern.
 class App extends StatelessWidget {
   /// Creates a new App instance.
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
