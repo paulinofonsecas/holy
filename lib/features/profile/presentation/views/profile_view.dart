@@ -1,16 +1,48 @@
+import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
+import '../../../../core/services/feedback_service.dart';
+import '../../../feedback/views/about_view.dart';
 import '../../../theme/presentation/bloc/theme_bloc.dart';
 import '../bloc/marked_verses_bloc.dart';
 import '../pages/marked_verses_list_page.dart';
-import '../pages/search_history_page.dart';
 import '../pages/theme_settings_page.dart';
 import '../pages/verse_history_page.dart';
 
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key});
+  ProfileView({super.key});
+
+  final _feedbackService = FeedbackService();
+
+  void _navigateToAbout(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AboutView(),
+      ),
+    );
+  }
+
+  void _showFeedback(BuildContext context) {
+    BetterFeedback.of(context).show((UserFeedback feedback) async {
+      await _feedbackService.sendFeedback(
+        feedback.text,
+        feedback.screenshot,
+      );
+
+      // Show confirmation
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Obrigado pelo seu feedback!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,21 +94,6 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
-                  icon: Icons.history,
-                  title: l10n.searchHistoryTitle,
-                  subtitle: 'Ver histórico de pesquisas',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SearchHistoryPage(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildProfileOption(
-                  context,
                   icon: Icons.menu_book,
                   title: 'Histórico de Versículos',
                   subtitle: 'Ver versículos visualizados recentemente',
@@ -88,6 +105,36 @@ class ProfileView extends StatelessWidget {
                       ),
                     );
                   },
+                ),
+                /*
+                ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('Sobre'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: viewModel.navigateToAbout,
+          ),
+          ListTile(
+            leading: const Icon(Icons.bug_report_outlined),
+            title: const Text('Relatar um Problema'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => viewModel.showFeedback(context),
+          ),
+                */
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.info,
+                  title: 'Sobre',
+                  subtitle: 'Saiba mais sobre este aplicativo',
+                  onTap: () => _navigateToAbout(context),
+                ),
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.bug_report,
+                  title: 'Relatar um Problema',
+                  subtitle: 'Relatar um problema ou enviar feedback',
+                  onTap: () => _showFeedback(context),
                 ),
               ],
             ),
