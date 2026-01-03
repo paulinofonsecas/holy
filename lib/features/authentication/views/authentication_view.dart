@@ -3,16 +3,16 @@
 import 'package:flutter/material.dart';
 
 class AuthenticationView extends StatelessWidget {
-  const AuthenticationView({Key? key}) : super(key: key);
+  const AuthenticationView({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Use state management here to connect with viewmodel
     return Scaffold(
       appBar: AppBar(
-        title: Text('Authentication'),
+        title: const Text('Authentication'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Authentication View'),
       ),
     );

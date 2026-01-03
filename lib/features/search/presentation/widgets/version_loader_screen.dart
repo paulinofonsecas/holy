@@ -12,10 +12,10 @@ class VersionLoaderScreen extends StatefulWidget {
   final String? message;
 
   const VersionLoaderScreen({
-    Key? key,
+    super.key,
     required this.versionName,
     this.message,
-  }) : super(key: key);
+  });
 
   @override
   State<VersionLoaderScreen> createState() => _VersionLoaderScreenState();
@@ -97,7 +97,7 @@ class _VersionLoaderScreenState extends State<VersionLoaderScreen>
                         ),
                       ],
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Icon(
                         Icons.auto_awesome_rounded,
                         color: Colors.white,

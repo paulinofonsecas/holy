@@ -46,7 +46,7 @@ class DisplaySingleVerse extends StatelessWidget {
               }
             }
 
-            final style = TextStyle(
+            const style = TextStyle(
               fontSize: 18,
               color: AppColor.textPrimary,
             );
@@ -93,7 +93,7 @@ class DisplaySingleVerse extends StatelessWidget {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: verse.number.toString() + " ",
+                            text: "${verse.number} ",
                             style: style.copyWith(
                               fontWeight: FontWeight.w500,
                               color: !isHighlighted

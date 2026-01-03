@@ -28,21 +28,21 @@ class VersaoWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                   ),
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      const Text(
                         'Escolha uma versão',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Gap(16),
+                      const Gap(16),
                       ...BibleVersions.values.map((e) {
                         return Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
@@ -54,8 +54,8 @@ class VersaoWidget extends StatelessWidget {
                               Navigator.pop(context);
                             },
                             title: Text(
-                              e.id + ' - ' + e.name,
-                              style: TextStyle(),
+                              '${e.id} - ${e.name}',
+                              style: const TextStyle(),
                             ),
                             trailing: Icon(
                               Icons.chevron_right,
@@ -65,7 +65,7 @@ class VersaoWidget extends StatelessWidget {
                             ),
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
@@ -75,7 +75,7 @@ class VersaoWidget extends StatelessWidget {
         );
       },
       child: Container(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 8,
         ),
@@ -90,7 +90,7 @@ class VersaoWidget extends StatelessWidget {
               size: 18,
               color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
-            Gap(8),
+            const Gap(8),
             Text(
               bibleVersion.id,
               style: TextStyle(
@@ -98,7 +98,7 @@ class VersaoWidget extends StatelessWidget {
                 fontSize: 12,
               ),
             ),
-            Gap(3),
+            const Gap(3),
           ],
         ),
       ),

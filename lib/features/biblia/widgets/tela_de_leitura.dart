@@ -1,3 +1,5 @@
+import 'dart:developer' show log;
+
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/chapter_visualizer_widget.dart';
 import 'package:eu_sou/shared/widgets/loading_widget.dart';
@@ -85,7 +87,7 @@ class _TelaDeLeituraState extends State<TelaDeLeitura> {
           ),
         );
       } else if (state is BibleError) {
-        print(state.message);
+        log(state.message);
 
         late String message;
 

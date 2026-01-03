@@ -47,7 +47,7 @@ void main() {
     mockMarkedVersesRepository = MockMarkedVersesRepository();
 
     when(() => mockTabControllerCubit.state).thenReturn(0);
-    when(() => mockBibleVersionCubit.state).thenReturn(BibleVersionStateKJA());
+    when(() => mockBibleVersionCubit.state).thenReturn(const BibleVersionStateKJA());
     when(() => mockSearchBloc.state).thenReturn(BuscaInicial());
     when(() => mockSearchBloc.termoAtual).thenReturn('');
     when(() => mockSearchBloc.scrollOffset).thenReturn(0.0);

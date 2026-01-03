@@ -15,7 +15,7 @@ final class BibliaLoading extends BibliaState {}
 final class BibleError extends BibliaState {
   final String message;
 
-  BibleError(this.message);
+  const BibleError(this.message);
 
   @override
   List<Object> get props => [message];
@@ -26,7 +26,7 @@ final class BibleChapterLoaded extends BibliaState {
   final String versionId;
   final int? targetVerse;
 
-  BibleChapterLoaded(this.chapter, {required this.versionId, this.targetVerse});
+  const BibleChapterLoaded(this.chapter, {required this.versionId, this.targetVerse});
 
   @override
   List<Object> get props => [chapter, versionId, targetVerse ?? 1];

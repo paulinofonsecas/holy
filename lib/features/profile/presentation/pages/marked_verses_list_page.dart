@@ -1,3 +1,5 @@
+import 'dart:developer' show log;
+
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
@@ -144,7 +146,7 @@ class MarkedVersesListPage extends StatelessWidget {
                             Navigator.pop(context);
                           }
                           // Log the error or show a message if needed
-                          print('Error navigating to verse: //\n$e');
+                          log('Error navigating to verse: //\n$e');
                         }
                       },
                       onDelete: () {

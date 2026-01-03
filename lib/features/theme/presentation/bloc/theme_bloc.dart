@@ -25,7 +25,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     on<SystemThemeDetected>(_onSystemThemeDetected);
 
     // Inicializar o tema ao criar o bloc
-    add(ThemeInitialized());
+    add(const ThemeInitialized());
   }
 
   Future<void> _onThemeInitialized(
@@ -52,7 +52,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
           try {
             primaryColor = Color(int.parse(savedColorHex, radix: 16));
             _logger
-                .debug('🎨 Cor primária carregada do perfil: ${savedColorHex}');
+                .debug('🎨 Cor primária carregada do perfil: $savedColorHex');
           } catch (e) {
             _logger.warning('⚠️ Erro ao converter cor salva, usando padrão', e);
           }
@@ -114,7 +114,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
         final colorHex =
             event.color.toARGB32().toRadixString(16).padLeft(8, '0');
         await _profileRepository.setAccentColor(colorHex);
-        _logger.debug('💾 Cor salva no perfil: ${colorHex}');
+        _logger.debug('💾 Cor salva no perfil: $colorHex');
       } else {
         // Fallback para SharedPreferences
         final prefs = await SharedPreferences.getInstance();
@@ -125,7 +125,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
       emit(state.copyWith(primaryColor: event.color));
 
       final colorName = AppThemeColors.getColorName(event.color);
-      _logger.info('✅ Cor primária alterada para: ${colorName}');
+      _logger.info('✅ Cor primária alterada para: $colorName');
     } catch (e, stackTrace) {
       _logger.error('❌ Erro ao alterar cor primária', e, stackTrace);
     }

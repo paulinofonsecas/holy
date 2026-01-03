@@ -3,16 +3,16 @@
 import 'package:flutter/material.dart';
 
 class SettingsView extends StatelessWidget {
-  const SettingsView({Key? key}) : super(key: key);
+  const SettingsView({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Use state management here to connect with viewmodel
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Settings View'),
       ),
     );

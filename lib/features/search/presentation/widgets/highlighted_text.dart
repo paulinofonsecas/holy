@@ -7,12 +7,12 @@ class HighlightedText extends StatelessWidget {
   final TextStyle? highlightStyle;
 
   const HighlightedText({
-    Key? key,
+    super.key,
     required this.text,
     required this.highlightedWord,
     this.style,
     this.highlightStyle,
-  }) : super(key: key);
+  });
 
   String _removeDiacritics(String str) {
     var withDia =

@@ -487,7 +487,7 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
                         Navigator.pop(context);
                       },
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             );

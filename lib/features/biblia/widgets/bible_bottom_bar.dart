@@ -15,10 +15,10 @@ class BibleBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(32),
           topRight: Radius.circular(32),
         ),
@@ -27,7 +27,7 @@ class BibleBottomBar extends StatelessWidget {
             // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
-            offset: Offset(0, -5),
+            offset: const Offset(0, -5),
           ),
         ],
       ),
@@ -38,7 +38,7 @@ class BibleBottomBar extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Carregando..."),
+              const Text("Carregando..."),
               const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
@@ -76,10 +76,10 @@ class BibleBottomBar extends StatelessWidget {
                   child: InkWell(
                     onTap: onTap,
                     child: Text(
-                      chapter.bookName! + " " + chapter.number.toString(),
+                      "${chapter.bookName!} ${chapter.number}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w500,
                       ),

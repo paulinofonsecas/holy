@@ -178,7 +178,7 @@ class FCMService {
     try {
       // This is a simplified check - in production, use a package like 'device_info_plus'
       // to more accurately determine if the device is physical
-      return !bool.fromEnvironment('dart.vm.product');
+      return !const bool.fromEnvironment('dart.vm.product');
     } catch (e) {
       return false;
     }

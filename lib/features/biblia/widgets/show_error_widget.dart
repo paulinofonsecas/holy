@@ -15,39 +15,37 @@ class ShowErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Center(
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            Gap(16),
-            ElevatedButton(
-              onPressed: () {
-                context.read<BibliaBloc>()
-                  ..add(
-                    GetChapter(
-                      context.read<BibleVersionCubit>().state.version.id,
-                      BibleBooks.genesis.bookId,
-                      '1',
-                    ),
-                  );
-              },
-              child: Text("Tentar novamente"),
-            ),
-          ],
-        ),
+          ),
+          const Gap(16),
+          ElevatedButton(
+            onPressed: () {
+              context.read<BibliaBloc>()
+                .add(
+                  GetChapter(
+                    context.read<BibleVersionCubit>().state.version.id,
+                    BibleBooks.genesis.bookId,
+                    '1',
+                  ),
+                );
+            },
+            child: const Text("Tentar novamente"),
+          ),
+        ],
       ),
     );
   }

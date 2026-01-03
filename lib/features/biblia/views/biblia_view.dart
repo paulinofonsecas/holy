@@ -14,7 +14,7 @@ import '../bloc/biblia_bloc.dart';
 import '../widgets/biblia_app_bar.dart';
 
 class BibliaPage extends StatelessWidget {
-  const BibliaPage({Key? key}) : super(key: key);
+  const BibliaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +28,13 @@ class BibliaPage extends StatelessWidget {
           create: (context) => VerseSelectionBloc(),
         ),
       ],
-      child: BibliaView(),
+      child: const BibliaView(),
     );
   }
 }
 
 class BibliaView extends StatelessWidget {
-  const BibliaView({Key? key}) : super(key: key);
+  const BibliaView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +76,7 @@ class BibliaView extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              Gap(16),
+              const Gap(16),
               BibleAppBar(
                 onBookTap: () {
                   SwitchBookModal.show(context);
@@ -151,7 +151,7 @@ class BibliaView extends StatelessWidget {
                       }
                     }
                   },
-                  child: TelaDeLeitura(),
+                  child: const TelaDeLeitura(),
                 ),
               ),
               BlocBuilder<BibliaBloc, BibliaState>(

@@ -7,12 +7,12 @@ class ColorPickerModal extends StatelessWidget {
   final VoidCallback? onShare;
 
   const ColorPickerModal({
-    Key? key,
+    super.key,
     required this.verseRef,
     required this.onColorSelected,
     required this.onRemoveHighlight,
     this.onShare,
-  }) : super(key: key);
+  });
 
   static const List<Map<String, dynamic>> colors = [
     {'name': 'Yellow', 'color': Color(0xFFFFF176), 'hex': 'FFFFF176'},
@@ -41,7 +41,7 @@ class ColorPickerModal extends StatelessWidget {
               color: Theme.of(context)
                   .colorScheme
                   .onSurfaceVariant
-                  .withOpacity(0.4),
+                  .withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -68,7 +68,7 @@ class ColorPickerModal extends StatelessWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .outline
-                          .withOpacity(0.2),
+                          .withValues(alpha: 0.2),
                     ),
                   ),
                 ),

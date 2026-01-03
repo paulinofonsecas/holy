@@ -61,8 +61,8 @@ class AppTheme {
         onSecondaryContainer: null,
       ),
       scaffoldBackgroundColor: const Color(0xFF030712),
-      appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFF030712),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF030712),
       ),
       extensions: [
         _darkAppColors,

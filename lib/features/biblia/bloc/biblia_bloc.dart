@@ -30,7 +30,7 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
     if (state is BibleChapterLoaded) {
       final currentState = state as BibleChapterLoaded;
       if (currentState.versionId == event.version &&
-          currentState.chapter.number == event.chapter &&
+          currentState.chapter.number.toString() == event.chapter &&
           currentState.chapter.bookId == event.book) {
         // Se o versículo alvo for diferente, emitimos o novo estado para disparar o scroll
         if (currentState.targetVerse != event.verse) {

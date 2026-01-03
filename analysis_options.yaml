@@ -4,6 +4,7 @@ analyzer:
   errors:
     invalid_return_type_for_catch_error: ignore
     depend_on_referenced_packages: ignore
+    deprecated_member_use: ignore
   exclude:
     - "*.md"
     - "lib/gen/**"

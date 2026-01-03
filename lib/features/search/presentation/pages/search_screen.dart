@@ -10,7 +10,7 @@ import '../bloc/search_bloc.dart';
 import '../widgets/highlighted_text.dart';
 
 class TelaBusca extends StatefulWidget {
-  const TelaBusca({Key? key}) : super(key: key);
+  const TelaBusca({super.key});
 
   @override
   State<TelaBusca> createState() => _TelaBuscaState();
@@ -176,7 +176,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                                       },
                                     ),
                                   );
-                                }).toList(),
+                                }),
                               ],
                             ),
                           ),

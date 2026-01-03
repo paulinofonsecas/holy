@@ -41,7 +41,7 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
       ),
     ),
     mainContentSliversBuilder: (sliverContext) {
-      final books = BibleBooks.values;
+      const books = BibleBooks.values;
       return [
         BlocProvider.value(
           value: context.read<BibliaBloc>(),
@@ -86,7 +86,7 @@ class BibleBookListItem extends StatelessWidget {
         size: 18,
       ),
       expandedAlignment: Alignment.topLeft,
-      childrenPadding: EdgeInsets.all(8),
+      childrenPadding: const EdgeInsets.all(8),
       children: [
         GridView.count(
           shrinkWrap: true,

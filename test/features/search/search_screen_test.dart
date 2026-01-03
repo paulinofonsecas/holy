@@ -48,7 +48,7 @@ void main() {
     // Stubbing getters
     when(() => mockSearchBloc.termoAtual).thenReturn('');
     when(() => mockSearchBloc.scrollOffset).thenReturn(0.0);
-    when(() => mockBibleVersionCubit.state).thenReturn(BibleVersionStateKJA());
+    when(() => mockBibleVersionCubit.state).thenReturn(const BibleVersionStateKJA());
     when(() => mockTabControllerCubit.state).thenReturn(0);
     when(() => mockVerseHistoryBloc.state).thenReturn(VerseHistoryInitial());
   });
