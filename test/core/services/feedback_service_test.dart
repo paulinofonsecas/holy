@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class MockFirebaseStorage extends Mock implements FirebaseStorage {}
+
 class MockFirebaseCrashlytics extends Mock implements FirebaseCrashlytics {}
 
 void main() {

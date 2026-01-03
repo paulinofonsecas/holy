@@ -1,9 +1,10 @@
+import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'dart:io';
 
 class FeedbackService {
   final FirebaseStorage _storage;
@@ -20,7 +21,7 @@ class FeedbackService {
     final timestamp = DateTime.now();
     final packageInfo = await PackageInfo.fromPlatform();
     final appVersion = "${packageInfo.version} (${packageInfo.buildNumber})";
-    
+
     Map<String, dynamic> deviceData = {};
     try {
       if (Platform.isAndroid) {
@@ -66,7 +67,7 @@ class FeedbackService {
     });
 
     await _crashlytics.log("User Feedback: $text");
-    
+
     await _crashlytics.recordError(
       "User Feedback Report",
       null,

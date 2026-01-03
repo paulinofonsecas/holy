@@ -22,7 +22,7 @@ class UserProfileViewModel extends BaseViewModel {
         feedback.text,
         feedback.screenshot,
       );
-      
+
       // Show confirmation
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

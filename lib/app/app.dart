@@ -22,9 +22,9 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BetterFeedback(
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (context) => context.read<ThemeBloc>()),
+        child: MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => context.read<ThemeBloc>()),
         BlocProvider(create: (_) => LocaleBloc()),
         BlocProvider(create: (_) => BibleVersionCubit()),
         BlocProvider(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+
 import '../viewmodels/about_viewmodel.dart';
 
 class AboutView extends StackedView<AboutViewModel> {
@@ -56,12 +57,14 @@ class AboutView extends StackedView<AboutViewModel> {
                 ListTile(
                   leading: const Icon(Icons.language),
                   title: const Text('Site Oficial'),
-                  onTap: () => viewModel.launchUrlExternal('https://github.com/paulinofonsecas/holy'),
+                  onTap: () => viewModel.launchUrlExternal(
+                      'https://github.com/paulinofonsecas/holy'),
                 ),
                 ListTile(
                   leading: const Icon(Icons.code),
                   title: const Text('Código Fonte'),
-                  onTap: () => viewModel.launchUrlExternal('https://github.com/paulinofonsecas/holy'),
+                  onTap: () => viewModel.launchUrlExternal(
+                      'https://github.com/paulinofonsecas/holy'),
                 ),
                 ListTile(
                   leading: const Icon(Icons.description),
