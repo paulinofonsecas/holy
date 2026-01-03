@@ -10,6 +10,9 @@ class NotificationHandler {
   late final FCMService _fcmService;
   late final LocalNotificationService _localNotificationService;
 
+  LocalNotificationService get localNotificationService =>
+      _localNotificationService;
+
   /// Initialize notification services
   Future<bool> initialize() async {
     try {

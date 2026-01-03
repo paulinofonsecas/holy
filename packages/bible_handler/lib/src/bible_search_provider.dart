@@ -176,6 +176,70 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
     }
   }
 
+  @override
+  Future<SearchResult?> getRandomVerse({
+    String? versionId,
+    List<String>? bookIds,
+  }) async {
+    try {
+      String sql = '''
+        SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation,
+               ver.id as version_abbreviation
+        FROM verses_fts v
+        JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
+        JOIN versions ver ON v.version_id = ver.id
+        WHERE 1=1
+      ''';
+
+      List<dynamic> args = [];
+
+      if (versionId != null) {
+        sql += ' AND v.version_id = ?';
+        args.add(versionId);
+      }
+
+      if (bookIds != null && bookIds.isNotEmpty) {
+        final placeholders = List.filled(bookIds.length, '?').join(',');
+        sql += ' AND v.book_id IN ($placeholders)';
+        args.addAll(bookIds);
+      }
+
+      sql += ' ORDER BY RANDOM() LIMIT 1';
+
+      final results = await db.rawQuery(sql, args);
+
+      if (results.isEmpty) return null;
+
+      final row = results.first;
+      final book = Book(
+        id: row['book_id'] as String,
+        name: row['book_name'] as String,
+        longName: row['book_long_name'] as String,
+        abbreviation: row['book_abbreviation'] as String,
+        chapters: [],
+      );
+
+      final chapter = Chapter(number: row['chapter'] as int, verses: []);
+
+      final verse = Verse(
+        number: row['verse'] as int,
+        text: row['text'] as String,
+      );
+
+      return SearchResult(
+        versionId: row['version_id'] as String,
+        versionAbbreviation: row['version_abbreviation'] as String?,
+        book: book,
+        chapter: chapter,
+        verse: verse,
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('Get random verse failed: $e');
+      return null;
+    }
+  }
+
   String _removeDiacritics(String str) {
     var withDia =
         'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';

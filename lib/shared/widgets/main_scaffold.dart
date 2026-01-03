@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/core/notifications/notification_handler.dart';
+import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
@@ -18,6 +22,47 @@ class MainScaffold extends StatefulWidget {
 }
 
 class _MainScaffoldState extends State<MainScaffold> {
+  @override
+  void initState() {
+    super.initState();
+    notificationHandler.addOnNotificationTapListener(_handleNotificationTap);
+  }
+
+  @override
+  void dispose() {
+    notificationHandler.removeOnNotificationTapListener(_handleNotificationTap);
+    super.dispose();
+  }
+
+  void _handleNotificationTap(String? payload) {
+    if (payload == null) return;
+
+    try {
+      final data = jsonDecode(payload);
+      if (data['type'] == 'verse_of_the_day') {
+        final versionId = data['versionId'] as String;
+        final bookId = data['bookId'] as String;
+        final chapter = data['chapter'].toString();
+        final verse = data['verse'].toString();
+
+        // Switch to Bible tab
+        if (mounted) {
+          context.read<TabControllerCubit>().changeTo(0);
+
+          // Load the verse
+          context.read<BibliaBloc>().add(GetChapter(
+                versionId,
+                bookId,
+                chapter,
+                verse: int.parse(verse),
+              ));
+        }
+      }
+    } catch (e) {
+      debugPrint('Error handling notification tap: $e');
+    }
+  }
+
   List<Widget> _buildPages(BuildContext context) {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
 

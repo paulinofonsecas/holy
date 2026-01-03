@@ -7,6 +7,7 @@ import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repo
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
+import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
@@ -47,6 +48,12 @@ class App extends StatelessWidget {
           create: (context) => VerseHistoryBloc(
             context.read<IVerseHistoryRepository>(),
           )..add(LoadVerseHistory()),
+        ),
+        BlocProvider(
+          create: (context) => VerseOfTheDayBloc(
+            repository: context.read(),
+            service: context.read(),
+          )..add(LoadVerseOfTheDaySettings()),
         ),
       ],
       child: Builder(

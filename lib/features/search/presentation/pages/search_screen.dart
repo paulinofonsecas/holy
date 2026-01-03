@@ -265,7 +265,25 @@ class _TelaBuscaState extends State<TelaBusca> {
                                 subtitle: Text(livro.longName),
                                 trailing: Text(livro.abbreviation),
                                 onTap: () {
-                                  Navigator.pop(context, livro);
+                                  if (Navigator.of(context).canPop()) {
+                                    Navigator.of(context).pop(livro);
+                                  } else {
+                                    final idVersao = context
+                                        .read<BibleVersionCubit>()
+                                        .state
+                                        .version
+                                        .id;
+                                    context.read<BibliaBloc>().add(
+                                          GetChapter(
+                                            idVersao,
+                                            livro.id,
+                                            '1',
+                                          ),
+                                        );
+                                    context
+                                        .read<TabControllerCubit>()
+                                        .goToBible();
+                                  }
                                 },
                               );
                             },
@@ -321,10 +339,15 @@ class _TelaBuscaState extends State<TelaBusca> {
                                     ),
                                   );
 
-                                  // Change to Bible tab and navigate back
-                                  context
-                                      .read<TabControllerCubit>()
-                                      .goToBible();
+                                  // Se estiver em uma rota pushada (ex: vindo da BibliaAppBar), damos pop
+                                  // Caso contrário (ex: aba de busca), mudamos para a aba da Bíblia
+                                  if (Navigator.of(context).canPop()) {
+                                    Navigator.of(context).pop(resultado);
+                                  } else {
+                                    context
+                                        .read<TabControllerCubit>()
+                                        .goToBible();
+                                  }
                                 },
                                 title: Row(
                                   children: [

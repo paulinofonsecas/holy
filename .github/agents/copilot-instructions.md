@@ -14,6 +14,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-01
 - SQLite (via `sqflite`) (009-premium-search-filters)
 - Dart/Flutter + `firebase_crashlytics`, `feedback`, `stacked`, `url_launcher` (010-user-feedback)
 - N/A (Firebase Crashlytics for reports) (010-user-feedback)
+- Dart 3.x, Flutter 3.x + `flutter_local_notifications`, `timezone`, `bible_handler` (internal), `shared_preferences` (011-verse-of-the-day)
+- `shared_preferences` for user preferences (time, version, scope) (011-verse-of-the-day)
 
 - Dart ^3.6.0, Flutter >=3.38.4 + `bible_handler` (internal), `sqflite`, `flutter_bloc` or `stacked`, `share_plus` (001-verse-search)
 
@@ -33,9 +35,9 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
+- 011-verse-of-the-day: Added Dart 3.x, Flutter 3.x + `flutter_local_notifications`, `timezone`, `bible_handler` (internal), `shared_preferences`
 - 010-user-feedback: Added Dart/Flutter + `firebase_crashlytics`, `feedback`, `stacked`, `url_launcher`
 - 009-premium-search-filters: Added Dart 3.6.0, Flutter 3.38.4 + `bloc`, `sqflite`, `bible_handler` (internal package)
-- 007-bottom-navigation-bar: Added Dart / Flutter + `flutter`, `flutter_bloc`
 
 
 <!-- MANUAL ADDITIONS START -->

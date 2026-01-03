@@ -253,6 +253,10 @@ class GithubBibleProvider extends IBibleProvider {
       // 3. Fallback to full load if not cached or something went wrong
       // This will populate _cache and _booksCache
       final bible = await urlLoader(versionId);
+
+      // Save to SQLite Cache
+      await cacheProvider.cacheVersion(bible, versionId: versionId);
+
       _cache[versionId] = bible;
       _booksCache[versionId] = bible.books;
 

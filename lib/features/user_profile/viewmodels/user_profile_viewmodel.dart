@@ -24,12 +24,14 @@ class UserProfileViewModel extends BaseViewModel {
       );
 
       // Show confirmation
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Obrigado pelo seu feedback!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Obrigado pelo seu feedback!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     });
   }
 }

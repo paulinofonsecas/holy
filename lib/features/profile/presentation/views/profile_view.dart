@@ -6,6 +6,7 @@ import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/services/feedback_service.dart';
 import '../../../feedback/views/about_view.dart';
 import '../../../theme/presentation/bloc/theme_bloc.dart';
+import '../../../verse_of_the_day/presentation/pages/verse_of_the_day_settings_page.dart';
 import '../bloc/marked_verses_bloc.dart';
 import '../pages/marked_verses_list_page.dart';
 import '../pages/theme_settings_page.dart';
@@ -102,6 +103,21 @@ class ProfileView extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const VerseHistoryPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.notifications_active,
+                  title: 'Versículo do Dia',
+                  subtitle: 'Configurar notificações diárias',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const VerseOfTheDaySettingsPage(),
                       ),
                     );
                   },

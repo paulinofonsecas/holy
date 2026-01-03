@@ -7,6 +7,11 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
+## Clarifications
+### Session 2026-01-03
+- Q: Where should the configuration screen for the "Verse of the Day" alerts be located? → A: Inside Profile Screen (Option B).
+- Q: How should the user filter the source of verses by book? → A: Category Selection (e.g., "Pentateuch", "Gospels", "Epistles") (Option B).
+
 ### User Story 1 - Daily Verse Notification (Priority: P1)
 
 As a user, I want to receive a daily notification with a Bible verse so that I can start my day with a spiritual reflection.
@@ -64,10 +69,10 @@ As a user, I want to customize which books, Bible version, and what time I recei
 
 ### Functional Requirements
 
-- **FR-001**: System MUST allow users to enable or disable the "Verse of the Day" notification service.
+- **FR-001**: System MUST allow users to enable or disable the "Verse of the Day" notification service via a new option in the Profile screen.
 - **FR-002**: System MUST allow users to select a specific time of day (hour and minute) for the daily notification.
 - **FR-003**: System MUST allow users to select a Bible version from the installed/available versions for the notification content.
-- **FR-004**: System MUST allow users to filter the source of verses by selecting specific books or "All Books".
+- **FR-004**: System MUST allow users to filter the source of verses by selecting specific book categories (e.g., "Pentateuch", "Gospels", "Epistles") or "All Books".
 - **FR-005**: System MUST schedule local push notifications that do not require a server or internet connection to trigger.
 - **FR-006**: System MUST select a verse randomly from the user's selected book scope and Bible version each day.
 - **FR-007**: System MUST include the verse text and reference in the notification body.

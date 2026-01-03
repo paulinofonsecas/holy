@@ -44,9 +44,14 @@ class BibliaView extends StatelessWidget {
         final bibliaBloc = context.read<BibliaBloc>();
         final bibliaState = bibliaBloc.state;
 
-        // Se o BibliaBloc já está na versão correta, não fazemos nada
+        // Se o BibliaBloc já está na versão correta ou carregando ela, não fazemos nada
         // Isso evita recarregar desnecessariamente quando a mudança vem da busca
         if (bibliaState is BibleChapterLoaded &&
+            bibliaState.versionId == bibleVersion.id) {
+          return;
+        }
+
+        if (bibliaState is BibliaLoading &&
             bibliaState.versionId == bibleVersion.id) {
           return;
         }
@@ -91,8 +96,6 @@ class BibliaView extends StatelessWidget {
                     if (state is! BibleChapterLoaded) return;
 
                     final chapter = state.chapter;
-                    // TODO: Use the correct version from Cubit instead of hardcoded if needed,
-                    // but here we can access the cubit.
                     final bibleVersion =
                         context.read<BibleVersionCubit>().state.version;
 

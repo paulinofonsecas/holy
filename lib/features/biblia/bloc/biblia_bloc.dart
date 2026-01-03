@@ -44,7 +44,7 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       }
     }
 
-    emit(BibliaLoading());
+    emit(BibliaLoading(versionId: event.version));
 
     try {
       final result = await _bibleReposity.getChapter(
