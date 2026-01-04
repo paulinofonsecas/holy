@@ -17,6 +17,12 @@ abstract class BibleSearchProvider {
 
   /// Searches for books whose name, long name, or abbreviation matches the [query].
   Future<List<Book>> matchBooks({required String query, String? versionId});
+
+  /// Retrieves a random verse from the database based on criteria.
+  Future<SearchResult?> getRandomVerse({
+    String? versionId,
+    List<String>? bookIds,
+  });
 }
 
 /// Interface for verse interaction functionality (marking, sharing, categories).

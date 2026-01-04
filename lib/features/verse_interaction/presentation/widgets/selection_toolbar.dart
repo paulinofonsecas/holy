@@ -11,7 +11,7 @@ import 'color_picker_modal.dart';
 class SelectionToolbar extends StatelessWidget {
   final BibleChapter chapter;
 
-  const SelectionToolbar({Key? key, required this.chapter}) : super(key: key);
+  const SelectionToolbar({super.key, required this.chapter});
 
   @override
   Widget build(BuildContext context) {

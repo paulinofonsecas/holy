@@ -42,6 +42,7 @@ class BibleChapter {
   final String bookId;
   final String? bookName;
   final int number;
+  final int totalChapters;
   final List<BibleVerse> verses;
 
   BibleChapter({
@@ -49,6 +50,7 @@ class BibleChapter {
     required this.number,
     required this.verses,
     this.bookName,
+    this.totalChapters = 0,
   });
 
   factory BibleChapter.fromMap(Map<String, dynamic> map) {
@@ -67,6 +69,7 @@ class BibleChapter {
       bookName: '',
       number: map['number'],
       verses: verses,
+      totalChapters: map['totalChapters'] ?? 0,
     );
   }
 
@@ -79,6 +82,7 @@ class BibleChapter {
     String? bookId,
     String? bookName,
     int? number,
+    int? totalChapters,
     List<BibleVerse>? verses,
   }) {
     return BibleChapter(
@@ -86,6 +90,7 @@ class BibleChapter {
       number: number ?? this.number,
       verses: verses ?? this.verses,
       bookName: bookName ?? this.bookName,
+      totalChapters: totalChapters ?? this.totalChapters,
     );
   }
 }

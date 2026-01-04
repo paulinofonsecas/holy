@@ -27,6 +27,6 @@ To visualize the architecture diagrams directly in VS Code:
 
 - **Frontend**: Flutter (Dart)
 - **State Management**: Bloc
-- **Local Storage**: SQLite (sqflite)
+- **Local Storage**: SQLite (sqflite) - Stores Bible data, highlights, and user history (search and verses).
 - **Backend**: Bible Server (Dart/Shelf)
 - **Cloud Services**: Firebase (Analytics, Messaging)

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:developer' show log;
 
 /// Interceptor for logging requests, responses, and errors
 class LoggingInterceptor extends Interceptor {
@@ -9,21 +10,21 @@ class LoggingInterceptor extends Interceptor {
       final method = options.method.toUpperCase();
       final url = options.uri.toString();
 
-      print('\n--> $method $url');
+      log('\n--> $method $url');
 
       if (options.headers.isNotEmpty) {
-        print('Headers:');
-        options.headers.forEach((key, value) => print('$key: $value'));
+        log('Headers:');
+        options.headers.forEach((key, value) => log('$key: $value'));
       }
 
       if (options.data != null) {
-        print('Request Body:');
+        log('Request Body:');
         _prettyPrintJson(options.data);
       }
 
       if (options.queryParameters.isNotEmpty) {
-        print('Query Parameters:');
-        options.queryParameters.forEach((key, value) => print('$key: $value'));
+        log('Query Parameters:');
+        options.queryParameters.forEach((key, value) => log('$key: $value'));
       }
     }
 
@@ -37,15 +38,15 @@ class LoggingInterceptor extends Interceptor {
       final method = response.requestOptions.method.toUpperCase();
       final url = response.requestOptions.uri.toString();
 
-      print('\n<-- $statusCode $method $url');
+      log('\n<-- $statusCode $method $url');
 
       if (response.headers.map.isNotEmpty) {
-        print('Headers:');
+        log('Headers:');
         response.headers
-            .forEach((name, values) => print('$name: ${values.join(',')}'));
+            .forEach((name, values) => log('$name: ${values.join(',')}'));
       }
 
-      print('Response Body:');
+      log('Response Body:');
       _prettyPrintJson(response.data);
     }
 
@@ -59,11 +60,11 @@ class LoggingInterceptor extends Interceptor {
       final method = err.requestOptions.method.toUpperCase();
       final url = err.requestOptions.uri.toString();
 
-      print('\n<-- Error $statusCode $method $url');
-      print('Error: ${err.error}');
+      log('\n<-- Error $statusCode $method $url');
+      log('Error: ${err.error}');
 
       if (err.response != null) {
-        print('Response Body:');
+        log('Response Body:');
         _prettyPrintJson(err.response!.data);
       }
     }
@@ -74,7 +75,7 @@ class LoggingInterceptor extends Interceptor {
   /// Helper method to pretty print JSON data
   void _prettyPrintJson(dynamic data) {
     if (data == null) {
-      print('null');
+      log('null');
       return;
     }
 
@@ -82,12 +83,12 @@ class LoggingInterceptor extends Interceptor {
       try {
         // Try to use json.encode for nice formatting
         // but this might not work for all data types
-        print(data.toString());
+        log(data.toString());
       } catch (e) {
-        print(data.toString());
+        log(data.toString());
       }
     } else {
-      print(data.toString());
+      log(data.toString());
     }
   }
 }

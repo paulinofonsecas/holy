@@ -3,7 +3,7 @@ part of 'bible_version_cubit.dart';
 class BibleVersionState extends Equatable {
   final BibleVersions version;
 
-  BibleVersionState({required this.version});
+  const BibleVersionState({required this.version});
 
   @override
   List<Object?> get props => [];
@@ -24,19 +24,19 @@ enum BibleVersions {
 }
 
 class BibleVersionStateACF extends BibleVersionState {
-  BibleVersionStateACF() : super(version: BibleVersions.acf);
+  const BibleVersionStateACF() : super(version: BibleVersions.acf);
 }
 
 class BibleVersionStateJFAA extends BibleVersionState {
-  BibleVersionStateJFAA() : super(version: BibleVersions.jfaa);
+  const BibleVersionStateJFAA() : super(version: BibleVersions.jfaa);
 }
 
 class BibleVersionStateKJA extends BibleVersionState {
-  BibleVersionStateKJA() : super(version: BibleVersions.kja);
+  const BibleVersionStateKJA() : super(version: BibleVersions.kja);
 }
 
 class BibleVersionStateKJF extends BibleVersionState {
-  BibleVersionStateKJF() : super(version: BibleVersions.kjf);
+  const BibleVersionStateKJF() : super(version: BibleVersions.kjf);
 }
 
 // class BibleVersionStateNTLH extends BibleVersionState {
@@ -44,5 +44,5 @@ class BibleVersionStateKJF extends BibleVersionState {
 // }
 
 class BibleVersionStateNVI extends BibleVersionState {
-  BibleVersionStateNVI() : super(version: BibleVersions.nvi);
+  const BibleVersionStateNVI() : super(version: BibleVersions.nvi);
 }

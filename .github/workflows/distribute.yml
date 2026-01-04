@@ -1,0 +1,76 @@
+name: Firebase APK Distribution
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - staging
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'Release notes for this version'
+        required: false
+        default: 'Manual trigger from GitHub Actions'
+      groups:
+        description: 'Tester groups (comma-separated)'
+        required: false
+        default: 'testers'
+
+jobs:
+  distribute:
+    name: Build and Distribute APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build Release APK
+        run: flutter build apk --release
+
+      - name: Setup Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Distribute to Firebase App Distribution
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        run: |
+          # Determine release notes
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            NOTES="${{ github.event.inputs.release_notes }}"
+          else
+            NOTES="Commit: ${{ github.event.head_commit.message }}\nBranch: ${{ github.ref_name }}\nSHA: ${{ github.sha }}"
+          fi
+          
+          # Determine groups
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            GROUPS="${{ github.event.inputs.groups }}"
+          else
+            GROUPS="testers"
+          fi
+          
+          # Run distribution script
+          ./scripts/distribute-apk.sh --release-notes "$NOTES" --groups "$GROUPS"

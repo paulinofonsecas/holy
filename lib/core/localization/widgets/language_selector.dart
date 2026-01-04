@@ -7,7 +7,7 @@ class LanguageSelector extends StatelessWidget {
   /// Callback when language changes
   final Function(Locale) onChanged;
 
-  const LanguageSelector({Key? key, required this.onChanged}) : super(key: key);
+  const LanguageSelector({super.key, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class LanguageSelector extends StatelessWidget {
               }
             },
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -53,7 +53,7 @@ class LanguageToggle extends StatelessWidget {
   /// Callback when language changes
   final Function(Locale) onChanged;
 
-  const LanguageToggle({Key? key, required this.onChanged}) : super(key: key);
+  const LanguageToggle({super.key, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,7 @@ class LanguageToggle extends StatelessWidget {
       tooltip: context.l10n.language,
       onPressed: () {
         // Toggle between English and Spanish (or other available locales)
-        final supportedLocales = L10n.supportedLocales;
+        const supportedLocales = L10n.supportedLocales;
         final currentIndex = supportedLocales.indexWhere(
             (locale) => locale.languageCode == currentLocale.languageCode);
         final nextIndex = (currentIndex + 1) % supportedLocales.length;

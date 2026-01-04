@@ -17,6 +17,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   String _termoAtual = '';
   bool _buscarTodasVersoes = false;
   String? _idVersao;
+  String? _idVersaoSelecionada;
   double _scrollOffset = 0;
 
   String get termoAtual => _termoAtual;
@@ -31,6 +32,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
           events.debounce(_debounceDuration).switchMap(mapper),
     );
     on<AlternarBuscaTodasVersoes>(_onToggleSearchAllVersions);
+    on<FiltrarPorVersao>(_onFilterByVersion);
     on<LimparBusca>(_onClearSearch);
     on<CarregarVersao>(_onLoadVersion);
     on<AtualizarScrollBusca>(_onUpdateScroll);
@@ -38,6 +40,17 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
 
   void _onUpdateScroll(AtualizarScrollBusca event, Emitter<EstadoBusca> emit) {
     _scrollOffset = event.offset;
+  }
+
+  Future<void> _onFilterByVersion(
+    FiltrarPorVersao event,
+    Emitter<EstadoBusca> emit,
+  ) async {
+    _registrador.info('🎯 Filtrar por versão: ${event.idVersao}');
+    _idVersaoSelecionada = event.idVersao;
+    if (_termoAtual.length >= 3) {
+      await _realizarBusca(emit);
+    }
   }
 
   Future<void> _onSearchQueryChanged(
@@ -97,13 +110,36 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
       final resultados = await resultadosFuture;
       final correspondenciasLivros = await buscaLivrosFuture;
 
+      // Extrair versões disponíveis dos resultados para o filtro
+      final versoesDisponiveis = resultados.results
+          .map((r) => r.versionAbbreviation ?? r.versionId)
+          .toSet()
+          .toList();
+      versoesDisponiveis.sort();
+
+      // Aplicar filtro se selecionado
+      var resultadosExibidos = resultados;
+      if (_idVersaoSelecionada != null) {
+        final listaFiltrada = resultados.results
+            .where((r) =>
+                (r.versionAbbreviation ?? r.versionId) == _idVersaoSelecionada)
+            .toList();
+        resultadosExibidos = SearchResults(
+          query: resultados.query,
+          totalResults: listaFiltrada.length,
+          results: listaFiltrada,
+        );
+      }
+
       _registrador.info(
-          '✅ Busca emitindo estado de sucesso com ${resultados.results.length} resultados e ${correspondenciasLivros.length} correspondências de livros (Termo: "$_termoAtual", Versão: $_idVersao)');
+          '✅ Busca emitindo estado de sucesso com ${resultadosExibidos.results.length} resultados e ${correspondenciasLivros.length} correspondências de livros (Termo: "$_termoAtual", Versão: $_idVersao)');
       emit(BuscaCarregada(
-        resultados: resultados,
+        resultados: resultadosExibidos,
         correspondenciasLivros: correspondenciasLivros,
         termo: _termoAtual,
         buscarTodasVersoes: _buscarTodasVersoes,
+        idVersaoSelecionada: _idVersaoSelecionada,
+        versoesDisponiveis: versoesDisponiveis,
       ));
     } catch (e, rastroPilha) {
       _registrador.error('❌ Erro na busca no bloc', e, rastroPilha);

@@ -1,15 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
-import 'package:eu_sou/core/design_system/theme_extension/theme_manager.dart';
+import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
 import 'package:eu_sou/core/localization/localization.dart';
-
 import 'package:eu_sou/core/notifications/models/push_notification_model.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
+import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FlutterBunnyScreen extends StatefulWidget {
-  const FlutterBunnyScreen({Key? key}) : super(key: key);
+  const FlutterBunnyScreen({super.key});
 
   @override
   State<FlutterBunnyScreen> createState() => _FlutterBunnyScreenState();
@@ -52,6 +51,8 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
     );
 
     await notificationHandler.showLocalNotification(notification);
+
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -147,7 +148,7 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha:0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -158,19 +159,19 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
             child: Row(
               children: [
                 _buildThemeModeButton(
-                  ThemeModeEnum.light,
+                  ThemeMode.light,
                   Icons.light_mode,
                   context.l10n.lightMode,
                 ),
                 const SizedBox(width: 12),
                 _buildThemeModeButton(
-                  ThemeModeEnum.dark,
+                  ThemeMode.dark,
                   Icons.dark_mode,
                   context.l10n.darkMode,
                 ),
                 const SizedBox(width: 12),
                 _buildThemeModeButton(
-                  ThemeModeEnum.system,
+                  ThemeMode.system,
                   Icons.brightness_auto,
                   context.l10n.systemMode,
                 ),
@@ -182,14 +183,13 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
     );
   }
 
-  Widget _buildThemeModeButton(
-      ThemeModeEnum mode, IconData icon, String label) {
-    final isSelected = context.watch<ThemeCubit>().state.themeMode == mode;
+  Widget _buildThemeModeButton(ThemeMode mode, IconData icon, String label) {
+    final isSelected = context.watch<ThemeBloc>().state.themeMode == mode;
 
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          context.read<ThemeCubit>().setTheme(mode);
+          context.read<ThemeBloc>().add(ThemeModeChanged(mode));
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -203,7 +203,8 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: context.theme.colors.activeButton.withValues(alpha:0.3),
+                      color: context.theme.colors.activeButton
+                          .withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -264,7 +265,7 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha:0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -379,7 +380,7 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -460,7 +461,7 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? context.theme.colors.activeButton
-                                  .withValues(alpha:0.1)
+                                  .withValues(alpha: 0.1)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -486,7 +487,7 @@ class _FlutterBunnyScreenState extends State<FlutterBunnyScreen> {
                         Navigator.pop(context);
                       },
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             );

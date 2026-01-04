@@ -15,7 +15,7 @@ class CircularChapterChangeWidget extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.onPrimaryContainer,
           shape: BoxShape.circle,
@@ -26,11 +26,11 @@ class CircularChapterChangeWidget extends StatelessWidget {
                   .primaryContainer
                   .withValues(alpha: 0.3),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: isNext ? Icon(Icons.chevron_right) : Icon(Icons.chevron_left),
+        child: isNext ? const Icon(Icons.chevron_right) : const Icon(Icons.chevron_left),
       ),
     );
   }

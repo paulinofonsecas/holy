@@ -31,7 +31,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -46,6 +46,16 @@ class DatabaseHelper {
         CREATE TABLE search_history (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           query TEXT NOT NULL,
+          timestamp INTEGER NOT NULL
+        )
+      ''');
+    }
+    if (oldVersion < 4) {
+      await db.execute('''
+        CREATE TABLE verse_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          verse_ref TEXT NOT NULL,
+          version_id TEXT NOT NULL,
           timestamp INTEGER NOT NULL
         )
       ''');
@@ -109,6 +119,15 @@ class DatabaseHelper {
       CREATE TABLE search_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         query TEXT NOT NULL,
+        timestamp INTEGER NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE verse_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        verse_ref TEXT NOT NULL,
+        version_id TEXT NOT NULL,
         timestamp INTEGER NOT NULL
       )
     ''');

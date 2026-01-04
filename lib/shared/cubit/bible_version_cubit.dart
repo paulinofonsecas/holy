@@ -4,28 +4,39 @@ import 'package:equatable/equatable.dart';
 part 'bible_version_state.dart';
 
 class BibleVersionCubit extends Cubit<BibleVersionState> {
-  BibleVersionCubit() : super(BibleVersionStateKJA());
+  BibleVersionCubit() : super(const BibleVersionStateKJA());
 
   void changeVersion(BibleVersions e) {
     switch (e) {
       case BibleVersions.acf:
-        emit(BibleVersionStateACF());
+        emit(const BibleVersionStateACF());
         break;
       case BibleVersions.jfaa:
-        emit(BibleVersionStateJFAA());
+        emit(const BibleVersionStateJFAA());
         break;
       case BibleVersions.kja:
-        emit(BibleVersionStateKJA());
+        emit(const BibleVersionStateKJA());
         break;
       case BibleVersions.kjf:
-        emit(BibleVersionStateKJF());
+        emit(const BibleVersionStateKJF());
         break;
       // case BibleVersions.ntlh:
       //   emit(BibleVersionStateNTLH());
       //   break;
       case BibleVersions.nvi:
-        emit(BibleVersionStateNVI());
+        emit(const BibleVersionStateNVI());
         break;
+    }
+  }
+
+  void changeVersionById(String id) {
+    try {
+      final version = BibleVersions.values.firstWhere(
+        (v) => v.id.toUpperCase() == id.toUpperCase(),
+      );
+      changeVersion(version);
+    } catch (_) {
+      // Version not found, ignore or handle as needed
     }
   }
 }

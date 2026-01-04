@@ -47,21 +47,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDBvLlZjf0eAxQbjRCKgWGr4xsRzKqdeZY',
-    appId: '1:86790721181:web:1ac47f755219c4d9db0e74',
-    messagingSenderId: '86790721181',
-    projectId: 'admin-we-barato',
-    authDomain: 'admin-we-barato.firebaseapp.com',
-    storageBucket: 'admin-we-barato.firebasestorage.app',
-    measurementId: 'G-T9MQSZYE73',
+    apiKey: 'AIzaSyBO66r4gWMoYcJEjYwpMsVrkxyyQIzV36M',
+    appId: '1:802718084241:web:660f28e8371cb06e2de330',
+    messagingSenderId: '802718084241',
+    projectId: 'caiaia01',
+    authDomain: 'caiaia01.firebaseapp.com',
+    storageBucket: 'caiaia01.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB4omasO0fQtAa0LyJZMi4p-F_4SniEqpc',
-    appId: '1:86790721181:android:19238f375ace9f62db0e74',
-    messagingSenderId: '86790721181',
-    projectId: 'admin-we-barato',
-    storageBucket: 'admin-we-barato.firebasestorage.app',
+    apiKey: 'AIzaSyDF0NxGyrNIj1_Sc2ALJN_Ejg_xsYpb5-0',
+    appId: '1:802718084241:android:ff1278055f8e40282de330',
+    messagingSenderId: '802718084241',
+    projectId: 'caiaia01',
+    storageBucket: 'caiaia01.firebasestorage.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

@@ -1,14 +1,14 @@
-import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
-
-import '../../widgets/chapter_widget.dart';
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/shared/bible_models.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:eu_sou/shared/bible_models.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+
+import '../../widgets/chapter_widget.dart';
 
 SliverWoltModalSheetPage listBibleBooksModalPage(
   BuildContext modalSheetContext,
@@ -18,32 +18,30 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
     navBarHeight: 30,
     backgroundColor: Colors.white,
     surfaceTintColor: Colors.white,
-    pageTitle: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          onPressed: () {
-            Navigator.of(modalSheetContext).pop();
-          },
-          icon: const Icon(Icons.close),
-        ),
-        Text(
-          'Lista de Livros',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        IconButton(
-          onPressed: () {
-            Navigator.of(modalSheetContext).pop();
-          },
-          icon: const Icon(Icons.search),
-        ),
-      ],
+    pageTitle: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(modalSheetContext).pop();
+            },
+            icon: const Icon(Icons.close),
+          ),
+          Text(
+            'Lista de Livros',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(width: 48),
+        ],
+      ),
     ),
     mainContentSliversBuilder: (sliverContext) {
-      final books = BibleBooks.values;
+      const books = BibleBooks.values;
       return [
         BlocProvider.value(
           value: context.read<BibliaBloc>(),
@@ -88,7 +86,7 @@ class BibleBookListItem extends StatelessWidget {
         size: 18,
       ),
       expandedAlignment: Alignment.topLeft,
-      childrenPadding: EdgeInsets.all(8),
+      childrenPadding: const EdgeInsets.all(8),
       children: [
         GridView.count(
           shrinkWrap: true,

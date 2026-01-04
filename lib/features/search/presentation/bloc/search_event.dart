@@ -25,6 +25,14 @@ class AlternarBuscaTodasVersoes extends EventoBusca {
 
 class LimparBusca extends EventoBusca {}
 
+class FiltrarPorVersao extends EventoBusca {
+  final String? idVersao;
+  const FiltrarPorVersao(this.idVersao);
+
+  @override
+  List<Object?> get props => [idVersao];
+}
+
 class CarregarVersao extends EventoBusca {
   final String idVersao;
   final String? nomeVersao;

@@ -10,12 +10,19 @@ sealed class BibliaState extends Equatable {
 
 final class BibliaInitial extends BibliaState {}
 
-final class BibliaLoading extends BibliaState {}
+final class BibliaLoading extends BibliaState {
+  final String? versionId;
+
+  const BibliaLoading({this.versionId});
+
+  @override
+  List<Object> get props => [versionId ?? ''];
+}
 
 final class BibleError extends BibliaState {
   final String message;
 
-  BibleError(this.message);
+  const BibleError(this.message);
 
   @override
   List<Object> get props => [message];
@@ -23,10 +30,12 @@ final class BibleError extends BibliaState {
 
 final class BibleChapterLoaded extends BibliaState {
   final BibleChapter chapter;
+  final String versionId;
   final int? targetVerse;
 
-  BibleChapterLoaded(this.chapter, {this.targetVerse});
+  const BibleChapterLoaded(this.chapter,
+      {required this.versionId, this.targetVerse});
 
   @override
-  List<Object> get props => [chapter, targetVerse ?? 1];
+  List<Object> get props => [chapter, versionId, targetVerse ?? 1];
 }

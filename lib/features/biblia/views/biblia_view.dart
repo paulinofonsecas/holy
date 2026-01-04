@@ -14,23 +14,12 @@ import '../bloc/biblia_bloc.dart';
 import '../widgets/biblia_app_bar.dart';
 
 class BibliaPage extends StatelessWidget {
-  const BibliaPage({Key? key}) : super(key: key);
+  const BibliaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) {
-            final bibleVersion =
-                context.read<BibleVersionCubit>().state.version;
-
-            return BibliaBloc(context.read())
-              ..add(
-                GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-              );
-          },
-        ),
         BlocProvider(
           create: (context) =>
               HighlightBloc(context.read())..add(LoadHighlights()),
@@ -38,30 +27,50 @@ class BibliaPage extends StatelessWidget {
         BlocProvider(
           create: (context) => VerseSelectionBloc(),
         ),
-        BlocProvider(
-          create: (context) => context.read<SearchBloc>()
-            ..add(CarregarVersao(
-              idVersao: context.read<BibleVersionCubit>().state.version.id,
-            )),
-        ),
       ],
-      child: BibliaView(),
+      child: const BibliaView(),
     );
   }
 }
 
 class BibliaView extends StatelessWidget {
-  const BibliaView({Key? key}) : super(key: key);
+  const BibliaView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<BibleVersionCubit, BibleVersionState>(
       listener: (context, state) {
         final bibleVersion = state.version;
+        final bibliaBloc = context.read<BibliaBloc>();
+        final bibliaState = bibliaBloc.state;
 
-        context.read<BibliaBloc>().add(
-              GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-            );
+        // Se o BibliaBloc já está na versão correta ou carregando ela, não fazemos nada
+        // Isso evita recarregar desnecessariamente quando a mudança vem da busca
+        if (bibliaState is BibleChapterLoaded &&
+            bibliaState.versionId == bibleVersion.id) {
+          return;
+        }
+
+        if (bibliaState is BibliaLoading &&
+            bibliaState.versionId == bibleVersion.id) {
+          return;
+        }
+
+        if (bibliaState is BibleChapterLoaded) {
+          // Se já temos um capítulo carregado, mudamos para a nova versão no mesmo capítulo
+          bibliaBloc.add(
+            GetChapter(
+              bibleVersion.id,
+              bibliaState.chapter.bookId,
+              bibliaState.chapter.number.toString(),
+            ),
+          );
+        } else {
+          // Caso contrário, vai para o início
+          bibliaBloc.add(
+            GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
+          );
+        }
 
         context.read<SearchBloc>().add(
               CarregarVersao(idVersao: bibleVersion.id),
@@ -72,7 +81,7 @@ class BibliaView extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              Gap(16),
+              const Gap(16),
               BibleAppBar(
                 onBookTap: () {
                   SwitchBookModal.show(context);
@@ -87,8 +96,6 @@ class BibliaView extends StatelessWidget {
                     if (state is! BibleChapterLoaded) return;
 
                     final chapter = state.chapter;
-                    // TODO: Use the correct version from Cubit instead of hardcoded if needed,
-                    // but here we can access the cubit.
                     final bibleVersion =
                         context.read<BibleVersionCubit>().state.version;
 
@@ -103,19 +110,51 @@ class BibliaView extends StatelessWidget {
                             (chapter.number - 1).toString(),
                           ),
                         );
+                      } else {
+                        // Previous Book
+                        final currentBookIndex = BibleBooks.values
+                            .indexWhere((b) => b.bookId == chapter.bookId);
+                        if (currentBookIndex > 0) {
+                          final prevBook =
+                              BibleBooks.values[currentBookIndex - 1];
+                          bibleBloc.add(
+                            GetChapter(
+                              bibleVersion.id,
+                              prevBook.bookId,
+                              prevBook.chapterCount.toString(),
+                            ),
+                          );
+                        }
                       }
                     } else if (details.primaryVelocity! < 0) {
                       // Swipe Left -> Next Chapter
-                      bibleBloc.add(
-                        GetChapter(
-                          bibleVersion.id,
-                          chapter.bookId,
-                          (chapter.number + 1).toString(),
-                        ),
-                      );
+                      if (chapter.number < chapter.totalChapters) {
+                        bibleBloc.add(
+                          GetChapter(
+                            bibleVersion.id,
+                            chapter.bookId,
+                            (chapter.number + 1).toString(),
+                          ),
+                        );
+                      } else {
+                        // Next Book
+                        final currentBookIndex = BibleBooks.values
+                            .indexWhere((b) => b.bookId == chapter.bookId);
+                        if (currentBookIndex < BibleBooks.values.length - 1) {
+                          final nextBook =
+                              BibleBooks.values[currentBookIndex + 1];
+                          bibleBloc.add(
+                            GetChapter(
+                              bibleVersion.id,
+                              nextBook.bookId,
+                              '1',
+                            ),
+                          );
+                        }
+                      }
                     }
                   },
-                  child: TelaDeLeitura(),
+                  child: const TelaDeLeitura(),
                 ),
               ),
               BlocBuilder<BibliaBloc, BibliaState>(

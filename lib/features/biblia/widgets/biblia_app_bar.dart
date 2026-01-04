@@ -22,7 +22,7 @@ class BibleAppBar extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       child: Row(
         children: [
-          VersaoWidget(),
+          const VersaoWidget(),
           Expanded(
             child: BlocBuilder<BibliaBloc, BibliaState>(
               builder: (context, state) {
@@ -40,21 +40,21 @@ class BibleAppBar extends StatelessWidget {
                           Flexible(
                             child: Text(
                               "${state.chapter.bookName} ${state.chapter.number}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Gap(4),
-                          Icon(Icons.keyboard_arrow_down_rounded),
+                          const Gap(4),
+                          const Icon(Icons.keyboard_arrow_down_rounded),
                         ],
                       ),
                     ),
                   );
                 }
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               },
             ),
           ),

@@ -1,4 +1,4 @@
-import 'package:eu_sou/core/design_system/app_colors/app_colors.dart';
+import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,21 +29,21 @@ class VersaoWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                   ),
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      const Text(
                         'Escolha uma versão',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Gap(16),
+                      const Gap(16),
                       ...BibleVersions.values.map((e) {
                         return Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
@@ -55,18 +55,34 @@ class VersaoWidget extends StatelessWidget {
                               Navigator.pop(context);
                             },
                             title: Text(
-                              e.id + ' - ' + e.name,
-                              style: TextStyle(),
+                              '${e.id} - ${e.name}',
+                              style: const TextStyle(),
                             ),
-                            trailing: Icon(
-                              Icons.chevron_right,
-                              color:
-                                  Theme.of(context).textTheme.bodyMedium!.color,
-                              size: 24,
+                            trailing: FutureBuilder<bool>(
+                              future: context
+                                  .read<BibleCacheProvider>()
+                                  .isVersionCached(e.id),
+                              builder: (context, snapshot) {
+                                final isDownloaded = snapshot.data ?? false;
+
+                                return Icon(
+                                  isDownloaded
+                                      ? Icons.check_circle
+                                      : Icons.download_for_offline,
+                                  color: isDownloaded
+                                      ? Colors.green
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .color!
+                                          .withOpacity(0.5),
+                                  size: 24,
+                                );
+                              },
                             ),
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
@@ -76,26 +92,30 @@ class VersaoWidget extends StatelessWidget {
         );
       },
       child: Container(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 8,
         ),
         decoration: BoxDecoration(
-          color: AppColor.textTertiary.withValues(alpha: .3),
+          color: Theme.of(context).colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
           children: [
-            Icon(CupertinoIcons.globe, size: 18),
-            Gap(8),
+            Icon(
+              CupertinoIcons.globe,
+              size: 18,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+            const Gap(8),
             Text(
               bibleVersion.id,
               style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium!.color,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
                 fontSize: 12,
               ),
             ),
-            Gap(3),
+            const Gap(3),
           ],
         ),
       ),

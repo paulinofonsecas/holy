@@ -8,7 +8,7 @@
 // ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
 
 class Assets {
-  const Assets._();
+  Assets._();
 
   static const String aEnv = '.env';
 

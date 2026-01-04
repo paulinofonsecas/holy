@@ -34,7 +34,7 @@ class LocaleState extends Equatable {
 
 // BLoC
 class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
-  static const String LOCALE_KEY = 'app_locale';
+  static const String localeKey = 'app_locale';
 
   LocaleBloc() : super(const LocaleState(Locale('pt'))) {
     on<ChangeLocaleEvent>(_onChangeLocale);
@@ -51,14 +51,14 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
 
     // Save the locale preference
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(LOCALE_KEY, event.languageCode);
+    await prefs.setString(localeKey, event.languageCode);
   }
 
   Future<void> _onLoadLocale(
       LoadLocaleEvent event, Emitter<LocaleState> emit) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final String? languageCode = prefs.getString(LOCALE_KEY);
+      final String? languageCode = prefs.getString(localeKey);
 
       if (languageCode != null) {
         emit(LocaleState(Locale(languageCode)));

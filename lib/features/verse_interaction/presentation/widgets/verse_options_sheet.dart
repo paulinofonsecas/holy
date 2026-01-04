@@ -7,12 +7,12 @@ class VerseOptionsSheet extends StatefulWidget {
   final VoidCallback onAddToCategory;
 
   const VerseOptionsSheet({
-    Key? key,
+    super.key,
     required this.verseRef,
     required this.onHighlight,
     required this.onShare,
     required this.onAddToCategory,
-  }) : super(key: key);
+  });
 
   @override
   State<VerseOptionsSheet> createState() => _VerseOptionsSheetState();

@@ -46,18 +46,18 @@ class DisplaySingleVerse extends StatelessWidget {
               }
             }
 
-            final style = TextStyle(
+            const style = TextStyle(
               fontSize: 18,
               color: AppColor.textPrimary,
             );
 
             return GestureDetector(
               onTap: () {
-                if (selectionState.isInSelectionMode) {
-                  context
-                      .read<VerseSelectionBloc>()
-                      .add(ToggleVerseSelection(verse));
-                }
+                // if (selectionState.isInSelectionMode) {
+                context
+                    .read<VerseSelectionBloc>()
+                    .add(ToggleVerseSelection(verse));
+                // }
               },
               onLongPress: () {
                 if (!selectionState.isInSelectionMode) {
@@ -69,48 +69,58 @@ class DisplaySingleVerse extends StatelessWidget {
                   // For now, let's just keep it simple.
                 }
               },
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: backgroundColor,
-                    borderRadius: BorderRadius.circular(4),
-                    border: isSelected
-                        ? Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 1,
-                          )
-                        : null,
-                  ),
-                  padding: const EdgeInsets.all(5),
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: verse.number.toString() + " ",
-                          style: style.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: !isHighlighted
-                                ? Theme.brightnessOf(context) ==
-                                        Brightness.light
-                                    ? Colors.black
-                                    : Colors.white
-                                : Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: backgroundColor,
+                      borderRadius: BorderRadius.circular(4),
+                      border: isSelected
+                          ? Border.all(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 1,
+                            )
+                          : null,
+                    ),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "${verse.number} ",
+                            style: style.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: !isHighlighted
+                                  ? Theme.brightnessOf(context) ==
+                                          Brightness.light
+                                      ? Colors.black
+                                      : Colors.white
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: verse.text,
-                          style: style.copyWith(
-                            color: !isHighlighted
-                                ? Theme.brightnessOf(context) ==
-                                        Brightness.light
-                                    ? Colors.black
-                                    : Colors.white
-                                : Theme.of(context).colorScheme.primary,
+                          TextSpan(
+                            text: verse.text,
+                            style: style.copyWith(
+                              color: !isHighlighted
+                                  ? Theme.brightnessOf(context) ==
+                                          Brightness.light
+                                      ? Colors.black
+                                      : Colors.white
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

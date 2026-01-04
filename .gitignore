@@ -49,3 +49,12 @@ app.*.map.json
 *.sqlite
 *.sqlite3
 
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Distribution logs
+logs/
+*.log.txt

@@ -12,7 +12,7 @@ class XmlBibleProvider extends IBibleProvider {
   @override
   Future<List<Chapter>> getCapitulos(String versionId, String bookId) async {
     try {
-      final version = 'ACF';
+      const version = 'ACF';
       final response =
           await dio.get('http://192.168.0.164:8081/versions/$version/$bookId');
 
