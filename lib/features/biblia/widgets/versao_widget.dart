@@ -1,3 +1,4 @@
+import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -57,11 +58,27 @@ class VersaoWidget extends StatelessWidget {
                               '${e.id} - ${e.name}',
                               style: const TextStyle(),
                             ),
-                            trailing: Icon(
-                              Icons.chevron_right,
-                              color:
-                                  Theme.of(context).textTheme.bodyMedium!.color,
-                              size: 24,
+                            trailing: FutureBuilder<bool>(
+                              future: context
+                                  .read<BibleCacheProvider>()
+                                  .isVersionCached(e.id),
+                              builder: (context, snapshot) {
+                                final isDownloaded = snapshot.data ?? false;
+
+                                return Icon(
+                                  isDownloaded
+                                      ? Icons.check_circle
+                                      : Icons.download_for_offline,
+                                  color: isDownloaded
+                                      ? Colors.green
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .color!
+                                          .withOpacity(0.5),
+                                  size: 24,
+                                );
+                              },
                             ),
                           ),
                         );
