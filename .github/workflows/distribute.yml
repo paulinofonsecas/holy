@@ -69,7 +69,7 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             GROUPS="${{ github.event.inputs.groups }}"
           else
-            GROUPS="testers"
+            GROUPS="internal-testers"
           fi
           
           # Run distribution script

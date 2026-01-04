@@ -39,7 +39,7 @@ param(
     [string]$ReleaseNotes = "",
     
     [Parameter(Mandatory=$false)]
-    [string]$Groups = "beta",
+    [string]$Groups = "internal-testers",
     
     [Parameter(Mandatory=$false)]
     [switch]$DryRun,
