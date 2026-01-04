@@ -1,8 +1,8 @@
 name: Firebase APK Distribution
 
 on:
-  push:
-    branches: [ main, staging]
+  pull_request:
+    types: [closed]
 
   workflow_dispatch:
     inputs:
@@ -19,6 +19,7 @@ jobs:
   distribute:
     name: Build and Distribute APK
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     
     steps:
       - name: Checkout repository
@@ -59,6 +60,8 @@ jobs:
           # Determine release notes
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             NOTES="${{ github.event.inputs.release_notes }}"
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            NOTES="PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}\nMerged into: ${{ github.event.pull_request.base.ref }}\nSHA: ${{ github.sha }}"
           else
             NOTES="Commit: ${{ github.event.head_commit.message }}\nBranch: ${{ github.ref_name }}\nSHA: ${{ github.sha }}"
           fi
