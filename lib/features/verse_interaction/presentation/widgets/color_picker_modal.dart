@@ -24,78 +24,80 @@ class ColorPickerModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurfaceVariant
-                  .withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(2),
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurfaceVariant
+                    .withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          Text(
-            'Destacar Versículo',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: colors.map((colorData) {
-              return GestureDetector(
-                onTap: () {
-                  onColorSelected(colorData['hex']);
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: colorData['color'],
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .outline
-                          .withValues(alpha: 0.2),
+            Text(
+              'Destacar Versículo',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: colors.map((colorData) {
+                return GestureDetector(
+                  onTap: () {
+                    onColorSelected(colorData['hex']);
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: 45,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color: colorData['color'],
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outline
+                            .withValues(alpha: 0.2),
+                      ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 20),
-          if (onShare != null) ...[
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+            if (onShare != null) ...[
+              ListTile(
+                leading: const Icon(Icons.share),
+                title: const Text('Compartilhar'),
+                onTap: () {
+                  Navigator.pop(context);
+                  onShare!();
+                },
+              ),
+              const Divider(),
+            ],
             ListTile(
-              leading: const Icon(Icons.share),
-              title: const Text('Compartilhar'),
+              leading: const Icon(Icons.remove_circle_outline),
+              title: const Text('Remover Destaque'),
               onTap: () {
+                onRemoveHighlight();
                 Navigator.pop(context);
-                onShare!();
               },
             ),
-            const Divider(),
           ],
-          ListTile(
-            leading: const Icon(Icons.remove_circle_outline),
-            title: const Text('Remover Destaque'),
-            onTap: () {
-              onRemoveHighlight();
-              Navigator.pop(context);
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

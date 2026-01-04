@@ -39,7 +39,7 @@ param(
     [string]$ReleaseNotes = "",
     
     [Parameter(Mandatory=$false)]
-    [string]$Groups = "internal-testers",
+    [string]$Groups = "beta",
     
     [Parameter(Mandatory=$false)]
     [switch]$DryRun,
@@ -257,7 +257,7 @@ Write-Step 4 5 "Preparing distribution command"
 
 $firebaseCmd = "firebase appdistribution:distribute `"$resolvedApkPath`""
 $firebaseCmd += " --app `"$resolvedAppId`""
-# $firebaseCmd += " --groups `"$Groups`""
+$firebaseCmd += " --groups `"$Groups`""
 
 if ($ReleaseNotes) {
     if ($ReleaseNotes.StartsWith("@")) {

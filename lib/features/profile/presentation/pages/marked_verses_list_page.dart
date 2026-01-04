@@ -29,52 +29,18 @@ class MarkedVersesListPage extends StatelessWidget {
           title: Text(l10n.markedVersesTitle),
           centerTitle: true,
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            context.read<MarkedVersesBloc>().add(LoadMarkedVerses());
-          },
-          child: BlocBuilder<MarkedVersesBloc, MarkedVersesState>(
-            builder: (context, state) {
-              if (state is MarkedVersesLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              context.read<MarkedVersesBloc>().add(LoadMarkedVerses());
+            },
+            child: BlocBuilder<MarkedVersesBloc, MarkedVersesState>(
+              builder: (context, state) {
+                if (state is MarkedVersesLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (state is MarkedVersesError) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Erro ao carregar versículos',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(state.message),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            context
-                                .read<MarkedVersesBloc>()
-                                .add(LoadMarkedVerses());
-                          },
-                          child: const Text('Tentar novamente'),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-
-              if (state is MarkedVersesLoaded) {
-                if (state.markedVerses.isEmpty) {
+                if (state is MarkedVersesError) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -82,26 +48,25 @@ class MarkedVersesListPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.bookmark_outline,
+                            Icons.error_outline,
                             size: 64,
-                            color: Theme.of(context).colorScheme.outline,
+                            color: Theme.of(context).colorScheme.error,
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Nenhum versículo marcado',
+                            'Erro ao carregar versículos',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Seus versículos marcados aparecerão aqui',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
+                          Text(state.message),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              context
+                                  .read<MarkedVersesBloc>()
+                                  .add(LoadMarkedVerses());
+                            },
+                            child: const Text('Tentar novamente'),
                           ),
                         ],
                       ),
@@ -109,60 +74,97 @@ class MarkedVersesListPage extends StatelessWidget {
                   );
                 }
 
-                return ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  itemCount: state.markedVerses.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final verse = state.markedVerses[index];
-                    return MarkedVerseItem(
-                      markedVerse: verse,
-                      onTap: () {
-                        try {
-                          // Get BLoC reference before navigation
-                          final bibliaBloc = context.read<BibliaBloc>();
-
-                          // Add event to show the verse
-                          bibliaBloc.add(
-                            GetChapter(
-                              verse.versionId,
-                              verse.bookId,
-                              verse.chapter.toString(),
-                              verse: verse.verse,
+                if (state is MarkedVersesLoaded) {
+                  if (state.markedVerses.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.bookmark_outline,
+                              size: 64,
+                              color: Theme.of(context).colorScheme.outline,
                             ),
-                          );
-
-                          // Change to Bible tab and navigate back
-                          context.read<TabControllerCubit>().goToBible();
-
-                          // Navigate back after changing tab
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                        } catch (e) {
-                          // If there's an error, at least try to navigate back
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                          // Log the error or show a message if needed
-                          log('Error navigating to verse: //\n$e');
-                        }
-                      },
-                      onDelete: () {
-                        _showDeleteDialog(context, verse.verseRef, () {
-                          context
-                              .read<MarkedVersesBloc>()
-                              .add(LoadMarkedVerses());
-                        });
-                      },
+                            const SizedBox(height: 16),
+                            Text(
+                              'Nenhum versículo marcado',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Seus versículos marcados aparecerão aqui',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
-                  },
-                );
-              }
+                  }
 
-              return const SizedBox.shrink();
-            },
+                  return ListView.separated(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    itemCount: state.markedVerses.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final verse = state.markedVerses[index];
+                      return MarkedVerseItem(
+                        markedVerse: verse,
+                        onTap: () {
+                          try {
+                            // Get BLoC reference before navigation
+                            final bibliaBloc = context.read<BibliaBloc>();
+
+                            // Add event to show the verse
+                            bibliaBloc.add(
+                              GetChapter(
+                                verse.versionId,
+                                verse.bookId,
+                                verse.chapter.toString(),
+                                verse: verse.verse,
+                              ),
+                            );
+
+                            // Change to Bible tab and navigate back
+                            context.read<TabControllerCubit>().goToBible();
+
+                            // Navigate back after changing tab
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            }
+                          } catch (e) {
+                            // If there's an error, at least try to navigate back
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            }
+                            // Log the error or show a message if needed
+                            log('Error navigating to verse: //\n$e');
+                          }
+                        },
+                        onDelete: () {
+                          _showDeleteDialog(context, verse.verseRef, () {
+                            context
+                                .read<MarkedVersesBloc>()
+                                .add(LoadMarkedVerses());
+                          });
+                        },
+                      );
+                    },
+                  );
+                }
+
+                return const SizedBox.shrink();
+              },
+            ),
           ),
         ),
       ),

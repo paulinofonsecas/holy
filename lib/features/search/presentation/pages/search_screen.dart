@@ -396,12 +396,9 @@ class _TelaBuscaState extends State<TelaBusca> {
                                         ?.color,
                                   ),
                                   highlightedWord: estado.termo,
-                                  highlightStyle: TextStyle(
+                                  highlightStyle: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.color,
+                                    color: Colors.black87,
                                     backgroundColor: Colors.yellow,
                                   ),
                                 ),
