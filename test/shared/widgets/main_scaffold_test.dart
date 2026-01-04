@@ -1,5 +1,9 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/core/notifications/notification_handler.dart';
+import 'package:eu_sou/core/notifications/services/fcm_service.dart';
+import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
+import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
@@ -30,6 +34,13 @@ class MockThemeBloc extends MockBloc<ThemeEvent, ThemeState>
 class MockMarkedVersesRepository extends Mock
     implements IMarkedVersesRepository {}
 
+class MockFCMService extends Mock implements FCMService {}
+
+class MockLocalNotificationService extends Mock
+    implements LocalNotificationService {}
+
+class MockFeedbackService extends Mock implements FeedbackService {}
+
 void main() {
   late TabControllerCubit mockTabControllerCubit;
   late BibleVersionCubit mockBibleVersionCubit;
@@ -37,17 +48,36 @@ void main() {
   late BibliaBloc mockBibliaBloc;
   late ThemeBloc mockThemeBloc;
   late IMarkedVersesRepository mockMarkedVersesRepository;
+  late MockFCMService mockFCMService;
+  late MockLocalNotificationService mockLocalNotificationService;
+  late MockFeedbackService mockFeedbackService;
 
-  setUp(() {
+  setUp(() async {
     mockTabControllerCubit = MockTabControllerCubit();
     mockBibleVersionCubit = MockBibleVersionCubit();
     mockSearchBloc = MockSearchBloc();
     mockBibliaBloc = MockBibliaBloc();
     mockThemeBloc = MockThemeBloc();
     mockMarkedVersesRepository = MockMarkedVersesRepository();
+    mockFCMService = MockFCMService();
+    mockLocalNotificationService = MockLocalNotificationService();
+    mockFeedbackService = MockFeedbackService();
+
+    // Initialize global notification handler with mocks
+    await notificationHandler.initialize(
+      fcmService: mockFCMService,
+      localNotificationService: mockLocalNotificationService,
+    );
+
+    when(() => mockLocalNotificationService.addOnNotificationTapListener(any()))
+        .thenReturn(null);
+    when(() =>
+            mockLocalNotificationService.removeOnNotificationTapListener(any()))
+        .thenReturn(null);
 
     when(() => mockTabControllerCubit.state).thenReturn(0);
-    when(() => mockBibleVersionCubit.state).thenReturn(const BibleVersionStateKJA());
+    when(() => mockBibleVersionCubit.state)
+        .thenReturn(const BibleVersionStateKJA());
     when(() => mockSearchBloc.state).thenReturn(BuscaInicial());
     when(() => mockSearchBloc.termoAtual).thenReturn('');
     when(() => mockSearchBloc.scrollOffset).thenReturn(0.0);
@@ -70,7 +100,7 @@ void main() {
         ],
         child: RepositoryProvider.value(
           value: mockMarkedVersesRepository,
-          child: const MainScaffold(),
+          child: MainScaffold(feedbackService: mockFeedbackService),
         ),
       ),
     );

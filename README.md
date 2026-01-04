@@ -15,6 +15,7 @@ Holy is a monorepo project that provides a comprehensive Bible reading and study
 - [Architecture Overview](./doc/ARCHITECTURE.md): High-level system design and C4 Model (C4-PlantUML).
 - [Feature Index](./specs/README.md): Detailed specifications for all application features.
 - [Specification Guide](./doc/SPECIFICATION_GUIDE.md): How to document new features.
+- [Firebase Distribution Guide](./doc/firebase-distribution-guide.md): How to distribute test versions.
 
 ## Getting Started
 

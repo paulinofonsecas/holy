@@ -1,26 +1,94 @@
 {
   "project_info": {
-    "project_number": "86790721181",
-    "project_id": "admin-we-barato",
-    "storage_bucket": "admin-we-barato.firebasestorage.app"
+    "project_number": "802718084241",
+    "project_id": "caiaia01",
+    "storage_bucket": "caiaia01.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:86790721181:android:19238f375ace9f62db0e74",
+        "mobilesdk_app_id": "1:802718084241:android:ff1278055f8e40282de330",
         "android_client_info": {
-          "package_name": "com.example.eusou"
+          "package_name": "com.example.eu_sou"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "802718084241-b69a46pfitc9d4oviadta2p4urk47r67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyB4omasO0fQtAa0LyJZMi4p-F_4SniEqpc"
+          "current_key": "AIzaSyDF0NxGyrNIj1_Sc2ALJN_Ejg_xsYpb5-0"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "802718084241-b69a46pfitc9d4oviadta2p4urk47r67.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802718084241:android:76b2e2740a56c6722de330",
+        "android_client_info": {
+          "package_name": "com.example.verygoodcore.lista_de_compras"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "802718084241-b69a46pfitc9d4oviadta2p4urk47r67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDF0NxGyrNIj1_Sc2ALJN_Ejg_xsYpb5-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "802718084241-b69a46pfitc9d4oviadta2p4urk47r67.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802718084241:android:ea12a2a5f19c45ad2de330",
+        "android_client_info": {
+          "package_name": "com.tecnoelite.habit.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "802718084241-b69a46pfitc9d4oviadta2p4urk47r67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDF0NxGyrNIj1_Sc2ALJN_Ejg_xsYpb5-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "802718084241-b69a46pfitc9d4oviadta2p4urk47r67.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

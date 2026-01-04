@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
+import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
@@ -15,7 +16,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
+  final FeedbackService? feedbackService;
+
+  const MainScaffold({
+    super.key,
+    this.feedbackService,
+  });
 
   @override
   State<MainScaffold> createState() => _MainScaffoldState();
@@ -79,7 +85,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         create: (context) => MarkedVersesBloc(
           context.read<IMarkedVersesRepository>(),
         ),
-        child: const ProfilePage(),
+        child: ProfilePage(feedbackService: widget.feedbackService),
       ),
     ];
   }

@@ -7,22 +7,31 @@ import 'services/local_notification_service.dart';
 
 /// Main class to handle all notification operations
 class NotificationHandler {
-  late final FCMService _fcmService;
-  late final LocalNotificationService _localNotificationService;
+  FCMService? _fcmService;
+  LocalNotificationService? _localNotificationService;
 
   LocalNotificationService get localNotificationService =>
-      _localNotificationService;
+      _localNotificationService!;
 
   /// Initialize notification services
-  Future<bool> initialize() async {
+  Future<bool> initialize({
+    FCMService? fcmService,
+    LocalNotificationService? localNotificationService,
+  }) async {
     try {
+      if (fcmService != null && localNotificationService != null) {
+        _fcmService = fcmService;
+        _localNotificationService = localNotificationService;
+        return true;
+      }
+
       // Setup local notifications first
       _localNotificationService = LocalNotificationService();
-      await _localNotificationService.initialize();
+      await _localNotificationService!.initialize();
 
       // Setup FCM service
-      _fcmService = FCMService(_localNotificationService);
-      await _fcmService.initialize();
+      _fcmService = FCMService(_localNotificationService!);
+      await _fcmService!.initialize();
 
       // Register background message handler
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -38,7 +47,7 @@ class NotificationHandler {
   /// Get FCM token with error handling
   Future<String?> getFCMToken() async {
     try {
-      return await _fcmService.getToken();
+      return await _fcmService?.getToken();
     } catch (e) {
       debugPrint('Error in getFCMToken: $e');
       return 'Error: $e';
@@ -47,39 +56,39 @@ class NotificationHandler {
 
   /// Show a local notification
   Future<void> showLocalNotification(PushNotificationModel notification) async {
-    await _localNotificationService.showNotification(notification);
+    await _localNotificationService?.showNotification(notification);
   }
 
   /// Subscribe to a FCM topic
   Future<void> subscribeToTopic(String topic) async {
-    await _fcmService.subscribeToTopic(topic);
+    await _fcmService?.subscribeToTopic(topic);
   }
 
   /// Unsubscribe from a FCM topic
   Future<void> unsubscribeFromTopic(String topic) async {
-    await _fcmService.unsubscribeFromTopic(topic);
+    await _fcmService?.unsubscribeFromTopic(topic);
   }
 
   /// Add listener for notification received
   void addOnNotificationReceivedListener(
       Function(PushNotificationModel) listener) {
-    _fcmService.addOnNotificationReceivedListener(listener);
+    _fcmService?.addOnNotificationReceivedListener(listener);
   }
 
   /// Remove listener for notification received
   void removeOnNotificationReceivedListener(
       Function(PushNotificationModel) listener) {
-    _fcmService.removeOnNotificationReceivedListener(listener);
+    _fcmService?.removeOnNotificationReceivedListener(listener);
   }
 
   /// Add listener for notification tap
   void addOnNotificationTapListener(Function(String?) listener) {
-    _localNotificationService.addOnNotificationTapListener(listener);
+    _localNotificationService?.addOnNotificationTapListener(listener);
   }
 
   /// Remove listener for notification tap
   void removeOnNotificationTapListener(Function(String?) listener) {
-    _localNotificationService.removeOnNotificationTapListener(listener);
+    _localNotificationService?.removeOnNotificationTapListener(listener);
   }
 }
 

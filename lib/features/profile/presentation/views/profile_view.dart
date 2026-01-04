@@ -13,9 +13,12 @@ import '../pages/theme_settings_page.dart';
 import '../pages/verse_history_page.dart';
 
 class ProfileView extends StatelessWidget {
-  ProfileView({super.key});
+  ProfileView({
+    super.key,
+    FeedbackService? feedbackService,
+  }) : _feedbackService = feedbackService ?? FeedbackService();
 
-  final _feedbackService = FeedbackService();
+  final FeedbackService _feedbackService;
 
   void _navigateToAbout(BuildContext context) {
     Navigator.push(

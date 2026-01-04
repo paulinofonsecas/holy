@@ -1,14 +1,29 @@
 # 🚀 Distribuição Firebase - Guia Rápido
 
-## ⚡ Uso Básico
+## ⚡ Uso Básico (Pipeline Completo)
 
-### 1. Build + Distribuir
+A maneira mais fácil de rodar os testes, gerar o build e distribuir é usando o script de pipeline:
+
+### Windows (PowerShell)
 ```powershell
-# Build do APK
-flutter build apk --release
+.\scripts\build-and-distribute.ps1 -ReleaseNotes "Nova versão"
+```
 
-# Distribuir automaticamente
-.\scripts\distribute-apk.ps1
+### Linux/macOS (Bash)
+```bash
+./scripts/build-and-distribute.sh --release-notes "Nova versão"
+```
+
+### Usando Makefile (Recomendado)
+```bash
+make pipeline NOTES="Nova versão"
+```
+
+## 🛠 Comandos Individuais
+
+### 1. Apenas Distribuir (APK já existente)
+```powershell
+.\scripts\distribute-apk.ps1 -ReleaseNotes "Correção rápida"
 ```
 
 ### 2. Testar antes (Dry Run)
@@ -26,11 +41,6 @@ flutter build apk --release
 .\scripts\distribute-apk.ps1 -ReleaseNotes "@CHANGELOG.md"
 ```
 
-### 5. Com output verboso
-```powershell
-.\scripts\distribute-apk.ps1 -VerboseOutput
-```
-
 ## 🛠 Pré-requisitos
 
 1. **Firebase CLI** (uma vez):
@@ -43,22 +53,22 @@ npm install -g firebase-tools
 firebase login
 ```
 
-## 📝 Parâmetros
+## 📝 Parâmetros (distribute-apk.ps1)
 
 | Parâmetro | Descrição | Padrão |
 |-----------|-----------|--------|
 | `-ApkPath` | Caminho do APK | Auto-detecta |
 | `-AppId` | Firebase App ID | Extrai de firebase.json |
 | `-ReleaseNotes` | Notas da versão | Vazio |
-| `-Groups` | Grupos de testadores | "internal-testers" |
+| `-Groups` | Grupos de testadores | "testers" |
 | `-DryRun` | Testar sem executar | false |
 | `-VerboseOutput` | Debug detalhado | false |
 
 ## 🎯 Exemplos Práticos
 
-**Lançamento rápido:**
-```powershell
-flutter build apk --release && .\scripts\distribute-apk.ps1 -ReleaseNotes "Hotfix: corrige crash no login"
+**Lançamento rápido via Makefile:**
+```bash
+make pipeline NOTES="Hotfix: corrige crash no login"
 ```
 
 **Distribuição para beta:**
@@ -67,13 +77,7 @@ flutter build apk --release && .\scripts\distribute-apk.ps1 -ReleaseNotes "Hotfi
 ```
 
 **CI/CD (GitHub Actions):**
-```yaml
-- name: Distribute to Firebase
-  env:
-    FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-  run: |
-    .\scripts\distribute-apk.ps1 -ReleaseNotes "Build ${{ github.run_number }}"
-```
+O workflow `.github/workflows/distribute.yml` já está configurado para rodar automaticamente em pushes para `main`, `develop` e `staging`.
 
 ## ❌ Resolução de Erros
 
@@ -96,8 +100,6 @@ Quando funcionar, você verá:
 Duration: 45.2 seconds
 Testers will receive notification shortly.
 ```
-
-## 🔗 Mais Info
 
 - [Documentação completa](../specs/012-firebase-apk-distribution/quickstart.md)
 - [Contratos da API](../specs/012-firebase-apk-distribution/contracts/)

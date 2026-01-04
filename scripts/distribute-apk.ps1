@@ -21,7 +21,7 @@
 .PARAMETER DryRun
     Preview actions without executing upload
 
-.PARAMETER Debug
+.PARAMETER VerboseOutput
     Enable verbose Firebase CLI output
 
 .EXAMPLE
@@ -114,7 +114,7 @@ function Test-FirebaseAuth {
     }
     return $false
 }
-
+    
 function Get-ApkPath {
     param([string]$CustomPath)
     
@@ -144,29 +144,50 @@ function Get-FirebaseAppId {
         return $CustomAppId
     }
     
-    $firebaseJson = "firebase.json"
-    if (-not (Test-Path $firebaseJson)) {
-        Write-Log "firebase.json not found" "ERROR"
-        exit 4
+    # 1. Try firebase.json (supports multiple FlutterFire CLI structures)
+    if (Test-Path "firebase.json") {
+        try {
+            $json = Get-Content "firebase.json" -Raw | ConvertFrom-Json
+            $appId = $null
+            
+            if ($json.flutter.dart."lib/firebase_options.dart".platforms.android.appId) {
+                $appId = $json.flutter.dart."lib/firebase_options.dart".platforms.android.appId
+            }
+            elseif ($json.flutter.dart."lib/firebase_options.dart".android.appId) {
+                $appId = $json.flutter.dart."lib/firebase_options.dart".android.appId
+            }
+            elseif ($json.flutter.platforms.android.default.appId) {
+                $appId = $json.flutter.platforms.android.default.appId
+            }
+
+            if ($appId) {
+                Write-Log "Extracted app ID from firebase.json: $appId" "SUCCESS"
+                return $appId
+            }
+        }
+        catch {
+            Write-Log "Warning: Failed to parse firebase.json" "WARNING"
+        }
+    }
+
+    # 2. Fallback: google-services.json (Standard Android Firebase config)
+    $gsPath = "android/app/google-services.json"
+    if (Test-Path $gsPath) {
+        try {
+            $gs = Get-Content $gsPath -Raw | ConvertFrom-Json
+            $appId = $gs.client[0].client_info.mobilesdk_app_id
+            if ($appId) {
+                Write-Log "Extracted app ID from google-services.json: $appId" "SUCCESS"
+                return $appId
+            }
+        }
+        catch {
+            Write-Log "Warning: Failed to parse google-services.json" "WARNING"
+        }
     }
     
-    try {
-        $config = Get-Content $firebaseJson | ConvertFrom-Json
-        $appId = $config.flutter.dart.'lib/firebase_options.dart'.configurations.android
-        
-        if ($appId) {
-            Write-Log "Extracted app ID: $appId" "SUCCESS"
-            return $appId
-        }
-        else {
-            Write-Log "App ID not found in firebase.json" "ERROR"
-            exit 4
-        }
-    }
-    catch {
-        Write-Log "Failed to extract app ID: $_" "ERROR"
-        exit 4
-    }
+    Write-Log "Firebase App ID not found. Provide it via -AppId or check configuration files." "ERROR"
+    exit 4
 }
 
 function Invoke-WithRetry {
@@ -236,7 +257,7 @@ Write-Step 4 5 "Preparing distribution command"
 
 $firebaseCmd = "firebase appdistribution:distribute `"$resolvedApkPath`""
 $firebaseCmd += " --app `"$resolvedAppId`""
-$firebaseCmd += " --groups `"$Groups`""
+# $firebaseCmd += " --groups `"$Groups`""
 
 if ($ReleaseNotes) {
     if ($ReleaseNotes.StartsWith("@")) {
