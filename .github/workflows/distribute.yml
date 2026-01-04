@@ -2,9 +2,8 @@ name: Firebase APK Distribution
 
 on:
   push:
-    branches:
-      - main
-      - staging
+    branches: [ main, staging]
+
   workflow_dispatch:
     inputs:
       release_notes:

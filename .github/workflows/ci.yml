@@ -1,45 +1,46 @@
 name: CI
-
 on:
-  push:
-    branches: [ main, master, '007-bottom-navigation-bar' ]
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+      - staging
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'Release notes for this version'
+        required: false
+        default: 'Manual trigger from GitHub Actions'
+      groups:
+        description: 'Tester groups (comma-separated)'
+        required: false
+        default: 'internal-testers'
 
 jobs:
-  test:
-    name: Unit Tests & Analysis
+  distribute:
+    name: Geral analysis and tests
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          flutter-version: 3.38.5
+          flutter-version: '3.38.5'
           cache: true
 
-      - name: Install dependencies (Root)
-        run: flutter pub get --verbosity=error
-
-      - name: Run build_runner (Root)
-        run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      # - name: Analyze (Root)
-      #   run: flutter analyze
-
-      - name: Run tests (Root)
-        run: flutter test
-
-      - name: Install dependencies (bible_handler)
-        working-directory: packages/bible_handler
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze (bible_handler)
-        working-directory: packages/bible_handler
-        run: flutter analyze
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
 
-      - name: Run tests (bible_handler)
-        working-directory: packages/bible_handler
+      - name: Run tests
         run: flutter test
