@@ -1,0 +1,37 @@
+{
+    "rules": {
+        "studyRooms": {
+            "$roomId": {
+                ".read": "auth != null",
+                "metadata": {
+                    ".write": "auth != null && (data.child('host_id').val() == auth.uid || !data.exists())"
+                },
+                "participants": {
+                    "$participantId": {
+                        ".write": "auth != null && auth.uid == $participantId"
+                    }
+                },
+                "events": {
+                    "$eventId": {
+                        ".write": "auth != null && (root.child('studyRooms').child($roomId).child('metadata').child('host_id').val() == auth.uid || root.child('studyRooms').child($roomId).child('metadata').child('authorized_controllers').child(auth.uid).exists())",
+                        ".validate": "newData.hasChildren(['type', 'author_id', 'created_at'])"
+                    }
+                }
+            }
+        },
+        "presence": {
+            "$roomId": {
+                "$participantId": {
+                    ".read": "auth != null",
+                    ".write": "auth != null && auth.uid == $participantId"
+                }
+            }
+        },
+        "sessions": {
+            "$sessionId": {
+                ".read": "auth != null",
+                ".write": "auth != null && root.child('studyRooms').child(data.child('room_id').val()).child('metadata').child('host_id').val() == auth.uid"
+            }
+        }
+    }
+}

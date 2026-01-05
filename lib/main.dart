@@ -1,6 +1,8 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/app/app.dart';
+import 'package:eu_sou/app/core/verse_resolver_impl.dart';
+import 'package:eu_sou/app/services/study_room_service.dart';
 import 'package:eu_sou/core/data/database_helper.dart';
 import 'package:eu_sou/core/data/provider/github_bible_provider.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
@@ -25,6 +27,7 @@ import 'package:eu_sou/firebase_options.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -128,6 +131,12 @@ void main() async {
         ),
         RepositoryProvider<IProfileRepository>(
           create: (context) => ProfileRepository(),
+        ),
+        RepositoryProvider<StudyRoomService>(
+          create: (context) => StudyRoomService(
+            FirebaseDatabase.instance,
+            VerseResolverImpl(context.read<IBibleRepository>()),
+          ),
         ),
         RepositoryProvider<ThemeBloc>(
           create: (context) => ThemeBloc(context.read<IProfileRepository>()),

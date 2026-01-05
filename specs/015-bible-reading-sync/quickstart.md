@@ -16,3 +16,13 @@ Steps
 
 Testing
 - Simulate network latency using Android emulator network throttling; measure event-to-render latency.
+- **Firebase Emulator Suite**:
+  1. Install Firebase CLI: `npm install -g firebase-tools`.
+  2. Initialize emulator in project root: `firebase init emulators`.
+  3. Start emulators: `firebase emulators:start --only database`.
+  4. Configure Flutter app to use emulator:
+     ```dart
+     if (kDebugMode) {
+       FirebaseDatabase.instance.useDatabaseEmulator('localhost', 9000);
+     }
+     ```

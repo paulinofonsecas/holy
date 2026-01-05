@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eu_sou/app/features/study_rooms/views/community_view.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
@@ -81,6 +82,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           )),
         child: const TelaBusca(),
       ),
+      const CommunityView(),
       BlocProvider(
         create: (context) => MarkedVersesBloc(
           context.read<IMarkedVersesRepository>(),
@@ -103,6 +105,11 @@ class _MainScaffoldState extends State<MainScaffold> {
           ),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: currentIndex,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            unselectedItemColor: Theme.of(context).colorScheme.onSurface,
+            unselectedLabelStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             onTap: (index) {
               context.read<TabControllerCubit>().changeTo(index);
             },
@@ -114,6 +121,10 @@ class _MainScaffoldState extends State<MainScaffold> {
               BottomNavigationBarItem(
                 icon: const Icon(Icons.search),
                 label: l10n.search,
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.group),
+                label: 'Comunidade',
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.person),

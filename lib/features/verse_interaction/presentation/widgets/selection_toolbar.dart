@@ -1,3 +1,5 @@
+import 'package:eu_sou/app/core/verse_resolver.dart';
+import 'package:eu_sou/app/features/study_rooms/bloc/study_room_bloc.dart';
 import 'package:eu_sou/core/services/share_service.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
@@ -43,6 +45,19 @@ class SelectionToolbar extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const Spacer(),
+                  BlocBuilder<StudyRoomBloc, StudyRoomState>(
+                    builder: (context, studyState) {
+                      if (studyState is StudyRoomJoined) {
+                        return IconButton(
+                          icon: const Icon(Icons.sync),
+                          onPressed: () {
+                            _syncSelectedVerse(context, state);
+                          },
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                   IconButton(
                     icon: const Icon(Icons.border_color),
                     onPressed: () {
@@ -79,6 +94,28 @@ class SelectionToolbar extends StatelessWidget {
       versionId: versionId,
     );
     context.read<VerseSelectionBloc>().add(ClearSelection());
+  }
+
+  void _syncSelectedVerse(BuildContext context, VerseSelectionState state) {
+    if (state.selectedVerses.isEmpty) return;
+
+    final versionId = context.read<BibleVersionCubit>().state.version.id;
+    final firstVerse = state.selectedVerses.values.first;
+
+    final verseRef = VerseReference(
+      version: versionId,
+      book: chapter.bookId,
+      chapter: chapter.number,
+      verse: firstVerse.number,
+    );
+
+    context.read<StudyRoomBloc>().add(ShareVerse(verseRef));
+    context.read<VerseSelectionBloc>().add(ClearSelection());
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('Versículo compartilhado na sala de estudo')),
+    );
   }
 
   void _showHighlightOptions(BuildContext context, VerseSelectionState state) {

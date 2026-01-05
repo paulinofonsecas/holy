@@ -1,5 +1,7 @@
 import 'dart:developer' show log;
 
+import 'package:eu_sou/app/features/study_rooms/bloc/study_room_bloc.dart';
+import 'package:eu_sou/app/models/sync_models.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/chapter_visualizer_widget.dart';
 import 'package:eu_sou/shared/widgets/loading_widget.dart';
@@ -43,68 +45,96 @@ class _TelaDeLeituraState extends State<TelaDeLeitura> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<BibliaBloc, BibliaState>(listener: (context, state) {
-      if (state is BibleChapterLoaded) {
-        final chapterId = "${state.chapter.bookId}-${state.chapter.number}";
-        if (_currentChapterId != chapterId) {
-          _verseKeys.clear();
-          _currentChapterId = chapterId;
-        }
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<StudyRoomBloc, StudyRoomState>(
+          listener: (context, state) {
+            if (state is StudyRoomJoined && state.lastEvent != null) {
+              final event = state.lastEvent!;
+              if (event.type == ShareEventType.shareVerse) {
+                final ref = event.verseRef;
+                context.read<BibliaBloc>().add(
+                      GetChapter(
+                        ref.version ?? 'nvi', // Default to nvi if null
+                        ref.book,
+                        ref.chapter.toString(),
+                        verse: ref.verse,
+                      ),
+                    );
+              }
+            }
+          },
+        ),
+        BlocListener<BibliaBloc, BibliaState>(
+          listener: (context, state) {
+            if (state is BibleChapterLoaded) {
+              final chapterId =
+                  "${state.chapter.bookId}-${state.chapter.number}";
+              if (_currentChapterId != chapterId) {
+                _verseKeys.clear();
+                _currentChapterId = chapterId;
+              }
 
-        // Garantir que as chaves existam antes de tentar scrollar
-        for (var verse in state.chapter.verses) {
-          _verseKeys.putIfAbsent(verse.number, () => GlobalKey());
-        }
+              // Garantir que as chaves existam antes de tentar scrollar
+              for (var verse in state.chapter.verses) {
+                _verseKeys.putIfAbsent(verse.number, () => GlobalKey());
+              }
 
-        if (state.targetVerse != null) {
-          _scrollToVerse(state.targetVerse!);
-        }
-      }
-    }, builder: (context, state) {
-      if (state is BibleChapterLoaded) {
-        final chapterId = "${state.chapter.bookId}-${state.chapter.number}";
-        if (_currentChapterId != chapterId) {
-          _verseKeys.clear();
-          _currentChapterId = chapterId;
-        }
+              if (state.targetVerse != null) {
+                _scrollToVerse(state.targetVerse!);
+              }
+            }
+          },
+        ),
+      ],
+      child: BlocBuilder<BibliaBloc, BibliaState>(
+        builder: (context, state) {
+          if (state is BibleChapterLoaded) {
+            final chapterId = "${state.chapter.bookId}-${state.chapter.number}";
+            if (_currentChapterId != chapterId) {
+              _verseKeys.clear();
+              _currentChapterId = chapterId;
+            }
 
-        // Garantir que as chaves existam para o builder
-        for (var verse in state.chapter.verses) {
-          _verseKeys.putIfAbsent(verse.number, () => GlobalKey());
-        }
+            // Garantir que as chaves existam para o builder
+            for (var verse in state.chapter.verses) {
+              _verseKeys.putIfAbsent(verse.number, () => GlobalKey());
+            }
 
-        return GestureDetector(
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                ChapterVisualizerWidget(
-                  chapter: state.chapter,
-                  verseKeys: _verseKeys,
+            return GestureDetector(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    ChapterVisualizerWidget(
+                      chapter: state.chapter,
+                      verseKeys: _verseKeys,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
-      } else if (state is BibleError) {
-        log(state.message);
+              ),
+            );
+          } else if (state is BibleError) {
+            log(state.message);
 
-        late String message;
+            late String message;
 
-        if (state.message.contains('No internet connection')) {
-          message = 'Ocorreu um erro de conexão com a internet';
-        } else {
-          message = "Erro ao carregar o capítulo";
-        }
+            if (state.message.contains('No internet connection')) {
+              message = 'Ocorreu um erro de conexão com a internet';
+            } else {
+              message = "Erro ao carregar o capítulo";
+            }
 
-        return ShowErrorWidget(message: message);
-      } else if (state is BibliaLoading) {
-        return const LoadingWidget(
-          message: 'Carregando a Bíblia...',
-        );
-      } else {
-        return Container();
-      }
-    });
+            return ShowErrorWidget(message: message);
+          } else if (state is BibliaLoading) {
+            return const LoadingWidget(
+              message: 'Carregando a Bíblia...',
+            );
+          } else {
+            return Container();
+          }
+        },
+      ),
+    );
   }
 }

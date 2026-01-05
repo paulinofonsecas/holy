@@ -1,3 +1,4 @@
+import 'package:eu_sou/app/features/study_rooms/bloc/study_room_bloc.dart';
 import 'package:eu_sou/core/design_system/theme/theme_data.dart';
 import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
 import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
@@ -54,6 +55,9 @@ class App extends StatelessWidget {
             repository: context.read(),
             service: context.read(),
           )..add(LoadVerseOfTheDaySettings()),
+        ),
+        BlocProvider(
+          create: (context) => StudyRoomBloc(context.read()),
         ),
       ],
       child: Builder(
