@@ -96,16 +96,35 @@ class _CommunityViewState extends State<CommunityView> {
           ),
           const SizedBox(height: 8),
           Text(
-              'Status: ${state.status == SyncStatus.following ? "Seguindo" : "Desconectado"}'),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              context.read<StudyRoomBloc>().add(ToggleFollow());
-            },
-            child: Text(state.status == SyncStatus.following
-                ? 'Parar de Seguir'
-                : 'Seguir Host'),
+            state.isHost
+                ? 'Você é o host'
+                : 'Status: ${state.status == SyncStatus.following ? "Seguindo" : "Desconectado"}',
+            style: TextStyle(
+              fontWeight: state.isHost ? FontWeight.bold : FontWeight.normal,
+              color: state.isHost ? Colors.blue : Colors.grey,
+            ),
           ),
+          const SizedBox(height: 24),
+          if (state.isHost)
+            ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text(
+                          'Funcionalidade de compartilhar versículo em desenvolvimento')),
+                );
+              },
+              child: const Text('Compartilhar Versículo'),
+            )
+          else
+            ElevatedButton(
+              onPressed: () {
+                context.read<StudyRoomBloc>().add(ToggleFollow());
+              },
+              child: Text(state.status == SyncStatus.following
+                  ? 'Parar de Seguir'
+                  : 'Seguir Host'),
+            ),
           const SizedBox(height: 12),
           TextButton(
             onPressed: () {

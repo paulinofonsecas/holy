@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'dart:io';
 
 import '../models/push_notification_model.dart';
 import 'local_notification_service.dart';
@@ -17,9 +18,15 @@ class FCMService {
 
   FCMService(this._localNotificationService);
 
-  /// Initialize FCM service
   /// Initialize FCM service with improved error handling
   Future<void> initialize() async {
+    try {
+      // Ensure Firebase is fully initialized
+      await Firebase.initializeApp();
+    } catch (e) {
+      debugPrint('Firebase already initialized or initialization error: $e');
+    }
+
     await _requestPermissions();
     await _setupForegroundNotifications();
     await _setupBackgroundAndTerminatedNotifications();
@@ -34,7 +41,7 @@ class FCMService {
         debugPrint('Failed to get FCM token - notifications may be limited');
       }
     } catch (e) {
-      debugPrint('Error during FCM initialization: $e');
+      debugPrint('Error during FCM token retrieval: $e');
       // Continue execution even if token retrieval fails
     }
 
@@ -142,31 +149,43 @@ class FCMService {
     try {
       if (Platform.isIOS) {
         // For iOS, first check APNS token explicitly
-        final apnsToken = await _firebaseMessaging.getAPNSToken();
+        try {
+          final apnsToken = await _firebaseMessaging.getAPNSToken();
 
-        if (apnsToken == null) {
-          debugPrint('APNS token is null, iOS push notifications may not work');
+          if (apnsToken == null) {
+            debugPrint('APNS token is null, iOS push notifications may not work');
 
-          // iOS simulator doesn't support push notifications
-          if (Platform.isIOS && !await _isPhysicalDevice()) {
-            debugPrint(
-                'Running on iOS simulator - push notifications are not fully supported');
-            return 'simulator-token-not-available';
+            // iOS simulator doesn't support push notifications
+            if (!await _isPhysicalDevice()) {
+              debugPrint(
+                  'Running on iOS simulator - push notifications are not fully supported');
+              return 'simulator-token-not-available';
+            }
+
+            // On physical devices, wait a bit and try again
+            await Future.delayed(const Duration(seconds: 1));
+            final retryApnsToken = await _firebaseMessaging.getAPNSToken();
+
+            if (retryApnsToken == null) {
+              debugPrint('APNS token still null after retry');
+              return null;
+            }
           }
-
-          // On physical devices, wait a bit and try again
-          await Future.delayed(const Duration(seconds: 1));
-          final retryApnsToken = await _firebaseMessaging.getAPNSToken();
-
-          if (retryApnsToken == null) {
-            debugPrint('APNS token still null after retry');
-            return null;
-          }
+        } catch (e) {
+          debugPrint('Error getting APNS token: $e');
+          // Continue to try FCM token anyway
         }
       }
 
       // Now try to get FCM token
-      return await _firebaseMessaging.getToken();
+      try {
+        final token = await _firebaseMessaging.getToken();
+        return token;
+      } on Exception catch (e) {
+        debugPrint('Platform exception getting FCM token: $e');
+        // Return null instead of throwing to allow app to continue
+        return null;
+      }
     } catch (e) {
       debugPrint('Error getting FCM token: $e');
       return null;

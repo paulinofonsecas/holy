@@ -14,32 +14,38 @@ class StudyRoomLoading extends StudyRoomState {}
 class StudyRoomJoined extends StudyRoomState {
   final String roomId;
   final String userId;
+  final String hostId;
   final SyncStatus status;
   final ShareEvent? lastEvent;
 
   const StudyRoomJoined({
     required this.roomId,
     required this.userId,
+    required this.hostId,
     required this.status,
     this.lastEvent,
   });
 
+  bool get isHost => userId == hostId;
+
   StudyRoomJoined copyWith({
     String? roomId,
     String? userId,
+    String? hostId,
     SyncStatus? status,
     ShareEvent? lastEvent,
   }) {
     return StudyRoomJoined(
       roomId: roomId ?? this.roomId,
       userId: userId ?? this.userId,
+      hostId: hostId ?? this.hostId,
       status: status ?? this.status,
       lastEvent: lastEvent ?? this.lastEvent,
     );
   }
 
   @override
-  List<Object?> get props => [roomId, userId, status, lastEvent];
+  List<Object?> get props => [roomId, userId, hostId, status, lastEvent];
 }
 
 class StudyRoomError extends StudyRoomState {

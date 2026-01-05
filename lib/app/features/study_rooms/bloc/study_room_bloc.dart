@@ -25,6 +25,7 @@ class StudyRoomBloc extends Bloc<StudyRoomEvent, StudyRoomState> {
   Future<void> _onJoinRoom(JoinRoom event, Emitter<StudyRoomState> emit) async {
     emit(StudyRoomLoading());
     try {
+      final room = await _service.getRoomDetails(event.roomId);
       await _service.joinRoom(event.roomId, event.userId, event.displayName);
 
       _eventSubscription?.cancel();
@@ -35,6 +36,7 @@ class StudyRoomBloc extends Bloc<StudyRoomEvent, StudyRoomState> {
       emit(StudyRoomJoined(
         roomId: event.roomId,
         userId: event.userId,
+        hostId: room.hostId,
         status: SyncStatus.following,
       ));
     } catch (e) {
@@ -62,6 +64,10 @@ class StudyRoomBloc extends Bloc<StudyRoomEvent, StudyRoomState> {
       ShareVerse event, Emitter<StudyRoomState> emit) async {
     if (state is StudyRoomJoined) {
       final currentState = state as StudyRoomJoined;
+      if (!currentState.isHost) {
+        emit(const StudyRoomError('Apenas o host pode compartilhar versículos'));
+        return;
+      }
       final shareEvent = ShareEvent(
         eventId: '', // Will be set by service
         sessionId: currentState.roomId,

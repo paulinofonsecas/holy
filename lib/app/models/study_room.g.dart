@@ -12,8 +12,12 @@ _$StudyRoomImpl _$$StudyRoomImplFromJson(Map<String, dynamic> json) =>
       title: json['title'] as String,
       hostId: json['hostId'] as String,
       isPublic: json['isPublic'] as bool? ?? true,
-      participants: json['participants'] as Map<String, dynamic>? ?? const {},
-      metadata: json['metadata'] as Map<String, dynamic>? ?? const {},
+      participants: json['participants'] == null
+          ? const {}
+          : const MapConverter().fromJson(json['participants']),
+      metadata: json['metadata'] == null
+          ? const {}
+          : const MapConverter().fromJson(json['metadata']),
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -25,8 +29,8 @@ Map<String, dynamic> _$$StudyRoomImplToJson(_$StudyRoomImpl instance) =>
       'title': instance.title,
       'hostId': instance.hostId,
       'isPublic': instance.isPublic,
-      'participants': instance.participants,
-      'metadata': instance.metadata,
+      'participants': const MapConverter().toJson(instance.participants),
+      'metadata': const MapConverter().toJson(instance.metadata),
       'createdAt': instance.createdAt?.toIso8601String(),
     };
 

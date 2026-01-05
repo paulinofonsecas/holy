@@ -24,7 +24,9 @@ mixin _$StudyRoom {
   String get title => throw _privateConstructorUsedError;
   String get hostId => throw _privateConstructorUsedError;
   bool get isPublic => throw _privateConstructorUsedError;
+  @MapConverter()
   Map<String, dynamic> get participants => throw _privateConstructorUsedError;
+  @MapConverter()
   Map<String, dynamic> get metadata => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
@@ -44,8 +46,8 @@ abstract class $StudyRoomCopyWith<$Res> {
       String title,
       String hostId,
       bool isPublic,
-      Map<String, dynamic> participants,
-      Map<String, dynamic> metadata,
+      @MapConverter() Map<String, dynamic> participants,
+      @MapConverter() Map<String, dynamic> metadata,
       DateTime? createdAt});
 }
 
@@ -116,8 +118,8 @@ abstract class _$$StudyRoomImplCopyWith<$Res>
       String title,
       String hostId,
       bool isPublic,
-      Map<String, dynamic> participants,
-      Map<String, dynamic> metadata,
+      @MapConverter() Map<String, dynamic> participants,
+      @MapConverter() Map<String, dynamic> metadata,
       DateTime? createdAt});
 }
 
@@ -181,8 +183,8 @@ class _$StudyRoomImpl implements _StudyRoom {
       required this.title,
       required this.hostId,
       this.isPublic = true,
-      final Map<String, dynamic> participants = const {},
-      final Map<String, dynamic> metadata = const {},
+      @MapConverter() final Map<String, dynamic> participants = const {},
+      @MapConverter() final Map<String, dynamic> metadata = const {},
       this.createdAt})
       : _participants = participants,
         _metadata = metadata;
@@ -202,6 +204,7 @@ class _$StudyRoomImpl implements _StudyRoom {
   final Map<String, dynamic> _participants;
   @override
   @JsonKey()
+  @MapConverter()
   Map<String, dynamic> get participants {
     if (_participants is EqualUnmodifiableMapView) return _participants;
     // ignore: implicit_dynamic_type
@@ -211,6 +214,7 @@ class _$StudyRoomImpl implements _StudyRoom {
   final Map<String, dynamic> _metadata;
   @override
   @JsonKey()
+  @MapConverter()
   Map<String, dynamic> get metadata {
     if (_metadata is EqualUnmodifiableMapView) return _metadata;
     // ignore: implicit_dynamic_type
@@ -274,8 +278,8 @@ abstract class _StudyRoom implements StudyRoom {
       required final String title,
       required final String hostId,
       final bool isPublic,
-      final Map<String, dynamic> participants,
-      final Map<String, dynamic> metadata,
+      @MapConverter() final Map<String, dynamic> participants,
+      @MapConverter() final Map<String, dynamic> metadata,
       final DateTime? createdAt}) = _$StudyRoomImpl;
 
   factory _StudyRoom.fromJson(Map<String, dynamic> json) =
@@ -290,8 +294,10 @@ abstract class _StudyRoom implements StudyRoom {
   @override
   bool get isPublic;
   @override
+  @MapConverter()
   Map<String, dynamic> get participants;
   @override
+  @MapConverter()
   Map<String, dynamic> get metadata;
   @override
   DateTime? get createdAt;

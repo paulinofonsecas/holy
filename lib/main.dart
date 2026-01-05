@@ -2,6 +2,7 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/app/app.dart';
 import 'package:eu_sou/app/core/verse_resolver_impl.dart';
+import 'package:eu_sou/app/services/auth_service.dart';
 import 'package:eu_sou/app/services/study_room_service.dart';
 import 'package:eu_sou/core/data/database_helper.dart';
 import 'package:eu_sou/core/data/provider/github_bible_provider.dart';
@@ -37,9 +38,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await DotEnv().load(fileName: ".env");
-  // Android uses native SQLite implementation via sqflite
-  // FFI initialization not needed for Android-only app
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -70,6 +68,16 @@ void main() async {
   final cacheProvider = BibleCacheProvider(db);
 
   final sharedPreferences = await SharedPreferences.getInstance();
+
+  // Initialize anonymous authentication with persistence
+  final authService = AuthService(sharedPreferences);
+  try {
+    await authService.initialize();
+    debugPrint('Authentication initialized successfully');
+  } catch (e) {
+    debugPrint('Authentication initialization failed (app will continue): $e');
+    // Continue execution even if auth fails - user can still use app with local ID
+  }
 
   final verseRepo = VerseOfTheDayRepository(sharedPreferences);
   final verseService = VerseOfTheDayService(
