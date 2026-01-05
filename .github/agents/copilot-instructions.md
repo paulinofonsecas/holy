@@ -41,7 +41,6 @@ Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 ## Recent Changes
 - main: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 - 012-firebase-apk-distribution: Added Flutter 3.38.4+, Dart 3.6.0+, PowerShell 5.1+, Bash 4.0+ + Firebase CLI 11.0.0+, Firebase App Distribution, Make (GNU Make 3.81+), GitHub Actions
-- 011-verse-of-the-day: Added Dart 3.x, Flutter 3.x + `flutter_local_notifications`, `timezone`, `bible_handler` (internal), `shared_preferences`
 
 
 <!-- MANUAL ADDITIONS START -->
