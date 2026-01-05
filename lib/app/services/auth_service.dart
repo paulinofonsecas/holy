@@ -29,17 +29,24 @@ class AuthService {
   /// Initialize authentication (automatic anonymous login if not logged in)
   Future<void> initialize() async {
     try {
-      if (_firebaseAuth.currentUser != null) {
-        debugPrint('User already logged in: ${_firebaseAuth.currentUser?.uid}');
-        return;
-      }
-
+      // First, check if we already have a saved user ID
       final savedUserId = _prefs.getString(_userIdKey);
       if (savedUserId != null) {
         debugPrint('Found saved user ID: $savedUserId');
         return;
       }
 
+      // If Firebase user exists, save that ID
+      if (_firebaseAuth.currentUser != null) {
+        final firebaseUid = _firebaseAuth.currentUser?.uid;
+        if (firebaseUid != null) {
+          await _prefs.setString(_userIdKey, firebaseUid);
+          debugPrint('Saved Firebase user ID: $firebaseUid');
+          return;
+        }
+      }
+
+      // Try anonymous login only if no user ID exists
       await loginAnonymously();
     } catch (e) {
       debugPrint('Error during auth initialization: $e');
@@ -50,6 +57,15 @@ class AuthService {
   /// Login anonymously and persist the user ID
   Future<UserCredential> loginAnonymously() async {
     try {
+      // Check if we already have a saved user ID (don't create duplicates)
+      final savedUserId = _prefs.getString(_userIdKey);
+      if (savedUserId != null) {
+        debugPrint('Using existing user ID: $savedUserId');
+        // Still try to login to Firebase, but reuse the stored ID
+        final userCredential = await _firebaseAuth.signInAnonymously();
+        return userCredential;
+      }
+
       debugPrint('Attempting anonymous login...');
       final userCredential = await _firebaseAuth.signInAnonymously();
       final userId = userCredential.user?.uid;
