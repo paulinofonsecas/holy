@@ -1,0 +1,56 @@
+{
+    "studyRooms": {
+        "{roomId}": {
+            "room_id": "string",
+            "title": "string",
+            "host_id": "string",
+            "is_public": "boolean",
+            "metadata": {
+                "description": "string",
+                "authorized_controllers": [
+                    "userId"
+                ]
+            },
+            "participants": {
+                "{participantId}": {
+                    "display_name": "string",
+                    "joined_at": "serverTimestamp"
+                }
+            },
+            "events": {
+                "{eventId}": {
+                    "event_id": "string",
+                    "session_id": "string",
+                    "type": "ShareVerse|Advance|Join|Leave",
+                    "verseRef": {
+                        "book": "string",
+                        "chapter": 0,
+                        "verse": 0,
+                        "version": "string"
+                    },
+                    "author_id": "string",
+                    "created_at": "serverTimestamp"
+                }
+            }
+        }
+    },
+    "sessions": {
+        "{sessionId}": {
+            "session_id": "string",
+            "room_id": "string",
+            "started_at": "serverTimestamp",
+            "state": {
+                "last_event_id": "string",
+                "current_verseRef": {}
+            }
+        }
+    },
+    "presence": {
+        "{roomId}": {
+            "{participantId}": {
+                "online": true,
+                "last_seen": "serverTimestamp"
+            }
+        }
+    }
+}
