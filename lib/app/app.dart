@@ -10,6 +10,7 @@ import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +56,7 @@ class App extends StatelessWidget {
             service: context.read(),
           )..add(LoadVerseOfTheDaySettings()),
         ),
+        BlocProvider(create: (_) => TabControllerCubit()),
       ],
       child: Builder(
         builder: (context) {
