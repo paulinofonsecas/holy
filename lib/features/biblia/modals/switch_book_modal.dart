@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 class SwitchBookModal {
-  static show(BuildContext context) {
+  static void show(BuildContext context) {
     WoltModalSheet.show<void>(
       context: context,
       pageListBuilder: (modalSheetContext) {
