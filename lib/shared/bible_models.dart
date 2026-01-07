@@ -162,7 +162,7 @@ enum BibleBooks {
   john2(bookId: '2JN', book: '2 João', chapterCount: 1),
   john3(bookId: '3JN', book: '3 João', chapterCount: 1),
   jude(bookId: 'JUD', book: 'Judas', chapterCount: 1),
-  revelation(bookId: 'APC', book: 'Apocalipse', chapterCount: 22);
+  revelation(bookId: 'REV', book: 'Apocalipse', chapterCount: 22);
 
   final String bookId;
   final String book;
