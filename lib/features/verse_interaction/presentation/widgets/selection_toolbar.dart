@@ -45,23 +45,17 @@ class SelectionToolbar extends StatelessWidget {
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.more_horiz),
-                    onPressed: () {
-                      _showRichModal(context, state);
-                    },
-                    tooltip: 'Mais opções',
-                  ),
-                  IconButton(
                     icon: const Icon(Icons.border_color),
                     onPressed: () {
                       _showHighlightOptions(context, state);
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.share),
+                    icon: const Icon(Icons.more_horiz),
                     onPressed: () {
-                      _shareSelectedVerses(context, state);
+                      _showRichModal(context, state);
                     },
+                    tooltip: 'Mais opções',
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),

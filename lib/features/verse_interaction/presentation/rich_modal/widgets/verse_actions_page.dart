@@ -33,7 +33,9 @@ class VerseActionsPage {
             HighlightRow(
               onColorSelected: (color) {
                 viewModel.applyHighlight(color);
-                // Optionally close or stay
+                // stop selection
+                viewModel.clearSelection();
+                Navigator.of(context).pop();
               },
               onRemoveHighlight: () {
                 viewModel.removeHighlight();
