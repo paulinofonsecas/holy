@@ -7,12 +7,18 @@ import '../bloc/selection_bloc.dart';
 class RichModalViewModel extends BaseViewModel {
   final List<BibleVerse> verses;
   final String verseReference;
+  final String versionId;
+  final String bookId;
+  final int chapterNumber;
   final HighlightBloc highlightBloc;
   final VerseSelectionBloc selectionBloc;
 
   RichModalViewModel({
     required this.verses,
     required this.verseReference,
+    required this.versionId,
+    required this.bookId,
+    required this.chapterNumber,
     required this.highlightBloc,
     required this.selectionBloc,
   });
@@ -34,11 +40,8 @@ class RichModalViewModel extends BaseViewModel {
   }
 
   String _getVerseRef(BibleVerse verse) {
-    // This is a simplification. Usually we need book and chapter info too.
-    // For now, using the reference passed to the model as a base or
-    // assuming verses have enough info.
-    // In this app, highlights seem to be stored by a string key 'verseRef'.
-    return '$verseReference:${verse.number}';
+    // Return structured format: version:book:chapter:verse
+    return '$versionId:$bookId:$chapterNumber:${verse.number}';
   }
 
   void clearSelection() {

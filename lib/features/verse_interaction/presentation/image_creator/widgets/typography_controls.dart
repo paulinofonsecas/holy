@@ -111,12 +111,12 @@ class TypographyControls extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.blue),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.auto_awesome, color: Colors.blue, size: 20),
-                const SizedBox(width: 8),
+                Icon(Icons.auto_awesome, color: Colors.blue, size: 20),
+                SizedBox(width: 8),
                 Expanded(
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -154,8 +154,8 @@ class TypographyControls extends StatelessWidget {
               children: [
                 const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: const Column(
+                const Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(

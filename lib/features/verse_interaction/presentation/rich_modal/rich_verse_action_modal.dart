@@ -16,6 +16,7 @@ class RichVerseActionModal {
     required BuildContext context,
     required List<BibleVerse> verses,
     required String verseReference,
+    required String bookId,
     required String bookName,
     required int chapterNumber,
   }) {
@@ -26,6 +27,9 @@ class RichVerseActionModal {
     final viewModel = RichModalViewModel(
       verses: verses,
       verseReference: verseReference,
+      versionId: versionId,
+      bookId: bookId,
+      chapterNumber: chapterNumber,
       highlightBloc: highlightBloc,
       selectionBloc: selectionBloc,
     );

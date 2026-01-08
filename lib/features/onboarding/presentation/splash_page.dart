@@ -1,4 +1,5 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/shared/widgets/main_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stacked/stacked.dart';
@@ -18,9 +19,11 @@ class SplashPage extends StatelessWidget {
       onModelReady: (model) async {
         await model.initialize();
         if (context.mounted) {
-          // Redireciona para a tela de leitura/home. 
-          // Ajuste '/home' para o nome da rota da sua tela de leitura.
-          Navigator.of(context).pushReplacementNamed('/home');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const MainScaffold(),
+            ),
+          );
         }
       },
       builder: (context, model, child) {
