@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/highlight_bloc.dart';
 import '../bloc/selection_bloc.dart';
+import '../rich_modal/rich_verse_action_modal.dart';
 import 'color_picker_modal.dart';
 
 class SelectionToolbar extends StatelessWidget {
@@ -43,6 +44,13 @@ class SelectionToolbar extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.more_horiz),
+                    onPressed: () {
+                      _showRichModal(context, state);
+                    },
+                    tooltip: 'Mais opções',
+                  ),
                   IconButton(
                     icon: const Icon(Icons.border_color),
                     onPressed: () {
@@ -111,5 +119,43 @@ class SelectionToolbar extends StatelessWidget {
         },
       ),
     );
+  }
+
+  void _showRichModal(BuildContext context, VerseSelectionState state) {
+    final verses = state.selectedVerses.values.toList();
+    final verseReference = _buildVerseReference(verses);
+
+    RichVerseActionModal.show(
+      context: context,
+      verses: verses,
+      verseReference: verseReference,
+      bookName: chapter.bookName ?? chapter.bookId,
+      chapterNumber: chapter.number,
+    );
+  }
+
+  String _buildVerseReference(List<BibleVerse> verses) {
+    if (verses.isEmpty) return '';
+
+    verses.sort((a, b) => a.number.compareTo(b.number));
+
+    if (verses.length == 1) {
+      return '${chapter.bookName ?? chapter.bookId} ${chapter.number}:${verses.first.number}';
+    }
+
+    // Check if contiguous
+    bool contiguous = true;
+    for (int i = 0; i < verses.length - 1; i++) {
+      if (verses[i + 1].number != verses[i].number + 1) {
+        contiguous = false;
+        break;
+      }
+    }
+
+    if (contiguous) {
+      return '${chapter.bookName ?? chapter.bookId} ${chapter.number}:${verses.first.number}-${verses.last.number}';
+    } else {
+      return '${chapter.bookName ?? chapter.bookId} ${chapter.number}:${verses.map((v) => v.number).join(', ')}';
+    }
   }
 }
