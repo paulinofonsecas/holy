@@ -6,6 +6,7 @@ export 'src/interfaces.dart';
 export 'src/models.dart';
 export 'src/parsers/sqlite_parser.dart';
 export 'src/parsers/usx_parser.dart';
+export 'src/services/download_service.dart';
 export 'src/sorting/book_sorter.dart';
 export 'src/sorting/canonical_book_sorter.dart';
 export 'src/sorting/no_op_book_sorter.dart';

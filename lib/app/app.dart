@@ -3,6 +3,7 @@ import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
 import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/features/onboarding/presentation/splash_page.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
@@ -11,7 +12,6 @@ import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
-import 'package:eu_sou/shared/widgets/main_scaffold.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,7 +87,7 @@ class App extends StatelessWidget {
                 supportedLocales: AppLocalizations.supportedLocales,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
                 locale: context.watch<LocaleBloc>().state.locale,
-                home: const MainScaffold(),
+                home: const SplashPage(),
               );
             },
           );

@@ -36,10 +36,10 @@ class ActionRow extends StatelessWidget {
             label: 'Copiar',
             onTap: onCopy,
           ),
-          _ActionButton(
+          const _ActionButton(
             icon: Icons.favorite_border_outlined,
             label: 'Favorito',
-            onTap: onFavorite ?? () {},
+            onTap: null,
           ),
         ],
       ),
@@ -50,7 +50,7 @@ class ActionRow extends StatelessWidget {
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _ActionButton({
     required this.icon,

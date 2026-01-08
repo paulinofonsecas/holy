@@ -116,18 +116,18 @@ class TypographyControls extends StatelessWidget {
                 const Icon(Icons.auto_awesome, color: Colors.blue, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Tamanho automático',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
+                      SizedBox(height: 4),
+                      Text(
                         'O tamanho se ajusta ao comprimento do texto',
                         style: TextStyle(fontSize: 11),
                       ),
@@ -155,18 +155,18 @@ class TypographyControls extends StatelessWidget {
                 const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Texto muito longo',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
+                      SizedBox(height: 4),
+                      Text(
                         'O texto pode não caber na imagem com este tamanho.',
                         style: TextStyle(fontSize: 11),
                       ),
