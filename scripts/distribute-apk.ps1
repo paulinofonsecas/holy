@@ -257,6 +257,7 @@ Write-Step 4 5 "Preparing distribution command"
 
 $firebaseCmd = "firebase appdistribution:distribute `"$resolvedApkPath`""
 $firebaseCmd += " --app `"$resolvedAppId`""
+$firebaseCmd += " --groups `"$Groups`""
 
 if ($ReleaseNotes) {
     if ($ReleaseNotes.StartsWith("@")) {
