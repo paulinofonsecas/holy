@@ -1,23 +1,23 @@
 import 'dart:developer' show log;
 
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
-import 'package:eu_sou/features/biblia/widgets/chapter_visualizer_widget.dart';
+import 'package:eu_sou/features/biblia/widgets/read_session_widget.dart';
 import 'package:eu_sou/shared/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'show_error_widget.dart';
 
-class TelaDeLeitura extends StatefulWidget {
-  const TelaDeLeitura({
+class ScreenReaderPage extends StatefulWidget {
+  const ScreenReaderPage({
     super.key,
   });
 
   @override
-  State<TelaDeLeitura> createState() => _TelaDeLeituraState();
+  State<ScreenReaderPage> createState() => _ScreenReaderPageState();
 }
 
-class _TelaDeLeituraState extends State<TelaDeLeitura> {
+class _ScreenReaderPageState extends State<ScreenReaderPage> {
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _verseKeys = {};
   String? _currentChapterId;
@@ -78,7 +78,7 @@ class _TelaDeLeituraState extends State<TelaDeLeitura> {
             controller: _scrollController,
             child: Column(
               children: [
-                ChapterVisualizerWidget(
+                ReadSessionWidget(
                   chapter: state.chapter,
                   verseKeys: _verseKeys,
                 ),

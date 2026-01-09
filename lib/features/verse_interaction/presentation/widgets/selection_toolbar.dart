@@ -72,16 +72,6 @@ class SelectionToolbar extends StatelessWidget {
     );
   }
 
-  void _shareSelectedVerses(BuildContext context, VerseSelectionState state) {
-    final versionId = context.read<BibleVersionCubit>().state.version.id;
-    ShareService.shareVerses(
-      verses: state.selectedVerses.values.toList(),
-      bookName: chapter.bookName ?? chapter.bookId,
-      chapterNumber: chapter.number,
-      versionId: versionId,
-    );
-    context.read<VerseSelectionBloc>().add(ClearSelection());
-  }
 
   void _showHighlightOptions(BuildContext context, VerseSelectionState state) {
     final versionId = context.read<BibleVersionCubit>().state.version.id;

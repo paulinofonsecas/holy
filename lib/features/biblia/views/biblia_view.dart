@@ -1,5 +1,5 @@
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
-import 'package:eu_sou/features/biblia/widgets/tela_de_leitura.dart';
+import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
@@ -154,7 +154,7 @@ class BibliaView extends StatelessWidget {
                       }
                     }
                   },
-                  child: const TelaDeLeitura(),
+                  child: const ScreenReaderPage(),
                 ),
               ),
               BlocBuilder<BibliaBloc, BibliaState>(
