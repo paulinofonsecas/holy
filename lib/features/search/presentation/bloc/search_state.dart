@@ -25,7 +25,7 @@ class VersaoCarregando extends EstadoBusca {
 class BuscaCarregada extends EstadoBusca {
   final SearchResults resultados;
   final List<Book> correspondenciasLivros;
-  final String termo;
+  final List<SearchQueryPart> consultas;
   final bool buscarTodasVersoes;
   final String? idVersaoSelecionada;
   final List<String> versoesDisponiveis;
@@ -33,7 +33,7 @@ class BuscaCarregada extends EstadoBusca {
   const BuscaCarregada({
     required this.resultados,
     this.correspondenciasLivros = const [],
-    required this.termo,
+    required this.consultas,
     required this.buscarTodasVersoes,
     this.idVersaoSelecionada,
     this.versoesDisponiveis = const [],
@@ -43,7 +43,7 @@ class BuscaCarregada extends EstadoBusca {
   List<Object?> get props => [
         resultados,
         correspondenciasLivros,
-        termo,
+        consultas,
         buscarTodasVersoes,
         idVersaoSelecionada,
         versoesDisponiveis,

@@ -53,6 +53,37 @@ class RepositorioBusca {
     }
   }
 
+  Future<SearchResults> buscaAvancada(
+    List<SearchQueryPart> consultas, {
+    String? idVersao,
+  }) async {
+    _registrador.info(
+      '🔍 Iniciando busca avançada - Consultas: ${consultas.length}, IdVersao: $idVersao',
+    );
+    // Log each query part for debugging
+    for (int i = 0; i < consultas.length; i++) {
+      _registrador.info(
+        '  [$i] Term: "${consultas[i].term}", Operator: ${consultas[i].operator}',
+      );
+    }
+    try {
+      final tempoInicio = DateTime.now();
+      final resultados = await _provedorBusca.advancedSearch(
+        queries: consultas,
+        versionId: idVersao,
+        prioritizeHighlights: true,
+      );
+      final duracao = DateTime.now().difference(tempoInicio);
+      _registrador.info(
+        '✅ Busca avançada concluída - Encontrados ${resultados.results.length} resultados em ${duracao.inMilliseconds}ms',
+      );
+      return resultados;
+    } catch (erro, rastroPilha) {
+      _registrador.error('❌ Falha na busca avançada', erro, rastroPilha);
+      rethrow;
+    }
+  }
+
   Future<List<Book>> corresponderLivros(String termo,
       {String? idVersao}) async {
     _registrador.info(

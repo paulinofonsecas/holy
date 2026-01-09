@@ -46,9 +46,11 @@ void main() {
     mockTabControllerCubit = MockTabControllerCubit();
 
     // Stubbing getters
-    when(() => mockSearchBloc.termoAtual).thenReturn('');
+    when(() => mockSearchBloc.consultas)
+        .thenReturn([const SearchQueryPart(term: '')]);
     when(() => mockSearchBloc.scrollOffset).thenReturn(0.0);
-    when(() => mockBibleVersionCubit.state).thenReturn(const BibleVersionStateKJA());
+    when(() => mockBibleVersionCubit.state)
+        .thenReturn(const BibleVersionStateKJA());
     when(() => mockTabControllerCubit.state).thenReturn(0);
     when(() => mockVerseHistoryBloc.state).thenReturn(VerseHistoryInitial());
   });
@@ -99,7 +101,7 @@ void main() {
 
     when(() => mockSearchBloc.state).thenReturn(BuscaCarregada(
       resultados: results,
-      termo: 'Jesus',
+      consultas: const [SearchQueryPart(term: 'Jesus')],
       buscarTodasVersoes: false,
     ));
 
@@ -131,7 +133,7 @@ void main() {
 
     when(() => mockSearchBloc.state).thenReturn(BuscaCarregada(
       resultados: results,
-      termo: 'Jesus',
+      consultas: const [SearchQueryPart(term: 'Jesus')],
       buscarTodasVersoes: false,
     ));
     when(() => mockBibliaBloc.state).thenReturn(BibliaInitial());

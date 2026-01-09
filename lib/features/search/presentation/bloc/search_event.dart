@@ -9,10 +9,32 @@ abstract class EventoBusca extends Equatable {
 
 class TermoBuscaAlterado extends EventoBusca {
   final String termo;
-  const TermoBuscaAlterado(this.termo);
+  final int index;
+
+  const TermoBuscaAlterado(this.termo, {this.index = 0});
 
   @override
-  List<Object?> get props => [termo];
+  List<Object?> get props => [termo, index];
+}
+
+class AlterarOperadorJoin extends EventoBusca {
+  final int index;
+  final JoinOperator operador;
+
+  const AlterarOperadorJoin(this.index, this.operador);
+
+  @override
+  List<Object?> get props => [index, operador];
+}
+
+class AdicionarConsulta extends EventoBusca {}
+
+class RemoverConsulta extends EventoBusca {
+  final int index;
+  const RemoverConsulta(this.index);
+
+  @override
+  List<Object?> get props => [index];
 }
 
 class AlternarBuscaTodasVersoes extends EventoBusca {
