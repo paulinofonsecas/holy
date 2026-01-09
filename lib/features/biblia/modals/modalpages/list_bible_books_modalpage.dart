@@ -14,6 +14,8 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
   BuildContext modalSheetContext,
   BuildContext context,
 ) {
+  final ValueNotifier<String> filterNotifier = ValueNotifier<String>('');
+
   return SliverWoltModalSheetPage(
     navBarHeight: 30,
     backgroundColor: Colors.white,
@@ -41,22 +43,36 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
       ),
     ),
     mainContentSliversBuilder: (sliverContext) {
-      const books = BibleBooks.values;
       return [
-        BlocProvider.value(
-          value: context.read<BibliaBloc>(),
-          child: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              childCount: books.length,
-              (BuildContext context, int index) {
-                final book = books[index];
-
-                return BibleBookListItem(book: book);
-              },
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: CupertinoSearchTextField(
+              placeholder: 'Pesquisar livro...',
+              onChanged: (value) => filterNotifier.value = value,
             ),
           ),
         ),
-        // Other sliver widgets...
+        SliverToBoxAdapter(
+          child: ValueListenableBuilder<String>(
+            valueListenable: filterNotifier,
+            builder: (context, filter, _) {
+              final filteredBooks = BibleBooks.values
+                  .where((book) =>
+                      book.book.toLowerCase().contains(filter.toLowerCase()))
+                  .toList();
+
+              return Column(
+                children: filteredBooks.map((book) {
+                  return BlocProvider.value(
+                    value: sliverContext.read<BibliaBloc>(),
+                    child: BibleBookListItem(book: book),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+        ),
       ];
     },
   );
