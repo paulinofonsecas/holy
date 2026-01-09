@@ -6,8 +6,8 @@ import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DisplaySingleVerse extends StatelessWidget {
-  const DisplaySingleVerse({
+class VerseReadWidget extends StatelessWidget {
+  const VerseReadWidget({
     super.key,
     required this.verse,
     required this.chapter,
@@ -33,16 +33,18 @@ class DisplaySingleVerse extends StatelessWidget {
 
             Color? backgroundColor;
             if (isSelected) {
-              backgroundColor = Theme.of(context)
-                  .colorScheme
-                  .primaryContainer
-                  .withValues(alpha: 0.2);
+              backgroundColor = Theme.brightnessOf(context) == Brightness.light
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: .2)
+                  : Theme.of(context).colorScheme.primary.withValues(alpha: .2);
             } else if (highlightState is HighlightsLoaded) {
               final highlight = highlightState.highlights[verseRef];
               if (highlight != null) {
                 backgroundColor =
-                    Color(int.parse(highlight.colorHex, radix: 16))
-                        .withValues(alpha: .8);
+                    Theme.brightnessOf(context) == Brightness.light
+                        ? Color(int.parse(highlight.colorHex, radix: 16))
+                            .withValues(alpha: .8)
+                        : Color(int.parse(highlight.colorHex, radix: 16))
+                            .withValues(alpha: .3);
               }
             }
 

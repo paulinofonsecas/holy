@@ -292,16 +292,24 @@ class _TelaBuscaState extends State<TelaBusca> {
                         ),
                       ],
                       if (estado.resultados.results.isNotEmpty) ...[
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                            child: Text(
-                              'Versículos (${estado.resultados.totalResults})',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.blue,
-                              ),
+                        SliverAppBar(
+                          pinned: true,
+                          primary: false,
+                          automaticallyImplyLeading: false,
+                          backgroundColor:
+                              Theme.of(context).scaffoldBackgroundColor,
+                          surfaceTintColor:
+                              Theme.of(context).scaffoldBackgroundColor,
+                          elevation: 0,
+                          titleSpacing: 16,
+                          toolbarHeight: 40,
+                          centerTitle: false,
+                          title: Text(
+                            'Versículos (${estado.resultados.totalResults})',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.blue,
                             ),
                           ),
                         ),

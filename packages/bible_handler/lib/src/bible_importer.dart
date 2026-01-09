@@ -1,11 +1,12 @@
 import 'dart:io';
+
 import 'package:archive/archive.dart';
-import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 
 import 'models.dart';
 import 'parsers/sqlite_parser.dart';
 import 'parsers/usx_parser.dart';
+import 'services/download_service.dart';
 import 'sorting/book_sorter.dart';
 import 'sorting/canonical_book_sorter.dart';
 
@@ -57,8 +58,13 @@ class SqliteBibleLoader implements BibleLoader {
 class UrlBibleLoader implements BibleLoader {
   final String version;
   final BookSorter sorter;
+  final void Function(DownloadProgress)? onProgress;
 
-  UrlBibleLoader(this.version, {this.sorter = const CanonicalBookSorter()});
+  UrlBibleLoader(
+    this.version, {
+    this.sorter = const CanonicalBookSorter(),
+    this.onProgress,
+  });
 
   @override
   Future<Bible> load() async {
@@ -67,20 +73,27 @@ class UrlBibleLoader implements BibleLoader {
     final tempDir = await Directory.systemTemp.createTemp(
       'bible_handler_${DateTime.now().millisecondsSinceEpoch}',
     );
+    final zipFile = File(p.join(tempDir.path, '$version.zip'));
 
     try {
       // Download the zip file
       print('Downloading Bible version: $version from $url');
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode != 200) {
-        throw Exception(
-          'Failed to download Bible version: $version. Status code: ${response.statusCode}',
-        );
+
+      final downloadService = DownloadService();
+      await for (final progress in downloadService.download(
+        url,
+        zipFile.path,
+      )) {
+        onProgress?.call(progress);
+        if (progress.status == DownloadStatus.error) {
+          throw Exception(progress.message);
+        }
       }
 
       // Unzip the file
       print('Unzipping Bible version: $version');
-      final archive = ZipDecoder().decodeBytes(response.bodyBytes);
+      final bytes = await zipFile.readAsBytes();
+      final archive = ZipDecoder().decodeBytes(bytes);
       for (final file in archive) {
         final filename = p.join(tempDir.path, file.name);
         if (file.isFile) {
@@ -108,8 +121,6 @@ class UrlBibleLoader implements BibleLoader {
           }
         }
       }
-
-      
 
       // Use DirectoryBibleLoader for the final step
       final directoryLoader = DirectoryBibleLoader(
@@ -157,6 +168,7 @@ Future<Bible> loadBibleFromSqlite(String filePath) {
 Future<Bible> loadBibleFromUrl(
   String version, {
   BookSorter sorter = const CanonicalBookSorter(),
+  void Function(DownloadProgress)? onProgress,
 }) {
-  return UrlBibleLoader(version, sorter: sorter).load();
+  return UrlBibleLoader(version, sorter: sorter, onProgress: onProgress).load();
 }

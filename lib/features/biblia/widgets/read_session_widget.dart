@@ -1,9 +1,9 @@
-import 'package:eu_sou/features/biblia/widgets/display_single_verse.dart';
+import 'package:eu_sou/features/biblia/widgets/verse_read_widget.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:flutter/material.dart';
 
-class ChapterVisualizerWidget extends StatelessWidget {
-  const ChapterVisualizerWidget({
+class ReadSessionWidget extends StatelessWidget {
+  const ReadSessionWidget({
     super.key,
     required this.chapter,
     this.verseKeys = const {},
@@ -19,7 +19,7 @@ class ChapterVisualizerWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: chapter.verses.map((verse) {
-          return DisplaySingleVerse(
+          return VerseReadWidget(
             key: verseKeys[verse.number] ?? Key("${verse.number}"),
             verse: verse,
             chapter: chapter,
