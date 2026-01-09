@@ -45,6 +45,20 @@ Se você já tem um APK gerado em `build/app/outputs/flutter-apk/app-release.apk
 .\scripts\distribute-apk.ps1 -ReleaseNotes "Correção rápida"
 ```
 
+## ☁️ Automação com GitHub Actions
+
+O projeto possui um workflow automatizado no GitHub Actions que gerencia a build e a distribuição.
+
+### 1. Distribuição Automática
+- **Gatilho**: Push nas branches `main` e `develop`.
+- **Ação**: O sistema gera um **App Bundle (AAB)** assinado e o distribui automaticamente para o grupo `internal-testers`.
+
+### 2. Distribuição Manual
+- **Gatilho**: Aba "Actions" no GitHub -> "Firebase Distribution" -> "Run workflow".
+- **Entradas**:
+  - `release_notes`: Notas da versão (opcional).
+  - `groups`: Grupos de testadores separados por vírgula (padrão: `internal-testers`).
+
 ---
 
 ## 🛠️ Referência de Comandos
