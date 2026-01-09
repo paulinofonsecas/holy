@@ -1,4 +1,3 @@
-import 'package:eu_sou/core/services/share_service.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/material.dart';

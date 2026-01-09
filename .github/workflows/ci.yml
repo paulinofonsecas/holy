@@ -38,7 +38,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          flutter pub clean
+          flutter clean
           flutter pub get
 
       - name: Run build_runner
