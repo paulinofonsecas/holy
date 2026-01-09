@@ -1,0 +1,109 @@
+name: Firebase Distribution
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'Release notes for this version'
+        required: false
+        default: 'Manual trigger from GitHub Actions'
+      groups:
+        description: 'Tester groups (comma-separated)'
+        required: false
+        default: 'internal-testers'
+
+jobs:
+  distribute:
+    name: Build and Distribute
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for git log release notes
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.4'
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          flutter pub clean
+          flutter pub get
+
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Decode Android Keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+          fi
+
+      - name: Build Release App Bundle
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: flutter build appbundle --release
+
+      - name: Setup Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Distribute to Firebase App Distribution
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        run: |
+          # Determine release notes
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "${{ github.event.inputs.release_notes }}" > release_notes.txt
+          else
+            # Get last 10 commit messages as release notes
+            echo "Automatic distribution from branch ${{ github.ref_name }}" > release_notes.txt
+            echo "" >> release_notes.txt
+            echo "Recent changes:" >> release_notes.txt
+            git log --pretty=format:"- %s" -n 10 >> release_notes.txt
+          fi
+          
+          # Determine groups
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            GROUPS="${{ github.event.inputs.groups }}"
+          else
+            GROUPS="internal-testers"
+          fi
+          
+          # Run distribution script with @file syntax for release notes
+          ./scripts/distribute-apk.sh "build/app/outputs/bundle/release/app-release.aab" "$FIREBASE_APP_ID" "@release_notes.txt" "$GROUPS"
+
+      - name: Clean up temporary files
+        if: always()
+        run: rm -f android/app/upload-keystore.jks release_notes.txt
+
+      - name: Add Job Summary
+        if: always()
+        run: |
+          echo "## Firebase Distribution Summary 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "- **Artifact**: App Bundle (AAB) uploaded successfully ✅" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Artifact**: Upload failed ❌" >> $GITHUB_STEP_SUMMARY
+          fi

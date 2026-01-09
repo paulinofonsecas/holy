@@ -1,14 +1,14 @@
 #!/bin/bash
 
 ################################################################################
-# Firebase APK Distribution Script (Bash)
+# Firebase Distribution Script (Bash)
 #
 # Description:
-#   Uploads APK file to Firebase App Distribution for testing.
-#   Auto-detects APK path and Firebase app ID if not provided.
+#   Uploads APK or AAB file to Firebase App Distribution for testing.
+#   Auto-detects artifact path and Firebase app ID if not provided.
 #
 # Usage:
-#   ./distribute-apk.sh [APK_PATH] [APP_ID] [RELEASE_NOTES] [GROUPS]
+#   ./distribute-apk.sh [ARTIFACT_PATH] [APP_ID] [RELEASE_NOTES] [GROUPS]
 #
 # Environment Variables:
 #   DRY_RUN=true    - Preview actions without executing upload
@@ -24,7 +24,7 @@
 #   0 - Success
 #   1 - Firebase CLI not installed
 #   2 - Authentication required
-#   3 - APK not found
+#   3 - Artifact not found
 #   4 - Invalid app ID
 #   5 - Network/upload error
 #   6 - Permission denied
@@ -38,7 +38,7 @@ set -u  # Error on undefined variables
 set -o pipefail  # Pipeline error propagation
 
 # Parameters
-APK_PATH="${1:-}"
+ARTIFACT_PATH="${1:-}"
 APP_ID="${2:-}"
 RELEASE_NOTES="${3:-}"
 GROUPS="${4:-internal-testers}"
@@ -122,41 +122,41 @@ check_firebase_auth() {
     fi
 }
 
-get_apk_path() {
+get_artifact_path() {
     local custom_path="$1"
     
-    log INFO "Resolving APK path..."
+    log INFO "Resolving artifact path..."
     
     # Use custom path if provided
     if [ -n "$custom_path" ]; then
         if [ -f "$custom_path" ]; then
             local size=$(format_file_size "$custom_path")
-            log SUCCESS "✓ Using custom APK: $custom_path ($size)"
+            log SUCCESS "✓ Using custom artifact: $custom_path ($size)"
             echo "$custom_path"
             return 0
         else
-            log ERROR "Custom APK not found: $custom_path"
+            log ERROR "Custom artifact not found: $custom_path"
             exit 3
         fi
     fi
     
-    # Auto-detect from standard Flutter build output
-    local default_path="build/app/outputs/flutter-apk/app-release.apk"
-    if [ -f "$default_path" ]; then
-        local size=$(format_file_size "$default_path")
-        log SUCCESS "✓ Found APK: $default_path ($size)"
-        
-        # Check if file is recent (within 24 hours)
-        local age_hours=$(get_file_age_hours "$default_path")
-        if [ "$age_hours" -gt 24 ]; then
-            log WARNING "APK is $age_hours hours old"
-        fi
-        
-        echo "$default_path"
+    # Auto-detect from standard Flutter build output (AAB first, then APK)
+    local aab_path="build/app/outputs/bundle/release/app-release.aab"
+    local apk_path="build/app/outputs/flutter-apk/app-release.apk"
+    
+    if [ -f "$aab_path" ]; then
+        local size=$(format_file_size "$aab_path")
+        log SUCCESS "✓ Found AAB: $aab_path ($size)"
+        echo "$aab_path"
+        return 0
+    elif [ -f "$apk_path" ]; then
+        local size=$(format_file_size "$apk_path")
+        log SUCCESS "✓ Found APK: $apk_path ($size)"
+        echo "$apk_path"
         return 0
     else
-        log ERROR "APK not found at default location: $default_path"
-        log ERROR "Build APK first: flutter build apk --release"
+        log ERROR "Artifact not found at default locations"
+        log ERROR "Build AAB/APK first: flutter build appbundle --release OR flutter build apk --release"
         log ERROR "Or specify custom path as first argument"
         exit 3
     fi
@@ -271,7 +271,7 @@ invoke_with_retry() {
 
 echo ""
 echo -e "\033[0;36m========================================\033[0m"
-echo -e "\033[0;36m  Firebase APK Distribution\033[0m"
+echo -e "\033[0;36m  Firebase Distribution\033[0m"
 echo -e "\033[0;36m========================================\033[0m"
 echo ""
 
@@ -293,19 +293,19 @@ if [ ! -f "firebase.json" ]; then
     log WARNING "firebase.json not found in current directory"
 fi
 
-# Step 2: Resolve APK path
-step 2 5 "Resolving APK path"
-resolved_apk_path=$(get_apk_path "$APK_PATH")
+# Step 2: Resolve artifact path
+step 2 5 "Resolving artifact path"
+resolved_artifact_path=$(get_artifact_path "$ARTIFACT_PATH")
 
-# Validate APK file
-apk_size=$(stat -f%z "$resolved_apk_path" 2>/dev/null || stat -c%s "$resolved_apk_path" 2>/dev/null || echo 0)
-if [ "$apk_size" -eq 0 ]; then
-    log ERROR "APK file is empty (0 bytes)"
+# Validate artifact file
+artifact_size=$(stat -f%z "$resolved_artifact_path" 2>/dev/null || stat -c%s "$resolved_artifact_path" 2>/dev/null || echo 0)
+if [ "$artifact_size" -eq 0 ]; then
+    log ERROR "Artifact file is empty (0 bytes)"
     exit 3
 fi
 
-if [ "$apk_size" -gt 1073741824 ]; then
-    log WARNING "APK size exceeds 1GB - may hit Firebase limits"
+if [ "$artifact_size" -gt 1073741824 ]; then
+    log WARNING "Artifact size exceeds 1GB - may hit Firebase limits"
 fi
 
 # Step 3: Extract Firebase app ID
@@ -315,7 +315,7 @@ resolved_app_id=$(get_firebase_app_id "$APP_ID")
 # Step 4: Build Firebase command
 step 4 5 "Preparing distribution command"
 
-firebase_cmd="firebase appdistribution:distribute \"$resolved_apk_path\""
+firebase_cmd="firebase appdistribution:distribute \"$resolved_artifact_path\""
 firebase_cmd="$firebase_cmd --app \"$resolved_app_id\""
 firebase_cmd="$firebase_cmd --groups \"$GROUPS\""
 
@@ -358,8 +358,8 @@ if [ "$DRY_RUN" = "true" ]; then
     echo -e "\033[0;90m$firebase_cmd\033[0m"
     
     echo -e "\n\033[0;33mDistribution details:\033[0m"
-    echo -e "\033[0;90m  APK: $resolved_apk_path\033[0m"
-    echo -e "\033[0;90m  Size: $(format_file_size "$resolved_apk_path")\033[0m"
+    echo -e "\033[0;90m  Artifact: $resolved_artifact_path\033[0m"
+    echo -e "\033[0;90m  Size: $(format_file_size "$resolved_artifact_path")\033[0m"
     echo -e "\033[0;90m  App ID: $resolved_app_id\033[0m"
     echo -e "\033[0;90m  Groups: $GROUPS\033[0m"
     [ -n "$RELEASE_NOTES" ] && echo -e "\033[0;90m  Notes: $RELEASE_NOTES\033[0m"
@@ -388,8 +388,8 @@ echo -e "\033[0;32m========================================\033[0m"
 echo ""
 
 echo -e "\033[0;32mDistribution complete:\033[0m"
-echo -e "\033[0;90m  APK: $resolved_apk_path\033[0m"
-echo -e "\033[0;90m  Size: $(format_file_size "$resolved_apk_path")\033[0m"
+echo -e "\033[0;90m  Artifact: $resolved_artifact_path\033[0m"
+echo -e "\033[0;90m  Size: $(format_file_size "$resolved_artifact_path")\033[0m"
 echo -e "\033[0;90m  Tester Groups: $GROUPS\033[0m"
 echo -e "\033[0;90m  Duration: $duration seconds\033[0m"
 
