@@ -88,6 +88,9 @@ jobs:
             GROUPS="internal-testers"
           fi
           
+          # Ensure script is executable
+          chmod +x ./scripts/distribute-apk.sh
+          
           # Run distribution script with @file syntax for release notes
           ./scripts/distribute-apk.sh "build/app/outputs/bundle/release/app-release.aab" "$FIREBASE_APP_ID" "@release_notes.txt" "$GROUPS"
 
