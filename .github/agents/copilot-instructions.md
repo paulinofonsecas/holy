@@ -26,6 +26,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-01
 - N/A (Cloud distribution) (001-firebase-dist-gh-actions)
 - Dart 3.8.x, Flutter (stable channel) + sqflite, sqlite3 FTS4/FTS5 (via bible_handler), bloc/flutter_bloc, path, shared_preferences (001-multiple-search-joins)
 - SQLite (app DB uses FTS4 `unicode61`; package tests use FTS5 `unicode61`) (001-multiple-search-joins)
+- Dart 3.x with Flutter 3.x + Flutter, application feature modules under lib/features, data access via packages/bible_handler, state management NEEDS CLARIFICATION (likely BLoC/stacked), navigation via existing reading flow (001-verse-comparison)
+- Local on-device Bible data handled by bible_handler (SQLite files and/or assets); no new remote storage (001-verse-comparison)
 
 - Dart ^3.6.0, Flutter >=3.38.4 + `bible_handler` (internal), `sqflite`, `flutter_bloc` or `stacked`, `share_plus` (001-verse-search)
 
@@ -45,9 +47,9 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
+- 001-verse-comparison: Added Dart 3.x with Flutter 3.x + Flutter, application feature modules under lib/features, data access via packages/bible_handler, state management NEEDS CLARIFICATION (likely BLoC/stacked), navigation via existing reading flow
 - 001-multiple-search-joins: Added Dart 3.8.x, Flutter (stable channel) + sqflite, sqlite3 FTS4/FTS5 (via bible_handler), bloc/flutter_bloc, path, shared_preferences
 - 001-firebase-dist-gh-actions: Added Flutter (SDK ^3.6.0), Dart (^3.6.0) + `w9jds/setup-firebase@v2`, `actions/checkout@v4`, `subosito/flutter-action@v2`
-- 016-rich-verse-modal: Added Dart 3.6 / Flutter 3.38+ + `flutter_bloc`, `stacked`, `wolt_modal_sheet`, `share_plus`, **NEEDS CLARIFICATION**: (Library for image capture/generation, e.g., `screenshot` or native `RepaintBoundary`)
 
 
 <!-- MANUAL ADDITIONS START -->

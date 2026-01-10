@@ -54,6 +54,9 @@ class VerseActionsPage {
                 // TODO: Implement copy logic
                 Navigator.of(context).pop();
               },
+              onCompare: () {
+                viewModel.onCompareVersions?.call();
+              },
             ),
           ],
         ),

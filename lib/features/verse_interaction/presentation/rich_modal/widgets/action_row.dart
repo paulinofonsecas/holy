@@ -5,6 +5,7 @@ class ActionRow extends StatelessWidget {
   final VoidCallback onCreateImage;
   final VoidCallback onCopy;
   final VoidCallback? onFavorite;
+  final VoidCallback? onCompare;
 
   const ActionRow({
     super.key,
@@ -12,6 +13,7 @@ class ActionRow extends StatelessWidget {
     required this.onCreateImage,
     required this.onCopy,
     this.onFavorite,
+    this.onCompare,
   });
 
   @override
@@ -36,11 +38,12 @@ class ActionRow extends StatelessWidget {
             label: 'Copiar',
             onTap: onCopy,
           ),
-          const _ActionButton(
-            icon: Icons.favorite_border_outlined,
-            label: 'Favorito',
-            onTap: null,
-          ),
+          if (onCompare != null)
+            _ActionButton(
+              icon: Icons.compare_arrows_outlined,
+              label: 'Comparar Versão',
+              onTap: onCompare,
+            ),
         ],
       ),
     );

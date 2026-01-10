@@ -50,4 +50,12 @@ class RichModalViewModel extends BaseViewModel {
 
   // Function to be overridden by the modal caller
   void Function()? onShareText;
+  void Function()? onCompareVersions;
+  void shareText() {
+    onShareText?.call();
+  }
+
+  void compareVersions() {
+    onCompareVersions?.call();
+  }
 }
