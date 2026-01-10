@@ -15,6 +15,13 @@ abstract class BibleSearchProvider {
   /// Searches for verses containing the given [query] across all available versions.
   Future<SearchResults> searchAllVersions({required String query});
 
+  /// Performs a search combining multiple queries with join logic.
+  Future<SearchResults> advancedSearch({
+    required List<SearchQueryPart> queries,
+    String? versionId,
+    bool prioritizeHighlights = false,
+  });
+
   /// Searches for books whose name, long name, or abbreviation matches the [query].
   Future<List<Book>> matchBooks({required String query, String? versionId});
 

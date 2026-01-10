@@ -1,0 +1,125 @@
+import 'package:bible_handler/bible_handler.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../bloc/search_bloc.dart';
+import 'search_input_bar.dart';
+
+class MultipleSearchHeader extends StatelessWidget {
+  const MultipleSearchHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SearchBloc, EstadoBusca>(
+      buildWhen: (previous, current) =>
+          current is BuscaCarregada ||
+          current is BuscaInicial ||
+          current is BuscaCarregando,
+      builder: (context, state) {
+        final bloc = context.read<SearchBloc>();
+
+        // Handle local state if BuscaCarregada hasn't updated yet or we are in other states
+        List<SearchQueryPart> consultas;
+        if (state is BuscaCarregada) {
+          consultas = state.consultas;
+        } else {
+          consultas = bloc.consultas;
+        }
+
+        // Use the operator from the second part (if exists) as the global toggle
+        final operadorGeral =
+            (consultas.length > 1) ? consultas[1].operator : JoinOperator.and;
+
+        return Column(
+          children: [
+            // Join Operator Toggle (only if multiple queries)
+            if (consultas.length > 1)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Critério:',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    const SizedBox(width: 12),
+                    ToggleButtons(
+                      isSelected: [
+                        operadorGeral == JoinOperator.and,
+                        operadorGeral == JoinOperator.or,
+                      ],
+                      onPressed: (index) {
+                        final newOp =
+                            index == 0 ? JoinOperator.and : JoinOperator.or;
+                        context
+                            .read<SearchBloc>()
+                            .add(AlterarOperadorJoin(1, newOp));
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      constraints:
+                          const BoxConstraints(minHeight: 32, minWidth: 80),
+                      children: const [
+                        Text('E',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('OU',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    const SizedBox(width: 8),
+                    Tooltip(
+                      message: operadorGeral == JoinOperator.and
+                          ? 'Mostrar versículos que contenham TODOS os termos'
+                          : 'Mostrar versículos que contenham QUALQUER um dos termos',
+                      child: const Icon(Icons.info_outline,
+                          size: 16, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Search bars
+            ...consultas.asMap().entries.map((entry) {
+              final index = entry.key;
+              final query = entry.value;
+              return SearchInputBar(
+                key: ValueKey('search-bar-$index'),
+                initialValue: query.term,
+                showRemove: consultas.length > 1,
+                hintText: index == 0 ? 'Buscar por...' : 'E também por...',
+                onChanged: (val) {
+                  context
+                      .read<SearchBloc>()
+                      .add(TermoBuscaAlterado(val, index: index));
+                },
+                onRemove: () {
+                  context.read<SearchBloc>().add(RemoverConsulta(index));
+                },
+              );
+            }),
+
+            const SizedBox(height: 8),
+
+            // Add button
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () {
+                  context.read<SearchBloc>().add(AdicionarConsulta());
+                },
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                ),
+                icon: const Icon(Icons.add_circle_outline, size: 20),
+                label: const Text('Adicionar termo'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

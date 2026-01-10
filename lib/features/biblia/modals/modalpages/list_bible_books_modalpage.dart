@@ -49,6 +49,12 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
             padding: const EdgeInsets.all(16.0),
             child: CupertinoSearchTextField(
               placeholder: 'Pesquisar livro...',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+                fontSize: 16,
+              ),
+              backgroundColor: Colors.grey.shade200,
+              itemColor: Theme.of(context).colorScheme.primary,
               onChanged: (value) => filterNotifier.value = value,
             ),
           ),

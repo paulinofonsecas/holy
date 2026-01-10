@@ -14,13 +14,13 @@ const _debounceDuration = Duration(milliseconds: 500);
 class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   final RepositorioBusca _repositorioBusca;
   final LoggerService _registrador = LoggerService();
-  String _termoAtual = '';
+  List<SearchQueryPart> _consultas = [const SearchQueryPart(term: '')];
   bool _buscarTodasVersoes = false;
   String? _idVersao;
   String? _idVersaoSelecionada;
   double _scrollOffset = 0;
 
-  String get termoAtual => _termoAtual;
+  List<SearchQueryPart> get consultas => _consultas;
   double get scrollOffset => _scrollOffset;
 
   SearchBloc(this._repositorioBusca, {String? idVersao})
@@ -31,11 +31,73 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
       transformer: (events, mapper) =>
           events.debounce(_debounceDuration).switchMap(mapper),
     );
+    on<AlterarOperadorJoin>(_onJoinOperatorChanged);
+    on<AdicionarConsulta>(_onAddQueryPart);
+    on<RemoverConsulta>(_onRemoveQueryPart);
     on<AlternarBuscaTodasVersoes>(_onToggleSearchAllVersions);
     on<FiltrarPorVersao>(_onFilterByVersion);
     on<LimparBusca>(_onClearSearch);
     on<CarregarVersao>(_onLoadVersion);
     on<AtualizarScrollBusca>(_onUpdateScroll);
+  }
+
+  Future<void> _onJoinOperatorChanged(
+    AlterarOperadorJoin event,
+    Emitter<EstadoBusca> emit,
+  ) async {
+    // Para a Opção A (Global toggle), aplicamos a todos os joins (índice 1 em diante)
+    for (int i = 1; i < _consultas.length; i++) {
+      _consultas[i] = _consultas[i].copyWith(operator: event.operador);
+    }
+
+    if (_consultas.any((q) => q.term.length >= 3)) {
+      await _realizarBusca(emit);
+    } else {
+      emit(BuscaCarregada(
+        resultados: state is BuscaCarregada
+            ? (state as BuscaCarregada).resultados
+            : SearchResults(query: '', totalResults: 0, results: []),
+        consultas: List.from(_consultas),
+        buscarTodasVersoes: _buscarTodasVersoes,
+        idVersaoSelecionada: _idVersaoSelecionada,
+      ));
+    }
+  }
+
+  void _onAddQueryPart(AdicionarConsulta event, Emitter<EstadoBusca> emit) {
+    if (_consultas.length < 5) {
+      // Usa o operador atual (ou AND por padrão) para a nova parte
+      final currentOp =
+          _consultas.length > 1 ? _consultas[1].operator : JoinOperator.and;
+      _consultas.add(SearchQueryPart(term: '', operator: currentOp));
+      emit(BuscaCarregada(
+        resultados: state is BuscaCarregada
+            ? (state as BuscaCarregada).resultados
+            : SearchResults(query: '', totalResults: 0, results: []),
+        consultas: List.from(_consultas),
+        buscarTodasVersoes: _buscarTodasVersoes,
+        idVersaoSelecionada: _idVersaoSelecionada,
+      ));
+    }
+  }
+
+  Future<void> _onRemoveQueryPart(
+    RemoverConsulta event,
+    Emitter<EstadoBusca> emit,
+  ) async {
+    if (_consultas.length > 1) {
+      _consultas.removeAt(event.index);
+      // If we removed the first one, ensure the new first one has JoinOperator.none
+      if (event.index == 0 && _consultas.isNotEmpty) {
+        _consultas[0] = _consultas[0].copyWith(operator: JoinOperator.none);
+      }
+
+      if (_consultas.any((q) => q.term.length >= 3)) {
+        await _realizarBusca(emit);
+      } else {
+        emit(BuscaInicial());
+      }
+    }
   }
 
   void _onUpdateScroll(AtualizarScrollBusca event, Emitter<EstadoBusca> emit) {
@@ -48,7 +110,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   ) async {
     _registrador.info('🎯 Filtrar por versão: ${event.idVersao}');
     _idVersaoSelecionada = event.idVersao;
-    if (_termoAtual.length >= 3) {
+    if (_consultas.any((q) => q.term.length >= 3)) {
       await _realizarBusca(emit);
     }
   }
@@ -57,11 +119,15 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     TermoBuscaAlterado event,
     Emitter<EstadoBusca> emit,
   ) async {
-    _registrador.debug('📝 Termo de busca alterado: "${event.termo}"');
-    _termoAtual = event.termo;
-    if (_termoAtual.length < 3) {
-      _registrador.debug(
-          '⚠️ Termo muito curto (${_termoAtual.length} caracteres), mínimo 3 necessário');
+    _registrador.debug(
+        '📝 Termo de busca alterado no index ${event.index}: "${event.termo}"');
+    if (event.index < _consultas.length) {
+      _consultas[event.index] =
+          _consultas[event.index].copyWith(term: event.termo);
+    }
+
+    if (_consultas.every((q) => q.term.length < 3)) {
+      _registrador.debug('⚠️ Nenhum termo com comprimento suficiente (min 3)');
       emit(BuscaInicial());
       return;
     }
@@ -76,7 +142,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     _registrador.info(
         '🔄 Alternar busca em todas as versões: ${event.buscarTodasVersoes}');
     _buscarTodasVersoes = event.buscarTodasVersoes;
-    if (_termoAtual.length >= 3) {
+    if (_consultas.any((q) => q.term.length >= 3)) {
       await _realizarBusca(emit);
     }
   }
@@ -86,29 +152,36 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     Emitter<EstadoBusca> emit,
   ) {
     _registrador.debug('🧹 Limpando busca');
-    _termoAtual = '';
+    _consultas = [const SearchQueryPart(term: '')];
     _scrollOffset = 0;
     emit(BuscaInicial());
   }
 
   Future<void> _realizarBusca(Emitter<EstadoBusca> emit) async {
     _registrador.info(
-      '🔎 Realizando busca - Termo: "$_termoAtual", TodasVersoes: $_buscarTodasVersoes',
+      '🔎 Realizando busca - Consultas: ${_consultas.length}, TodasVersoes: $_buscarTodasVersoes',
     );
     emit(BuscaCarregando());
     try {
-      // Busca correspondência de livros em paralelo com a busca de versículos
-      final buscaLivrosFuture = _repositorioBusca.corresponderLivros(
-        _termoAtual,
-        idVersao: _buscarTodasVersoes ? null : _idVersao,
+      // For book matching, we use the first valid term
+      final firstValidTerm = _consultas
+          .firstWhere((q) => q.term.length >= 3,
+              orElse: () => const SearchQueryPart(term: ''))
+          .term;
+
+      final correspondenciasLivrosFuture = _repositorioBusca.corresponderLivros(
+        firstValidTerm,
+        idVersao:
+            _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao),
       );
 
-      final resultadosFuture = _buscarTodasVersoes
-          ? _repositorioBusca.buscarEmTodasVersoes(_termoAtual)
-          : _repositorioBusca.buscar(_termoAtual, idVersao: _idVersao);
+      final resultados = await _repositorioBusca.buscaAvancada(
+        _consultas,
+        idVersao:
+            _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao),
+      );
 
-      final resultados = await resultadosFuture;
-      final correspondenciasLivros = await buscaLivrosFuture;
+      final correspondenciasLivros = await correspondenciasLivrosFuture;
 
       // Extrair versões disponíveis dos resultados para o filtro
       final versoesDisponiveis = resultados.results
@@ -117,26 +190,10 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
           .toList();
       versoesDisponiveis.sort();
 
-      // Aplicar filtro se selecionado
-      var resultadosExibidos = resultados;
-      if (_idVersaoSelecionada != null) {
-        final listaFiltrada = resultados.results
-            .where((r) =>
-                (r.versionAbbreviation ?? r.versionId) == _idVersaoSelecionada)
-            .toList();
-        resultadosExibidos = SearchResults(
-          query: resultados.query,
-          totalResults: listaFiltrada.length,
-          results: listaFiltrada,
-        );
-      }
-
-      _registrador.info(
-          '✅ Busca emitindo estado de sucesso com ${resultadosExibidos.results.length} resultados e ${correspondenciasLivros.length} correspondências de livros (Termo: "$_termoAtual", Versão: $_idVersao)');
       emit(BuscaCarregada(
-        resultados: resultadosExibidos,
+        resultados: resultados,
         correspondenciasLivros: correspondenciasLivros,
-        termo: _termoAtual,
+        consultas: List.from(_consultas),
         buscarTodasVersoes: _buscarTodasVersoes,
         idVersaoSelecionada: _idVersaoSelecionada,
         versoesDisponiveis: versoesDisponiveis,
@@ -155,7 +212,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         '📦 Carregando versão: ${event.nomeVersao} (ID: ${event.idVersao})');
     _idVersao = event.idVersao;
 
-    if (_termoAtual.isNotEmpty) {
+    if (_consultas.any((q) => q.term.isNotEmpty)) {
       emit(BuscaCarregando());
       await _realizarBusca(emit);
     } else {

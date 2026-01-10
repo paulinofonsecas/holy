@@ -1,3 +1,4 @@
+import 'package:bible_handler/bible_handler.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
@@ -79,7 +80,8 @@ void main() {
     when(() => mockBibleVersionCubit.state)
         .thenReturn(const BibleVersionStateKJA());
     when(() => mockSearchBloc.state).thenReturn(BuscaInicial());
-    when(() => mockSearchBloc.termoAtual).thenReturn('');
+    when(() => mockSearchBloc.consultas)
+        .thenReturn([const SearchQueryPart(term: '')]);
     when(() => mockSearchBloc.scrollOffset).thenReturn(0.0);
     when(() => mockBibliaBloc.state).thenReturn(BibliaInitial());
     when(() => mockThemeBloc.state).thenReturn(const ThemeState());
