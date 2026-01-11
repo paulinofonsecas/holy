@@ -47,6 +47,7 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
       }
 
       var aggregated = <String, SearchResult>{};
+      final matchScores = <String, int>{};
 
       for (int i = 0; i < validQueries.length; i++) {
         final q = validQueries[i];
@@ -59,22 +60,51 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
         );
 
         final termMap = {for (final r in termResults) _resultKey(r): r};
+        final bit = 1 << (validQueries.length - 1 - i);
 
         if (i == 0) {
           aggregated = {...termMap};
+          for (final key in termMap.keys) {
+            matchScores[key] = bit;
+          }
           continue;
         }
 
         if (q.operator == JoinOperator.or) {
           // Union
           aggregated.addAll(termMap);
+          for (final key in termMap.keys) {
+            matchScores[key] = (matchScores[key] ?? 0) | bit;
+          }
         } else {
           // Intersection (default AND)
+          // Keep only items that are in both aggregated AND termMap
           aggregated.removeWhere((key, _) => !termMap.containsKey(key));
+          // Update scores for items that survived
+          for (final key in aggregated.keys) {
+            matchScores[key] = (matchScores[key] ?? 0) | bit;
+          }
         }
       }
 
-      final searchResults = aggregated.values.toList()..sort(_compareResults);
+      final searchResults = aggregated.values.toList()
+        ..sort((a, b) {
+          // 1. Highlighted verses always first
+          if (a.isHighlighted != b.isHighlighted) {
+            return a.isHighlighted ? -1 : 1;
+          }
+
+          // 2. Then by box relevance (match score)
+          final scoreA = matchScores[_resultKey(a)] ?? 0;
+          final scoreB = matchScores[_resultKey(b)] ?? 0;
+
+          if (scoreA != scoreB) {
+            return scoreB.compareTo(scoreA); // Higher score first
+          }
+
+          // 3. Fallback to standard Bible order (book, chapter, verse)
+          return _compareResults(a, b);
+        });
 
       final queryLabel = validQueries
           .map((q) {

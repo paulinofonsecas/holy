@@ -6,6 +6,7 @@ class SearchInputBar extends StatefulWidget {
   final VoidCallback? onRemove;
   final bool showRemove;
   final String hintText;
+  final Widget? dragHandle;
 
   const SearchInputBar({
     super.key,
@@ -14,6 +15,7 @@ class SearchInputBar extends StatefulWidget {
     this.onRemove,
     this.showRemove = false,
     this.hintText = 'Termo de busca...',
+    this.dragHandle,
   });
 
   @override
@@ -49,6 +51,10 @@ class _SearchInputBarState extends State<SearchInputBar> {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
+          if (widget.dragHandle != null) ...[
+            widget.dragHandle!,
+            const SizedBox(width: 4),
+          ],
           Expanded(
             child: TextField(
               controller: _controller,

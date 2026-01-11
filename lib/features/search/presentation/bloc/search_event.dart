@@ -75,3 +75,13 @@ class AtualizarScrollBusca extends EventoBusca {
   @override
   List<Object?> get props => [offset];
 }
+
+class ReordenarConsultas extends EventoBusca {
+  final int oldIndex;
+  final int newIndex;
+
+  const ReordenarConsultas(this.oldIndex, this.newIndex);
+
+  @override
+  List<Object?> get props => [oldIndex, newIndex];
+}

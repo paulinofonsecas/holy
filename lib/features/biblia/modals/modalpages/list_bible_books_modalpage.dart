@@ -31,7 +31,6 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
           Text(
             'Lista de Livros',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
           ),

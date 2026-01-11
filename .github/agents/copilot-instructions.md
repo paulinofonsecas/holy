@@ -30,6 +30,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-01
 - Local on-device Bible data handled by bible_handler (SQLite files and/or assets); no new remote storage (004-verse-comparison)
 - Dart ^3.6.0 (Flutter) + `flutter_local_notifications` ^18.0.0, `timezone` ^0.10.1, `bible_handler` (internal), `stacked` or `flutter_bloc` (015-verse-of-the-day)
 - `shared_preferences` (user preferences), `bible_handler` (Bible data) (015-verse-of-the-day)
+- Dart ^3.6.0, Flutter >=3.38.4 + `flutter_bloc`, `bible_handler` (local), `stacked` (MVVM), `sqflite` (024-select-verse-search)
+- SQLite (Offline Bible Database) (024-select-verse-search)
 
 - Dart ^3.6.0, Flutter >=3.38.4 + `bible_handler` (internal), `sqflite`, `flutter_bloc` or `stacked`, `share_plus` (005-verse-search)
 
@@ -49,9 +51,9 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
+- 024-select-verse-search: Added Dart ^3.6.0, Flutter >=3.38.4 + `flutter_bloc`, `bible_handler` (local), `stacked` (MVVM), `sqflite`
 - 015-verse-of-the-day: Added Dart ^3.6.0 (Flutter) + `flutter_local_notifications` ^18.0.0, `timezone` ^0.10.1, `bible_handler` (internal), `stacked` or `flutter_bloc`
 - 004-verse-comparison: Added Dart 3.x with Flutter 3.x + Flutter, application feature modules under lib/features, data access via packages/bible_handler, state management NEEDS CLARIFICATION (likely BLoC/stacked), navigation via existing reading flow
-- 003-multiple-search-joins: Added Dart 3.8.x, Flutter (stable channel) + sqflite, sqlite3 FTS4/FTS5 (via bible_handler), bloc/flutter_bloc, path, shared_preferences
 
 
 <!-- MANUAL ADDITIONS START -->
