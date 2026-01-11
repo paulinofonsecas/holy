@@ -1,0 +1,243 @@
+# Implementation Plan: Firebase APK Distribution Automation
+
+**Branch**: `016-firebase-apk-distribution` | **Date**: 2026-01-04 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `/specs/016-firebase-apk-distribution/spec.md`
+
+**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+
+## Summary
+
+Create automated APK distribution system for Firebase App Distribution with three levels of automation: (1) Manual script-based distribution for on-demand testing, (2) Integrated pipeline combining existing CI scripts with automated upload, (3) Full CI/CD automation for branch-triggered distribution. The system will provide cross-platform support (PowerShell/Bash), integrate with existing ci_all scripts, provide Make targets for workflow execution, and include GitHub Actions integration for automated distribution on branch events.
+
+## Technical Context
+
+**Language/Version**: Flutter 3.38.4+, Dart 3.6.0+, PowerShell 5.1+, Bash 4.0+  
+**Primary Dependencies**: Firebase CLI 11.0.0+, Firebase App Distribution, Make (GNU Make 3.81+), GitHub Actions  
+**Storage**: N/A (scripts interact with Firebase cloud service)  
+**Testing**: Manual testing for scripts (PowerShell Pester optional), GitHub Actions workflow validation  
+**Target Platform**: Cross-platform (Windows PowerShell, Unix/Linux/macOS Bash), Android APK distribution  
+**Project Type**: Mobile (Flutter) with build automation and DevOps tooling  
+**Performance Goals**: Script execution <3 minutes, full pipeline <15 minutes, 95% first-attempt success rate  
+**Constraints**: Requires Firebase CLI pre-installation, network connectivity for uploads, Firebase permissions configured, APK size <1GB  
+**Scale/Scope**: Single Flutter mobile app, 2 script variants (PS1/SH), 3 Make targets, 1 GitHub Actions workflow modification
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+### ✅ I. Monorepo & Modularization
+**Status**: PASS  
+**Rationale**: Feature adds DevOps scripts to existing Flutter monorepo structure. Distribution scripts are utility tools, not application logic, so they reside in `/scripts` directory alongside existing CI scripts (ci_all.ps1, ci_all.sh). No new packages required.
+
+### ✅ II. Bible Version Abstraction
+**Status**: N/A  
+**Rationale**: This feature does not interact with Bible data or the bible_handler package. It's purely infrastructure for APK distribution.
+
+### ✅ III. AI-Ready Architecture
+**Status**: N/A  
+**Rationale**: DevOps automation feature - no data models or AI integration points involved.
+
+### ✅ IV. Flutter Best Practices
+**Status**: PASS  
+**Rationale**: No Flutter UI changes. Build process uses standard `flutter build apk` commands. GitHub Actions workflow follows Flutter CI best practices with proper caching and dependency management.
+
+### ✅ V. Test-Driven Development
+**Status**: PASS (Manual Testing)  
+**Rationale**: Scripts are DevOps utilities tested through execution validation. Manual testing appropriate for distribution scripts. GitHub Actions workflows include validation through CI pipeline execution.
+
+### ✅ VI. Consistent Navigation (Bottom Bar)
+**Status**: N/A  
+**Rationale**: No UI or navigation changes - this is build automation infrastructure.
+
+**CONSTITUTION GATE**: ✅ **PASSED** - All applicable principles satisfied. No violations require justification.
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/016-firebase-apk-distribution/
+├── plan.md              # This file (/speckit.plan command output)
+├── research.md          # Phase 0 output - Firebase CLI research & best practices
+├── data-model.md        # Phase 1 output - Script configuration model
+├── quickstart.md        # Phase 1 output - Usage guide for developers
+├── contracts/           # Phase 1 output - Script interfaces & parameters
+│   ├── distribute-apk-ps1.md
+│   ├── distribute-apk-sh.md
+│   └── makefile-targets.md
+└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+```
+
+### Source Code (repository root)
+
+```text
+# Mobile Flutter App with Build Automation
+scripts/
+├── ci_all.ps1                    # Existing CI script (Windows)
+├── ci_all.sh                     # Existing CI script (Unix/Linux)
+├── distribute-apk.ps1            # NEW: Firebase distribution (Windows)
+├── distribute-apk.sh             # NEW: Firebase distribution (Unix/Linux)
+├── build-and-distribute.ps1      # NEW: Full pipeline (Windows)
+└── build-and-distribute.sh       # NEW: Full pipeline (Unix/Linux)
+
+Makefile                           # NEW: Make targets for pipeline execution
+
+.github/workflows/
+├── ci.yml                        # Existing CI workflow
+├── release.yml                   # Existing release workflow
+└── distribute.yml                # NEW: Auto-distribution workflow
+
+build/app/outputs/flutter-apk/    # APK artifacts (generated by flutter build)
+└── app-release.apk
+
+firebase.json                     # Existing Firebase config (contains app ID)
+
+docs/
+└── firebase-distribution-guide.md # NEW: Developer documentation
+```
+
+**Structure Decision**: Mobile project (Option 3 variant). Flutter app with existing monorepo structure at `eu_sou/`. New distribution scripts added to existing `/scripts` directory for consistency with ci_all scripts. Makefile added at repository root for cross-platform command execution. GitHub Actions workflow added for CI/CD automation. No modification to Flutter app source code (`lib/`, `android/`, etc.) required.
+
+## Complexity Tracking
+
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+**N/A** - No constitution violations detected. All gates passed.
+
+---
+
+## Phase 0: Research & Analysis ✅
+
+**Status**: COMPLETE  
+**Document**: [research.md](./research.md)
+
+### Key Decisions
+
+1. **Firebase CLI Command**: `firebase appdistribution:distribute` chosen over REST API or third-party tools
+2. **Cross-Platform Approach**: Separate PowerShell and Bash scripts with shared logic patterns
+3. **APK Detection**: Auto-detect from standard Flutter build output path with override option
+4. **Authentication**: Token-based for CI/CD, login-based for local development
+5. **GitHub Actions Integration**: Extend existing workflows + create dedicated distribution workflow
+6. **Retry Logic**: Exponential backoff for network errors, fail fast for configuration errors
+7. **Make Interface**: Unified command layer with platform detection
+
+### Research Areas Completed
+
+- ✅ Firebase CLI App Distribution capabilities and command structure
+- ✅ Cross-platform scripting best practices (PowerShell vs Bash)
+- ✅ APK file detection and validation patterns
+- ✅ Firebase authentication methods for CI/CD
+- ✅ GitHub Actions Firebase CLI integration
+- ✅ Error handling and retry patterns for network operations
+- ✅ Make target definition for cross-platform compatibility
+
+### Clarifications Resolved
+
+All technical unknowns resolved. No NEEDS CLARIFICATION markers remaining.
+
+---
+
+## Phase 1: Design & Contracts ✅
+
+**Status**: COMPLETE  
+**Documents**:
+- [data-model.md](./data-model.md) - Configuration and data structures
+- [contracts/distribute-apk-ps1.md](./contracts/distribute-apk-ps1.md) - PowerShell script interface
+- [contracts/distribute-apk-sh.md](./contracts/distribute-apk-sh.md) - Bash script interface
+- [contracts/makefile-targets.md](./contracts/makefile-targets.md) - Make commands interface
+- [quickstart.md](./quickstart.md) - Developer usage guide
+
+### Data Model Summary
+
+**Key Entities**:
+1. **DistributionConfig**: Script input parameters (APK path, app ID, release notes, groups)
+2. **ApkArtifact**: Build output metadata (path, size, variant, timestamps)
+3. **FirebaseProject**: Configuration from firebase.json (project ID, app IDs)
+4. **ExecutionContext**: Runtime environment detection (platform, shell, CI status, authentication)
+5. **DistributionResult**: Execution outcome (success, duration, error details, release ID)
+6. **TesterGroup**: Firebase-managed tester groups (aliases, descriptions)
+7. **Script Parameters**: PowerShell named parameters and Bash positional arguments
+8. **Environment Variables**: CI/CD configuration (FIREBASE_TOKEN, FIREBASE_APP_ID)
+
+### API Contracts Summary
+
+**distribute-apk.ps1** (PowerShell):
+- Parameters: `-ApkPath`, `-AppId`, `-ReleaseNotes`, `-Groups`, `-DryRun`, `-Debug`
+- Auto-detects APK and app ID if not provided
+- Supports file-based release notes with `@` prefix
+- Retry logic with exponential backoff
+- Exit codes: 0-7, 99 for various error conditions
+
+**distribute-apk.sh** (Bash):
+- Positional arguments: `APK_PATH`, `APP_ID`, `RELEASE_NOTES`, `GROUPS`
+- Environment flags: `DRY_RUN`, `DEBUG`
+- Same functionality as PowerShell version
+- Compatible with jq for JSON parsing (with fallback)
+
+**Makefile Targets**:
+- `make help`: Display usage information
+- `make distribute`: Upload existing APK
+- `make build-and-distribute`: Full CI + build + distribute pipeline
+- `make ci-all`: Run CI scripts only
+- `make build-apk`: Build APK without distribution
+- Platform detection automatically selects .ps1 or .sh scripts
+
+### Constitution Re-Check ✅
+
+**Status**: ALL GATES PASSED (no changes from initial check)
+
+Phase 1 design maintains compliance:
+- Scripts remain in `/scripts` directory (monorepo structure)
+- No Flutter code changes (best practices preserved)
+- Manual testing sufficient for DevOps scripts (TDD approach)
+- No UI/navigation changes
+
+---
+
+## Phase 2: Implementation Tasks
+
+**Status**: NOT STARTED (use `/speckit.tasks` command to generate)  
+**Document**: tasks.md (to be created)
+
+**Next Steps**:
+1. Generate implementation tasks with `/speckit.tasks` command
+2. Break down into granular, prioritized tasks for P1, P2, P3 user stories
+3. Begin implementation starting with P1 (Manual APK Distribution)
+
+---
+
+## Agent Context Update ✅
+
+**Status**: COMPLETE  
+**File Updated**: `.github/agents/copilot-instructions.md`
+
+**Technologies Added**:
+- **Languages**: Flutter 3.38.4+, Dart 3.6.0+, PowerShell 5.1+, Bash 4.0+
+- **Frameworks**: Firebase CLI 11.0.0+, Firebase App Distribution, Make (GNU Make 3.81+), GitHub Actions
+- **Storage**: N/A (scripts interact with Firebase cloud service)
+
+GitHub Copilot agent now aware of new technologies for intelligent code suggestions during implementation.
+
+---
+
+## Summary
+
+**Planning Phase Complete** ✅
+
+All planning artifacts generated and validated:
+- ✅ Technical context defined
+- ✅ Constitution check passed
+- ✅ Phase 0 research complete (7 decision points resolved)
+- ✅ Phase 1 design complete (data model + 3 contracts + quickstart guide)
+- ✅ Agent context updated
+
+**Ready for**: `/speckit.tasks` command to generate implementation tasks
+
+**Deliverables**:
+- 4 new scripts (2 PowerShell, 2 Bash)
+- 1 Makefile with 5 targets
+- 1 GitHub Actions workflow
+- Complete developer documentation
+
+**Estimated Implementation**: 2-4 days (depending on testing thoroughness)
+

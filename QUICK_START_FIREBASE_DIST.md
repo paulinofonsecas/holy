@@ -101,5 +101,5 @@ Duration: 45.2 seconds
 Testers will receive notification shortly.
 ```
 
-- [Documentação completa](../specs/012-firebase-apk-distribution/quickstart.md)
-- [Contratos da API](../specs/012-firebase-apk-distribution/contracts/)
+- [Documentação completa](../specs/016-firebase-apk-distribution/quickstart.md)
+- [Contratos da API](../specs/016-firebase-apk-distribution/contracts/)
