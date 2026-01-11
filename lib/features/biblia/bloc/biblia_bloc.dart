@@ -16,6 +16,21 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       _onGetChapter,
       transformer: (events, mapper) => events.switchMap(mapper),
     );
+    on<ClearTargetVerse>(_onClearTargetVerse);
+  }
+
+  void _onClearTargetVerse(
+    ClearTargetVerse event,
+    Emitter<BibliaState> emit,
+  ) {
+    if (state is BibleChapterLoaded) {
+      final currentState = state as BibleChapterLoaded;
+      emit(BibleChapterLoaded(
+        currentState.chapter,
+        versionId: currentState.versionId,
+        targetVerse: null,
+      ));
+    }
   }
 
   Future<void> _onGetChapter(

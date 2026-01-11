@@ -253,33 +253,37 @@ class _TelaBuscaState extends State<TelaBusca> {
                       delegate: SliverChildBuilderDelegate(
                         (context, indice) {
                           final resultado = estado.resultados.results[indice];
+
+                          void aoInteragir() {
+                            final bibliaBloc = context.read<BibliaBloc>();
+                            context.read<VerseHistoryBloc>().add(
+                                  AddVerseToHistory(
+                                    verseRef:
+                                        '${resultado.book.id} ${resultado.chapter.number}:${resultado.verse.number}',
+                                    versionId: resultado.versionId,
+                                  ),
+                                );
+                            context
+                                .read<BibleVersionCubit>()
+                                .changeVersionById(resultado.versionId);
+                            bibliaBloc.add(
+                              GetChapter(
+                                resultado.versionId,
+                                resultado.book.id,
+                                resultado.chapter.number.toString(),
+                                verse: resultado.verse.number,
+                              ),
+                            );
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop(resultado);
+                            } else {
+                              context.read<TabControllerCubit>().goToBible();
+                            }
+                          }
+
                           return ListTile(
-                            onTap: () {
-                              final bibliaBloc = context.read<BibliaBloc>();
-                              context.read<VerseHistoryBloc>().add(
-                                    AddVerseToHistory(
-                                      verseRef:
-                                          '${resultado.book.id} ${resultado.chapter.number}:${resultado.verse.number}',
-                                      versionId: resultado.versionId,
-                                    ),
-                                  );
-                              context
-                                  .read<BibleVersionCubit>()
-                                  .changeVersionById(resultado.versionId);
-                              bibliaBloc.add(
-                                GetChapter(
-                                  resultado.versionId,
-                                  resultado.book.id,
-                                  resultado.chapter.number.toString(),
-                                  verse: resultado.verse.number,
-                                ),
-                              );
-                              if (Navigator.of(context).canPop()) {
-                                Navigator.of(context).pop(resultado);
-                              } else {
-                                context.read<TabControllerCubit>().goToBible();
-                              }
-                            },
+                            onTap: aoInteragir,
+                            onLongPress: aoInteragir,
                             title: Row(
                               children: [
                                 Expanded(

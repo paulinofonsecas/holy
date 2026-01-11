@@ -14,3 +14,8 @@ class GetChapter extends BibliaEvent {
   @override
   List<Object?> get props => [version, book, chapter, verse];
 }
+
+class ClearTargetVerse extends BibliaEvent {
+  @override
+  List<Object?> get props => [];
+}
