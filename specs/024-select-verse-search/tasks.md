@@ -17,5 +17,5 @@
 - [X] **Task 2.1**: Handle "Same Chapter" re-navigation.
   - File: [lib/features/biblia/bloc/biblia_bloc.dart](lib/features/biblia/bloc/biblia_bloc.dart)
   - Description: Ensure `GetChapter` triggers a state update even if the chapter is the same, so `ScreenReaderPage` can re-calculate selection and scroll.
-- [ ] **Task 2.2**: Manual Test.
+- [X] **Task 2.2**: Manual Test.
   - Description: Perform a search, tap a result, and verify selection + scroll.
