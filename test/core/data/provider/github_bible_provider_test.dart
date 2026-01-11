@@ -99,31 +99,22 @@ void main() {
     }
   });
 
-  test(
-      'should load bible from url and save to local storage, then load from storage',
+  test('should load bible from url and save to SQLite, then load from SQLite',
       () async {
     final bible = Bible(
       name: 'Test Bible',
       abbreviation: 'TB',
-      books: [],
-    )..directoryPathSaved = tempDownloadDir.path;
-
-    // Create a dummy file in tempDownloadDir to simulate downloaded content
-    File(p.join(tempDownloadDir.path, 'metadata.xml')).createSync();
-    File(p.join(tempDownloadDir.path, 'book.usx')).createSync();
+      books: [Book(id: 'GEN', name: 'Genesis', longName: 'Genesis', abbreviation: 'Gn', chapters: [])],
+    );
 
     bool urlLoaderCalled = false;
-    bool dirLoaderCalled = false;
 
     provider = GithubBibleProvider(
       mockDio,
       mockCache,
       urlLoader: (version) async {
         urlLoaderCalled = true;
-        return bible;
-      },
-      dirLoader: (path) async {
-        dirLoaderCalled = true;
+        await mockCache.cacheVersion(bible, versionId: version);
         return bible;
       },
     );
@@ -132,29 +123,17 @@ void main() {
     await provider.getLivros('test_version');
 
     expect(urlLoaderCalled, isTrue);
-    expect(dirLoaderCalled, isFalse);
+    expect(await mockCache.isVersionCached('test_version'), isTrue);
 
-    // Verify files were copied to appDocsDir
-    final savedBibleDir =
-        Directory(p.join(appDocsDir.path, 'bibles', 'test_version'));
-    expect(savedBibleDir.existsSync(), isTrue);
-    expect(
-        File(p.join(savedBibleDir.path, 'metadata.xml')).existsSync(), isTrue);
-    expect(File(p.join(savedBibleDir.path, 'book.usx')).existsSync(), isTrue);
-
-    // 2. Second call (new instance): Should use dirLoader
+    // 2. Second call (new instance): Should use mockCache
     urlLoaderCalled = false;
-    dirLoaderCalled = false;
 
     final newProvider = GithubBibleProvider(
       mockDio,
       mockCache,
       urlLoader: (version) async {
         urlLoaderCalled = true;
-        return bible;
-      },
-      dirLoader: (path) async {
-        dirLoaderCalled = true;
+        await mockCache.cacheVersion(bible, versionId: version);
         return bible;
       },
     );
@@ -162,6 +141,5 @@ void main() {
     await newProvider.getLivros('test_version');
 
     expect(urlLoaderCalled, isFalse);
-    expect(dirLoaderCalled, isTrue);
   });
 }

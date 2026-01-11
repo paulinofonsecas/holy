@@ -4,6 +4,7 @@ import 'package:archive/archive.dart';
 import 'package:path/path.dart' as p;
 
 import 'models.dart';
+import 'bible_cache_provider.dart';
 import 'parsers/sqlite_parser.dart';
 import 'parsers/usx_parser.dart';
 import 'services/download_service.dart';
@@ -59,11 +60,13 @@ class UrlBibleLoader implements BibleLoader {
   final String version;
   final BookSorter sorter;
   final void Function(DownloadProgress)? onProgress;
+  final BibleCacheProvider? cacheProvider;
 
   UrlBibleLoader(
     this.version, {
     this.sorter = const CanonicalBookSorter(),
     this.onProgress,
+    this.cacheProvider,
   });
 
   @override
@@ -128,10 +131,20 @@ class UrlBibleLoader implements BibleLoader {
         sorter: sorter,
       );
       final b = await directoryLoader.load();
-      return b..directoryPathSaved = effectivePath;
+
+      // If a cache provider is provided, cache the version
+      if (cacheProvider != null) {
+        await cacheProvider!.cacheVersion(b, versionId: version);
+      }
+
+      return b;
     } catch (e) {
       print('Error loading bible from url: $e');
       rethrow;
+    } finally {
+      if (tempDir.existsSync()) {
+        await tempDir.delete(recursive: true);
+      }
     }
   }
 }
@@ -169,6 +182,12 @@ Future<Bible> loadBibleFromUrl(
   String version, {
   BookSorter sorter = const CanonicalBookSorter(),
   void Function(DownloadProgress)? onProgress,
+  BibleCacheProvider? cacheProvider,
 }) {
-  return UrlBibleLoader(version, sorter: sorter, onProgress: onProgress).load();
+  return UrlBibleLoader(
+    version,
+    sorter: sorter,
+    onProgress: onProgress,
+    cacheProvider: cacheProvider,
+  ).load();
 }

@@ -28,17 +28,15 @@ class SplashViewModel extends BaseViewModel {
     notifyListeners();
 
     try {
-      final bible = await loadBibleFromUrl(
+      await loadBibleFromUrl(
         versionId,
         onProgress: (progress) {
           _progress = progress;
           notifyListeners();
         },
+        cacheProvider: _cacheProvider,
       );
 
-      // Save to SQLite Cache
-      await _cacheProvider.cacheVersion(bible, versionId: versionId);
-      
       _isDownloading = false;
       notifyListeners();
       _navigateToMain();

@@ -1,27 +1,21 @@
-import 'dart:io';
-
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 typedef BibleUrlLoader = Future<Bible> Function(String version);
-typedef BibleDirLoader = Future<Bible> Function(String path);
 
 class GithubBibleProvider extends IBibleProvider {
   GithubBibleProvider(
     this.dio,
     this.cacheProvider, {
-    this.urlLoader = loadBibleFromUrl,
-    this.dirLoader = loadBibleFromDirectory,
-  });
+    BibleUrlLoader? urlLoader,
+  }) : urlLoader = urlLoader ??
+            ((version) => loadBibleFromUrl(version, cacheProvider: cacheProvider));
 
   final Dio dio;
   final BibleCacheProvider cacheProvider;
   final BibleUrlLoader urlLoader;
-  final BibleDirLoader dirLoader;
   final Map<String, Bible> _cache = {};
   final Map<String, List<Book>> _booksCache = {};
   final Map<String, Map<String, Map<int, Chapter>>> _chapterCache = {};
@@ -29,15 +23,6 @@ class GithubBibleProvider extends IBibleProvider {
   static const int _maxCachedChapters = 50;
   static const String _repoContentsUrl =
       'https://api.github.com/repos/paulinofonsecas/biblias/contents/inst/usx/traducao';
-
-  Future<String> _getBiblesDir() async {
-    final appDocDir = await getApplicationDocumentsDirectory();
-    final biblesDir = Directory(p.join(appDocDir.path, 'bibles'));
-    if (!biblesDir.existsSync()) {
-      biblesDir.createSync(recursive: true);
-    }
-    return biblesDir.path;
-  }
 
   void _addToChapterCache(
       String versionId, String bookId, int chapterNum, Chapter chapter) {
@@ -81,37 +66,8 @@ class GithubBibleProvider extends IBibleProvider {
         }
       }
 
-      // 2. Check local storage (legacy)
-      final savedBibleDir = Directory(p.join(await _getBiblesDir(), versionId));
-      if (savedBibleDir.existsSync()) {
-        final bible = await dirLoader(savedBibleDir.path);
-        // Cache it in SQLite for next time
-        await cacheProvider.cacheVersion(bible, versionId: versionId);
-        _cache[versionId] = bible;
-        _booksCache[versionId] = bible.books;
-        return bible.books;
-      }
-
-      // 3. If not in SQLite or local storage, download from GitHub
+      // 2. If not in SQLite, download from GitHub
       final bible = await urlLoader(versionId);
-
-      // Save to local storage (legacy)
-      if (bible.directoryPathSaved != null) {
-        final targetDir = Directory(p.join(await _getBiblesDir(), versionId));
-        if (targetDir.existsSync()) targetDir.deleteSync(recursive: true);
-        targetDir.createSync(recursive: true);
-
-        // Copy files from temp to permanent
-        final sourceDir = Directory(bible.directoryPathSaved!);
-        for (var file in sourceDir.listSync()) {
-          if (file is File) {
-            file.copySync(p.join(targetDir.path, p.basename(file.path)));
-          }
-        }
-      }
-
-      // 4. Save to SQLite Cache
-      await cacheProvider.cacheVersion(bible, versionId: versionId);
 
       _cache[versionId] = bible;
       _booksCache[versionId] = bible.books;
@@ -253,9 +209,6 @@ class GithubBibleProvider extends IBibleProvider {
       // 3. Fallback to full load if not cached or something went wrong
       // This will populate _cache and _booksCache
       final bible = await urlLoader(versionId);
-
-      // Save to SQLite Cache
-      await cacheProvider.cacheVersion(bible, versionId: versionId);
 
       _cache[versionId] = bible;
       _booksCache[versionId] = bible.books;
