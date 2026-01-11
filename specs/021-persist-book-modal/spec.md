@@ -2,7 +2,7 @@
 
 **Feature Branch**: `021-persist-book-modal`  
 **Created**: 2026-01-11  
-**Status**: Draft  
+**Status**: Completed  
 **Input**: User description: "estado permanente no modal de selecao de livros para que os users possal alternar rapidamente entre capitulos"
 
 ## User Scenarios & Testing *(mandatory)*
