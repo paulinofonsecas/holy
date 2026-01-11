@@ -42,48 +42,39 @@
 ### Implementation for User Story 1
 
 - [x] T007 [US1] Create `VerseOfTheDayService` to handle verse selection and scheduling logic in `lib/features/verse_of_the_day/domain/services/verse_of_the_day_service.dart`
-- [ ] T008 [US1] Write unit tests for `VerseOfTheDayService` scheduling logic in `test/features/verse_of_the_day/verse_of_the_day_service_test.dart`
-- [x] T009 [US1] Initialize and trigger `VerseOfTheDayService` scheduling in `lib/main.dart` on app startup
-
-**Checkpoint**: User Story 1 functional - daily notifications are being scheduled and delivered.
+- [x] T008 [US1] Refine scheduling logic in `VerseOfTheDayService` to ensure immediate delivery if setting time is 5m in the future today
+- [x] T009 [US1] Write unit tests for `VerseOfTheDayService` scheduling logic in `test/features/verse_of_the_day/verse_of_the_day_service_test.dart`
+- [x] T010 [US1] Initialize and trigger `VerseOfTheDayService` scheduling in `lib/main.dart` on app startup
 
 ---
 
 ## Phase 4: User Story 2 - Navigation to Reading Screen (Priority: P1)
 
-**Goal**: Navigate the user to the specific verse in the reading screen when they tap the notification.
+**Goal**: Navigate the user to the specific verse in the reading screen when they tap the notification, resetting the stack.
 
-**Independent Test**: Tap a "Verse of the Day" notification and verify the app opens to the correct chapter and highlights the verse.
+**Independent Test**: Tap a "Verse of the Day" notification while a modal is open and verify the app opens the Reading screen directly, closing the modal.
 
 ### Implementation for User Story 2
 
-- [x] T010 [US2] Update `NotificationHandler` to parse `verse_of_the_day` payload in `lib/core/notifications/notification_handler.dart`
-- [x] T011 [US2] Implement deep link navigation to `ReadingPage` with verse highlighting in `lib/shared/widgets/main_scaffold.dart`
-
-**Checkpoint**: User Story 2 functional - notifications now lead to the correct content.
+- [x] T011 [US2] Update `NotificationHandler` to parse `verse_of_the_day` payload in `lib/core/notifications/notification_handler.dart`
+- [x] T012 [US2] Update `_handleNotificationTap` in `lib/shared/widgets/main_scaffold.dart` to include `Navigator.popUntil(context, (route) => route.isFirst)` before tab switch
+- [x] T013 [US2] Implement deep link navigation to `ReadingPage` with verse highlighting in `lib/shared/widgets/main_scaffold.dart`
 
 ---
 
 ## Phase 5: User Story 3 - Service Configuration (Priority: P2)
 
-**Goal**: Allow users to customize time, Bible version, and book categories for the notifications.
+**Goal**: Allow users to customize time, Bible version (downloaded only), and book categories (default all).
 
 **Independent Test**: Change settings in the Profile screen and verify the next notification reflects the changes.
 
 ### Implementation for User Story 3
 
-- [x] T012 [US3] Implement `VerseOfTheDayBloc` for settings state management in `lib/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart`
-- [x] T013 [US3] Create `VerseOfTheDaySettingsPage` with time picker and category selection in `lib/features/verse_of_the_day/presentation/pages/verse_of_the_day_settings_page.dart`
-- [x] T014 [US3] Add navigation to `VerseOfTheDaySettingsPage` in `lib/features/profile/presentation/views/profile_view.dart`
-
-**Checkpoint**: User Story 3 functional - users have full control over the feature.
-
----
-
-## Phase 6: Polish & Cross-cutting Concerns
-
-- [x] T015 [P] Add "Test Notification" button to settings page for immediate verification
-- [ ] T016 [P] Add localized strings for the feature in `lib/l10n/app_pt.arb` and `lib/l10n/app_en.arb`
+- [x] T014 [US3] Implement `VerseOfTheDayBloc` for settings state management in `lib/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart`
+- [x] T015 [US3] Update `VerseOfTheDaySettingsPage` in `lib/features/verse_of_the_day/presentation/pages/verse_of_the_day_settings_page.dart` to filter version selector by downloaded bibles only
+- [x] T016 [US3] Ensure book categories multiselect has all categories enabled by default on first init
+- [x] T017 [US3] Implement "Test Notification" button that triggers a real notification after a 5-second delay
+- [x] T018 [US3] Add navigation to `VerseOfTheDaySettingsPage` in `lib/features/profile/presentation/views/profile_view.dart`
 
 ## Dependency Graph
 

@@ -14,26 +14,26 @@ class VerseOfTheDayRepository {
     await _prefs.setString(_key, jsonEncode(settings.toJson()));
   }
 
-  VerseOfTheDaySettings getSettings() {
+  VerseOfTheDaySettings getSettings({String? defaultVersionId}) {
     final String? json = _prefs.getString(_key);
     if (json == null) {
-      return const VerseOfTheDaySettings(
+      return VerseOfTheDaySettings(
         isEnabled: false,
         hour: 8,
         minute: 0,
-        versionId: 'NVI', // Default version
-        bookIds: [], // All books
+        versionId: defaultVersionId ?? 'NVI',
+        bookIds: const [], // Empty means "All Books"
       );
     }
     try {
       return VerseOfTheDaySettings.fromJson(jsonDecode(json));
     } catch (e) {
-      return const VerseOfTheDaySettings(
+      return VerseOfTheDaySettings(
         isEnabled: false,
         hour: 8,
         minute: 0,
-        versionId: 'NVI',
-        bookIds: [],
+        versionId: defaultVersionId ?? 'NVI',
+        bookIds: const [],
       );
     }
   }

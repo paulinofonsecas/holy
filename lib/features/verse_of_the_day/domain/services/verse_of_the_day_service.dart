@@ -19,7 +19,7 @@ class VerseOfTheDayService {
         _searchProvider = searchProvider,
         _notificationService = notificationService;
 
-  Future<void> scheduleNextNotifications() async {
+  Future<void> scheduleNextNotifications({DateTime? nowOverride}) async {
     final settings = _repository.getSettings();
 
     // Cancel existing daily verse notifications (IDs 111-117)
@@ -31,7 +31,7 @@ class VerseOfTheDayService {
       return;
     }
 
-    final now = DateTime.now();
+    final now = nowOverride ?? DateTime.now();
 
     for (int i = 0; i < 7; i++) {
       DateTime scheduledDate = DateTime(
@@ -97,7 +97,9 @@ class VerseOfTheDayService {
       'verse': verse.verse.number,
     });
 
-    // Show immediately for testing
+    // Show after 5 seconds for testing as requested
+    await Future.delayed(const Duration(seconds: 5));
+
     await _notificationService.showNotification(
       PushNotificationModel(
         title: 'Teste: Versículo do Dia',
@@ -106,5 +108,20 @@ class VerseOfTheDayService {
         payload: payload,
       ),
     );
+  }
+
+  Future<List<Map<String, String>>> getDownloadedVersions() async {
+    // We know searchProvider is SqlBibleSearchProvider which has access to db
+    if (_searchProvider is SqlBibleSearchProvider) {
+      final db = (_searchProvider).db;
+      final results = await db.query('versions');
+      return results
+          .map((row) => {
+                'id': row['id'] as String,
+                'name': row['name'] as String,
+              })
+          .toList();
+    }
+    return [];
   }
 }

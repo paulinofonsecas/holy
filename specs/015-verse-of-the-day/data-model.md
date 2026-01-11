@@ -28,3 +28,26 @@ The data structure sent in the notification payload for deep linking.
 - **Storage**: `shared_preferences`
 - **Key**: `verse_of_the_day_settings`
 - **Format**: JSON stringified `VerseOfTheDaySettings`.
+
+## Initial State & Default Values
+
+1. **`isEnabled`**: `true`
+2. **`hour`**: `9`
+3. **`minute`**: `0`
+4. **`versionId`**: Current active version in app.
+5. **`bookIds`**: Empty (represents "All Books").
+
+## State Transitions
+
+1. **User updates settings**:
+    - Repository saves to `shared_preferences`.
+    - `VerseOfTheDayService.scheduleNextNotifications()` is called.
+    - Current 7 scheduled notifications are canceled and 7 new ones are created.
+2. **Scheduled time reached**:
+    - System displays local notification.
+3. **User taps notification**:
+    - `MainScaffold` catches payload.
+    - If `type == 'verse_of_the_day'`:
+        - Reset navigation stack (`Navigator.popUntil`).
+        - Switch to Reading Tab.
+        - Trigger `BibliaBloc` to load verse.

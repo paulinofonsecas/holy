@@ -29,7 +29,12 @@ notificationHandler.addOnNotificationTapListener((payload) {
   if (payload != null) {
     final data = jsonDecode(payload);
     if (data['type'] == 'verse_of_the_day') {
-      // Navigate to reading screen
+      // 1. Reset stack
+      Navigator.popUntil(rootContext, (route) => route.isFirst);
+      
+      // 2. Switch Tab and Load Verse
+      tabCubit.changeTo(0);
+      bibliaBloc.add(GetChapter(...));
     }
   }
 });

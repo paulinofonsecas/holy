@@ -8,9 +8,12 @@
 ## User Scenarios & Testing *(mandatory)*
 
 ## Clarifications
-### Session 2026-01-03
-- Q: Where should the configuration screen for the "Verse of the Day" alerts be located? → A: Inside Profile Screen (Option B).
-- Q: How should the user filter the source of verses by book? → A: Category Selection (e.g., "Pentateuch", "Gospels", "Epistles") (Option B).
+### Session 2026-01-11
+- Q: How should the app handle current navigation state when opening a verse notification? → A: Reset navigation stack and open only the reading screen (Option A).
+- Q: When should the first notification be scheduled if the user sets a time? → A: Today if the time is in the future, otherwise tomorrow (Option A).
+- Q: Which Bible versions should be available and what is the default? → A: Only downloaded versions; default is the current version in use.
+- Q: What should be the initial state of book category selection? → A: All categories enabled by default.
+- Q: How should the "Test Notification" button behave? → A: Trigger a real system notification in 5 seconds (Option A).
 
 ### User Story 1 - Daily Verse Notification (Priority: P1)
 
@@ -71,16 +74,15 @@ As a user, I want to customize which books, Bible version, and what time I recei
 
 - **FR-001**: System MUST allow users to enable or disable the "Verse of the Day" notification service via a new option in the Profile screen.
 - **FR-002**: System MUST allow users to select a specific time of day (hour and minute) for the daily notification.
-- **FR-003**: System MUST allow users to select a Bible version from the installed/available versions for the notification content.
-- **FR-004**: System MUST allow users to filter the source of verses by selecting specific book categories (e.g., "Pentateuch", "Gospels", "Epistles") or "All Books".
+- **FR-003**: System MUST allow users to select a Bible version from the already downloaded versions. The default version MUST match the current version being used in the app.
+- **FR-004**: System MUST allow users to filter the source of verses by selecting specific book categories (e.g., "Pentateuch", "Gospels"). All categories MUST be enabled by default upon first use.
 - **FR-005**: System MUST schedule local push notifications that do not require a server or internet connection to trigger.
 - **FR-006**: System MUST select a verse randomly from the user's selected book scope and Bible version each day.
 - **FR-007**: System MUST include the verse text and reference in the notification body.
-- **FR-008**: System MUST navigate the user to the exact Book, Chapter, and Verse in the reading screen upon tapping the notification.
-
-### Key Entities *(include if feature involves data)*
-
-- **Notification Preference**: Represents the user's configuration for the service.
+- **FR-008**: System MUST navigate the user to the exact Book, Chapter, and Verse in the reading screen upon tapping the notification, resetting the app's navigation stack to ensure focus on the verse.
+- **FR-009**: System MUST allow notifications to be scheduled for the same day if the chosen time is later than the current time (e.g., setting at 12:30 for 12:35).
+- **FR-010**: System MUST handle notification scheduling logic to automatically default to the next day if the selected time for the current day has already passed.
+- **FR-011**: System MUST provide a "Test Notification" button to trigger a sample notification immediately (e.g., within 5 seconds) for verification.
     - `isEnabled`: Boolean
     - `scheduledTime`: Time (Hour/Minute)
     - `selectedVersion`: Reference to a Bible version

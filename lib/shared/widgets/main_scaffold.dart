@@ -53,6 +53,9 @@ class _MainScaffoldState extends State<MainScaffold> {
 
         // Switch to Bible tab
         if (mounted) {
+          // Reset navigation stack to ensure we're at the root of the app
+          Navigator.popUntil(context, (route) => route.isFirst);
+
           context.read<TabControllerCubit>().changeTo(0);
 
           // Load the verse

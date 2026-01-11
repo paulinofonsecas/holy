@@ -28,8 +28,11 @@ class VerseOfTheDayBloc extends Bloc<VerseOfTheDayEvent, VerseOfTheDayState> {
   ) async {
     emit(VerseOfTheDayLoading());
     try {
-      final settings = _repository.getSettings();
-      emit(VerseOfTheDayLoaded(settings));
+      final settings = _repository.getSettings(
+        defaultVersionId: event.defaultVersionId,
+      );
+      final versions = await _service.getDownloadedVersions();
+      emit(VerseOfTheDayLoaded(settings, downloadedVersions: versions));
     } catch (e) {
       emit(VerseOfTheDayError(e.toString()));
     }
@@ -40,13 +43,17 @@ class VerseOfTheDayBloc extends Bloc<VerseOfTheDayEvent, VerseOfTheDayState> {
     Emitter<VerseOfTheDayState> emit,
   ) async {
     if (state is VerseOfTheDayLoaded) {
+      final currentState = state as VerseOfTheDayLoaded;
       try {
         await _repository.saveSettings(event.settings);
 
         // Reschedule notifications with new settings
         await _service.scheduleNextNotifications();
 
-        emit(VerseOfTheDayLoaded(event.settings));
+        emit(VerseOfTheDayLoaded(
+          event.settings,
+          downloadedVersions: currentState.downloadedVersions,
+        ));
       } catch (e) {
         emit(VerseOfTheDayError(e.toString()));
       }

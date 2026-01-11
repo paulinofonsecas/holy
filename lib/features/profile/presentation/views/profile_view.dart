@@ -1,3 +1,5 @@
+import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -117,6 +119,13 @@ class ProfileView extends StatelessWidget {
                   title: 'Versículo do Dia',
                   subtitle: 'Configurar notificações diárias',
                   onTap: () {
+                    final currentVersion =
+                        context.read<BibleVersionCubit>().state.version.id;
+                    context.read<VerseOfTheDayBloc>().add(
+                          LoadVerseOfTheDaySettings(
+                            defaultVersionId: currentVersion,
+                          ),
+                        );
                     Navigator.push(
                       context,
                       MaterialPageRoute(

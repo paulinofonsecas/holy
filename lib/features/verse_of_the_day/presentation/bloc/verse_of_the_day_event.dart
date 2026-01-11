@@ -7,7 +7,14 @@ abstract class VerseOfTheDayEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadVerseOfTheDaySettings extends VerseOfTheDayEvent {}
+class LoadVerseOfTheDaySettings extends VerseOfTheDayEvent {
+  final String? defaultVersionId;
+
+  const LoadVerseOfTheDaySettings({this.defaultVersionId});
+
+  @override
+  List<Object?> get props => [defaultVersionId];
+}
 
 class UpdateVerseOfTheDaySettings extends VerseOfTheDayEvent {
   final VerseOfTheDaySettings settings;

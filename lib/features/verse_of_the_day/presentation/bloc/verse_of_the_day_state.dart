@@ -13,11 +13,13 @@ class VerseOfTheDayLoading extends VerseOfTheDayState {}
 
 class VerseOfTheDayLoaded extends VerseOfTheDayState {
   final VerseOfTheDaySettings settings;
+  final List<Map<String, String>> downloadedVersions;
 
-  const VerseOfTheDayLoaded(this.settings);
+  const VerseOfTheDayLoaded(this.settings,
+      {this.downloadedVersions = const []});
 
   @override
-  List<Object?> get props => [settings];
+  List<Object?> get props => [settings, downloadedVersions];
 }
 
 class VerseOfTheDayError extends VerseOfTheDayState {

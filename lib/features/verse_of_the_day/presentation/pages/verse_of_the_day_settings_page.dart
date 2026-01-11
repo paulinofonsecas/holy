@@ -1,7 +1,6 @@
 import 'package:eu_sou/features/verse_of_the_day/data/models/verse_of_the_day_settings.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
 import 'package:eu_sou/shared/bible_models.dart';
-import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -99,6 +98,9 @@ class BibleBookCategory {
       BibleBooks.revelation.bookId,
     ]),
   ];
+
+  static List<String> get allBookIds =>
+      categories.expand((c) => c.bookIds).toList();
 }
 
 class VerseOfTheDaySettingsPage extends StatelessWidget {
@@ -165,14 +167,18 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
                 ListTile(
                   title: const Text('Versão da Bíblia'),
                   subtitle: Text(
-                    BibleVersions.values
-                        .firstWhere((v) => v.id == settings.versionId)
-                        .name,
+                    (state).downloadedVersions.firstWhere(
+                          (v) => v['id'] == settings.versionId,
+                          orElse: () => {
+                            'id': settings.versionId,
+                            'name': settings.versionId,
+                          },
+                        )['name']!,
                   ),
                   trailing: const Icon(Icons.translate),
                   enabled: settings.isEnabled,
                   onTap: () {
-                    _showVersionPicker(context, settings);
+                    _showVersionPicker(context, settings, state);
                   },
                 ),
                 const Divider(),
@@ -207,10 +213,14 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
                   ),
                 ),
                 ...BibleBookCategory.categories.map((category) {
-                  final isSelected = category.bookIds.every(
-                    (id) => settings.bookIds.contains(id),
-                  );
+                  final bool isAllBooks = settings.bookIds.isEmpty;
+
+                  final isSelected = isAllBooks ||
+                      category.bookIds.every(
+                        (id) => settings.bookIds.contains(id),
+                      );
                   final isPartiallySelected = !isSelected &&
+                      !isAllBooks &&
                       category.bookIds.any(
                         (id) => settings.bookIds.contains(id),
                       );
@@ -221,7 +231,13 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
                     tristate: isPartiallySelected,
                     enabled: settings.isEnabled,
                     onChanged: (value) {
-                      final newBookIds = List<String>.from(settings.bookIds);
+                      List<String> newBookIds;
+                      if (isAllBooks) {
+                        newBookIds = BibleBookCategory.allBookIds;
+                      } else {
+                        newBookIds = List<String>.from(settings.bookIds);
+                      }
+
                       if (value == true) {
                         // Add all books in category
                         for (final id in category.bookIds) {
@@ -235,9 +251,16 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
                           newBookIds.remove(id);
                         }
                       }
+
+                      // Check if all books are now selected
+                      final bool allSelected = BibleBookCategory.allBookIds
+                          .every((id) => newBookIds.contains(id));
+
                       context.read<VerseOfTheDayBloc>().add(
                             UpdateVerseOfTheDaySettings(
-                              settings.copyWith(bookIds: newBookIds),
+                              settings.copyWith(
+                                bookIds: allSelected ? [] : newBookIds,
+                              ),
                             ),
                           );
                     },
@@ -258,23 +281,25 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
     );
   }
 
-  void _showVersionPicker(
-      BuildContext context, VerseOfTheDaySettings settings) {
+  void _showVersionPicker(BuildContext context, VerseOfTheDaySettings settings,
+      VerseOfTheDayLoaded state) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return ListView(
           shrinkWrap: true,
-          children: BibleVersions.values.map((version) {
+          children: state.downloadedVersions.map((version) {
+            final versionId = version['id']!;
+            final versionName = version['name']!;
             return ListTile(
-              title: Text(version.name),
-              trailing: settings.versionId == version.id
+              title: Text(versionName),
+              trailing: settings.versionId == versionId
                   ? const Icon(Icons.check, color: Colors.green)
                   : null,
               onTap: () {
                 context.read<VerseOfTheDayBloc>().add(
                       UpdateVerseOfTheDaySettings(
-                        settings.copyWith(versionId: version.id),
+                        settings.copyWith(versionId: versionId),
                       ),
                     );
                 Navigator.pop(context);
