@@ -11,7 +11,8 @@ class BookSelectionCubit extends Cubit<BookSelectionState> {
     required int chapterNumber,
     required SelectionSource source,
   }) {
-    final newExpanded = Set<String>.from(state.expandedBookIds)..add(bookId);
+    // Accordion: Only the current book remains expanded
+    final newExpanded = {bookId};
 
     emit(state.copyWith(
       translationId: translationId,
@@ -24,12 +25,12 @@ class BookSelectionCubit extends Cubit<BookSelectionState> {
   }
 
   void toggleBookExpansion(String bookId) {
-    final newExpanded = Set<String>.from(state.expandedBookIds);
-    if (newExpanded.contains(bookId)) {
-      newExpanded.remove(bookId);
-    } else {
-      newExpanded.add(bookId);
-    }
+    final isCurrentlyExpanded = state.expandedBookIds.contains(bookId);
+
+    // Accordion: If expanding, clear others and add this one.
+    // If collapsing, just clear the set.
+    final newExpanded = isCurrentlyExpanded ? <String>{} : {bookId};
+
     emit(state.copyWith(
       expandedBookIds: newExpanded,
       timestamp: DateTime.now(),
@@ -37,12 +38,10 @@ class BookSelectionCubit extends Cubit<BookSelectionState> {
   }
 
   void setBookExpanded(String bookId, bool expanded) {
-    final newExpanded = Set<String>.from(state.expandedBookIds);
-    if (expanded) {
-      newExpanded.add(bookId);
-    } else {
-      newExpanded.remove(bookId);
-    }
+    // Accordion: If expanding, clear others and add this one.
+    // If collapsing, just clear the set.
+    final newExpanded = expanded ? {bookId} : <String>{};
+
     emit(state.copyWith(
       expandedBookIds: newExpanded,
       timestamp: DateTime.now(),

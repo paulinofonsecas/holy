@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes
+
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';

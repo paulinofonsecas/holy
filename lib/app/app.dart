@@ -56,7 +56,7 @@ class App extends StatelessWidget {
           create: (context) => VerseOfTheDayBloc(
             repository: context.read(),
             service: context.read(),
-          )..add(LoadVerseOfTheDaySettings()),
+          )..add(const LoadVerseOfTheDaySettings()),
         ),
         BlocProvider(create: (_) => TabControllerCubit()),
       ],

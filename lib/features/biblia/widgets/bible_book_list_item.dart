@@ -35,6 +35,10 @@ class BibleBookListItem extends StatelessWidget {
             context.read<BookSelectionCubit>().setBookExpanded(book.bookId, b);
           },
           headerBuilder: (headerContext, isExpanded) {
+            final textColor = Theme.brightnessOf(context) == Brightness.dark
+                ? Colors.white
+                : Colors.black;
+
             return Row(
               children: [
                 Expanded(
@@ -46,20 +50,31 @@ class BibleBookListItem extends StatelessWidget {
                         style: Theme.of(headerContext)
                             .textTheme
                             .titleMedium
-                            ?.copyWith(fontSize: 14),
+                            ?.copyWith(
+                              fontSize: 14,
+                              color: textColor,
+                            ),
                       ),
                       if (isOldTestamentBook(book))
                         Text('Antigo Testamento',
                             style: Theme.of(headerContext)
                                 .textTheme
                                 .bodySmall
-                                ?.copyWith(fontSize: 10))
+                                ?.copyWith(
+                                  fontSize: 10,
+                                  color: textColor,
+                                ))
                       else
-                        Text('Novo Testamento',
-                            style: Theme.of(headerContext)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(fontSize: 10))
+                        Text(
+                          'Novo Testamento',
+                          style: Theme.of(headerContext)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                fontSize: 10,
+                                color: textColor,
+                              ),
+                        ),
                     ],
                   ),
                 ),
