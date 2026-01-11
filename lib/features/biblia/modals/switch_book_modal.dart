@@ -8,7 +8,10 @@ class SwitchBookModal {
       context: context,
       pageListBuilder: (modalSheetContext) {
         return [
-          listBibleBooksModalPage(modalSheetContext, context),
+          listBibleBooksModalPage(
+            modalSheetContext,
+            context,
+          ),
         ];
       },
       onModalDismissedWithBarrierTap: () {

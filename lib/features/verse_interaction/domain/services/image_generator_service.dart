@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:gal/gal.dart';
 
 import '../models/verse_image_composition.dart';
 
@@ -110,5 +111,37 @@ class ImageGeneratorService {
     }
 
     return null; // Size is OK
+  }
+
+  Future<bool> saveImageToGallery(Uint8List imageBytes) async {
+    if (imageBytes.isEmpty) {
+      return false;
+    }
+
+    try {
+      if (!await Gal.hasAccess()) {
+        await Gal.requestAccess();
+
+        if (!await Gal.hasAccess()) {
+          return false;
+        }
+      }
+
+      final String fileName =
+          'holy_verse_${DateTime.now().millisecondsSinceEpoch}';
+
+      await Gal.putImageBytes(
+        imageBytes,
+        name: fileName,
+      );
+
+      return true;
+    } on GalException catch (e) {
+      debugPrint('Gal error while saving image: ${e.type}');
+      return false;
+    } catch (e) {
+      debugPrint('Error saving image to gallery: $e');
+      return false;
+    }
   }
 }

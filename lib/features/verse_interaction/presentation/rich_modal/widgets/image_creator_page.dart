@@ -158,16 +158,6 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
               // Aspect Ratio Selector
               AspectRatioSelector(viewModel: viewModel),
 
-              const SizedBox(height: 24),
-
-              // Background Picker
-              BackgroundPicker(viewModel: viewModel),
-
-              const SizedBox(height: 24),
-
-              // Typography Controls
-              TypographyControls(viewModel: viewModel),
-
               const SizedBox(height: 32),
 
               // Share Button
@@ -193,6 +183,33 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                 ),
               ),
 
+              const SizedBox(height: 24),
+
+              // Background Picker
+              BackgroundPicker(viewModel: viewModel),
+
+              const SizedBox(height: 24),
+
+              // Typography Controls
+              TypographyControls(viewModel: viewModel),
+
+              const SizedBox(height: 16),
+              // Download Button
+              OutlinedButton.icon(
+                onPressed: viewModel.isGenerating
+                    ? null
+                    : () async {
+                        await _saveImageToGallery(viewModel);
+                      },
+                icon: const Icon(Icons.download),
+                label: Text(
+                  viewModel.isGenerating ? 'Gerando...' : 'Baixar Imagem',
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+              ),
               const SizedBox(height: 16),
             ],
           ),
@@ -237,6 +254,55 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao gerar imagem: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      viewModel.setGenerating(false);
+    }
+  }
+
+  Future<void> _saveImageToGallery(
+    ImageCreatorViewModel viewModel,
+  ) async {
+    viewModel.setGenerating(true);
+
+    try {
+      // Wait a frame to ensure RepaintBoundary is ready
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Capture image with aspect ratio
+      final Uint8List? imageBytes = await _imageService.captureAsPng(
+        _repaintKey,
+        targetAspectRatio: viewModel.composition!.aspectRatio,
+      );
+
+      if (imageBytes == null) {
+        throw Exception('Falha ao gerar imagem');
+      }
+
+      // Save the image to gallery
+      final bool success =
+          await _imageService.saveImageToGallery(imageBytes);
+
+      if (!success) {
+        throw Exception('Falha ao salvar imagem na galeria');
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Imagem salva na galeria com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao salvar imagem: $e'),
             backgroundColor: Colors.red,
           ),
         );

@@ -15,6 +15,8 @@ class ChapterWidget extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
+        width: 42,
+        height: 42,
         decoration: BoxDecoration(
           border: Border.all(
             color: Theme.of(context).dividerColor,

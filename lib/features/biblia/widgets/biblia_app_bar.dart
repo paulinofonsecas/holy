@@ -23,41 +23,39 @@ class BibleAppBar extends StatelessWidget {
       child: Row(
         children: [
           const VersaoWidget(),
-          Expanded(
-            child: BlocBuilder<BibliaBloc, BibliaState>(
-              builder: (context, state) {
-                if (state is BibleChapterLoaded) {
-                  return InkWell(
-                    onTap: onBookTap,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 4.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              "${state.chapter.bookName} ${state.chapter.number}",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+          const Spacer(),
+          BlocBuilder<BibliaBloc, BibliaState>(
+            builder: (context, state) {
+              if (state is BibleChapterLoaded) {
+                return InkWell(
+                  onTap: onBookTap,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "${state.chapter.bookName} ${state.chapter.number}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const Gap(4),
-                          const Icon(Icons.keyboard_arrow_down_rounded),
-                        ],
-                      ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Gap(4),
+                        const Icon(Icons.keyboard_arrow_down_rounded),
+                      ],
                     ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
+          const Spacer(),
           BlocBuilder<SearchBloc, EstadoBusca>(
             builder: (context, state) {
               final hasSearch = state is BuscaCarregada &&
