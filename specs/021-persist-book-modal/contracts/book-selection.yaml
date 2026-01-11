@@ -1,0 +1,136 @@
+openapi: 3.1.0
+info:
+  title: Book Selection State API (conceptual)
+  version: 0.1.0
+  description: Contract describing interactions used by the Bible book modal to persist session-scoped navigation context.
+servers:
+  - url: app://local
+paths:
+  /book-selection/state:
+    get:
+      summary: Retrieve the current modal selection state
+      operationId: getBookSelectionState
+      responses:
+        '200':
+          description: Current selection context
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookSelectionState'
+  /book-selection/select:
+    post:
+      summary: Select a chapter within a book
+      operationId: selectChapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelectChapterRequest'
+      responses:
+        '204':
+          description: Selection accepted and broadcast to listeners
+  /book-selection/expanded:
+    patch:
+      summary: Update expanded book tiles in the modal
+      operationId: updateExpandedBooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expandedBookIds:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - expandedBookIds
+      responses:
+        '204':
+          description: Expansion state updated
+  /book-selection/scroll:
+    patch:
+      summary: Persist latest scroll offset
+      operationId: updateScrollOffset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scrollOffset:
+                  type: number
+                  minimum: 0
+              required:
+                - scrollOffset
+      responses:
+        '204':
+          description: Scroll offset saved
+  /book-selection/reset:
+    post:
+      summary: Reset selection to defaults for new session
+      operationId: resetBookSelection
+      responses:
+        '204':
+          description: State cleared and defaults restored
+components:
+  schemas:
+    BookSelectionState:
+      type: object
+      properties:
+        translationId:
+          type: string
+        bookId:
+          type: string
+        chapterNumber:
+          type: integer
+          minimum: 1
+        expandedBookIds:
+          type: array
+          items:
+            type: string
+        scrollOffset:
+          type: number
+          minimum: 0
+        lastInteractionSource:
+          $ref: '#/components/schemas/SelectionSource'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - translationId
+        - bookId
+        - chapterNumber
+        - expandedBookIds
+        - scrollOffset
+        - lastInteractionSource
+        - timestamp
+    SelectChapterRequest:
+      type: object
+      properties:
+        translationId:
+          type: string
+        bookId:
+          type: string
+        chapterNumber:
+          type: integer
+          minimum: 1
+        source:
+          $ref: '#/components/schemas/SelectionSource'
+      required:
+        - translationId
+        - bookId
+        - chapterNumber
+        - source
+    SelectionSource:
+      type: string
+      enum:
+        - modalTap
+        - search
+        - readingPlan
+        - swipe
+        - deepLink
+        - external

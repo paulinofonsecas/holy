@@ -9,9 +9,11 @@ import '../../widgets/bible_book_list_item.dart';
 
 SliverWoltModalSheetPage listBibleBooksModalPage(
   BuildContext modalSheetContext,
-  BuildContext context,
-) {
+  BuildContext context, {
+  ScrollController? scrollController,
+}) {
   return SliverWoltModalSheetPage(
+    scrollController: scrollController,
     navBarHeight: 30,
     backgroundColor: Colors.white,
     surfaceTintColor: Colors.white,
