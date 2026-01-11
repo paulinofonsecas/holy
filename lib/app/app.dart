@@ -3,6 +3,7 @@ import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
 import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/onboarding/presentation/splash_page.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
@@ -29,6 +30,7 @@ class App extends StatelessWidget {
         BlocProvider(create: (context) => context.read<ThemeBloc>()),
         BlocProvider(create: (_) => LocaleBloc()),
         BlocProvider(create: (_) => BibleVersionCubit()),
+        BlocProvider(create: (_) => BookSelectionCubit()),
         BlocProvider(
           create: (context) {
             final bibleVersion =

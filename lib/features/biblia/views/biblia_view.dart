@@ -1,3 +1,5 @@
+import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
+import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
@@ -38,44 +40,60 @@ class BibliaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<BibleVersionCubit, BibleVersionState>(
-      listener: (context, state) {
-        final bibleVersion = state.version;
-        final bibliaBloc = context.read<BibliaBloc>();
-        final bibliaState = bibliaBloc.state;
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<BibleVersionCubit, BibleVersionState>(
+          listener: (context, state) {
+            final bibleVersion = state.version;
+            final bibliaBloc = context.read<BibliaBloc>();
+            final bibliaState = bibliaBloc.state;
 
-        // Se o BibliaBloc já está na versão correta ou carregando ela, não fazemos nada
-        // Isso evita recarregar desnecessariamente quando a mudança vem da busca
-        if (bibliaState is BibleChapterLoaded &&
-            bibliaState.versionId == bibleVersion.id) {
-          return;
-        }
+            // Se o BibliaBloc já está na versão correta ou carregando ela, não fazemos nada
+            // Isso evita recarregar desnecessariamente quando a mudança vem da busca
+            if (bibliaState is BibleChapterLoaded &&
+                bibliaState.versionId == bibleVersion.id) {
+              return;
+            }
 
-        if (bibliaState is BibliaLoading &&
-            bibliaState.versionId == bibleVersion.id) {
-          return;
-        }
+            if (bibliaState is BibliaLoading &&
+                bibliaState.versionId == bibleVersion.id) {
+              return;
+            }
 
-        if (bibliaState is BibleChapterLoaded) {
-          // Se já temos um capítulo carregado, mudamos para a nova versão no mesmo capítulo
-          bibliaBloc.add(
-            GetChapter(
-              bibleVersion.id,
-              bibliaState.chapter.bookId,
-              bibliaState.chapter.number.toString(),
-            ),
-          );
-        } else {
-          // Caso contrário, vai para o início
-          bibliaBloc.add(
-            GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-          );
-        }
+            if (bibliaState is BibleChapterLoaded) {
+              // Se já temos um capítulo carregado, mudamos para a nova versão no mesmo capítulo
+              bibliaBloc.add(
+                GetChapter(
+                  bibleVersion.id,
+                  bibliaState.chapter.bookId,
+                  bibliaState.chapter.number.toString(),
+                ),
+              );
+            } else {
+              // Caso contrário, vai para o início
+              bibliaBloc.add(
+                GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
+              );
+            }
 
-        context.read<SearchBloc>().add(
-              CarregarVersao(idVersao: bibleVersion.id),
-            );
-      },
+            context.read<SearchBloc>().add(
+                  CarregarVersao(idVersao: bibleVersion.id),
+                );
+          },
+        ),
+        BlocListener<BibliaBloc, BibliaState>(
+          listener: (context, state) {
+            if (state is BibleChapterLoaded) {
+              context.read<BookSelectionCubit>().updateContext(
+                    translationId: state.versionId,
+                    bookId: state.chapter.bookId,
+                    chapterNumber: state.chapter.number,
+                    source: SelectionSource.external,
+                  );
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
