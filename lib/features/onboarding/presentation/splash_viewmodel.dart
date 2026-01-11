@@ -3,7 +3,7 @@ import 'package:stacked/stacked.dart';
 
 class SplashViewModel extends BaseViewModel {
   final BibleCacheProvider _cacheProvider;
-  
+
   DownloadProgress? _progress;
   DownloadProgress? get progress => _progress;
 
@@ -14,7 +14,7 @@ class SplashViewModel extends BaseViewModel {
 
   Future<void> initialize() async {
     const versionId = 'KJA'; // Default version
-    
+
     final isCached = await _cacheProvider.isVersionCached(versionId);
     if (isCached) {
       _navigateToMain();

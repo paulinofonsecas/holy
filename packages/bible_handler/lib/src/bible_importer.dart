@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:path/path.dart' as p;
 
-import 'models.dart';
 import 'bible_cache_provider.dart';
+import 'models.dart';
 import 'parsers/sqlite_parser.dart';
 import 'parsers/usx_parser.dart';
 import 'services/download_service.dart';

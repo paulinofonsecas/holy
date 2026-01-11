@@ -4,7 +4,6 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/core/data/provider/github_bible_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -104,7 +103,14 @@ void main() {
     final bible = Bible(
       name: 'Test Bible',
       abbreviation: 'TB',
-      books: [Book(id: 'GEN', name: 'Genesis', longName: 'Genesis', abbreviation: 'Gn', chapters: [])],
+      books: [
+        Book(
+            id: 'GEN',
+            name: 'Genesis',
+            longName: 'Genesis',
+            abbreviation: 'Gn',
+            chapters: [])
+      ],
     );
 
     bool urlLoaderCalled = false;

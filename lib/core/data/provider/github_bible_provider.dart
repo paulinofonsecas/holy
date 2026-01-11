@@ -11,7 +11,8 @@ class GithubBibleProvider extends IBibleProvider {
     this.cacheProvider, {
     BibleUrlLoader? urlLoader,
   }) : urlLoader = urlLoader ??
-            ((version) => loadBibleFromUrl(version, cacheProvider: cacheProvider));
+            ((version) =>
+                loadBibleFromUrl(version, cacheProvider: cacheProvider));
 
   final Dio dio;
   final BibleCacheProvider cacheProvider;
