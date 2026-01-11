@@ -15,8 +15,8 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
   return SliverWoltModalSheetPage(
     scrollController: scrollController,
     navBarHeight: 30,
-    backgroundColor: Colors.white,
-    surfaceTintColor: Colors.white,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
     pageTitle: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(

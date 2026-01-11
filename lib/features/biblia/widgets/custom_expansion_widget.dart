@@ -70,19 +70,18 @@ class _CustomExpansionWidgetState extends State<CustomExpansionWidget> {
             ),
           ),
         ),
-        if (_isExpanded)
-          ClipRect(
-            child: AnimatedAlign(
-              alignment: Alignment.topLeft,
-              duration: widget.duration,
-              curve: widget.curve,
-              heightFactor: _isExpanded ? 1 : 0,
-              child: Padding(
-                padding: widget.contentPadding,
-                child: widget.child,
-              ),
+        ClipRect(
+          child: AnimatedAlign(
+            alignment: Alignment.topLeft,
+            duration: widget.duration,
+            curve: widget.curve,
+            heightFactor: _isExpanded ? 1.0 : 0.0,
+            child: Padding(
+              padding: widget.contentPadding,
+              child: widget.child,
             ),
           ),
+        ),
       ],
     );
 

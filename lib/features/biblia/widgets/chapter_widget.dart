@@ -20,11 +20,10 @@ class ChapterWidget extends StatelessWidget {
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).primaryColor : null,
+          color:
+              isSelected ? Theme.of(context).colorScheme.inverseSurface : null,
           border: Border.all(
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : Theme.of(context).dividerColor,
+            color: Theme.of(context).colorScheme.inverseSurface,
             width: 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -32,9 +31,19 @@ class ChapterWidget extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           chapter.toString(),
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: isSelected ? Colors.white : Colors.black,
-              ),
+          style: Theme.brightnessOf(context) == Brightness.dark
+              ? TextStyle(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.surface
+                      : Theme.of(context).colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w500,
+                )
+              : TextStyle(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.surface
+                      : Theme.of(context).colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w500,
+                ),
         ),
       ),
     );
