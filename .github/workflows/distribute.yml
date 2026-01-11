@@ -70,12 +70,5 @@ jobs:
             NOTES="Commit: ${{ github.event.head_commit.message }}\nBranch: ${{ github.ref_name }}\nSHA: ${{ github.sha }}"
           fi
           
-          # Determine groups
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            GROUPS="${{ github.event.inputs.groups }}"
-          else
-            GROUPS="internal-testers"
-          fi
-          
           # Run distribution script
-          ./scripts/distribute-apk.sh --release-notes "$NOTES" --groups "$GROUPS"
+          ./scripts/distribute-apk.sh
