@@ -23,30 +23,30 @@ graph TD
 
 ## Phase 1: Setup
 
-- [ ] T001 Define `ReordenarConsultas` event in `lib/features/search/presentation/bloc/search_event.dart`
+- [X] T001 Define `ReordenarConsultas` event in `lib/features/search/presentation/bloc/search_event.dart`
 
 ## Phase 2: Foundational (BLoC Logic)
 
-- [ ] T002 Implement `_onReorderQueryParts` event handler in `lib/features/search/presentation/bloc/search_bloc.dart`
-- [ ] T003 Ensure `JoinOperator.none` is correctly assigned to index 0 after reorder in `lib/features/search/presentation/bloc/search_bloc.dart`
-- [ ] T004 Verify that reordering triggers `_realizarBusca()` in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [X] T002 Implement `_onReorderQueryParts` event handler in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [X] T003 Ensure `JoinOperator.none` is correctly assigned to index 0 after reorder in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [X] T004 Verify that reordering triggers `_realizarBusca()` in `lib/features/search/presentation/bloc/search_bloc.dart`
 
 ## Phase 3: User Story 1 - Reorder search queries by dragging (Priority: P1)
 
 **Story Goal**: Users can reorder search fields manually to change search priority.
 **Independent Test**: Add 2 terms, swap them, and confirm the new order persists and triggers search.
 
-- [ ] T005 [P] [US1] Add `dragHandle` leading widget capability to `SearchInputBar` in `lib/features/search/presentation/widgets/search_input_bar.dart`
-- [ ] T006 [US1] Replace the Column with `ReorderableListView` (shrinkWrap: true, no physics) in `lib/features/search/presentation/widgets/multiple_search_header.dart`
-- [ ] T007 [US1] Wrap `SearchInputBar` with `ReorderableDragStartListener` in `lib/features/search/presentation/widgets/multiple_search_header.dart`
-- [ ] T008 [US1] Connect `onReorder` callback to `SearchBloc.add(ReordenarConsultas)` in `lib/features/search/presentation/widgets/multiple_search_header.dart`
+- [X] T005 [P] [US1] Add `dragHandle` leading widget capability to `SearchInputBar` in `lib/features/search/presentation/widgets/search_input_bar.dart`
+- [X] T006 [US1] Replace the Column with `ReorderableListView` (shrinkWrap: true, no physics) in `lib/features/search/presentation/widgets/multiple_search_header.dart`
+- [X] T007 [US1] Wrap `SearchInputBar` with `ReorderableDragStartListener` in `lib/features/search/presentation/widgets/multiple_search_header.dart`
+- [X] T008 [US1] Connect `onReorder` callback to `SearchBloc.add(ReordenarConsultas)` in `lib/features/search/presentation/widgets/multiple_search_header.dart`
 
 ## Phase 4: User Story 2 - Real-time visual feedback (Priority: P2)
 
 **Story Goal**: Smooth animations and clear drop indicators during drag.
 **Independent Test**: Drag an item and verify that other items animate out of the way.
 
-- [ ] T009 [P] [US2] Implement a `proxyDecorator` to enhance the appearance of the dragged item in `lib/features/search/presentation/widgets/multiple_search_header.dart`
+- [X] T009 [P] [US2] Implement a `proxyDecorator` to enhance the appearance of the dragged item in `lib/features/search/presentation/widgets/multiple_search_header.dart`
 
 ## Phase 5: Polish & Edge Cases
 
