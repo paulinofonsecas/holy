@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 import '../services/logger_service.dart';
 
@@ -25,8 +27,23 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
+    const dbName = 'holy_bible.db';
+
+    if (kIsWeb) {
+      _logger.info('🌐 Opening Web SQLite database...');
+      await databaseFactoryFfiWeb.setDatabasesPath('/databases');
+      return await databaseFactoryFfiWeb.openDatabase(
+        dbName,
+        options: OpenDatabaseOptions(
+          version: 5,
+          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
+        ),
+      );
+    }
+
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'holy_bible.db');
+    final path = join(dbPath, dbName);
     _logger.info('📁 Database path: $path');
 
     return await openDatabase(
@@ -132,9 +149,9 @@ class DatabaseHelper {
       )
     ''');
 
-    _logger.info('📑 Creating FTS4 virtual table for full-text search...');
+    _logger.info('📑 Creating FTS5 virtual table for full-text search...');
     await db.execute('''
-      CREATE VIRTUAL TABLE verses_fts USING fts4(
+      CREATE VIRTUAL TABLE verses_fts USING fts5(
         version_id,
         book_id,
         chapter,
@@ -143,7 +160,7 @@ class DatabaseHelper {
         tokenize='unicode61'
       )
     ''');
-    _logger.info('✅ FTS4 virtual table created successfully');
+    _logger.info('✅ FTS5 virtual table created successfully');
   }
 
   Future<void> close() async {

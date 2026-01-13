@@ -108,11 +108,13 @@ class ThemeColorPicker extends StatelessWidget {
   }
 
   Widget _buildColorGrid(BuildContext context, Color currentColor) {
+    final currentWidth = MediaQuery.sizeOf(context).width;
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: currentWidth ~/ 70,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
         childAspectRatio: 1,

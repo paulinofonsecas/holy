@@ -1,7 +1,19 @@
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 import 'interfaces.dart';
 import 'models.dart';
+
+/// Implementation of [BibleSearchProvider] using SQLite FTS5 for Web.
+class WebSqliteProvider extends SqlBibleSearchProvider {
+  WebSqliteProvider(super.db);
+
+  static Future<WebSqliteProvider> open(String dbName) async {
+    final factory = databaseFactoryFfiWeb;
+    final db = await factory.openDatabase(dbName);
+    return WebSqliteProvider(db);
+  }
+}
 
 /// Implementation of [BibleSearchProvider] using SQLite FTS5.
 class SqlBibleSearchProvider implements BibleSearchProvider {

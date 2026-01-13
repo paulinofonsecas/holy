@@ -92,6 +92,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
             child: Column(
               children: [
                 ReadSessionWidget(
+                  key: Key(chapterId),
                   chapter: state.chapter,
                   verseKeys: _verseKeys,
                 ),

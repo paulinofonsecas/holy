@@ -1,15 +1,22 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 
 part 'bible_version_state.dart';
 
 class BibleVersionCubit extends Cubit<BibleVersionState> {
-  BibleVersionCubit() : super(const BibleVersionStateKJA());
+  BibleVersionCubit()
+      : super(kIsWeb
+            ? const BibleVersionStateARC()
+            : const BibleVersionStateKJA());
 
   void changeVersion(BibleVersions e) {
     switch (e) {
       case BibleVersions.acf:
         emit(const BibleVersionStateACF());
+        break;
+      case BibleVersions.arc:
+        emit(const BibleVersionStateARC());
         break;
       case BibleVersions.jfaa:
         emit(const BibleVersionStateJFAA());

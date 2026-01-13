@@ -8,7 +8,6 @@ import 'package:eu_sou/features/biblia/views/biblia_view.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
-import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
@@ -77,13 +76,7 @@ class _MainScaffoldState extends State<MainScaffold> {
 
     return [
       const BibliaPage(),
-      BlocProvider(
-        create: (context) => context.read<SearchBloc>()
-          ..add(CarregarVersao(
-            idVersao: versionId,
-          )),
-        child: const TelaBusca(),
-      ),
+      const TelaBusca(),
       BlocProvider(
         create: (context) => MarkedVersesBloc(
           context.read<IMarkedVersesRepository>(),
@@ -96,9 +89,47 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isWide = MediaQuery.of(context).size.width > 900;
 
     return BlocBuilder<TabControllerCubit, int>(
       builder: (context, currentIndex) {
+        if (isWide) {
+          return Scaffold(
+            body: Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: currentIndex,
+                  onDestinationSelected: (index) {
+                    context.read<TabControllerCubit>().changeTo(index);
+                  },
+                  labelType: NavigationRailLabelType.all,
+                  destinations: [
+                    NavigationRailDestination(
+                      icon: const Icon(Icons.book),
+                      label: Text(l10n.bible),
+                    ),
+                    NavigationRailDestination(
+                      icon: const Icon(Icons.search),
+                      label: Text(l10n.search),
+                    ),
+                    NavigationRailDestination(
+                      icon: const Icon(Icons.person),
+                      label: Text(l10n.profile),
+                    ),
+                  ],
+                ),
+                const VerticalDivider(thickness: 1, width: 1),
+                Expanded(
+                  child: IndexedStack(
+                    index: currentIndex,
+                    children: _buildPages(context),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
         return Scaffold(
           body: IndexedStack(
             index: currentIndex,

@@ -11,6 +11,7 @@ class BibleVersionState extends Equatable {
 
 enum BibleVersions {
   acf(id: 'ACF', name: 'Almeida Corrigida e Fiel'),
+  arc(id: 'ARC', name: 'Almeida Revista e Corrigida'),
   jfaa(id: 'JFAA', name: 'Almeida Atualizada'),
   kja(id: 'KJA', name: 'King James Atualizada'),
   kjf(id: 'KJF', name: 'King James Fiel'),
@@ -25,6 +26,10 @@ enum BibleVersions {
 
 class BibleVersionStateACF extends BibleVersionState {
   const BibleVersionStateACF() : super(version: BibleVersions.acf);
+}
+
+class BibleVersionStateARC extends BibleVersionState {
+  const BibleVersionStateARC() : super(version: BibleVersions.arc);
 }
 
 class BibleVersionStateJFAA extends BibleVersionState {

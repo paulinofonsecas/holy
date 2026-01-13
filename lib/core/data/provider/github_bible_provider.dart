@@ -2,6 +2,8 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:sqflite/sqflite.dart';
 
 typedef BibleUrlLoader = Future<Bible> Function(String version);
 
@@ -24,6 +26,67 @@ class GithubBibleProvider extends IBibleProvider {
   static const int _maxCachedChapters = 50;
   static const String _repoContentsUrl =
       'https://api.github.com/repos/paulinofonsecas/biblias/contents/inst/usx/traducao';
+
+  Future<void> _ensureVersionRegistered(String versionId) async {
+    bool isCached = await cacheProvider.isVersionCached(versionId);
+
+    // Web fallback: if not in versions table, check if books exist (pre-cached DB)
+    if (!isCached && kIsWeb) {
+      try {
+        // Verify if tables exist first
+        final tables = await cacheProvider.db.rawQuery(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='books'");
+        if (tables.isEmpty) {
+          LoggerService().warning('🌐 Tables not found in database yet.');
+          return;
+        }
+
+        // First check if there are ANY books in the database
+        final anyBooks = await cacheProvider.db.query('books', limit: 1);
+
+        if (anyBooks.isNotEmpty) {
+          final actualVersionId = anyBooks.first['version_id'] as String?;
+          LoggerService().info(
+              '🌐 Found pre-cached data in "books" table. actual version_id: $actualVersionId, requested: $versionId');
+
+          // If we found books with ANY version_id, we register the requested versionId
+          // so that future queries for this versionId match.
+          await cacheProvider.db.insert(
+            'versions',
+            {
+              'id': versionId,
+              'name': versionId,
+              'lng': 'pt',
+              'last_cached': DateTime.now().millisecondsSinceEpoch,
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+
+          // If the database has a different version_id than what we requested,
+          // we might need to also register that one, but more importantly,
+          // we should ensure that our requested versionId is linked to these books.
+          // However, changing the version_id in all tables is expensive.
+          // Let's at least register the ID we found if it exists.
+          if (actualVersionId != null && actualVersionId != versionId) {
+            await cacheProvider.db.insert(
+              'versions',
+              {
+                'id': actualVersionId,
+                'name': actualVersionId,
+                'lng': 'pt',
+                'last_cached': DateTime.now().millisecondsSinceEpoch,
+              },
+              conflictAlgorithm: ConflictAlgorithm.ignore,
+            );
+          }
+        } else {
+          LoggerService().debug('🌐 No books found in table for $versionId');
+        }
+      } catch (e) {
+        LoggerService().error('🌐 Error during pre-cached check: $e');
+      }
+    }
+  }
 
   void _addToChapterCache(
       String versionId, String bookId, int chapterNum, Chapter chapter) {
@@ -59,6 +122,8 @@ class GithubBibleProvider extends IBibleProvider {
 
     try {
       // 1. Check SQLite Cache
+      await _ensureVersionRegistered(versionId);
+
       if (await cacheProvider.isVersionCached(versionId)) {
         final books = await cacheProvider.getBooks(versionId);
         if (books.isNotEmpty) {
@@ -191,6 +256,8 @@ class GithubBibleProvider extends IBibleProvider {
       }
 
       // 2. Try to load from SQLite Cache lazily
+      await _ensureVersionRegistered(versionId);
+
       if (await cacheProvider.isVersionCached(versionId)) {
         final books = await _getOrLoadBooks(versionId);
         final book = books.firstWhere(

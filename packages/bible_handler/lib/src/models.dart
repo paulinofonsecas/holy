@@ -7,3 +7,4 @@ export 'models/search_query.dart';
 export 'models/search_result.dart';
 export 'models/search_results.dart';
 export 'models/verse.dart';
+export 'models/web_database_status.dart';

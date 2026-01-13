@@ -15,7 +15,7 @@ class ThemeSettingsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.themeColorTitle),
+        title: Text('Personalização'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(

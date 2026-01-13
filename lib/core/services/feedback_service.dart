@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class FeedbackService {
@@ -24,7 +24,14 @@ class FeedbackService {
 
     Map<String, dynamic> deviceData = {};
     try {
-      if (Platform.isAndroid) {
+      if (kIsWeb) {
+        final webInfo = await _deviceInfo.webBrowserInfo;
+        deviceData = {
+          'browser': webInfo.browserName.name,
+          'platform': webInfo.platform,
+          'userAgent': webInfo.userAgent,
+        };
+      } else if (Platform.isAndroid) {
         final androidInfo = await _deviceInfo.androidInfo;
         deviceData = {
           'model': androidInfo.model,

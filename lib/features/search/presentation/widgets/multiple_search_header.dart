@@ -6,7 +6,10 @@ import '../bloc/search_bloc.dart';
 import 'search_input_bar.dart';
 
 class MultipleSearchHeader extends StatelessWidget {
-  const MultipleSearchHeader({super.key});
+  const MultipleSearchHeader(
+      {super.key, this.isGlobalSearchAllVersions = false});
+
+  final bool isGlobalSearchAllVersions;
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +20,7 @@ class MultipleSearchHeader extends StatelessWidget {
           current is BuscaCarregando,
       builder: (context, state) {
         final bloc = context.read<SearchBloc>();
+        final searchState = context.read<SearchBloc>().state;
 
         // Handle local state if BuscaCarregada hasn't updated yet or we are in other states
         List<SearchQueryPart> consultas;
@@ -128,12 +132,10 @@ class MultipleSearchHeader extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 8),
-
-            // Add button
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
+            const SizedBox(height: 2),
+            if (searchState is BuscaCarregada &&
+                searchState.consultas.length > 1) ...[
+              TextButton.icon(
                 onPressed: () {
                   context.read<SearchBloc>().add(AdicionarConsulta());
                 },
@@ -143,7 +145,19 @@ class MultipleSearchHeader extends StatelessWidget {
                 icon: const Icon(Icons.add_circle_outline, size: 20),
                 label: const Text('Adicionar termo'),
               ),
-            ),
+            ],
+            if (searchState is BuscaCarregada)
+              CheckboxListTile(
+                title: const Text('Todos as versões'),
+                titleAlignment: ListTileTitleAlignment.center,
+                value: isGlobalSearchAllVersions,
+                onChanged: (valor) {
+                  context.read<SearchBloc>().add(
+                        AlternarBuscaTodasVersoes(valor ?? false),
+                      );
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
           ],
         );
       },

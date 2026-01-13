@@ -12,13 +12,18 @@ dependencies:
   path: ^1.9.1
   sqlite3: ^2.4.0
   sqflite: ^2.3.0
-  http: ^1.2.1
-  archive: ^3.5.1
+  http: ^1.6.0
+  archive: ^4.0.7
   shared_preferences: ^2.5.3
+  sqflite_common_ffi_web: ^1.0.2
+  flutter:
+    sdk: flutter
   # bible_books: ^1.0.0
   # path: ^1.8.0
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   lints: ^5.0.0
   sqflite_common_ffi: ^2.3.6
   test: ^1.24.0

@@ -1,9 +1,11 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:gal/gal.dart';
+import '../../../../core/utils/web_utils.dart';
 
 import '../models/verse_image_composition.dart';
 
@@ -118,6 +120,19 @@ class ImageGeneratorService {
       return false;
     }
 
+    final String fileName =
+        'holy_verse_${DateTime.now().millisecondsSinceEpoch}';
+
+    if (kIsWeb) {
+      try {
+        downloadBytes(imageBytes, fileName);
+        return true;
+      } catch (e) {
+        debugPrint('Error downloading image on web: $e');
+        return false;
+      }
+    }
+
     try {
       if (!await Gal.hasAccess()) {
         await Gal.requestAccess();
@@ -126,9 +141,6 @@ class ImageGeneratorService {
           return false;
         }
       }
-
-      final String fileName =
-          'holy_verse_${DateTime.now().millisecondsSinceEpoch}';
 
       await Gal.putImageBytes(
         imageBytes,
