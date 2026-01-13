@@ -30,10 +30,9 @@ class AboutView extends StackedView<AboutViewModel> {
                       color: Theme.of(context).primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Icon(
-                      Icons.auto_stories,
-                      size: 60,
-                      color: Theme.of(context).primaryColor,
+                    child: Image.asset(
+                      'assets/icons/app_icon.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),

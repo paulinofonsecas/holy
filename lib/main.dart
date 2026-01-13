@@ -54,23 +54,17 @@ void main() async {
     };
   }
 
-  if (kIsWeb) {
-    final webLoader = WebDatabaseLoader(
-      dbName: 'holy_bible.db',
-      downloadUrl:
-          'https://raw.githubusercontent.com/paulinofonsecas/biblias/main/inst/sql/ARC.sqlite',
-    );
-
-    runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SplashLoader(
-        loader: webLoader,
-        child: const EntryPoint(),
-      ),
-    ));
-  } else {
-    runApp(const EntryPoint());
-  }
+  runApp(const EntryPoint());
+  // if (kIsWeb) {
+  //   runApp(MaterialApp(
+  //     debugShowCheckedModeBanner: false,
+  //     home: SplashLoader(
+  //       loader: webLoader,
+  //       child: const EntryPoint(),
+  //     ),
+  //   ));
+  // } else {
+  // }
 }
 
 class EntryPoint extends StatefulWidget {

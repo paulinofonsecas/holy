@@ -82,6 +82,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
   freezed: ^2.4.5
   internet_connection_checker: ^3.0.1
+  flutter_native_splash: ^2.4.7
 
 # Flutter configuration
 flutter:
@@ -107,11 +108,4 @@ flutter:
         - asset: assets/fonts/TASAOrbiter-Bold.ttf
           weight: 700
 
-# Flutter native splash configuration
-flutter_native_splash:
-  color: "#FFFFFF"
-  image: assets/images/splash.png
-  android_12:
-    image: assets/images/splash_android12.png
-    icon_background_color: "#FFFFFF"
-  web: false
+
