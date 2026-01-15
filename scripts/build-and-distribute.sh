@@ -9,7 +9,7 @@ RELEASE_NOTES="Manual build from $(date '+%Y-%m-%d %H:%M')"
 GROUPS="testers"
 SKIP_TESTS=false
 DRY_RUN=false
-DEBUG=false
+VERBOSE_OUTPUT=false
 
 # Help message
 usage() {
@@ -19,7 +19,7 @@ usage() {
     echo "  --groups <groups>       Comma-separated list of tester groups (default: testers)"
     echo "  --skip-tests            Skip running tests before build"
     echo "  --dry-run               Perform a dry run"
-    echo "  --debug                 Enable debug output"
+    echo "  --verbose               Enable verbose output"
     echo "  --help                  Show this help message"
     exit 0
 }
@@ -31,7 +31,7 @@ while [[ $# -gt 0 ]]; do
         --groups) GROUPS="$2"; shift 2 ;;
         --skip-tests) SKIP_TESTS=true; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
-        --debug) DEBUG=true; shift ;;
+        --verbose) VERBOSE_OUTPUT=true; shift ;;
         --help) usage ;;
         *) echo "Unknown option: $1"; usage ;;
     esac
@@ -74,10 +74,10 @@ fi
 # 3. Distribute APK
 echo -e "\n\033[0;33m[Step 3/3] Distributing APK to Firebase...\033[0m"
 DIST_ARGS=()
-[ -n "$RELEASE_NOTES" ] && DIST_ARGS+=(--release-notes "$RELEASE_NOTES")
-[ -n "$GROUPS" ] && DIST_ARGS+=(--groups "$GROUPS")
-[ "$DRY_RUN" = true ] && DIST_ARGS+=(--dry-run)
-[ "$DEBUG" = true ] && DIST_ARGS+=(--debug)
+[ -n "$RELEASE_NOTES" ] && DIST_ARGS+=("--release-notes" "$RELEASE_NOTES")
+[ -n "$GROUPS" ] && DIST_ARGS+=("--groups" "$GROUPS")
+[ "$DRY_RUN" = true ] && DIST_ARGS+=("--dry-run")
+[ "$VERBOSE_OUTPUT" = true ] && DIST_ARGS+=("--verbose")
 
 if ./scripts/distribute-apk.sh "${DIST_ARGS[@]}"; then
     echo -e "\033[0;32mDistribution completed successfully.\033[0m"
