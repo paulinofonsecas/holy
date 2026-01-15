@@ -67,13 +67,13 @@ log() {
             echo -e "\033[0;31m[$timestamp] [ERROR] $message\033[0m" >&2
             ;;
         WARNING)
-            echo -e "\033[0;33m[$timestamp] [WARNING] $message\033[0m"
+            echo -e "\033[0;33m[$timestamp] [WARNING] $message\033[0m" >&2
             ;;
         SUCCESS)
-            echo -e "\033[0;32m[$timestamp] [SUCCESS] $message\033[0m"
+            echo -e "\033[0;32m[$timestamp] [SUCCESS] $message\033[0m" >&2
             ;;
         *)
-            echo "[$timestamp] [INFO] $message"
+            echo "[$timestamp] [INFO] $message" >&2
             ;;
     esac
 }
