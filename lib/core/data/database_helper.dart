@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 import '../services/logger_service.dart';
@@ -42,8 +44,21 @@ class DatabaseHelper {
       );
     }
 
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, dbName);
+    if (Platform.isAndroid) {
+      _logger.info('🤖 Initializing Android FFI for FTS5 support...');
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+
+    String path;
+    if (Platform.isAndroid) {
+      final appDir = await getApplicationDocumentsDirectory();
+      path = join(appDir.path, dbName);
+    } else {
+      final dbPath = await getDatabasesPath();
+      path = join(dbPath, dbName);
+    }
+
     _logger.info('📁 Database path: $path');
 
     return await openDatabase(
