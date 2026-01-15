@@ -19,6 +19,8 @@ jobs:
   distribute:
     name: Geral analysis and tests
     runs-on: ubuntu-latest
+    env:
+      _JAVA_OPTIONS: "-Xmx4096m"
     
     steps:
       - name: Checkout repository
