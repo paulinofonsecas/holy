@@ -30,6 +30,10 @@ Auto-generated from all feature plans. Last updated: 2026-01-01
 - Local on-device Bible data handled by bible_handler (SQLite files and/or assets); no new remote storage (004-verse-comparison)
 - Dart ^3.6.0 (Flutter) + `flutter_local_notifications` ^18.0.0, `timezone` ^0.10.1, `bible_handler` (internal), `stacked` or `flutter_bloc` (015-verse-of-the-day)
 - `shared_preferences` (user preferences), `bible_handler` (Bible data) (015-verse-of-the-day)
+- Dart ^3.6.0, Flutter >=3.38.4 + `flutter_bloc`, `bible_handler` (local), `stacked` (MVVM), `sqflite` (024-select-verse-search)
+- SQLite (Offline Bible Database) (024-select-verse-search)
+- Dart 3.6+ / Flutter (Web) + `flutter_bloc`, `firebase_core_web`, `sqflite_common_ffi_web`, `sqlite3` (wasm), `url_launcher` (001-web-support)
+- SQLite persisted via IndexedDB (browser) (001-web-support)
 
 - Dart ^3.6.0, Flutter >=3.38.4 + `bible_handler` (internal), `sqflite`, `flutter_bloc` or `stacked`, `share_plus` (005-verse-search)
 
@@ -49,9 +53,9 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
-- 015-verse-of-the-day: Added Dart ^3.6.0 (Flutter) + `flutter_local_notifications` ^18.0.0, `timezone` ^0.10.1, `bible_handler` (internal), `stacked` or `flutter_bloc`
-- 004-verse-comparison: Added Dart 3.x with Flutter 3.x + Flutter, application feature modules under lib/features, data access via packages/bible_handler, state management NEEDS CLARIFICATION (likely BLoC/stacked), navigation via existing reading flow
-- 003-multiple-search-joins: Added Dart 3.8.x, Flutter (stable channel) + sqflite, sqlite3 FTS4/FTS5 (via bible_handler), bloc/flutter_bloc, path, shared_preferences
+- 001-web-support: Added Dart 3.6+ / Flutter (Web) + `flutter_bloc`, `firebase_core_web`, `sqflite_common_ffi_web`, `sqlite3` (wasm), `url_launcher`
+- 001-web-support: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+- 024-select-verse-search: Added Dart ^3.6.0, Flutter >=3.38.4 + `flutter_bloc`, `bible_handler` (local), `stacked` (MVVM), `sqflite`
 
 
 <!-- MANUAL ADDITIONS START -->

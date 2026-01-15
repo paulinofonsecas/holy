@@ -39,6 +39,51 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     on<LimparBusca>(_onClearSearch);
     on<CarregarVersao>(_onLoadVersion);
     on<AtualizarScrollBusca>(_onUpdateScroll);
+    on<ReordenarConsultas>(_onReorderQueryParts);
+  }
+
+  Future<void> _onReorderQueryParts(
+    ReordenarConsultas event,
+    Emitter<EstadoBusca> emit,
+  ) async {
+    int newIndex = event.newIndex;
+    if (newIndex > event.oldIndex) {
+      newIndex -= 1;
+    }
+
+    final item = _consultas.removeAt(event.oldIndex);
+    _consultas.insert(newIndex, item);
+
+    // Garante que o primeiro sempre tenha operator none
+    for (int i = 0; i < _consultas.length; i++) {
+      if (i == 0) {
+        if (_consultas[i].operator != JoinOperator.none) {
+          _consultas[i] = _consultas[i].copyWith(operator: JoinOperator.none);
+        }
+      } else {
+        // Se mudou para uma posição > 0 e era none, precisa de um operador real
+        if (_consultas[i].operator == JoinOperator.none) {
+          // Tenta pegar o operador dos outros campos ou usa AND
+          final currentOp = _consultas.length > 1 && i != 1
+              ? _consultas[1].operator
+              : JoinOperator.and;
+          _consultas[i] = _consultas[i].copyWith(operator: currentOp);
+        }
+      }
+    }
+
+    if (_consultas.any((q) => q.term.length >= 3)) {
+      await _realizarBusca(emit);
+    } else {
+      emit(BuscaCarregada(
+        resultados: state is BuscaCarregada
+            ? (state as BuscaCarregada).resultados
+            : SearchResults(query: '', totalResults: 0, results: []),
+        consultas: List.from(_consultas),
+        buscarTodasVersoes: _buscarTodasVersoes,
+        idVersaoSelecionada: _idVersaoSelecionada,
+      ));
+    }
   }
 
   Future<void> _onJoinOperatorChanged(

@@ -88,19 +88,12 @@ class _TelaBuscaState extends State<TelaBusca> {
                 padding: const EdgeInsets.all(16.0),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    const MultipleSearchHeader(),
-                    const SizedBox(height: 12),
-                    CheckboxListTile(
-                      title: const Text('Buscar em todas as versões'),
-                      value:
-                          estado is BuscaCarregada && estado.buscarTodasVersoes,
-                      onChanged: (valor) {
-                        context.read<SearchBloc>().add(
-                              AlternarBuscaTodasVersoes(valor ?? false),
-                            );
-                      },
-                      contentPadding: EdgeInsets.zero,
+                    MultipleSearchHeader(
+                      isGlobalSearchAllVersions: estado is BuscaCarregada
+                          ? estado.buscarTodasVersoes
+                          : false,
                     ),
+                    const SizedBox(height: 12),
                     if (estado is BuscaCarregada &&
                         estado.buscarTodasVersoes &&
                         estado.versoesDisponiveis.isNotEmpty) ...[
@@ -237,7 +230,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                   ],
                   if (estado.resultados.results.isNotEmpty) ...[
                     SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
                       sliver: SliverToBoxAdapter(
                         child: Text(
                           'Versículos (${estado.resultados.totalResults})',
@@ -253,33 +246,37 @@ class _TelaBuscaState extends State<TelaBusca> {
                       delegate: SliverChildBuilderDelegate(
                         (context, indice) {
                           final resultado = estado.resultados.results[indice];
+
+                          void aoInteragir() {
+                            final bibliaBloc = context.read<BibliaBloc>();
+                            context.read<VerseHistoryBloc>().add(
+                                  AddVerseToHistory(
+                                    verseRef:
+                                        '${resultado.book.id} ${resultado.chapter.number}:${resultado.verse.number}',
+                                    versionId: resultado.versionId,
+                                  ),
+                                );
+                            context
+                                .read<BibleVersionCubit>()
+                                .changeVersionById(resultado.versionId);
+                            bibliaBloc.add(
+                              GetChapter(
+                                resultado.versionId,
+                                resultado.book.id,
+                                resultado.chapter.number.toString(),
+                                verse: resultado.verse.number,
+                              ),
+                            );
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop(resultado);
+                            } else {
+                              context.read<TabControllerCubit>().goToBible();
+                            }
+                          }
+
                           return ListTile(
-                            onTap: () {
-                              final bibliaBloc = context.read<BibliaBloc>();
-                              context.read<VerseHistoryBloc>().add(
-                                    AddVerseToHistory(
-                                      verseRef:
-                                          '${resultado.book.id} ${resultado.chapter.number}:${resultado.verse.number}',
-                                      versionId: resultado.versionId,
-                                    ),
-                                  );
-                              context
-                                  .read<BibleVersionCubit>()
-                                  .changeVersionById(resultado.versionId);
-                              bibliaBloc.add(
-                                GetChapter(
-                                  resultado.versionId,
-                                  resultado.book.id,
-                                  resultado.chapter.number.toString(),
-                                  verse: resultado.verse.number,
-                                ),
-                              );
-                              if (Navigator.of(context).canPop()) {
-                                Navigator.of(context).pop(resultado);
-                              } else {
-                                context.read<TabControllerCubit>().goToBible();
-                              }
-                            },
+                            onTap: aoInteragir,
+                            onLongPress: aoInteragir,
                             title: Row(
                               children: [
                                 Expanded(

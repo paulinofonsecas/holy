@@ -14,17 +14,22 @@ class ReadSessionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: chapter.verses.map((verse) {
-          return VerseReadWidget(
-            key: verseKeys[verse.number] ?? Key("${verse.number}"),
-            verse: verse,
-            chapter: chapter,
-          );
-        }).toList(),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 800),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: chapter.verses.map((verse) {
+              return VerseReadWidget(
+                key: verseKeys[verse.number] ?? Key("${verse.number}"),
+                verse: verse,
+                chapter: chapter,
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

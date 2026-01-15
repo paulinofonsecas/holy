@@ -2,6 +2,7 @@ import 'dart:developer' show log;
 
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/read_session_widget.dart';
+import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
 import 'package:eu_sou/shared/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,6 +59,18 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
 
         if (state.targetVerse != null) {
           _scrollToVerse(state.targetVerse!);
+
+          // Auto-select the verse when navigating from search
+          final verse = state.chapter.verses.firstWhere(
+            (v) => v.number == state.targetVerse,
+            orElse: () => state.chapter.verses.first,
+          );
+
+          context.read<VerseSelectionBloc>().add(ClearSelection());
+          context.read<VerseSelectionBloc>().add(ToggleVerseSelection(verse));
+
+          // Clear target verse after handling to avoid re-triggering and allow re-selection
+          context.read<BibliaBloc>().add(ClearTargetVerse());
         }
       }
     }, builder: (context, state) {
@@ -79,6 +92,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
             child: Column(
               children: [
                 ReadSessionWidget(
+                  key: Key(chapterId),
                   chapter: state.chapter,
                   verseKeys: _verseKeys,
                 ),

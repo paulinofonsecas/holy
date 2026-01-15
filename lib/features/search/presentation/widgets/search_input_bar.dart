@@ -1,4 +1,6 @@
+import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchInputBar extends StatefulWidget {
   final String initialValue;
@@ -6,6 +8,7 @@ class SearchInputBar extends StatefulWidget {
   final VoidCallback? onRemove;
   final bool showRemove;
   final String hintText;
+  final Widget? dragHandle;
 
   const SearchInputBar({
     super.key,
@@ -14,6 +17,7 @@ class SearchInputBar extends StatefulWidget {
     this.onRemove,
     this.showRemove = false,
     this.hintText = 'Termo de busca...',
+    this.dragHandle,
   });
 
   @override
@@ -32,8 +36,9 @@ class _SearchInputBarState extends State<SearchInputBar> {
   @override
   void didUpdateWidget(SearchInputBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialValue != _controller.text && !FocusScope.of(context).hasFocus) {
-       _controller.text = widget.initialValue;
+    if (widget.initialValue != _controller.text &&
+        !FocusScope.of(context).hasFocus) {
+      _controller.text = widget.initialValue;
     }
   }
 
@@ -45,10 +50,15 @@ class _SearchInputBarState extends State<SearchInputBar> {
 
   @override
   Widget build(BuildContext context) {
+    final searchState = context.watch<SearchBloc>().state;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
+          if (widget.dragHandle != null) ...[
+            widget.dragHandle!,
+            const SizedBox(width: 4),
+          ],
           Expanded(
             child: TextField(
               controller: _controller,
@@ -56,19 +66,20 @@ class _SearchInputBarState extends State<SearchInputBar> {
                 hintText: widget.hintText,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                suffixIcon: _controller.text.isNotEmpty 
-                  ? IconButton(
-                      icon: const Icon(Icons.clear, size: 18),
-                      onPressed: () {
-                        _controller.clear();
-                        widget.onChanged('');
-                      },
-                    )
-                  : null,
+                suffixIcon: _controller.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          _controller.clear();
+                          widget.onChanged('');
+                        },
+                      )
+                    : null,
               ),
               onChanged: widget.onChanged,
             ),
@@ -81,6 +92,17 @@ class _SearchInputBarState extends State<SearchInputBar> {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               visualDensity: VisualDensity.compact,
+            ),
+          ] else if (searchState is BuscaCarregada &&
+              searchState.consultas.length < 2) ...[
+            IconButton(
+              onPressed: () {
+                context.read<SearchBloc>().add(AdicionarConsulta());
+              },
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+              ),
+              icon: const Icon(Icons.add_circle_outline, size: 20),
             ),
           ],
         ],

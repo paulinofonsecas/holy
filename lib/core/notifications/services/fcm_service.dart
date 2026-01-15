@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'dart:io';
 
 import '../models/push_notification_model.dart';
 import 'local_notification_service.dart';
@@ -139,6 +140,15 @@ class FCMService {
   /// Get the FCM token
   /// Get the FCM token with improved iOS support
   Future<String?> getToken() async {
+    if (kIsWeb) {
+      try {
+        return await _firebaseMessaging.getToken();
+      } catch (e) {
+        debugPrint('Error getting Web FCM token: $e');
+        return null;
+      }
+    }
+
     try {
       if (Platform.isIOS) {
         // For iOS, first check APNS token explicitly

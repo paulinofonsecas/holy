@@ -85,3 +85,15 @@ class VerseCategory {
     );
   }
 }
+
+/// Interface for platform-specific database loading and initialization.
+abstract class IDatabaseLoader {
+  /// Stream of loading progress (0.0 to 1.0)
+  Stream<double> get progress;
+
+  /// Stream of current status
+  Stream<WebDatabaseStatus> get status;
+
+  /// Starts the download and IndexedDB initialization
+  Future<void> initialize();
+}

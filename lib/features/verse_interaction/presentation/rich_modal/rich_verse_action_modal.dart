@@ -8,9 +8,9 @@ import '../../../../core/services/share_service.dart';
 import '../../../../shared/bible_models.dart';
 import '../../../../shared/cubit/bible_version_cubit.dart';
 import '../../domain/models/comparison_request.dart';
-import '../compare_versions/compare_versions_modal.dart';
 import '../bloc/highlight_bloc.dart';
 import '../bloc/selection_bloc.dart';
+import '../compare_versions/compare_versions_modal.dart';
 import '../rich_modal/rich_modal_viewmodel.dart';
 import '../rich_modal/widgets/image_creator_page.dart';
 import '../rich_modal/widgets/verse_actions_page.dart';
@@ -87,7 +87,8 @@ class RichVerseActionModal {
 
     viewModel.onCompareVersions = () {
       if (verseNumbers.isEmpty) {
-        logger.warning('Compare versions requested without any verses selected');
+        logger
+            .warning('Compare versions requested without any verses selected');
         return;
       }
 
@@ -108,6 +109,7 @@ class RichVerseActionModal {
           targetVersionIds: targetVersionIds,
         );
 
+        if (!context.mounted) return;
         await CompareVersionsModal.show(
           context: context,
           request: request,
