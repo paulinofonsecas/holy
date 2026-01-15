@@ -8,7 +8,6 @@ import 'package:eu_sou/core/data/repositories/bible_repository.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
-import 'package:eu_sou/features/initialization/presentation/pages/splash_loader.dart';
 import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/profile_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/search_history_repository.dart';
