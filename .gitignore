@@ -60,3 +60,20 @@ ui-debug.log
 # Distribution logs
 logs/
 *.log.txt
+
+# Build artifacts
+build/
+.dart_tool/
+.packages
+/node_modules/
+
+# Sensitive files
+.env*
+key.properties
+**/*.keystore
+**/*.jks
+
+# Logs
+*.log
+
+UTF8

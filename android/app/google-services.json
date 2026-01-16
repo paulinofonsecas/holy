@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "802718084241",
+    "firebase_url": "https://caiaia01-default-rtdb.firebaseio.com",
     "project_id": "caiaia01",
     "storage_bucket": "caiaia01.firebasestorage.app"
   },
@@ -39,6 +40,35 @@
         "mobilesdk_app_id": "1:802718084241:android:76b2e2740a56c6722de330",
         "android_client_info": {
           "package_name": "com.example.verygoodcore.lista_de_compras"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "802718084241-b69a46pfitc9d4oviadta2p4urk47r67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDF0NxGyrNIj1_Sc2ALJN_Ejg_xsYpb5-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "802718084241-b69a46pfitc9d4oviadta2p4urk47r67.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802718084241:android:1a079e1cb43bc3a82de330",
+        "android_client_info": {
+          "package_name": "com.paulinofonseca.eusou"
         }
       },
       "oauth_client": [
