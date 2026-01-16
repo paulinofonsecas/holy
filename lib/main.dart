@@ -54,16 +54,6 @@ void main() async {
   }
 
   runApp(const EntryPoint());
-  // if (kIsWeb) {
-  //   runApp(MaterialApp(
-  //     debugShowCheckedModeBanner: false,
-  //     home: SplashLoader(
-  //       loader: webLoader,
-  //       child: const EntryPoint(),
-  //     ),
-  //   ));
-  // } else {
-  // }
 }
 
 class EntryPoint extends StatefulWidget {
