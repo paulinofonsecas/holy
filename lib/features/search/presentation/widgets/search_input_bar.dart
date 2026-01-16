@@ -98,13 +98,48 @@ class _SearchInputBarState extends State<SearchInputBar> {
             PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'advanced') {
+                  final text = _controller.text.trim();
+                  if (text.isEmpty || !text.contains(' ')) {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return SafeArea(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.info_outline,
+                                    size: 48, color: Colors.blue),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'Digite pelo menos duas palavras para transformar em pesquisa avançada.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                const SizedBox(height: 24),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Entendido'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                    return;
+                  }
                   context.read<SearchBloc>().add(TransformarEmBuscaAvancada());
                 } else if (value == 'add') {
                   context.read<SearchBloc>().add(AdicionarConsulta());
                 }
               },
               padding: EdgeInsets.zero,
-              icon: const Icon(Icons.add_circle_outline, size: 20),
+              icon: const Icon(Icons.auto_awesome, size: 20),
               itemBuilder: (context) => [
                 const PopupMenuItem(
                   value: 'advanced',
@@ -124,7 +159,7 @@ class _SearchInputBarState extends State<SearchInputBar> {
                     children: [
                       Icon(Icons.add, size: 18),
                       SizedBox(width: 8),
-                      Flexible(child: Text('Add more search field')),
+                      Flexible(child: Text('Novo campo de busca')),
                     ],
                   ),
                 ),

@@ -24,7 +24,7 @@
 **Purpose**: Core infrastructure for search transformation
 
 - [x] T003 [P] Add `TransformarEmBuscaAvancada` event to `lib/features/search/presentation/bloc/search_event.dart`
-- [ ] T004 Implement basic `_onTransformToAdvancedSearch` handler stub in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [x] T004 Implement basic `_onTransformToAdvancedSearch` handler stub in `lib/features/search/presentation/bloc/search_bloc.dart`
 
 **Checkpoint**: Foundation ready - transformation logic can be implemented
 
@@ -38,13 +38,13 @@
 
 ### Tests for User Story 1
 
-- [x] T005 [P] [US1] Create unit tests for query splitting logic in `test/features/search/presentation/bloc/search_bloc_test.dart` (ensure they fail)
+- [x] T005 [P] [US1] Create unit tests for query splitting logic in `test/features/search/presentation/bloc/search_bloc_test.dart`
 
 ### Implementation for User Story 1
 
-- [ ] T006 [P] [US1] Implement string splitting logic (using regex `\s+`) in `_onTransformToAdvancedSearch` in `lib/features/search/presentation/bloc/search_bloc.dart` (depends on T005)
-- [ ] T007 [US1] Implement query parts mapping and replacement logic in `lib/features/search/presentation/bloc/search_bloc.dart`
-- [ ] T008 [US1] Trigger search execution (`_realizarBusca`) after successful transformation in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [x] T006 [P] [US1] Implement string splitting logic (using regex `\s+`) in `_onTransformToAdvancedSearch` in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [x] T007 [US1] Implement query parts mapping and replacement logic in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [x] T008 [US1] Trigger search execution (`_realizarBusca`) after successful transformation in `lib/features/search/presentation/bloc/search_bloc.dart`
 
 **Checkpoint**: Core logic is complete and tested via unit tests.
 
@@ -58,13 +58,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T009 [P] [US2] Create widget test for `PopupMenuButton` presence and option labels in `test/features/search/presentation/widgets/search_input_bar_test.dart`
+- [x] T009 [P] [US2] Create widget test for `PopupMenuButton` presence and option labels in `test/features/search/presentation/widgets/search_input_bar_test.dart`
 
 ### Implementation for User Story 2
 
-- [ ] T010 [P] [US2] Replace single `IconButton` with `PopupMenuButton<String>` in `lib/features/search/presentation/widgets/search_input_bar.dart`
-- [ ] T011 [US2] Connect "Adicionar mais campo" menu item to existing `AdicionarConsulta` event in `lib/features/search/presentation/widgets/search_input_bar.dart`
-- [ ] T012 [US2] Connect "Pesquisa Avançada" menu item to new `TransformarEmBuscaAvancada` event in `lib/features/search/presentation/widgets/search_input_bar.dart`
+- [x] T010 [P] [US2] Replace single `IconButton` with `PopupMenuButton<String>` in `lib/features/search/presentation/widgets/search_input_bar.dart`
+- [x] T011 [US2] Connect "Adicionar mais campo" menu item to existing `AdicionarConsulta` event in `lib/features/search/presentation/widgets/search_input_bar.dart`
+- [x] T012 [US2] Connect "Pesquisa Avançada" menu item to new `TransformarEmBuscaAvancada` event in `lib/features/search/presentation/widgets/search_input_bar.dart`
 
 **Checkpoint**: User Story 2 is functional. Both search expansion options are available in UI.
 
@@ -78,19 +78,31 @@
 
 ### Implementation for User Story 3
 
-- [ ] T013 [US3] Add unit test cases for edge-case whitespace handling in `test/features/search/presentation/bloc/search_bloc_test.dart`
-- [ ] T014 [US3] Refine splitting logic in `lib/features/search/presentation/bloc/search_bloc.dart` using `trim()` and `where((s) => s.isNotEmpty)`
+- [x] T013 [US3] Add unit test cases for edge-case whitespace handling in `test/features/search/presentation/bloc/search_bloc_test.dart`
+- [x] T014 [US3] Refine splitting logic in `lib/features/search/presentation/bloc/search_bloc.dart` using `trim()` and `where((s) => s.isNotEmpty)`
 
 **Checkpoint**: All user stories are robust and functional.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: User Story 4 - Validation & Feedback (Priority: P2)
+
+**Goal**: Inform user when transformation requires more than one word.
+
+**Independent Test**: Type "Jesus", click "Pesquisa Avançada", check if BottomSheet appears.
+
+- [x] T017 [US4] Implement validation logic in `SearchInputBar` for transformation.
+- [x] T018 [US4] Show `showModalBottomSheet` with explanation when validation fails.
+- [x] T019 [US4] Add widget tests for validation feedback.
+
+---
+
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Final refinements
 
-- [ ] T015 [P] Add debug logging for transformation events in `lib/features/search/presentation/bloc/search_bloc.dart`
-- [ ] T016 Run all tests and verify `quickstart.md` scenarios manually
+- [x] T015 [P] Add debug logging for transformation events in `lib/features/search/presentation/bloc/search_bloc.dart`
+- [x] T016 Run all tests and verify results.
 
 ---
 

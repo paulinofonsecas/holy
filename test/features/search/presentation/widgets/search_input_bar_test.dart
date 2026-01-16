@@ -32,7 +32,7 @@ void main() {
     );
   });
 
-  Widget createTestWidget() {
+  Widget createTestWidget({String initialValue = ''}) {
     return MaterialApp(
       home: Scaffold(
         body: SizedBox(
@@ -41,6 +41,7 @@ void main() {
           child: BlocProvider.value(
             value: mockSearchBloc,
             child: SearchInputBar(
+              initialValue: initialValue,
               onChanged: (_) {},
             ),
           ),
@@ -54,7 +55,7 @@ void main() {
     await tester.pumpWidget(createTestWidget());
 
     expect(find.byType(PopupMenuButton<String>), findsOneWidget);
-    expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
+    expect(find.byIcon(Icons.auto_awesome), findsOneWidget);
   });
 
   testWidgets('PopupMenuButton shows correct options when tapped',
@@ -66,23 +67,49 @@ void main() {
     await tester.pumpWidget(createTestWidget());
 
     // Tap the menu button
-    await tester.tap(find.byIcon(Icons.add_circle_outline));
+    await tester.tap(find.byIcon(Icons.auto_awesome));
     await tester.pumpAndSettle();
 
     expect(find.text('Pesquisa Avançada'), findsOneWidget);
-    expect(find.text('Add more search field'), findsOneWidget);
+    expect(find.text('Novo campo de busca'), findsOneWidget);
   });
 
   testWidgets(
-      'Selecting Pesquisa Avançada adds TransformarEmBuscaAvancada event',
+      'Selecting Pesquisa Avançada with < 2 words shows bottom sheet and does NOT add event',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1200, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
 
-    await tester.pumpWidget(createTestWidget());
+    await tester.pumpWidget(createTestWidget(initialValue: 'Jesus'));
 
-    await tester.tap(find.byIcon(Icons.add_circle_outline));
+    await tester.tap(find.byIcon(Icons.auto_awesome));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Pesquisa Avançada'));
+    await tester.pumpAndSettle();
+
+    // Verify bottom sheet is shown
+    expect(
+        find.text(
+            'Digite pelo menos duas palavras para transformar em pesquisa avançada.'),
+        findsOneWidget);
+
+    // Verify event NOT added
+    verifyNever(
+        () => mockSearchBloc.add(any(that: isA<TransformarEmBuscaAvancada>())));
+  });
+
+  testWidgets(
+      'Selecting Pesquisa Avançada with 2+ words adds TransformarEmBuscaAvancada event',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(createTestWidget(initialValue: 'Jesus chorou'));
+
+    await tester.tap(find.byIcon(Icons.auto_awesome));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Pesquisa Avançada'));
@@ -93,7 +120,7 @@ void main() {
         .called(1);
   });
 
-  testWidgets('Selecting Add more search field adds AdicionarConsulta event',
+  testWidgets('Selecting Novo campo de busca adds AdicionarConsulta event',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1200, 800);
     tester.view.devicePixelRatio = 1.0;
@@ -101,10 +128,10 @@ void main() {
 
     await tester.pumpWidget(createTestWidget());
 
-    await tester.tap(find.byIcon(Icons.add_circle_outline));
+    await tester.tap(find.byIcon(Icons.auto_awesome));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Add more search field'));
+    await tester.tap(find.text('Novo campo de busca'));
     await tester.pumpAndSettle();
 
     verify(() => mockSearchBloc.add(any(that: isA<AdicionarConsulta>())))
