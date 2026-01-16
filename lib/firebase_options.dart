@@ -52,14 +52,17 @@ class DefaultFirebaseOptions {
     messagingSenderId: '802718084241',
     projectId: 'caiaia01',
     authDomain: 'caiaia01.firebaseapp.com',
+    databaseURL: 'https://caiaia01-default-rtdb.firebaseio.com',
     storageBucket: 'caiaia01.firebasestorage.app',
+    measurementId: 'G-VSBT4NL44P',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDF0NxGyrNIj1_Sc2ALJN_Ejg_xsYpb5-0',
-    appId: '1:802718084241:android:ff1278055f8e40282de330',
+    appId: '1:802718084241:android:1a079e1cb43bc3a82de330',
     messagingSenderId: '802718084241',
     projectId: 'caiaia01',
+    databaseURL: 'https://caiaia01-default-rtdb.firebaseio.com',
     storageBucket: 'caiaia01.firebasestorage.app',
   );
 
