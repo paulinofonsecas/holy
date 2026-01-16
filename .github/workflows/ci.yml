@@ -15,36 +15,36 @@ on:
         required: false
         default: 'internal-testers'
 
-jobs:
-  distribute:
-    name: Geral analysis and tests
-    runs-on: ubuntu-latest
-    env:
-      _JAVA_OPTIONS: "-Xmx4096m"
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  jobs:
+    distribute:
+      name: Geral analysis and tests
+      runs-on: ubuntu-latest
+      env:
+        _JAVA_OPTIONS: "-Xmx4096m"
+      
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
 
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
+        - name: Setup Java
+          uses: actions/setup-java@v3
+          with:
+            distribution: 'zulu'
+            java-version: '17'
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.38.4'
-          cache: true
+        - name: Setup Flutter
+          uses: subosito/flutter-action@v2
+          with:
+            flutter-version: '3.38.4'
+            cache: true
 
-      - name: Install dependencies
-        run: |
-          flutter clean
-          flutter pub get
+        - name: Install dependencies
+          run: |
+            flutter clean
+            flutter pub get
 
-      - name: Run build_runner
-        run: dart run build_runner build --delete-conflicting-outputs
+        - name: Run build_runner
+          run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Run tests
-        run: flutter test
+        - name: Run tests
+          run: flutter test
