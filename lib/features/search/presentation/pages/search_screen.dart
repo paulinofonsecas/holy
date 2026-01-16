@@ -172,18 +172,94 @@ class _TelaBuscaState extends State<TelaBusca> {
               else if (estado is BuscaCarregada) ...[
                 if (estado.resultados.results.isEmpty &&
                     estado.correspondenciasLivros.isEmpty)
-                  const SliverFillRemaining(
+                  SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search_off, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('Nenhum resultado encontrado',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.grey)),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (estado.consultas.length == 1 &&
+                                estado.consultas.first.term
+                                    .trim()
+                                    .contains(' ')) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.lightbulb_outline,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            size: 20),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Dica de Pesquisa',
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'A busca por "${estado.consultas.first.term}" não retornou resultados exatos.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 14),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'Você pode usar a Pesquisa Avançada para encontrar versículos que contenham essas palavras separadamente.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 12),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        context
+                                            .read<SearchBloc>()
+                                            .add(TransformarEmBuscaAvancada());
+                                      },
+                                      icon: const Icon(Icons.auto_awesome,
+                                          size: 18),
+                                      label: const Text(
+                                          'Ativar Pesquisa Avançada'),
+                                      style: ElevatedButton.styleFrom(
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ] else ...[
+                              const Text(
+                                'Tente usar termos mais simples ou verifique a ortografia.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
                     ),
                   )

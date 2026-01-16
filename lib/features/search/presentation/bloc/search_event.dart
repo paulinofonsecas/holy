@@ -85,3 +85,5 @@ class ReordenarConsultas extends EventoBusca {
   @override
   List<Object?> get props => [oldIndex, newIndex];
 }
+
+class TransformarEmBuscaAvancada extends EventoBusca {}

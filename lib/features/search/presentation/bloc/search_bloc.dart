@@ -40,6 +40,59 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     on<CarregarVersao>(_onLoadVersion);
     on<AtualizarScrollBusca>(_onUpdateScroll);
     on<ReordenarConsultas>(_onReorderQueryParts);
+    on<TransformarEmBuscaAvancada>(_onTransformToAdvancedSearch);
+  }
+
+  Future<void> _onTransformToAdvancedSearch(
+    TransformarEmBuscaAvancada event,
+    Emitter<EstadoBusca> emit,
+  ) async {
+    if (_consultas.isEmpty || _consultas[0].term.trim().isEmpty) return;
+
+    final query = _consultas[0].term;
+    final words = query.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+
+    if (words.length <= 1 && _consultas.length == 1) {
+      // Já está em um formato "simples" ou apenas uma palavra, mas vamos garantir que o trim foi aplicado
+      if (words.isNotEmpty) {
+        _consultas[0] = _consultas[0].copyWith(term: words.first);
+      }
+    } else {
+      // Pega o operador atual dos outros campos ou usa AND como padrão
+      final currentOp =
+          _consultas.length > 1 ? _consultas[1].operator : JoinOperator.and;
+
+      final novasConsultas = words.indexed.map((entry) {
+        final index = entry.$1;
+        final word = entry.$2;
+        return SearchQueryPart(
+          term: word,
+          operator: index == 0 ? JoinOperator.none : currentOp,
+        );
+      }).toList();
+
+      _consultas = novasConsultas;
+    }
+
+    _registrador.info(
+      '🔄 Busca transformada para avançada. Novos termos: ${_consultas.map((q) => q.term).join(', ')}',
+    );
+
+    if (_consultas.any((q) => q.term.length >= 3)) {
+      await _realizarBusca(emit);
+    } else {
+      emit(BuscaCarregada(
+        resultados: state is BuscaCarregada
+            ? (state as BuscaCarregada).resultados
+            : SearchResults(query: '', totalResults: 0, results: []),
+        consultas: List.from(_consultas),
+        buscarTodasVersoes: _buscarTodasVersoes,
+        idVersaoSelecionada: _idVersaoSelecionada,
+        versoesDisponiveis: state is BuscaCarregada
+            ? (state as BuscaCarregada).versoesDisponiveis
+            : const [],
+      ));
+    }
   }
 
   Future<void> _onReorderQueryParts(
