@@ -1,4 +1,4 @@
-package com.example.eu_sou
+package com.paulinofonseca.eusou
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -36,6 +36,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-01
 - SQLite persisted via IndexedDB (browser) (001-web-support)
 - Dart (3.x) / Flutter (3.x) + `flutter_bloc` for state management, `bible_handler` (internal package) for search models. (026-normal-to-advanced-search)
 - N/A (The transformation is a transient UI/State change). (026-normal-to-advanced-search)
+- Flutter 3.x, Dart 3.x + `flutter_launcher_icons`, `flutter_native_splash`, `package_info_plus` (027-app-store-prep)
+- N/A (Build configuration) (027-app-store-prep)
 
 - Dart ^3.6.0, Flutter >=3.38.4 + `bible_handler` (internal), `sqflite`, `flutter_bloc` or `stacked`, `share_plus` (005-verse-search)
 
@@ -55,9 +57,9 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
+- 027-app-store-prep: Added Flutter 3.x, Dart 3.x + `flutter_launcher_icons`, `flutter_native_splash`, `package_info_plus`
 - 026-normal-to-advanced-search: Added Dart (3.x) / Flutter (3.x) + `flutter_bloc` for state management, `bible_handler` (internal package) for search models.
 - 001-web-support: Added Dart 3.6+ / Flutter (Web) + `flutter_bloc`, `firebase_core_web`, `sqflite_common_ffi_web`, `sqlite3` (wasm), `url_launcher`
-- 001-web-support: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 
 
 <!-- MANUAL ADDITIONS START -->

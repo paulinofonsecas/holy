@@ -75,7 +75,7 @@ class App extends StatelessWidget {
               }
 
               return MaterialApp(
-                title: 'eu_sou',
+                title: 'Eu Sou',
                 debugShowCheckedModeBanner: false,
                 theme: AppThemeData.light(themeState.primaryColor).copyWith(
                   extensions: [
