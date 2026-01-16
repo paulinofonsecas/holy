@@ -34,6 +34,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-01
 - SQLite (Offline Bible Database) (024-select-verse-search)
 - Dart 3.6+ / Flutter (Web) + `flutter_bloc`, `firebase_core_web`, `sqflite_common_ffi_web`, `sqlite3` (wasm), `url_launcher` (001-web-support)
 - SQLite persisted via IndexedDB (browser) (001-web-support)
+- Dart (3.x) / Flutter (3.x) + `flutter_bloc` for state management, `bible_handler` (internal package) for search models. (026-normal-to-advanced-search)
+- N/A (The transformation is a transient UI/State change). (026-normal-to-advanced-search)
 
 - Dart ^3.6.0, Flutter >=3.38.4 + `bible_handler` (internal), `sqflite`, `flutter_bloc` or `stacked`, `share_plus` (005-verse-search)
 
@@ -53,9 +55,9 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
+- 026-normal-to-advanced-search: Added Dart (3.x) / Flutter (3.x) + `flutter_bloc` for state management, `bible_handler` (internal package) for search models.
 - 001-web-support: Added Dart 3.6+ / Flutter (Web) + `flutter_bloc`, `firebase_core_web`, `sqflite_common_ffi_web`, `sqlite3` (wasm), `url_launcher`
 - 001-web-support: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
-- 024-select-verse-search: Added Dart ^3.6.0, Flutter >=3.38.4 + `flutter_bloc`, `bible_handler` (local), `stacked` (MVVM), `sqflite`
 
 
 <!-- MANUAL ADDITIONS START -->

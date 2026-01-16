@@ -95,14 +95,40 @@ class _SearchInputBarState extends State<SearchInputBar> {
             ),
           ] else if (searchState is BuscaCarregada &&
               searchState.consultas.length < 2) ...[
-            IconButton(
-              onPressed: () {
-                context.read<SearchBloc>().add(AdicionarConsulta());
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'advanced') {
+                  context.read<SearchBloc>().add(TransformarEmBuscaAvancada());
+                } else if (value == 'add') {
+                  context.read<SearchBloc>().add(AdicionarConsulta());
+                }
               },
-              style: TextButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-              ),
+              padding: EdgeInsets.zero,
               icon: const Icon(Icons.add_circle_outline, size: 20),
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'advanced',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.auto_awesome, size: 18),
+                      SizedBox(width: 8),
+                      Flexible(child: Text('Pesquisa Avançada')),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'add',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.add, size: 18),
+                      SizedBox(width: 8),
+                      Flexible(child: Text('Add more search field')),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ],
