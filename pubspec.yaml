@@ -85,6 +85,9 @@ dev_dependencies:
   internet_connection_checker: ^3.0.1
   flutter_native_splash: ^2.4.7
 
+dependency_overrides:
+  connectivity_plus: ^7.0.0
+
 # Flutter configuration
 flutter:
   uses-material-design: true
