@@ -11,17 +11,39 @@ Holy is a monorepo project that provides a comprehensive Bible reading and study
 
 ## Documentation
 
+- [Setup Guide](./doc/SETUP_GUIDE.md): Detailed environment setup for Windows and macOS.
 - [User Guide](./doc/USER_GUIDE.md): Official guide for end-users.
 - [Architecture Overview](./doc/ARCHITECTURE.md): High-level system design and C4 Model (C4-PlantUML).
 - [Feature Index](./specs/README.md): Detailed specifications for all application features.
 - [Specification Guide](./doc/SPECIFICATION_GUIDE.md): How to document new features.
 - [Firebase Distribution Guide](./doc/firebase-distribution-guide.md): How to distribute test versions.
 
-## Getting Started
+## Monorepo Structure
 
-1. Clone the repository.
-2. Run `flutter pub get` in the root and packages.
-3. Run `flutter run`.
+This project is organized as a monorepo to separate core logic from the UI layer:
+
+- **`lib/`**: The main Flutter application (Holy - Eu Sou).
+- **`packages/bible_handler/`**: Core package for Bible parsing, SQLite caching, and searching.
+- **`specs/`**: Feature specifications and design documents.
+- **`doc/`**: Technical documentation and architecture guides.
+
+## 🚀 Quick Start
+
+1. **Prerequisites**: [Flutter SDK](https://docs.flutter.dev/get-started/install), [Git](https://git-scm.com/downloads).
+2. **Setup**:
+   ```bash
+   git clone https://github.com/paulinofonsecas/holy.git
+   cd holy
+   cp .env.example .env
+   ```
+3. **Initialize**:
+   ```bash
+   flutter pub get
+   cd packages/bible_handler && flutter pub get && cd ../..
+   ```
+4. **Run**: `flutter run`
+
+For detailed setup instructions for **Windows** and **macOS**, see the **[Setup Guide](./doc/SETUP_GUIDE.md)**.
 
 ### Architecture Visualization
 
