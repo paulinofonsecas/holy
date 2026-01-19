@@ -93,61 +93,61 @@ class _TelaBuscaState extends State<TelaBusca> {
                           ? estado.buscarTodasVersoes
                           : false,
                     ),
-                    const SizedBox(height: 12),
-                    if (estado is BuscaCarregada &&
-                        estado.buscarTodasVersoes &&
-                        estado.versoesDisponiveis.isNotEmpty) ...[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          'Filtrar por Versão:',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: ChoiceChip(
-                                label: const Text('Todas'),
-                                selected: estado.idVersaoSelecionada == null,
-                                onSelected: (selecionado) {
-                                  if (selecionado) {
-                                    context
-                                        .read<SearchBloc>()
-                                        .add(const FiltrarPorVersao(null));
-                                  }
-                                },
-                              ),
-                            ),
-                            ...estado.versoesDisponiveis.map((versao) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: ChoiceChip(
-                                  label: Text(versao),
-                                  selected:
-                                      estado.idVersaoSelecionada == versao,
-                                  onSelected: (selecionado) {
-                                    context.read<SearchBloc>().add(
-                                          FiltrarPorVersao(
-                                            selecionado ? versao : null,
-                                          ),
-                                        );
-                                  },
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                    ],
+                    // const SizedBox(height: 12),
+                    // if (estado is BuscaCarregada &&
+                    //     estado.buscarTodasVersoes &&
+                    //     estado.versoesDisponiveis.isNotEmpty) ...[
+                    //   const Padding(
+                    //     padding: EdgeInsets.symmetric(vertical: 8.0),
+                    //     child: Text(
+                    //       'Filtrar por Versão:',
+                    //       style: TextStyle(
+                    //         fontSize: 12,
+                    //         fontWeight: FontWeight.bold,
+                    //         color: Colors.grey,
+                    //       ),
+                    //     ),
+                    //   ),
+                    //   SizedBox(
+                    //     height: 40,
+                    //     child: ListView(
+                    //       scrollDirection: Axis.horizontal,
+                    //       children: [
+                    //         Padding(
+                    //           padding: const EdgeInsets.only(right: 8.0),
+                    //           child: ChoiceChip(
+                    //             label: const Text('Todas'),
+                    //             selected: estado.idVersaoSelecionada == null,
+                    //             onSelected: (selecionado) {
+                    //               if (selecionado) {
+                    //                 context
+                    //                     .read<SearchBloc>()
+                    //                     .add(FiltrarPorVersao(null));
+                    //               }
+                    //             },
+                    //           ),
+                    //         ),
+                    //         ...estado.versoesDisponiveis.map((versao) {
+                    //           return Padding(
+                    //             padding: const EdgeInsets.only(right: 8.0),
+                    //             child: ChoiceChip(
+                    //               label: Text(versao),
+                    //               selected:
+                    //                   estado.idVersaoSelecionada == versao,
+                    //               onSelected: (selecionado) {
+                    //                 context.read<SearchBloc>().add(
+                    //                       FiltrarPorVersao(
+                    //                         selecionado ? versao : null,
+                    //                       ),
+                    //                     );
+                    //               },
+                    //             ),
+                    //           );
+                    //         }),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ],
                   ]),
                 ),
               ),

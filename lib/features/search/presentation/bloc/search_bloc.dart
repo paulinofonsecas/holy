@@ -208,7 +208,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   ) async {
     _registrador.info('🎯 Filtrar por versão: ${event.idVersao}');
     _idVersaoSelecionada = event.idVersao;
-    if (_consultas.any((q) => q.term.length >= 3)) {
+    if (_consultas.any((q) => q.term.length >= 2)) {
       await _realizarBusca(emit);
     }
   }
@@ -263,7 +263,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     try {
       // For book matching, we use the first valid term
       final firstValidTerm = _consultas
-          .firstWhere((q) => q.term.length >= 3,
+          .firstWhere((q) => q.term.length >= 2,
               orElse: () => const SearchQueryPart(term: ''))
           .term;
 
@@ -273,19 +273,19 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
             _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao),
       );
 
+      final String? idVersaoParaBusca =
+          _idVersaoSelecionada ?? (_buscarTodasVersoes ? null : _idVersao);
       final resultados = await _repositorioBusca.buscaAvancada(
         _consultas,
-        idVersao:
-            _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao),
+        idVersao: idVersaoParaBusca,
       );
 
-      final correspondenciasLivros = await correspondenciasLivrosFuture;
+      var correspondenciasLivros = await correspondenciasLivrosFuture;
+      correspondenciasLivros = correspondenciasLivros.toSet().toList();
+      correspondenciasLivros.sort((a, b) => a.name.compareTo(b.name));
 
-      // Extrair versões disponíveis dos resultados para o filtro
-      final versoesDisponiveis = resultados.results
-          .map((r) => r.versionAbbreviation ?? r.versionId)
-          .toSet()
-          .toList();
+      final versoesDisponiveis =
+          resultados.results.map((r) => r.versionId).toSet().toList();
       versoesDisponiveis.sort();
 
       emit(BuscaCarregada(

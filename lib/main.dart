@@ -42,7 +42,6 @@ void main() async {
   );
 
   if (!kIsWeb) {
-    
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
