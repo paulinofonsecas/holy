@@ -340,7 +340,17 @@ class _TelaBuscaState extends State<TelaBusca> {
                                 resultado.versionId,
                                 resultado.book.id,
                                 resultado.chapter.number.toString(),
-                                verse: resultado.verse.number,
+                              verse: resultado.verse.number,
+                              ),
+                            );
+                            context
+                                .read<BibleVersionCubit>()
+                                .changeVersionById(resultado.versionId);
+                            bibliaBloc.add(
+                              GetChapter(
+                                resultado.versionId,
+                                resultado.book.id,
+                                resultado.chapter.number.toString(),
                               ),
                             );
                             if (Navigator.of(context).canPop()) {

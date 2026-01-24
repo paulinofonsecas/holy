@@ -111,7 +111,6 @@ class VerseOfTheDayService {
   }
 
   Future<List<Map<String, String>>> getDownloadedVersions() async {
-    // We know searchProvider is SqlBibleSearchProvider which has access to db
     if (_searchProvider is SqlBibleSearchProvider) {
       final db = (_searchProvider).db;
       final results = await db.query('versions');

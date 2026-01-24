@@ -40,6 +40,11 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
     ),
     mainContentSliversBuilder: (sliverContext) {
       return [
+        // SliverToBoxAdapter(child: Builder(
+        //   builder: (context) {
+        //     return const BuildSearchWidget();
+        //   },
+        // )),
         SliverList(
           delegate: SliverChildBuilderDelegate(
             childCount: BibleBooks.values.length,
@@ -91,4 +96,37 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
       ];
     },
   );
+}
+
+class BuildSearchWidget extends StatelessWidget {
+  const BuildSearchWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Pesquisar',
+          prefixIcon: const Icon(Icons.search, size: 20),
+          isDense: true,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.clear, size: 18),
+            onPressed: () {
+              // _controller.clear();
+              // widget.onChanged('');
+            },
+          ),
+        ),
+        // onChanged: widget.onChanged,
+      ),
+    );
+  }
 }

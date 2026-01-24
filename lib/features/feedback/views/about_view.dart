@@ -23,16 +23,19 @@ class AboutView extends StackedView<AboutViewModel> {
               children: [
                 const SizedBox(height: 20),
                 Center(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Image.asset(
-                      'assets/icons/app_icon.png',
-                      fit: BoxFit.contain,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Image.asset(
+                        'assets/icons/play_store_512.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
