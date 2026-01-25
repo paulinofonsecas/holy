@@ -96,6 +96,8 @@ flutter:
   assets:
     - assets/images/
     - assets/images/backgrounds/
+    - assets/icons/
+    - assets/icon/
     - .env
 
   fonts:

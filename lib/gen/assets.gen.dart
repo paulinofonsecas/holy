@@ -12,9 +12,16 @@ import 'package:flutter/widgets.dart';
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
+  /// File path: assets/images/app_icon.png
+  AssetGenImage get appIcon =>
+      const AssetGenImage('assets/images/app_icon.png');
+
   /// Directory path: assets/images/backgrounds
   $AssetsImagesBackgroundsGen get backgrounds =>
       const $AssetsImagesBackgroundsGen();
+
+  /// List of all assets
+  List<AssetGenImage> get values => [appIcon];
 }
 
 class $AssetsImagesBackgroundsGen {
