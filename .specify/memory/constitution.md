@@ -1,42 +1,50 @@
-<!--
-Sync Impact Report:
-- Version change: 1.0.0 -> 1.1.0
-- List of modified principles:
-  - Added: VI. Consistent Navigation (Bottom Bar)
-- Added sections: None
-- Removed sections: None
-- Templates requiring updates:  updated (checked, no changes needed as they are generic)
-- Follow-up TODOs: None
--->
-
-# Eu Sou Constitution
+# [PROJECT_NAME] Constitution
+<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
 
 ## Core Principles
 
-### I. Monorepo & Modularization
-The project follows a monorepo structure. Core business logic and shared functionality must be encapsulated in standalone packages (e.g., \packages/bible_handler\). The main application (\eu_sou\) acts as a consumer of these packages. This ensures separation of concerns and facilitates code reuse.
+### [PRINCIPLE_1_NAME]
+<!-- Example: I. Library-First -->
+[PRINCIPLE_1_DESCRIPTION]
+<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
 
-### II. Bible Version Abstraction
-All access to Bible texts and versions must be mediated through the \ible_handler\ package. The application layer must not contain logic for parsing Bible files or managing version differences directly. This abstraction allows for seamless addition of new versions and sources without modifying the UI.
+### [PRINCIPLE_2_NAME]
+<!-- Example: II. CLI Interface -->
+[PRINCIPLE_2_DESCRIPTION]
+<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
 
-### III. AI-Ready Architecture
-The system architecture must be designed to accommodate future AI integration. This implies maintaining clean data interfaces, well-structured data models, and separation of data retrieval from presentation. Components should be extensible to support AI-driven features like semantic search or personalized insights.
+### [PRINCIPLE_3_NAME]
+<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
+[PRINCIPLE_3_DESCRIPTION]
+<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
 
-### IV. Flutter Best Practices
-Adhere to established Flutter development patterns. Use BLoC or MVVM (via \stacked\) for state management as established in the project dependencies. Ensure the UI is responsive, accessible, and follows Material Design guidelines where appropriate.
+### [PRINCIPLE_4_NAME]
+<!-- Example: IV. Integration Testing -->
+[PRINCIPLE_4_DESCRIPTION]
+<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
 
-### V. Test-Driven Development
-Critical logic, especially within internal packages like \ible_handler\, must be tested. Write unit tests for data parsing and business logic. Integration tests should verify the interaction between the app and its internal packages.
+### [PRINCIPLE_5_NAME]
+<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
+[PRINCIPLE_5_DESCRIPTION]
+<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 
-### VI. Consistent Navigation (Bottom Bar)
-The application MUST use a Bottom Navigation Bar for primary top-level navigation (Reading, Search, Profile). This ensures a consistent and accessible user experience across all screens. Top-level screens MUST be reachable within a single tap from the bottom bar.
+## [SECTION_2_NAME]
+<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+
+[SECTION_2_CONTENT]
+<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+
+## [SECTION_3_NAME]
+<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+
+[SECTION_3_CONTENT]
+<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
 
 ## Governance
+<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-### Amendment Process
-This constitution supersedes all other project practices. Amendments require a pull request with a clear rationale and must be approved by the project maintainers.
+[GOVERNANCE_RULES]
+<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-### Compliance
-All code reviews must verify compliance with these principles. Deviations must be justified and documented.
-
-**Version**: 1.1.0 | **Ratified**: 2026-01-01 | **Last Amended**: 2026-01-02
+**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
+<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
