@@ -23,15 +23,12 @@ class AboutView extends StackedView<AboutViewModel> {
               children: [
                 const SizedBox(height: 20),
                 Center(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
                     child: Image.asset(
-                      'assets/icons/app_icon.png',
+                      'assets/icon/icon.png',
+                      width: 100,
+                      height: 100,
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -77,8 +74,9 @@ class AboutView extends StackedView<AboutViewModel> {
                 const SizedBox(height: 40),
                 const Center(
                   child: Text(
-                    'Desenvolvido com ❤️ por Paulino Fonseca',
+                    'Desenvolvido para Deus, com \n❤️ por Paulino Fonseca',
                     style: TextStyle(fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
