@@ -34,14 +34,13 @@ class ShowErrorWidget extends StatelessWidget {
           const Gap(16),
           ElevatedButton(
             onPressed: () {
-              context.read<BibliaBloc>()
-                .add(
-                  GetChapter(
-                    context.read<BibleVersionCubit>().state.version.id,
-                    BibleBooks.genesis.bookId,
-                    '1',
-                  ),
-                );
+              context.read<BibliaBloc>().add(
+                    GetChapter(
+                      context.read<BibleVersionCubit>().state.version.id,
+                      BibleBooks.genesis.bookId,
+                      '1',
+                    ),
+                  );
             },
             child: const Text("Tentar novamente"),
           ),

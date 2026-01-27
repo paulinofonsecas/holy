@@ -1,5 +1,3 @@
-
-
 class MarkedVerseModel {
   final String versionId;
   final String bookId;
