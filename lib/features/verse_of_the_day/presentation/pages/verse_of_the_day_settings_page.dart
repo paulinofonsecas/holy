@@ -173,7 +173,7 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
                             'id': settings.versionId,
                             'name': settings.versionId,
                           },
-                        )['name']!,
+                        )['id']!,
                   ),
                   trailing: const Icon(Icons.translate),
                   enabled: settings.isEnabled,
@@ -290,7 +290,7 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
           shrinkWrap: true,
           children: state.downloadedVersions.map((version) {
             final versionId = version['id']!;
-            final versionName = version['name']!;
+            final versionName = version['id']!;
             return ListTile(
               title: Text(versionName),
               trailing: settings.versionId == versionId

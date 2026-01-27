@@ -15,7 +15,7 @@ class ThemeSettingsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Personalização'),
+        title: const Text('Personalização'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -29,7 +29,6 @@ class ThemeSettingsPage extends StatelessWidget {
             const SizedBox(height: 16),
             const ThemeColorPicker(),
             const SizedBox(height: 24),
-            _buildQuickActions(context),
           ],
         ),
       ),
@@ -39,7 +38,30 @@ class ThemeSettingsPage extends StatelessWidget {
   Widget _buildHeaderSection(BuildContext context) {
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
-        return Card(
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 1),
+            border: Border(
+              bottom: BorderSide(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: .1),
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: .1),
+                blurRadius: 1,
+                offset: const Offset(0, 0),
+              ),
+            ],
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -66,78 +88,6 @@ class ThemeSettingsPage extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    return BlocBuilder<ThemeBloc, ThemeState>(
-      builder: (context, state) {
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.speed,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Ações Rápidas',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () {
-                          final bloc = context.read<ThemeBloc>();
-                          bloc.toggleLightDark();
-                        },
-                        icon: Icon(
-                          state.themeMode == ThemeMode.light
-                              ? Icons.dark_mode
-                              : Icons.light_mode,
-                        ),
-                        label: Text(
-                          state.themeMode == ThemeMode.light
-                              ? 'Modo Escuro'
-                              : 'Modo Claro',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          // Voltar cor padrão
-                          context.read<ThemeBloc>().setColorByIndex(0);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Cor padrão restaurada'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Restaurar'),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),

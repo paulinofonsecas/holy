@@ -252,10 +252,45 @@ class _TelaBuscaState extends State<TelaBusca> {
                                 ),
                               ),
                             ] else ...[
-                              const Text(
-                                'Tente usar termos mais simples ou verifique a ortografia.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.grey),
+                              Container(
+                                margin: const EdgeInsets.all(16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16 * 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surface
+                                      .withValues(alpha: 1),
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: .1),
+                                    ),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: .1),
+                                      blurRadius: 1,
+                                      offset: const Offset(0, 0),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  'Tente usar termos mais simples ou verifique a ortografia.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
                               ),
                             ],
                           ],
