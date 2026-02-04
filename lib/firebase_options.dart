@@ -82,5 +82,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'caiaia01.firebasestorage.app',
     iosBundleId: 'com.paulinofonseca.eusou',
   );
-
 }

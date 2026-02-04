@@ -179,14 +179,32 @@ class ProfileView extends StatelessWidget {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      color: Theme.of(context).colorScheme.surface,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 1),
+        border: Border(
+          bottom: BorderSide(
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: .1),
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: .1),
+            blurRadius: 1,
+            offset: const Offset(0, 0),
+          ),
+        ],
+      ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurface,
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: .9),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

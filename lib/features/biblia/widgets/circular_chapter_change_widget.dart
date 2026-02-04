@@ -30,7 +30,9 @@ class CircularChapterChangeWidget extends StatelessWidget {
             ),
           ],
         ),
-        child: isNext ? const Icon(Icons.chevron_right) : const Icon(Icons.chevron_left),
+        child: isNext
+            ? const Icon(Icons.chevron_right)
+            : const Icon(Icons.chevron_left),
       ),
     );
   }

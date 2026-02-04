@@ -283,8 +283,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
       }
 
       // Save the image to gallery
-      final bool success =
-          await _imageService.saveImageToGallery(imageBytes);
+      final bool success = await _imageService.saveImageToGallery(imageBytes);
 
       if (!success) {
         throw Exception('Falha ao salvar imagem na galeria');

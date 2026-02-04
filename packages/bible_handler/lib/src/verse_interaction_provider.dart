@@ -20,29 +20,21 @@ class SqlVerseInteractionProvider implements VerseInteractionProvider {
   }) async {
     await db.transaction((txn) async {
       // 1. Insert or update marked verse
-      final id = await txn.insert(
-        'marked_verses',
-        {
-          'version_id': versionId,
-          'book_id': bookId,
-          'chapter': chapterNumber,
-          'verse': verseNumber,
-          'color': color,
-          'created_at': DateTime.now().millisecondsSinceEpoch,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      final id = await txn.insert('marked_verses', {
+        'version_id': versionId,
+        'book_id': bookId,
+        'chapter': chapterNumber,
+        'verse': verseNumber,
+        'color': color,
+        'created_at': DateTime.now().millisecondsSinceEpoch,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
 
       // 2. If categoryId is provided, link it
       if (categoryId != null) {
-        await txn.insert(
-          'verse_categories',
-          {
-            'marked_verse_id': id,
-            'category_id': int.parse(categoryId),
-          },
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+        await txn.insert('verse_categories', {
+          'marked_verse_id': id,
+          'category_id': int.parse(categoryId),
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
     });
   }
@@ -90,10 +82,7 @@ class SqlVerseInteractionProvider implements VerseInteractionProvider {
         chapters: [],
       );
 
-      final chapter = Chapter(
-        number: row['chapter'] as int,
-        verses: [],
-      );
+      final chapter = Chapter(number: row['chapter'] as int, verses: []);
 
       final verse = Verse(
         number: row['verse'] as int,
@@ -111,28 +100,30 @@ class SqlVerseInteractionProvider implements VerseInteractionProvider {
 
   @override
   Future<String> createCategory({required String name, String? color}) async {
-    final id = await db.insert('categories', {
-      'name': name,
-      'color': color,
-    });
+    final id = await db.insert('categories', {'name': name, 'color': color});
     return id.toString();
   }
 
   @override
   Future<void> deleteCategory(String categoryId) async {
-    await db.delete('categories',
-        where: 'id = ?', whereArgs: [int.parse(categoryId)]);
+    await db.delete(
+      'categories',
+      where: 'id = ?',
+      whereArgs: [int.parse(categoryId)],
+    );
   }
 
   @override
   Future<List<VerseCategory>> getCategories() async {
     final results = await db.query('categories');
     return results
-        .map((row) => VerseCategory.fromMap({
-              'id': row['id'].toString(),
-              'name': row['name'],
-              'color': row['color'],
-            }))
+        .map(
+          (row) => VerseCategory.fromMap({
+            'id': row['id'].toString(),
+            'name': row['name'],
+            'color': row['color'],
+          }),
+        )
         .toList();
   }
 }

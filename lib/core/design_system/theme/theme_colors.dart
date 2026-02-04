@@ -48,7 +48,7 @@ class AppThemeColors {
     'Rosa Escuro',
   ];
 
-  static const Color defaultPrimaryColor = Color(0xFF78350F);
+  static const Color defaultPrimaryColor = Color(0xFF374151);
 
   /// Obtém o nome da cor baseado no valor
   static String getColorName(Color color) {

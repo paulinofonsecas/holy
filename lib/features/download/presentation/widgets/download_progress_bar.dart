@@ -16,7 +16,7 @@ class DownloadProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isError = progress.status == DownloadStatus.error;
-    
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

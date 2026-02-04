@@ -71,7 +71,6 @@ class SelectionToolbar extends StatelessWidget {
     );
   }
 
-
   void _showHighlightOptions(BuildContext context, VerseSelectionState state) {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
 

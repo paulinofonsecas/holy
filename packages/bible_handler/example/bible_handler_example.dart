@@ -34,7 +34,9 @@ void main() async {
   final stopwatch = Stopwatch()..start();
   final searchResults = bibleFromUrl.search('Espírito Santo');
   stopwatch.stop();
-  print('Found ${searchResults.totalResults} results for query "${searchResults.query}":');
+  print(
+    'Found ${searchResults.totalResults} results for query "${searchResults.query}":',
+  );
   for (final result in searchResults.results.take(5)) {
     print(result);
   }
