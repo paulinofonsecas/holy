@@ -18,9 +18,11 @@ class ProfileView extends StatelessWidget {
   ProfileView({
     super.key,
     FeedbackService? feedbackService,
-  }) : _feedbackService = feedbackService ?? FeedbackService();
+    this.onShowTutorial,
+}) : _feedbackService = feedbackService ?? FeedbackService();
 
   final FeedbackService _feedbackService;
+  final VoidCallback? onShowTutorial;
 
   void _navigateToAbout(BuildContext context) {
     Navigator.push(
@@ -134,21 +136,19 @@ class ProfileView extends StatelessWidget {
                     );
                   },
                 ),
-                /*
-                ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('Sobre'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: viewModel.navigateToAbout,
-          ),
-          ListTile(
-            leading: const Icon(Icons.bug_report_outlined),
-            title: const Text('Relatar um Problema'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => viewModel.showFeedback(context),
-          ),
-                */
                 const SizedBox(height: 8),
+                if (onShowTutorial != null) ...[
+                  _buildProfileOption(
+                    context,
+                    icon: Icons.help_outline,
+                    title: 'Tutorial',
+                    subtitle: 'Rever o guia do aplicativo',
+                    onTap: () {
+                      onShowTutorial!();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 _buildProfileOption(
                   context,
                   icon: Icons.info,

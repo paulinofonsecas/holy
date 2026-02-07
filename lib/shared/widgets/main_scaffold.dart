@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
@@ -9,10 +10,10 @@ import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repo
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
-import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScaffold extends StatefulWidget {
   final FeedbackService? feedbackService;
@@ -26,11 +27,30 @@ class MainScaffold extends StatefulWidget {
   State<MainScaffold> createState() => _MainScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> {
+class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
+  @override
+  final GlobalKey keyBibleTab = GlobalKey();
+  @override
+  final GlobalKey keySearchTab = GlobalKey();
+  @override
+  final GlobalKey keyProfileTab = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     notificationHandler.addOnNotificationTapListener(_handleNotificationTap);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstTimeTutorial();
+    });
+  }
+
+  Future<void> _checkFirstTimeTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool shown = prefs.getBool('tutorial_shown') ?? false;
+    if (!shown) {
+      showTutorial();
+      await prefs.setBool('tutorial_shown', true);
+    }
   }
 
   @override
@@ -72,8 +92,6 @@ class _MainScaffoldState extends State<MainScaffold> {
   }
 
   List<Widget> _buildPages(BuildContext context) {
-    final versionId = context.read<BibleVersionCubit>().state.version.id;
-
     return [
       const BibliaPage(),
       const TelaBusca(),
@@ -81,7 +99,10 @@ class _MainScaffoldState extends State<MainScaffold> {
         create: (context) => MarkedVersesBloc(
           context.read<IMarkedVersesRepository>(),
         ),
-        child: ProfilePage(feedbackService: widget.feedbackService),
+        child: ProfilePage(
+          feedbackService: widget.feedbackService,
+          onShowTutorial: () => showTutorial(),
+        ),
       ),
     ];
   }
@@ -105,15 +126,15 @@ class _MainScaffoldState extends State<MainScaffold> {
                   labelType: NavigationRailLabelType.all,
                   destinations: [
                     NavigationRailDestination(
-                      icon: const Icon(Icons.book),
+                      icon: Icon(Icons.book, key: keyBibleTab),
                       label: Text(l10n.bible),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.search),
+                      icon: Icon(Icons.search, key: keySearchTab),
                       label: Text(l10n.search),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.person),
+                      icon: Icon(Icons.person, key: keyProfileTab),
                       label: Text(l10n.profile),
                     ),
                   ],
@@ -142,15 +163,15 @@ class _MainScaffoldState extends State<MainScaffold> {
             },
             items: [
               BottomNavigationBarItem(
-                icon: const Icon(Icons.book),
+                icon: Icon(Icons.book, key: keyBibleTab),
                 label: l10n.bible,
               ),
               BottomNavigationBarItem(
-                icon: const Icon(Icons.search),
+                icon: Icon(Icons.search, key: keySearchTab),
                 label: l10n.search,
               ),
               BottomNavigationBarItem(
-                icon: const Icon(Icons.person),
+                icon: Icon(Icons.person, key: keyProfileTab),
                 label: l10n.profile,
               ),
             ],
