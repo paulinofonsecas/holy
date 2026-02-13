@@ -1,3 +1,4 @@
+import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
@@ -56,7 +57,10 @@ class _TelaBuscaState extends State<TelaBusca> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Buscar Versículos'),
+        title: Text(
+          key: keySearchField,
+          'Buscar Versículos',
+        ),
         actions: [
           BlocBuilder<SearchBloc, EstadoBusca>(
             builder: (context, estado) {

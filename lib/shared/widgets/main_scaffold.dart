@@ -46,7 +46,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
 
   Future<void> _checkFirstTimeTutorial() async {
     final prefs = await SharedPreferences.getInstance();
-    final bool shown = prefs.getBool('tutorial_shown') ?? false;
+    final bool shown = prefs.getBool('tutorial_shown1') ?? false;
     if (!shown) {
       showTutorial();
       await prefs.setBool('tutorial_shown', true);
@@ -101,7 +101,10 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
         ),
         child: ProfilePage(
           feedbackService: widget.feedbackService,
-          onShowTutorial: () => showTutorial(),
+          onShowTutorial: () {
+            context.read<TabControllerCubit>().goToBible();
+            showTutorial();
+          },
         ),
       ),
     ];

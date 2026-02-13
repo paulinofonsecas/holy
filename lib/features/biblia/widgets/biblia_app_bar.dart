@@ -1,4 +1,5 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
@@ -22,12 +23,15 @@ class BibleAppBar extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       child: Row(
         children: [
-          const VersaoWidget(),
+          VersaoWidget(
+            key: keyBibleVersionTab,
+          ),
           const Spacer(),
           BlocBuilder<BibliaBloc, BibliaState>(
             builder: (context, state) {
               if (state is BibleChapterLoaded) {
                 return InkWell(
+                  key: keyBibleContentTab,
                   onTap: onBookTap,
                   borderRadius: BorderRadius.circular(8),
                   child: Padding(

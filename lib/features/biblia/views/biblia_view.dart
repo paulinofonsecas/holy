@@ -103,6 +103,7 @@ class BibliaView extends StatelessWidget {
             children: [
               const Gap(16),
               BibleAppBar(
+                
                 onBookTap: () {
                   SwitchBookModal.show(context);
                 },
