@@ -25,7 +25,8 @@ class ReadingSettingsRepository {
       isBold: _prefs.getBool(_keyIsBold) ?? false,
       isItalic: _prefs.getBool(_keyIsItalic) ?? false,
       isGoogleFont: _prefs.getBool(_keyIsGoogleFont) ?? false,
-      textAlign: TextAlign.values[_prefs.getInt(_keyTextAlign) ?? TextAlign.left.index],
+      textAlign: TextAlign.values[
+          _prefs.getInt(_keyTextAlign) ?? TextAlign.justify.index],
     );
   }
 

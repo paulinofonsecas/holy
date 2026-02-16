@@ -19,7 +19,7 @@ class ReadingSettingsState extends Equatable {
     this.isBold = false,
     this.isItalic = false,
     this.isGoogleFont = false,
-    this.textAlign = TextAlign.left,
+    this.textAlign = TextAlign.justify,
   });
 
   ReadingSettingsState copyWith({
