@@ -31,7 +31,7 @@ class _HighlightRowState extends State<HighlightRow> {
         ? Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: .05),
+                color: Colors.grey.withValues(alpha: .095),
                 borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
@@ -47,7 +47,7 @@ class _HighlightRowState extends State<HighlightRow> {
                     );
                   },
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 8),
                 _switchExpansionColorsWidget()
               ],
             ),
@@ -56,7 +56,9 @@ class _HighlightRowState extends State<HighlightRow> {
             children: [
               IconButton(
                 icon: const Icon(Icons.format_color_reset_outlined),
-                onPressed: widget.onRemoveHighlight,
+                onPressed: () {
+                  widget.onRemoveHighlight.call();
+                },
                 tooltip: 'Remover destaque',
               ),
               const SizedBox(width: 8),

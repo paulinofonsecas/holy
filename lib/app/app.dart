@@ -13,6 +13,7 @@ import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
+import 'package:eu_sou/core/services/toast_service.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,6 +67,7 @@ class App extends StatelessWidget {
             builder: (context, themeState) {
               return MaterialApp(
                 title: 'Eu Sou',
+                navigatorKey: toastService.navigatorKey,
                 debugShowCheckedModeBanner: false,
                 theme: AppThemeData.light(themeState.primaryColor).copyWith(
                   extensions: [

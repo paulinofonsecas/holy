@@ -47,13 +47,16 @@ class SplashPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    'assets/images/logo.png',
-                    width: 150,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.menu_book,
-                        size: 80,
-                        color: Colors.blue),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(90),
+                    child: Image.asset(
+                      'assets/images/app_icon.png',
+                      width: 150,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                          Icons.menu_book,
+                          size: 80,
+                          color: Colors.blue),
+                    ),
                   ),
                   const SizedBox(height: 48),
                   if (model.isDownloading) ...[

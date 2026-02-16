@@ -1,6 +1,8 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/core/services/share_service.dart';
+import 'package:eu_sou/core/services/toast_service.dart';
 import 'package:eu_sou/features/verse_interaction/domain/models/comparison_request.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
@@ -52,7 +54,7 @@ class VerseActionsPage {
   }
 }
 
-class ActionRowWidget extends StatelessWidget {
+class ActionRowWidget extends StatefulWidget {
   const ActionRowWidget({
     super.key,
     required this.verses,
@@ -67,6 +69,11 @@ class ActionRowWidget extends StatelessWidget {
   final int chapterNumber;
 
   @override
+  State<ActionRowWidget> createState() => _ActionRowWidgetState();
+}
+
+class _ActionRowWidgetState extends State<ActionRowWidget> {
+  @override
   Widget build(BuildContext context) {
     final highlightBloc = context.read<HighlightBloc>();
     final selectionBloc = context.read<VerseSelectionBloc>();
@@ -74,14 +81,14 @@ class ActionRowWidget extends StatelessWidget {
     final normalizedVersionId = versionId.toUpperCase();
     final cacheProvider = context.read<BibleCacheProvider>();
     final logger = LoggerService();
-    final verseNumbers = verses.map((verse) => verse.number).toList();
+    final verseNumbers = widget.verses.map((verse) => verse.number).toList();
 
     final viewModel = RichModalViewModel(
-      verses: verses,
-      verseReference: verseReference,
+      verses: widget.verses,
+      verseReference: widget.verseReference,
       versionId: versionId,
-      bookId: bookId,
-      chapterNumber: chapterNumber,
+      bookId: widget.bookId,
+      chapterNumber: widget.chapterNumber,
       highlightBloc: highlightBloc,
       selectionBloc: selectionBloc,
     );
@@ -131,44 +138,48 @@ class ActionRowWidget extends StatelessWidget {
 
     viewModel.onShareText = () {
       ShareService.shareVerses(
-        verses: verses,
-        bookName: bookId,
-        chapterNumber: chapterNumber,
+        verses: widget.verses,
+        bookName: widget.bookId,
+        chapterNumber: widget.chapterNumber,
         versionId: versionId,
       );
     };
 
-    viewModel.onCompareVersions = () {
+    viewModel.onCompareVersions = () async {
       if (verseNumbers.isEmpty) {
         logger
             .warning('Compare versions requested without any verses selected');
         return;
       }
 
+      final navigator = Navigator.of(context);
+      final bibleRepository = context.read<IBibleRepository>();
+      final currentBookId = widget.bookId;
+      final currentChapter = widget.chapterNumber;
+      final currentReference = widget.verseReference;
+
       final verseNumber = verseNumbers.reduce(
         (value, element) => value < element ? value : element,
       );
 
-      viewModel.clearSelection();
-      Navigator.of(context).pop();
+      final targetVersionIds = await resolveTargetVersionIds();
 
-      Future<void>(() async {
-        final targetVersionIds = await resolveTargetVersionIds();
-        final request = ComparisonRequest(
-          bookId: bookId,
-          chapterNumber: chapterNumber,
+      viewModel.clearSelection();
+
+      if (!navigator.context.mounted) return;
+
+      await CompareVersionsModal.show(
+        context: navigator.context,
+        bibleRepository: bibleRepository,
+        request: ComparisonRequest(
+          bookId: currentBookId,
+          chapterNumber: currentChapter,
           verseNumber: verseNumber,
           sourceVersionId: normalizedVersionId,
           targetVersionIds: targetVersionIds,
-        );
-
-        if (!context.mounted) return;
-        await CompareVersionsModal.show(
-          context: context,
-          request: request,
-          verseReference: verseReference,
-        );
-      });
+        ),
+        verseReference: currentReference,
+      );
     };
 
     return Row(
@@ -180,6 +191,7 @@ class ActionRowWidget extends StatelessWidget {
           },
           onRemoveHighlight: () {
             viewModel.removeHighlight();
+            viewModel.clearSelection();
           },
         ),
         ActionRow(
@@ -192,11 +204,13 @@ class ActionRowWidget extends StatelessWidget {
           onCreateImage: () {
             RichVerseActionModal.show(
               context: context,
-              verses: verses,
-              verseReference: verseReference,
+              verses: widget.verses,
+              verseReference: widget.verseReference,
             );
           },
           onCopy: () {
+            viewModel.copyToClipboard();
+            toastService.showSuccess('Copiado para a área de transferência');
             viewModel.clearSelection();
           },
           onCompare: () {

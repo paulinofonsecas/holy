@@ -12,9 +12,11 @@ class CompareVersionsModal {
     required BuildContext context,
     required ComparisonRequest request,
     required String verseReference,
+    IBibleRepository? bibleRepository,
   }) {
-    final repository =
-        ComparisonRepositoryImpl(context.read<IBibleRepository>());
+    final repository = ComparisonRepositoryImpl(
+      bibleRepository ?? context.read<IBibleRepository>(),
+    );
 
     return showModalBottomSheet<void>(
       context: context,
@@ -62,12 +64,12 @@ class _CompareVersionsBody extends StatelessWidget {
     if (controller.isBusy) {
       content = const Center(child: CircularProgressIndicator());
     } else if (controller.hasError) {
-      content = _ComparisonMessage(
+      content = const _ComparisonMessage(
         icon: Icons.error_outline,
         message: 'Não foi possível carregar as versões. Tente novamente.',
       );
     } else if (!controller.hasContent) {
-      content = _ComparisonMessage(
+      content = const _ComparisonMessage(
         icon: Icons.info_outline,
         message: 'Nenhuma versão disponível para comparação.',
       );
