@@ -58,7 +58,7 @@ class _TelaBuscaState extends State<TelaBusca> {
     super.dispose();
   }
 
-  void _showExportOptions(BuildContext context, List<SearchResult> results) {
+  void _showExportOptions(BuildContext context, List<SearchResult> results, {String? query}) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -81,7 +81,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                 title: const Text('Copiar Texto'),
                 onTap: () {
                   Navigator.pop(context);
-                  SearchExportService.copyToClipboard(results);
+                  SearchExportService.copyToClipboard(results, query: query);
                 },
               ),
               ListTile(
@@ -89,7 +89,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                 title: const Text('Exportar como .TXT'),
                 onTap: () {
                   Navigator.pop(context);
-                  SearchExportService.exportToTxt(results);
+                  SearchExportService.exportToTxt(results, query: query);
                 },
               ),
               ListTile(
@@ -97,7 +97,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                 title: const Text('Exportar como .MD (Markdown)'),
                 onTap: () {
                   Navigator.pop(context);
-                  SearchExportService.exportToMd(results);
+                  SearchExportService.exportToMd(results, query: query);
                 },
               ),
               ListTile(
@@ -105,7 +105,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                 title: const Text('Exportar como .PDF'),
                 onTap: () {
                   Navigator.pop(context);
-                  SearchExportService.exportToPdf(results);
+                  SearchExportService.exportToPdf(results, query: query);
                 },
               ),
               const Gap(16),
@@ -138,50 +138,65 @@ class _TelaBuscaState extends State<TelaBusca> {
                   ? Text('${selectionState.selectedResults.length} selecionados')
                   : const Text('Buscar Versículos'),
               actions: [
-                if (selectionState.isInSelectionMode) ...[
-                  IconButton(
-                    tooltip: 'Selecionar todos',
-                    icon: const Icon(Icons.select_all),
-                    onPressed: () {
-                      final searchState = context.read<SearchBloc>().state;
-                      if (searchState is BuscaCarregada) {
-                        context.read<SearchSelectionBloc>().add(
-                              SelectAllSearchResults(
-                                  searchState.resultados.results),
+                BlocBuilder<SearchBloc, EstadoBusca>(
+                  builder: (context, estado) {
+                    if (estado is! BuscaCarregada ||
+                        (estado.resultados.results.isEmpty &&
+                            estado.correspondenciasLivros.isEmpty)) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (selectionState.isInSelectionMode)
+                          IconButton(
+                            tooltip: 'Selecionar todos',
+                            icon: const Icon(Icons.select_all),
+                            onPressed: () {
+                              context.read<SearchSelectionBloc>().add(
+                                    SelectAllSearchResults(
+                                        estado.resultados.results),
+                                  );
+                            },
+                          ),
+                        IconButton(
+                          tooltip: selectionState.isInSelectionMode
+                              ? 'Exportar selecionados'
+                              : 'Exportar todos',
+                          icon: const Icon(Icons.ios_share),
+                          onPressed: () {
+                            final resultsToExport =
+                                selectionState.isInSelectionMode
+                                    ? selectionState.selectedResults.values
+                                        .toList()
+                                    : estado.resultados.results;
+                            
+                            // Pega o termo de busca para usar no título
+                            final currentQuery = estado.consultas
+                                .map((q) => q.term)
+                                .where((t) => t.isNotEmpty)
+                                .join(' + ');
+
+                            _showExportOptions(
+                              context, 
+                              resultsToExport, 
+                              query: currentQuery,
                             );
-                      }
-                    },
-                  ),
-                  IconButton(
-                    tooltip: 'Exportar',
-                    icon: const Icon(Icons.ios_share),
-                    onPressed: () {
-                      _showExportOptions(
-                        context,
-                        selectionState.selectedResults.values.toList(),
-                      );
-                    },
-                  ),
-                ] else
-                  BlocBuilder<SearchBloc, EstadoBusca>(
-                    builder: (context, estado) {
-                      final consultas = (estado is BuscaCarregada)
-                          ? estado.consultas
-                          : context.read<SearchBloc>().consultas;
-
-                      if (consultas.every((q) => q.term.isEmpty)) {
-                        return const SizedBox.shrink();
-                      }
-
-                      return IconButton(
-                        tooltip: 'Limpar busca',
-                        icon: const Icon(Icons.delete_sweep_outlined),
-                        onPressed: () {
-                          context.read<SearchBloc>().add(LimparBusca());
-                        },
-                      );
-                    },
-                  ),
+                          },
+                        ),
+                        if (!selectionState.isInSelectionMode)
+                          IconButton(
+                            tooltip: 'Limpar busca',
+                            icon: const Icon(Icons.delete_sweep_outlined),
+                            onPressed: () {
+                              context.read<SearchBloc>().add(LimparBusca());
+                            },
+                          ),
+                      ],
+                    );
+                  },
+                ),
               ],
             ),
             body: BlocBuilder<SearchBloc, EstadoBusca>(
@@ -404,71 +419,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                                         ],
                                       ),
                                     ),
-                                  ] else ...[
-                                    Container(
-                                      margin: const EdgeInsets.all(16),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 16 * 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(14),
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .surface
-                                            .withValues(alpha: 1),
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: .1),
-                                          ),
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: .1),
-                                            blurRadius: 1,
-                                            offset: const Offset(0, 0),
-                                          ),
-                                        ],
-                                      ),
-                                                                        child: Column(
-                                                                          children: [
-                                                                            Text(
-                                                                              'Tente usar termos mais simples ou verifique a ortografia.',
-                                                                              textAlign: TextAlign.center,
-                                                                              style: TextStyle(
-                                                                                color: Theme.of(context)
-                                                                                    .colorScheme
-                                                                                    .onSurface,
-                                                                              ),
-                                                                            ),
-                                                                            const Gap(24),
-                                                                            OutlinedButton.icon(
-                                                                              onPressed: () {
-                                                                                context
-                                                                                    .read<SearchBloc>()
-                                                                                    .add(PesquisaRandomica());
-                                                                              },
-                                                                              icon: const Icon(Icons.casino),
-                                                                              label: const Text(
-                                                                                  'Tentar Termo Aleatório'),
-                                                                              style: OutlinedButton.styleFrom(
-                                                                                shape: RoundedRectangleBorder(
-                                                                                  borderRadius:
-                                                                                      BorderRadius.circular(12),
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                      
-                                    ),
-                                  ],
+                                  ] else
+                                    const SizedBox.shrink(),
                                 ],
                               ),
                             ),

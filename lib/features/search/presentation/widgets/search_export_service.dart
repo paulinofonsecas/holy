@@ -1,15 +1,28 @@
 import 'dart:io';
 import 'package:bible_handler/bible_handler.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
 class SearchExportService {
-  static Future<void> exportToTxt(List<SearchResult> results) async {
+  static String _formatTitle(String? query) {
+    if (query == null || query.isEmpty) return 'Meus Versículos - Eu Sou';
+    return 'Busca: $query - Eu Sou';
+  }
+
+  static String _getTimestamp() {
+    return DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now());
+  }
+
+  static Future<void> exportToTxt(List<SearchResult> results, {String? query}) async {
     final buffer = StringBuffer();
-    buffer.writeln('Resultados da Busca - Eu Sou');
-    buffer.writeln('----------------------------');
+    final title = _formatTitle(query);
+    
+    buffer.writeln(title);
+    buffer.writeln('Exportado em: ${_getTimestamp()}');
+    buffer.writeln('=' * title.length);
     buffer.writeln();
 
     for (final result in results) {
@@ -22,12 +35,15 @@ class SearchExportService {
     final file = File('${directory.path}/resultados_busca.txt');
     await file.writeAsString(buffer.toString());
 
-    await Share.shareXFiles([XFile(file.path)], text: 'Meus resultados de busca da Bíblia');
+    await Share.shareXFiles([XFile(file.path)], text: title);
   }
 
-  static Future<void> exportToMd(List<SearchResult> results) async {
+  static Future<void> exportToMd(List<SearchResult> results, {String? query}) async {
     final buffer = StringBuffer();
-    buffer.writeln('# Resultados da Busca - Eu Sou');
+    final title = _formatTitle(query);
+
+    buffer.writeln('# $title');
+    buffer.writeln('_Exportado em: ${_getTimestamp()}_');
     buffer.writeln();
 
     for (final result in results) {
@@ -40,20 +56,29 @@ class SearchExportService {
     final file = File('${directory.path}/resultados_busca.md');
     await file.writeAsString(buffer.toString());
 
-    await Share.shareXFiles([XFile(file.path)], text: 'Meus resultados de busca da Bíblia');
+    await Share.shareXFiles([XFile(file.path)], text: title);
   }
 
-  static Future<void> exportToPdf(List<SearchResult> results) async {
+  static Future<void> exportToPdf(List<SearchResult> results, {String? query}) async {
     final pdf = pw.Document();
+    final title = _formatTitle(query);
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
           return [
             pw.Header(
               level: 0,
-              child: pw.Text('Resultados da Busca - Eu Sou', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(title, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                  pw.SizedBox(height: 4),
+                  pw.Text('Exportado em: ${_getTimestamp()}', style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+                ],
+              ),
             ),
             pw.SizedBox(height: 20),
             ...results.map((result) {
@@ -62,12 +87,14 @@ class SearchExportService {
                 children: [
                   pw.Text(
                     '${result.book.name} ${result.chapter.number}:${result.verse.number} (${result.versionId})',
-                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14),
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12),
                   ),
-                  pw.SizedBox(height: 5),
-                  pw.Text(result.verse.text, style: const pw.TextStyle(fontSize: 12)),
-                  pw.Divider(),
-                  pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 4),
+                  pw.Text(result.verse.text, style: const pw.TextStyle(fontSize: 11)),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.symmetric(vertical: 8),
+                    child: pw.Divider(thickness: 0.5, color: PdfColors.grey300),
+                  ),
                 ],
               );
             }),
@@ -80,18 +107,22 @@ class SearchExportService {
     final file = File('${directory.path}/resultados_busca.pdf');
     await file.writeAsBytes(await pdf.save());
 
-    await Share.shareXFiles([XFile(file.path)], text: 'Meus resultados de busca da Bíblia');
+    await Share.shareXFiles([XFile(file.path)], text: title);
   }
 
-  static Future<void> copyToClipboard(List<SearchResult> results) async {
+  static Future<void> copyToClipboard(List<SearchResult> results, {String? query}) async {
     final buffer = StringBuffer();
+    final title = _formatTitle(query);
+    
+    buffer.writeln(title);
+    buffer.writeln('---');
+    buffer.writeln();
+    
     for (final result in results) {
       buffer.writeln('${result.book.name} ${result.chapter.number}:${result.verse.number} (${result.versionId})');
       buffer.writeln(result.verse.text);
       buffer.writeln();
     }
-    // We can use Share.share for simple text copy if needed, but clipboard is better.
-    // However, Share.share also allows copying.
     await Share.share(buffer.toString());
   }
 }
