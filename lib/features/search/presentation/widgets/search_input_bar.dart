@@ -64,16 +64,41 @@ class _SearchInputBarState extends State<SearchInputBar> {
               controller: _controller,
               decoration: InputDecoration(
                 hintText: widget.hintText,
-                prefixIcon: const Icon(Icons.search, size: 20),
+                hintStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  fontSize: 14,
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  size: 22,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
                 isDense: true,
+                filled: true,
+                fillColor: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withOpacity(0.05),
                 contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
                 suffixIcon: _controller.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
+                        icon: const Icon(Icons.close, size: 18),
                         onPressed: () {
                           _controller.clear();
                           widget.onChanged('');
@@ -87,14 +112,14 @@ class _SearchInputBarState extends State<SearchInputBar> {
           if (widget.showRemove) ...[
             const SizedBox(width: 8),
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent, size: 22),
               onPressed: widget.onRemove,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              visualDensity: VisualDensity.compact,
             ),
           ] else if (searchState is BuscaCarregada &&
               searchState.consultas.length < 2) ...[
+            const SizedBox(width: 8),
             PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'advanced') {
@@ -139,27 +164,29 @@ class _SearchInputBarState extends State<SearchInputBar> {
                 }
               },
               padding: EdgeInsets.zero,
-              icon: const Icon(Icons.auto_awesome, size: 20),
+              offset: const Offset(0, 40),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              icon: Icon(Icons.auto_awesome, 
+                size: 24, 
+                color: Theme.of(context).colorScheme.primary),
               itemBuilder: (context) => [
                 const PopupMenuItem(
                   value: 'advanced',
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.auto_awesome, size: 18),
-                      SizedBox(width: 8),
-                      Flexible(child: Text('Pesquisa Avançada')),
+                      SizedBox(width: 12),
+                      Text('Pesquisa Avançada'),
                     ],
                   ),
                 ),
                 const PopupMenuItem(
                   value: 'add',
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add, size: 18),
-                      SizedBox(width: 8),
-                      Flexible(child: Text('Novo campo de busca')),
+                      Icon(Icons.add_circle_outline, size: 18),
+                      SizedBox(width: 12),
+                      Text('Novo campo'),
                     ],
                   ),
                 ),

@@ -136,31 +136,48 @@ class MultipleSearchHeader extends StatelessWidget {
                 },
               ),
 
-              const SizedBox(height: 2),
-              if (searchState is BuscaCarregada &&
-                  searchState.consultas.length > 1) ...[
-                TextButton.icon(
-                  onPressed: () {
-                    context.read<SearchBloc>().add(AdicionarConsulta());
-                  },
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  icon: const Icon(Icons.add_circle_outline, size: 20),
-                  label: const Text('Adicionar termo'),
-                ),
-              ],
+              const SizedBox(height: 8),
               if (searchState is BuscaCarregada)
-                CheckboxListTile(
-                  title: const Text('Todos as versões'),
-                  titleAlignment: ListTileTitleAlignment.center,
-                  value: isGlobalSearchAllVersions,
-                  onChanged: (valor) {
-                    context.read<SearchBloc>().add(
-                          AlternarBuscaTodasVersoes(valor ?? false),
-                        );
-                  },
-                  contentPadding: EdgeInsets.zero,
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: InkWell(
+                    onTap: () {
+                      context.read<SearchBloc>().add(
+                            AlternarBuscaTodasVersoes(!isGlobalSearchAllVersions),
+                          );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Todos as versões',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          Transform.scale(
+                            scale: 0.9,
+                            child: Checkbox(
+                              value: isGlobalSearchAllVersions,
+                              onChanged: (valor) {
+                                context.read<SearchBloc>().add(
+                                      AlternarBuscaTodasVersoes(valor ?? false),
+                                    );
+                              },
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
             ],
           );
