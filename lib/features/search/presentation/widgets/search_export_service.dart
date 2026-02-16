@@ -137,21 +137,3 @@ class SearchExportService {
     await Share.share(buffer.toString());
   }
 }
-
-
-  static Future<void> copyToClipboard(List<SearchResult> results, {String? query}) async {
-    final buffer = StringBuffer();
-    final title = _formatTitle(query);
-    
-    buffer.writeln(title);
-    buffer.writeln('---');
-    buffer.writeln();
-    
-    for (final result in results) {
-      buffer.writeln('${result.book.name} ${result.chapter.number}:${result.verse.number} (${result.versionId})');
-      buffer.writeln(result.verse.text);
-      buffer.writeln();
-    }
-    await Share.share(buffer.toString());
-  }
-}
