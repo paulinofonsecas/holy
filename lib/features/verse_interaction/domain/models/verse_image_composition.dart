@@ -4,7 +4,7 @@ import '../../../../shared/bible_models.dart';
 
 enum AspectRatioOption {
   square(1.0, '1:1'),
-  widescreen(16 / 9, '16:9'),
+  // widescreen(16 / 9, '16:9'),
   portrait(4 / 5, '4:5');
 
   final double ratio;

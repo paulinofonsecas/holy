@@ -97,64 +97,55 @@ class VerseImageCanvas extends StatelessWidget {
     return Align(
       alignment: alignment,
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Main verse text - with verse numbers if multiple
-                if (hasMultipleVerses)
-                  ..._buildMultiVerseText()
-                else
-                  Text(
-                    composition.fullText,
-                    textAlign: composition.textAlign,
-                    maxLines: null,
-                    overflow: TextOverflow.visible,
-                    style: TextStyle(
-                      fontFamily: composition.fontFamily,
-                      fontSize: composition.fontSize,
-                      color: composition.textColor
-                          .withOpacity(composition.textOpacity),
-                      shadows: [
-                        Shadow(
-                          offset: const Offset(1, 1),
-                          blurRadius: 3,
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                      ],
-                      height: 1.4,
+        padding: const EdgeInsets.all(32.0), // Increased padding
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Main verse text - with verse numbers if multiple
+            if (hasMultipleVerses)
+              ..._buildMultiVerseText()
+            else
+              Text(
+                composition.fullText,
+                textAlign: composition.textAlign,
+                style: TextStyle(
+                  fontFamily: composition.fontFamily,
+                  fontSize: composition.fontSize,
+                  color: composition.textColor
+                      .withOpacity(composition.textOpacity),
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(1, 1),
+                      blurRadius: 3,
+                      color: Colors.black.withOpacity(0.5),
                     ),
-                  ),
-
-                const SizedBox(height: 12),
-
-                // Verse reference
-                Text(
-                  composition.verseReference,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: composition.fontFamily,
-                    fontSize: composition.fontSize * 0.7,
-                    color: composition.textColor
-                        .withOpacity(composition.textOpacity * 0.8),
-                    fontStyle: FontStyle.italic,
-                    shadows: [
-                      Shadow(
-                        offset: const Offset(1, 1),
-                        blurRadius: 3,
-                        color: Colors.black.withOpacity(0.5),
-                      ),
-                    ],
-                  ),
+                  ],
+                  height: 1.3,
                 ),
-              ],
+              ),
+
+            const SizedBox(height: 16),
+
+            // Verse reference
+            Text(
+              composition.verseReference,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: composition.fontFamily,
+                fontSize: composition.fontSize,
+                color: composition.textColor
+                    .withOpacity(composition.textOpacity * 0.8),
+                fontStyle: FontStyle.italic,
+                shadows: [
+                  Shadow(
+                    offset: const Offset(1, 1),
+                    blurRadius: 3,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -172,12 +163,12 @@ class VerseImageCanvas extends StatelessWidget {
           color: Colors.black.withOpacity(0.5),
         ),
       ],
-      height: 1.4,
+      height: 1.3,
     );
 
     final numberStyle = TextStyle(
       fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize * 0.8,
+      fontSize: composition.fontSize * 0.75,
       color: composition.textColor.withOpacity(composition.textOpacity * 0.7),
       fontWeight: FontWeight.bold,
       shadows: [
@@ -194,27 +185,22 @@ class VerseImageCanvas extends StatelessWidget {
       final isLast = entry.key == composition.verses.length - 1;
 
       return [
-        SizedBox(
-          width: 400,
-          child: RichText(
-            textAlign: composition.textAlign,
-            maxLines: null,
-            overflow: TextOverflow.visible,
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: '${verse.number} ',
-                  style: numberStyle,
-                ),
-                TextSpan(
-                  text: verse.text,
-                  style: textStyle,
-                ),
-              ],
-            ),
+        RichText(
+          textAlign: composition.textAlign,
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: '${verse.number} ',
+                style: numberStyle,
+              ),
+              TextSpan(
+                text: verse.text,
+                style: textStyle,
+              ),
+            ],
           ),
         ),
-        if (!isLast) const SizedBox(height: 8),
+        if (!isLast) const SizedBox(height: 6),
       ];
     }).toList();
   }

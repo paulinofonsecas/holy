@@ -66,13 +66,29 @@ class ImageCreatorPage extends StatefulWidget {
 }
 
 class _ImageCreatorPageState extends State<ImageCreatorPage> {
-  late GlobalKey _repaintKey;
+  final List<GlobalKey> _repaintKeys = [];
   final ImageGeneratorService _imageService = ImageGeneratorService();
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
-    _repaintKey = GlobalKey();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _syncRepaintKeys(int count) {
+    if (_repaintKeys.length != count) {
+      _repaintKeys.clear();
+      for (int i = 0; i < count; i++) {
+        _repaintKeys.add(GlobalKey());
+      }
+    }
   }
 
   @override
@@ -91,7 +107,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
           );
         }
 
-        if (viewModel.composition == null) {
+        if (viewModel.compositions.isEmpty) {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(48.0),
@@ -100,30 +116,72 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
           );
         }
 
+        _syncRepaintKeys(viewModel.compositions.length);
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Canvas Preview - Constrained for better responsiveness
+              // Canvas Preview - PageView for multiple images
               LayoutBuilder(
                 builder: (context, constraints) {
-                  // Limit canvas width on larger screens for better UX
                   final maxWidth =
                       constraints.maxWidth > 600 ? 600.0 : constraints.maxWidth;
+                  final aspectRatio =
+                      viewModel.currentComposition!.aspectRatio.ratio;
+                  final height = maxWidth / aspectRatio;
 
-                  return Center(
-                    child: SizedBox(
-                      width: maxWidth,
-                      child: VerseImageCanvas(
-                        composition: viewModel.composition!,
-                        repaintKey: _repaintKey,
-                        customBackgroundPath: viewModel.customBackgroundPath,
-                        onTextDrag: (position) {
-                          viewModel.updateTextPosition(position);
-                        },
+                  return Column(
+                    children: [
+                      Center(
+                        child: SizedBox(
+                          width: maxWidth,
+                          height: height,
+                          child: PageView.builder(
+                            controller: _pageController,
+                            onPageChanged: (index) {
+                              viewModel.setCurrentIndex(index);
+                            },
+                            itemCount: viewModel.compositions.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: VerseImageCanvas(
+                                  composition: viewModel.compositions[index],
+                                  repaintKey: _repaintKeys[index],
+                                  customBackgroundPath:
+                                      viewModel.customBackgroundPath,
+                                  onTextDrag: (position) {
+                                    viewModel.updateTextPosition(position);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
+                      if (viewModel.compositions.length > 1) ...[
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            viewModel.compositions.length,
+                            (index) => Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: viewModel.currentIndex == index
+                                    ? Theme.of(context).primaryColor
+                                    : Colors.grey.shade300,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   );
                 },
               ),
@@ -144,10 +202,12 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                     Icon(Icons.touch_app,
                         size: 16, color: Colors.blue.shade700),
                     const SizedBox(width: 8),
-                    Text(
-                      'Arraste o texto para posicioná-lo',
-                      style:
-                          TextStyle(fontSize: 12, color: Colors.blue.shade700),
+                    Expanded(
+                      child: Text(
+                        'Arraste o texto para posicioná-lo. Deslize para ver outras imagens.',
+                        style:
+                            TextStyle(fontSize: 12, color: Colors.blue.shade700),
+                      ),
                     ),
                   ],
                 ),
@@ -165,7 +225,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                 onPressed: viewModel.isGenerating
                     ? null
                     : () async {
-                        await _generateAndShareImage(viewModel);
+                        await _generateAndShareImages(viewModel);
                       },
                 icon: viewModel.isGenerating
                     ? const SizedBox(
@@ -175,7 +235,11 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                       )
                     : const Icon(Icons.share),
                 label: Text(
-                  viewModel.isGenerating ? 'Gerando...' : 'Partilhar Imagem',
+                  viewModel.isGenerating
+                      ? 'Gerando...'
+                      : viewModel.compositions.length > 1
+                          ? 'Partilhar Todas (${viewModel.compositions.length})'
+                          : 'Partilhar Imagem',
                 ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -199,11 +263,15 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                 onPressed: viewModel.isGenerating
                     ? null
                     : () async {
-                        await _saveImageToGallery(viewModel);
+                        await _saveImagesToGallery(viewModel);
                       },
                 icon: const Icon(Icons.download),
                 label: Text(
-                  viewModel.isGenerating ? 'Gerando...' : 'Baixar Imagem',
+                  viewModel.isGenerating
+                      ? 'Gerando...'
+                      : viewModel.compositions.length > 1
+                          ? 'Baixar Todas'
+                          : 'Baixar Imagem',
                 ),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -218,42 +286,45 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
     );
   }
 
-  Future<void> _generateAndShareImage(
+  Future<void> _generateAndShareImages(
     ImageCreatorViewModel viewModel,
   ) async {
     viewModel.setGenerating(true);
 
     try {
-      // Wait a frame to ensure RepaintBoundary is ready
       await Future.delayed(const Duration(milliseconds: 100));
 
-      // Capture image with aspect ratio
-      final Uint8List? imageBytes = await _imageService.captureAsPng(
-        _repaintKey,
-        targetAspectRatio: viewModel.composition!.aspectRatio,
-      );
+      final List<XFile> xFiles = [];
 
-      if (imageBytes == null) {
-        throw Exception('Falha ao gerar imagem');
+      for (int i = 0; i < viewModel.compositions.length; i++) {
+        final Uint8List? imageBytes = await _imageService.captureAsPng(
+          _repaintKeys[i],
+          targetAspectRatio: viewModel.compositions[i].aspectRatio,
+        );
+
+        if (imageBytes != null) {
+          xFiles.add(XFile.fromData(
+            imageBytes,
+            name: 'verse_${i}_${DateTime.now().millisecondsSinceEpoch}.png',
+            mimeType: 'image/png',
+          ));
+        }
       }
 
-      // Share the image
+      if (xFiles.isEmpty) {
+        throw Exception('Falha ao gerar imagens');
+      }
+
       await Share.shareXFiles(
-        [
-          XFile.fromData(
-            imageBytes,
-            name: 'verse_${DateTime.now().millisecondsSinceEpoch}.png',
-            mimeType: 'image/png',
-          ),
-        ],
+        xFiles,
         text:
-            '${viewModel.composition!.fullText}\n\n${viewModel.composition!.verseReference}',
+            '${viewModel.compositions.map((c) => c.fullText).join('\n\n')}\n\n${viewModel.compositions.first.verseReference}',
       );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao gerar imagem: $e'),
+            content: Text('Erro ao gerar imagens: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -263,45 +334,52 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
     }
   }
 
-  Future<void> _saveImageToGallery(
+  Future<void> _saveImagesToGallery(
     ImageCreatorViewModel viewModel,
   ) async {
     viewModel.setGenerating(true);
 
     try {
-      // Wait a frame to ensure RepaintBoundary is ready
       await Future.delayed(const Duration(milliseconds: 100));
 
-      // Capture image with aspect ratio
-      final Uint8List? imageBytes = await _imageService.captureAsPng(
-        _repaintKey,
-        targetAspectRatio: viewModel.composition!.aspectRatio,
-      );
+      int successCount = 0;
 
-      if (imageBytes == null) {
-        throw Exception('Falha ao gerar imagem');
-      }
+      for (int i = 0; i < viewModel.compositions.length; i++) {
+        final Uint8List? imageBytes = await _imageService.captureAsPng(
+          _repaintKeys[i],
+          targetAspectRatio: viewModel.compositions[i].aspectRatio,
+        );
 
-      // Save the image to gallery
-      final bool success = await _imageService.saveImageToGallery(imageBytes);
-
-      if (!success) {
-        throw Exception('Falha ao salvar imagem na galeria');
+        if (imageBytes != null) {
+          final bool success = await _imageService.saveImageToGallery(imageBytes);
+          if (success) successCount++;
+        }
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Imagem salva na galeria com sucesso!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (successCount == viewModel.compositions.length) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Todas as imagens foram salvas na galeria!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else if (successCount > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$successCount de ${viewModel.compositions.length} imagens salvas.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        } else {
+          throw Exception('Nenhuma imagem foi salva');
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao salvar imagem: $e'),
+            content: Text('Erro ao salvar imagens: $e'),
             backgroundColor: Colors.red,
           ),
         );
