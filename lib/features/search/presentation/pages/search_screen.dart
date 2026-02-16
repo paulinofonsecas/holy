@@ -1,3 +1,4 @@
+import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
@@ -5,12 +6,11 @@ import 'package:eu_sou/features/search/presentation/widgets/multiple_search_head
 import 'package:eu_sou/features/search/presentation/widgets/search_export_service.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
-import 'package:bible_handler/bible_handler.dart';
-
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gap/gap.dart';
 
 import '../bloc/search_bloc.dart';
 import '../bloc/search_selection_bloc.dart';
@@ -58,7 +58,8 @@ class _TelaBuscaState extends State<TelaBusca> {
     super.dispose();
   }
 
-  void _showExportOptions(BuildContext context, List<SearchResult> results, {String? query}) {
+  void _showExportOptions(BuildContext context, List<SearchResult> results,
+      {String? query}) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -122,8 +123,10 @@ class _TelaBuscaState extends State<TelaBusca> {
       create: (context) => SearchSelectionBloc(),
       child: BlocBuilder<SearchSelectionBloc, SearchSelectionState>(
         builder: (context, selectionState) {
-          return Scaffold(
-            appBar: AppBar(
+          return PrimaryScrollController(
+            controller: _controladorScroll,
+            child: Scaffold(
+              appBar: AppBar(
               leading: selectionState.isInSelectionMode
                   ? IconButton(
                       icon: const Icon(Icons.close),
@@ -135,7 +138,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                     )
                   : null,
               title: selectionState.isInSelectionMode
-                  ? Text('${selectionState.selectedResults.length} selecionados')
+                  ? Text(
+                      '${selectionState.selectedResults.length} selecionados')
                   : const Text('Buscar Versículos'),
               actions: [
                 BlocBuilder<SearchBloc, EstadoBusca>(
@@ -166,12 +170,11 @@ class _TelaBuscaState extends State<TelaBusca> {
                               : 'Exportar todos',
                           icon: const Icon(Icons.ios_share),
                           onPressed: () {
-                            final resultsToExport =
-                                selectionState.isInSelectionMode
-                                    ? selectionState.selectedResults.values
-                                        .toList()
-                                    : estado.resultados.results;
-                            
+                            final resultsToExport = selectionState
+                                    .isInSelectionMode
+                                ? selectionState.selectedResults.values.toList()
+                                : estado.resultados.results;
+
                             // Pega o termo de busca para usar no título
                             final currentQuery = estado.consultas
                                 .map((q) => q.term)
@@ -179,8 +182,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                                 .join(' + ');
 
                             _showExportOptions(
-                              context, 
-                              resultsToExport, 
+                              context,
+                              resultsToExport,
                               query: currentQuery,
                             );
                           },
@@ -203,6 +206,7 @@ class _TelaBuscaState extends State<TelaBusca> {
               builder: (context, estado) {
                 return CustomScrollView(
                   controller: _controladorScroll,
+                  primary: false, // Quando controller é fornecido, primary deve ser false, mas o controlador deve ser o principal
                   slivers: [
                     SliverPadding(
                       padding: const EdgeInsets.all(16.0),
@@ -241,9 +245,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                                           estado.idVersaoSelecionada == null,
                                       onSelected: (selecionado) {
                                         if (selecionado) {
-                                          context
-                                              .read<SearchBloc>()
-                                              .add(const FiltrarPorVersao(null));
+                                          context.read<SearchBloc>().add(
+                                              const FiltrarPorVersao(null));
                                         }
                                       },
                                     ),
@@ -254,9 +257,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                                           const EdgeInsets.only(right: 8.0),
                                       child: ChoiceChip(
                                         label: Text(versao),
-                                        selected:
-                                            estado.idVersaoSelecionada ==
-                                                versao,
+                                        selected: estado.idVersaoSelecionada ==
+                                            versao,
                                         onSelected: (selecionado) {
                                           context.read<SearchBloc>().add(
                                                 FiltrarPorVersao(
@@ -420,7 +422,115 @@ class _TelaBuscaState extends State<TelaBusca> {
                                       ),
                                     ),
                                   ] else
-                                    const SizedBox.shrink(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 32.0),
+                                      child: Card(
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          side: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .outlineVariant,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(24.0),
+                                          child: Column(
+                                            children: [
+                                              Icon(
+                                                Icons.search_off_outlined,
+                                                size: 48,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withOpacity(0.5),
+                                              ),
+                                              const Gap(16),
+                                              const Text(
+                                                'Nenhum resultado encontrado',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                              const Gap(16),
+                                              // botao para usar pesquisa avançada, só aparece se tiver mais de um termo
+                                              if (estado.consultas.length >
+                                                  1) ...[
+                                                ElevatedButton.icon(
+                                                  onPressed: () {
+                                                    context.read<SearchBloc>().add(
+                                                        TransformarEmBuscaAvancada());
+                                                  },
+                                                  icon: const Icon(
+                                                      Icons.auto_awesome,
+                                                      size: 18),
+                                                  label: const Text(
+                                                      'Ativar Pesquisa Avançada'),
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    elevation: 0,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ] else ...[
+                                                // acionar buscar em todas as versoes, só aparece se tiver só um termo e não tiver buscado em todas as versões ainda
+                                                if (!estado
+                                                        .buscarTodasVersoes &&
+                                                    estado.consultas.length ==
+                                                        1) ...[
+                                                  ElevatedButton.icon(
+                                                    onPressed: () {
+                                                      context
+                                                          .read<SearchBloc>()
+                                                          .add(
+                                                            const AlternarBuscaTodasVersoes(
+                                                              true,
+                                                            ),
+                                                          );
+                                                      // context
+                                                      //     .read<SearchBloc>()
+                                                      //     .add(
+                                                      //       (
+                                                      //         estado
+                                                      //             .consultas
+                                                      //             .first
+                                                      //             .term,
+                                                      //       ),
+                                                      //     );
+                                                    },
+                                                    icon: const Icon(
+                                                        CupertinoIcons.globe,
+                                                        size: 18),
+                                                    label: const Text(
+                                                        'Buscar em Todas as Versões'),
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      elevation: 0,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -489,9 +599,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                               (context, indice) {
                                 final resultado =
                                     estado.resultados.results[indice];
-                                final isSelected = selectionState
-                                    .selectedResults
-                                    .containsKey(
+                                final isSelected =
+                                    selectionState.selectedResults.containsKey(
                                         '${resultado.versionId}-${resultado.book.id}-${resultado.chapter.number}-${resultado.verse.number}');
 
                                 void aoInteragir() {

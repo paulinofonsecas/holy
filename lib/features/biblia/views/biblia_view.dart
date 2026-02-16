@@ -219,8 +219,7 @@ class BibliaView extends StatelessWidget {
                                     .selectedVerses
                                     .values
                                     .toList(),
-                                verseReference:
-                                    (state as BibleChapterLoaded).versionId,
+                                verseReference: (state).versionId,
                                 bookId: state.chapter.bookId,
                                 chapterNumber: state.chapter.number,
                               ),
