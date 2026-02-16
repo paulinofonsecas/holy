@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1+22] - 2026-02-16
+
+### ✨ Novas Funcionalidades
+- **Seleção Múltipla de Resultados**: Agora é possível selecionar vários versículos na tela de busca (pressão longa) para ações em massa.
+- **Exportação Profissional**: Adicionada a capacidade de exportar resultados de busca para **PDF**, **Markdown (.md)** e **Texto (.txt)**.
+- **Títulos de Exportação Contextuais**: Arquivos exportados agora incluem o termo da busca, data e hora da geração.
+- **Pesquisa Randômica (Inspiração)**: Novo botão "Descobrir Novo Versículo" que seleciona termos bíblicos aleatórios para inspiração diária.
+- **Sugestão de Busca Avançada**: Card inteligente que sugere a Pesquisa Avançada quando termos compostos não retornam resultados exatos.
+- **Navegação Fluida**: Implementado "Scroll to Top" ao tocar na barra de status do dispositivo na tela de busca.
+
+### 🎨 Design e UI/UX
+- **Campo de Busca Moderno**: Redesign completo do `SearchInputBar` com bordas de 14px, fundo sutil e ícones otimizados.
+- **Animações de Entrada**: O `ActionRowWidget` (barra de ações de versículos) agora possui transições suaves de fade e slide ao entrar/sair.
+- **Checkbox Compacto**: Otimização do seletor de versões para um layout mais limpo e profissional.
+
+### 🐞 Correções e Melhorias
+- **Suporte Unicode no PDF**: Correção de erro de fontes ao exportar versículos com aspas ou caracteres especiais, utilizando fontes TrueType locais.
+- **Otimização de Exportação**: O botão de exportar agora é visível por padrão, permitindo exportar todos os resultados ou apenas os selecionados.
+
 ## [1.0.1+20] - 2026-02-16
 
 ### ✨ Novas Funcionalidades

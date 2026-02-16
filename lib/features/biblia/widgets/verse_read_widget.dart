@@ -84,12 +84,12 @@ class VerseReadWidget extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: backgroundColor,
                       borderRadius: BorderRadius.circular(4),
-                      border: isSelected
-                          ? Border.all(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 1,
-                            )
-                          : null,
+                      // border: isSelected
+                      //     ? Border.all(
+                      //         color: Theme.of(context).colorScheme.primary,
+                      //         width: 1,
+                      //       )
+                      //     : null,
                     ),
                     child: RichText(
                       text: TextSpan(
@@ -98,6 +98,8 @@ class VerseReadWidget extends StatelessWidget {
                             text: "${verse.number} ",
                             style: style.copyWith(
                               fontWeight: FontWeight.w500,
+                              decoration:
+                                  isSelected ? TextDecoration.underline : null,
                               color: !isHighlighted
                                   ? Theme.brightnessOf(context) ==
                                           Brightness.light
@@ -111,6 +113,11 @@ class VerseReadWidget extends StatelessWidget {
                           TextSpan(
                             text: verse.text,
                             style: style.copyWith(
+                              decoration:
+                                  isSelected ? TextDecoration.underline : null,
+                              decorationStyle: TextDecorationStyle.dashed,
+                              decorationColor:
+                                  Theme.of(context).colorScheme.primary,
                               color: !isHighlighted
                                   ? Theme.brightnessOf(context) ==
                                           Brightness.light

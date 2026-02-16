@@ -179,30 +179,55 @@ class BibliaView extends StatelessWidget {
               ),
               BlocBuilder<BibliaBloc, BibliaState>(
                 builder: (context, state) {
-                  if (state is BibleChapterLoaded &&
+                  final isInSelectionMode = state is BibleChapterLoaded &&
                       context
                           .watch<VerseSelectionBloc>()
                           .state
-                          .isInSelectionMode) {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                        child: ActionRowWidget(
-                          verses: context
-                              .read<VerseSelectionBloc>()
-                              .state
-                              .selectedVerses
-                              .values
-                              .toList(),
-                          verseReference: state.versionId,
-                          bookId: state.chapter.bookId,
-                          chapterNumber: state.chapter.number,
+                          .isInSelectionMode;
+
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    reverseDuration: const Duration(milliseconds: 200),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                      final offsetAnimation = Tween<Offset>(
+                        begin: const Offset(0, 0.5),
+                        end: Offset.zero,
+                      ).animate(animation);
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
                         ),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
+                      );
+                    },
+                    child: isInSelectionMode
+                        ? SingleChildScrollView(
+                            key: const ValueKey('ActionRowActive'),
+                            scrollDirection: Axis.horizontal,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                              child: ActionRowWidget(
+                                verses: context
+                                    .read<VerseSelectionBloc>()
+                                    .state
+                                    .selectedVerses
+                                    .values
+                                    .toList(),
+                                verseReference: (state).versionId,
+                                bookId: state.chapter.bookId,
+                                chapterNumber: state.chapter.number,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(
+                            key: ValueKey('ActionRowInactive')),
+                  );
                 },
               ),
             ],
