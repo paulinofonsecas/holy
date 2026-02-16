@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/services/toast_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
@@ -39,6 +40,7 @@ class NotificationHandler {
       return true;
     } catch (e) {
       debugPrint('Error initializing notification services: $e');
+      toastService.showWarning('Serviço de notificações indisponível.');
       // Continue with app initialization even if notifications fail
       return false;
     }

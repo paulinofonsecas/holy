@@ -16,7 +16,8 @@ All notable changes to this project will be documented in this file.
 - **Splash Integrado**: Uso do `FlutterNativeSplash` para segurar a tela de abertura até que todos os recursos essenciais estejam prontos para uso.
 
 ### 🐞 Correções e Melhorias
-- **Notificações Android**: Correção de crash (`PlatformException`) ao inicializar e exibir notificações devido à ausência do ícone de recurso nas pastas `drawable`.
+- **Notificações Android**: Melhoria na robustez com blocos `try-catch` em todas as chamadas de notificação, evitando crashes por falhas de recursos nativos e exibindo feedback visual via Toast quando o serviço estiver indisponível.
+- **Notificações Android (Ícones)**: Correção de crash (`PlatformException`) ao inicializar e exibir notificações devido à ausência do ícone de recurso nas pastas `drawable`.
 - **Estabilidade em Modais**: Correção do erro *"Looking up a deactivated widget's ancestor"* ao abrir o modal de comparação de versões, através da captura prévia de instâncias do `IBibleRepository`.
 - **Interface de Seleção**: Adição de botões de fechamento explícitos e melhor espaçamento (padding) para evitar sobreposição com barras de sistema.
 - **Limpeza de Código**: Unificação de chaves de preferência (`tutorialShownKey`) e remoção de imports duplicados no ponto de entrada principal (`main.dart`).
