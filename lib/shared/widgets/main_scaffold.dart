@@ -9,6 +9,7 @@ import 'package:eu_sou/features/biblia/views/biblia_view.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
+import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
@@ -116,72 +117,81 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     final l10n = AppLocalizations.of(context);
     final isWide = MediaQuery.of(context).size.width > 900;
 
-    return BlocBuilder<TabControllerCubit, int>(
-      builder: (context, currentIndex) {
-        if (isWide) {
-          return Scaffold(
-            body: Row(
-              children: [
-                NavigationRail(
-                  selectedIndex: currentIndex,
-                  onDestinationSelected: (index) {
-                    context.read<TabControllerCubit>().changeTo(index);
-                  },
-                  labelType: NavigationRailLabelType.all,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.book, key: keyBibleTab),
-                      label: Text(l10n.bible),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.search, key: keySearchTab),
-                      label: Text(l10n.search),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.person, key: keyProfileTab),
-                      label: Text(l10n.profile),
-                    ),
-                  ],
-                ),
-                const VerticalDivider(thickness: 1, width: 1),
-                Expanded(
-                  child: IndexedStack(
-                    index: currentIndex,
-                    children: _buildPages(context),
+    return BlocListener<TabControllerCubit, int>(
+      listener: (context, currentIndex) {
+        if (currentIndex == 0) {
+          context.read<BibliaBloc>().add(ForceScrollRestoration());
+        } else if (currentIndex == 1) {
+          context.read<SearchBloc>().add(ForcarRestauracaoScrollBusca());
+        }
+      },
+      child: BlocBuilder<TabControllerCubit, int>(
+        builder: (context, currentIndex) {
+          if (isWide) {
+            return Scaffold(
+              body: Row(
+                children: [
+                  NavigationRail(
+                    selectedIndex: currentIndex,
+                    onDestinationSelected: (index) {
+                      context.read<TabControllerCubit>().changeTo(index);
+                    },
+                    labelType: NavigationRailLabelType.all,
+                    destinations: [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.book, key: keyBibleTab),
+                        label: Text(l10n.bible),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.search, key: keySearchTab),
+                        label: Text(l10n.search),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.person, key: keyProfileTab),
+                        label: Text(l10n.profile),
+                      ),
+                    ],
                   ),
+                  const VerticalDivider(thickness: 1, width: 1),
+                  Expanded(
+                    child: IndexedStack(
+                      index: currentIndex,
+                      children: _buildPages(context),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return Scaffold(
+            body: IndexedStack(
+              index: currentIndex,
+              children: _buildPages(context),
+            ),
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: currentIndex,
+              onTap: (index) {
+                context.read<TabControllerCubit>().changeTo(index);
+              },
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.book, key: keyBibleTab),
+                  label: l10n.bible,
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.search, key: keySearchTab),
+                  label: l10n.search,
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person, key: keyProfileTab),
+                  label: l10n.profile,
                 ),
               ],
             ),
           );
-        }
-
-        return Scaffold(
-          body: IndexedStack(
-            index: currentIndex,
-            children: _buildPages(context),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: currentIndex,
-            onTap: (index) {
-              context.read<TabControllerCubit>().changeTo(index);
-            },
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.book, key: keyBibleTab),
-                label: l10n.bible,
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.search, key: keySearchTab),
-                label: l10n.search,
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person, key: keyProfileTab),
-                label: l10n.profile,
-              ),
-            ],
-          ),
-        );
-      },
+        },
+      ),
     );
   }
 }

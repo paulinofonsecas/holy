@@ -28,3 +28,8 @@ class UpdateBibleScroll extends BibliaEvent {
   @override
   List<Object?> get props => [offset];
 }
+
+class ForceScrollRestoration extends BibliaEvent {
+  @override
+  List<Object?> get props => [];
+}

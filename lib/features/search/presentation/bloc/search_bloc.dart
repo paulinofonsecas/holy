@@ -50,6 +50,26 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     on<ReordenarConsultas>(_onReorderQueryParts);
     on<TransformarEmBuscaAvancada>(_onTransformToAdvancedSearch);
     on<PesquisaRandomica>(_onRandomSearch);
+    on<ForcarRestauracaoScrollBusca>(_onForceScrollRestoration);
+  }
+
+  void _onForceScrollRestoration(
+    ForcarRestauracaoScrollBusca event,
+    Emitter<EstadoBusca> emit,
+  ) {
+    if (state is BuscaCarregada) {
+      final currentState = state as BuscaCarregada;
+      final savedOffset = _scrollPersistenceService.getSearchScrollOffset();
+      emit(BuscaCarregada(
+        resultados: currentState.resultados,
+        correspondenciasLivros: currentState.correspondenciasLivros,
+        consultas: currentState.consultas,
+        buscarTodasVersoes: currentState.buscarTodasVersoes,
+        idVersaoSelecionada: currentState.idVersaoSelecionada,
+        versoesDisponiveis: currentState.versoesDisponiveis,
+        initialScrollOffset: savedOffset,
+      ));
+    }
   }
 
   Future<void> _onRandomSearch(
@@ -363,6 +383,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         buscarTodasVersoes: _buscarTodasVersoes,
         idVersaoSelecionada: _idVersaoSelecionada,
         versoesDisponiveis: versoesDisponiveis,
+        initialScrollOffset: _scrollOffset,
       ));
     } catch (e, rastroPilha) {
       _registrador.error('❌ Erro na busca no bloc', e, rastroPilha);

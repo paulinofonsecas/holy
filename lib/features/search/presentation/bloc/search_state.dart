@@ -29,6 +29,7 @@ class BuscaCarregada extends EstadoBusca {
   final bool buscarTodasVersoes;
   final String? idVersaoSelecionada;
   final List<String> versoesDisponiveis;
+  final double initialScrollOffset;
 
   const BuscaCarregada({
     required this.resultados,
@@ -37,6 +38,7 @@ class BuscaCarregada extends EstadoBusca {
     required this.buscarTodasVersoes,
     this.idVersaoSelecionada,
     this.versoesDisponiveis = const [],
+    this.initialScrollOffset = 0.0,
   });
 
   @override
@@ -47,6 +49,7 @@ class BuscaCarregada extends EstadoBusca {
         buscarTodasVersoes,
         idVersaoSelecionada,
         versoesDisponiveis,
+        initialScrollOffset,
       ];
 }
 

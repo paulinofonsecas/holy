@@ -25,6 +25,26 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       transformer: (events, mapper) =>
           events.debounce(const Duration(milliseconds: 500)).switchMap(mapper),
     );
+    on<ForceScrollRestoration>(_onForceScrollRestoration);
+  }
+
+  void _onForceScrollRestoration(
+    ForceScrollRestoration event,
+    Emitter<BibliaState> emit,
+  ) {
+    if (state is BibleChapterLoaded) {
+      final currentState = state as BibleChapterLoaded;
+      final savedOffset = _scrollPersistenceService.getBibleScrollOffset(
+        currentState.chapter.bookId,
+        currentState.chapter.number,
+      );
+      emit(BibleChapterLoaded(
+        currentState.chapter,
+        versionId: currentState.versionId,
+        targetVerse: currentState.targetVerse,
+        initialScrollOffset: savedOffset,
+      ));
+    }
   }
 
   void _onUpdateScroll(
