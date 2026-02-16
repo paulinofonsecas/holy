@@ -2,6 +2,7 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
+import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
@@ -29,6 +30,10 @@ class BibleAppBar extends StatelessWidget {
           const Spacer(),
           BookSelectorWidget(onBookTap: onBookTap),
           const Spacer(),
+          IconButton(
+            onPressed: () => ReadingSettingsModal.show(context),
+            icon: const Icon(Icons.tune),
+          ),
           const CustomSearchBibleWidget(),
         ],
       ),

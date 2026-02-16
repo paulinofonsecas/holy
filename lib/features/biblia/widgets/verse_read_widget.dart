@@ -1,4 +1,6 @@
 import 'package:eu_sou/core/design_system/app_colors/app_colors.dart';
+import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
+import 'package:eu_sou/features/biblia/bloc/reading_settings_state.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
 import 'package:eu_sou/shared/bible_models.dart';
@@ -22,38 +24,47 @@ class VerseReadWidget extends StatelessWidget {
     final verseRef =
         "$versionId:${chapter.bookId}:${chapter.number}:${verse.number}";
 
-    return BlocBuilder<HighlightBloc, HighlightState>(
-      builder: (context, highlightState) {
-        return BlocBuilder<VerseSelectionBloc, VerseSelectionState>(
-          builder: (context, selectionState) {
-            final isSelected =
-                selectionState.selectedVerses.containsKey(verse.number);
-            final isHighlighted = highlightState is HighlightsLoaded &&
-                highlightState.highlights.containsKey(verseRef);
+    return BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
+      builder: (context, settingsState) {
+        return BlocBuilder<HighlightBloc, HighlightState>(
+          builder: (context, highlightState) {
+            return BlocBuilder<VerseSelectionBloc, VerseSelectionState>(
+              builder: (context, selectionState) {
+                final isSelected =
+                    selectionState.selectedVerses.containsKey(verse.number);
+                final isHighlighted = highlightState is HighlightsLoaded &&
+                    highlightState.highlights.containsKey(verseRef);
 
-            Color? backgroundColor;
-            if (isSelected) {
-              backgroundColor = Theme.brightnessOf(context) == Brightness.light
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: .2)
-                  : Theme.of(context).colorScheme.primary.withValues(alpha: .2);
-            } else if (highlightState is HighlightsLoaded) {
-              final highlight = highlightState.highlights[verseRef];
-              if (highlight != null) {
-                backgroundColor =
-                    Theme.brightnessOf(context) == Brightness.light
-                        ? Color(int.parse(highlight.colorHex, radix: 16))
-                            .withValues(alpha: .8)
-                        : Color(int.parse(highlight.colorHex, radix: 16))
-                            .withValues(alpha: .3);
-              }
-            }
+                Color? backgroundColor;
+                if (isSelected) {
+                  backgroundColor = Theme.brightnessOf(context) == Brightness.light
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: .2)
+                      : Theme.of(context).colorScheme.primary.withValues(alpha: .2);
+                } else if (highlightState is HighlightsLoaded) {
+                  final highlight = highlightState.highlights[verseRef];
+                  if (highlight != null) {
+                    backgroundColor =
+                        Theme.brightnessOf(context) == Brightness.light
+                            ? Color(int.parse(highlight.colorHex, radix: 16))
+                                .withValues(alpha: .8)
+                            : Color(int.parse(highlight.colorHex, radix: 16))
+                                .withValues(alpha: .3);
+                  }
+                }
 
-            const style = TextStyle(
-              fontSize: 18,
-              color: AppColor.textPrimary,
-            );
+                final style = TextStyle(
+                  fontSize: settingsState.fontSize,
+                  fontFamily: settingsState.fontFamily,
+                  height: settingsState.lineHeight,
+                  letterSpacing: settingsState.letterSpacing,
+                  fontWeight:
+                      settingsState.isBold ? FontWeight.bold : FontWeight.normal,
+                  fontStyle:
+                      settingsState.isItalic ? FontStyle.italic : FontStyle.normal,
+                  color: AppColor.textPrimary,
+                );
 
-            return GestureDetector(
+                return GestureDetector(
               onTap: () {
                 // if (selectionState.isInSelectionMode) {
                 context
