@@ -41,6 +41,42 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     on<AtualizarScrollBusca>(_onUpdateScroll);
     on<ReordenarConsultas>(_onReorderQueryParts);
     on<TransformarEmBuscaAvancada>(_onTransformToAdvancedSearch);
+    on<PesquisaRandomica>(_onRandomSearch);
+  }
+
+  Future<void> _onRandomSearch(
+    PesquisaRandomica event,
+    Emitter<EstadoBusca> emit,
+  ) async {
+    _registrador.info('🎲 Realizando pesquisa randômica');
+    final termos = [
+      'amor',
+      'fé',
+      'esperança',
+      'graça',
+      'paz',
+      'justiça',
+      'misericórdia',
+      'sabedoria',
+      'força',
+      'luz',
+      'verdade',
+      'vida',
+      'salvação',
+      'perdão',
+      'alegria',
+      'oração',
+      'espírito',
+      'coração',
+      'reino',
+      'promessa'
+    ];
+    final termoAleatorio = (List.from(termos)..shuffle()).first;
+
+    _consultas = [SearchQueryPart(term: termoAleatorio)];
+    _registrador.debug('🎲 Termo escolhido: $termoAleatorio');
+    
+    await _realizarBusca(emit);
   }
 
   Future<void> _onTransformToAdvancedSearch(

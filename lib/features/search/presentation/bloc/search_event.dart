@@ -87,3 +87,5 @@ class ReordenarConsultas extends EventoBusca {
 }
 
 class TransformarEmBuscaAvancada extends EventoBusca {}
+
+class PesquisaRandomica extends EventoBusca {}
