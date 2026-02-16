@@ -7,6 +7,7 @@ class ReadingSettingsState extends Equatable {
   final double letterSpacing;
   final bool isBold;
   final bool isItalic;
+  final bool isGoogleFont;
 
   const ReadingSettingsState({
     this.fontSize = 18.0,
@@ -15,6 +16,7 @@ class ReadingSettingsState extends Equatable {
     this.letterSpacing = 0.0,
     this.isBold = false,
     this.isItalic = false,
+    this.isGoogleFont = false,
   });
 
   ReadingSettingsState copyWith({
@@ -24,6 +26,7 @@ class ReadingSettingsState extends Equatable {
     double? letterSpacing,
     bool? isBold,
     bool? isItalic,
+    bool? isGoogleFont,
   }) {
     return ReadingSettingsState(
       fontSize: fontSize ?? this.fontSize,
@@ -32,6 +35,7 @@ class ReadingSettingsState extends Equatable {
       letterSpacing: letterSpacing ?? this.letterSpacing,
       isBold: isBold ?? this.isBold,
       isItalic: isItalic ?? this.isItalic,
+      isGoogleFont: isGoogleFont ?? this.isGoogleFont,
     );
   }
 
@@ -43,5 +47,6 @@ class ReadingSettingsState extends Equatable {
         letterSpacing,
         isBold,
         isItalic,
+        isGoogleFont,
       ];
 }

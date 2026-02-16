@@ -75,21 +75,74 @@ class ReadingSettingsModal extends StatelessWidget {
               _buildSectionTitle('Fonte'),
               BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
                 builder: (context, state) {
-                  final fonts = ['TASAOrbiter', 'Serif', 'Monospace'];
-                  return Wrap(
-                    spacing: 8,
-                    children: fonts.map((font) {
-                      final isSelected = state.fontFamily == font;
-                      return ChoiceChip(
-                        label: Text(font, style: TextStyle(fontFamily: font)),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          if (selected) {
-                            context.read<ReadingSettingsCubit>().setFontFamily(font);
-                          }
-                        },
-                      );
-                    }).toList(),
+                  final localFonts = ['TASAOrbiter', 'Serif', 'Monospace'];
+                  final googleFonts = [
+                    'Roboto',
+                    'Lato',
+                    'Open Sans',
+                    'Montserrat',
+                    'Oswald',
+                    'Raleway',
+                    'Poppins',
+                    'Merriweather',
+                    'Playfair Display',
+                    'Lora'
+                  ];
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Locais',
+                          style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      const Gap(4),
+                      Wrap(
+                        spacing: 8,
+                        children: localFonts.map((font) {
+                          final isSelected =
+                              state.fontFamily == font && !state.isGoogleFont;
+                          return ChoiceChip(
+                            label:
+                                Text(font, style: TextStyle(fontFamily: font)),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              if (selected) {
+                                context
+                                    .read<ReadingSettingsCubit>()
+                                    .setFontFamily(font, isGoogleFont: false);
+                              }
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      const Gap(8),
+                      const Text('Google Fonts',
+                          style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      const Gap(4),
+                      SizedBox(
+                        height: 40,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: googleFonts.map((font) {
+                            final isSelected =
+                                state.fontFamily == font && state.isGoogleFont;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ChoiceChip(
+                                label: Text(font),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    context
+                                        .read<ReadingSettingsCubit>()
+                                        .setFontFamily(font, isGoogleFont: true);
+                                  }
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),

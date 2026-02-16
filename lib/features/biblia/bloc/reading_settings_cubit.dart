@@ -8,8 +8,8 @@ class ReadingSettingsCubit extends Cubit<ReadingSettingsState> {
     emit(state.copyWith(fontSize: size));
   }
 
-  void setFontFamily(String family) {
-    emit(state.copyWith(fontFamily: family));
+  void setFontFamily(String family, {bool isGoogleFont = false}) {
+    emit(state.copyWith(fontFamily: family, isGoogleFont: isGoogleFont));
   }
 
   void setLineHeight(double height) {

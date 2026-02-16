@@ -7,6 +7,7 @@ import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class VerseReadWidget extends StatelessWidget {
   const VerseReadWidget({
@@ -52,9 +53,8 @@ class VerseReadWidget extends StatelessWidget {
                   }
                 }
 
-                final style = TextStyle(
+                final baseStyle = TextStyle(
                   fontSize: settingsState.fontSize,
-                  fontFamily: settingsState.fontFamily,
                   height: settingsState.lineHeight,
                   letterSpacing: settingsState.letterSpacing,
                   fontWeight:
@@ -63,6 +63,11 @@ class VerseReadWidget extends StatelessWidget {
                       settingsState.isItalic ? FontStyle.italic : FontStyle.normal,
                   color: AppColor.textPrimary,
                 );
+
+                final style = settingsState.isGoogleFont
+                    ? GoogleFonts.getFont(settingsState.fontFamily,
+                        textStyle: baseStyle)
+                    : baseStyle.copyWith(fontFamily: settingsState.fontFamily);
 
                 return GestureDetector(
                   onTap: () {
