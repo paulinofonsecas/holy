@@ -1,27 +1,28 @@
-# Notas de Lançamento - Versão 1.0.1+22
+# Notas de Lançamento - Versão 1.0.1+24
 
-Estamos animados em trazer melhorias significativas para a sua experiência de estudo bíblico! Esta atualização foca em tornar a busca mais poderosa, o compartilhamento mais versátil e a interface mais moderna.
+Esta versão traz ferramentas poderosas para personalizar sua leitura e uma navegação ainda mais fluida e intuitiva!
 
 ## O Que Há de Novo?
 
-### 🔎 Busca Inteligente e Inspiradora
-- **Descobrir Novo Versículo**: Está sem ideias? O novo botão de pesquisa randômica traz termos bíblicos inspiradores (como Amor, Fé, Graça) para você descobrir novos tesouros na Palavra.
-- **Sugestão de Pesquisa Avançada**: Agora, quando você busca uma frase longa que não tem correspondência exata, o aplicativo sugere inteligentemente ativar a "Pesquisa Avançada" para encontrar esses termos separadamente.
-- **Novo Design**: O campo de busca foi redesenhado para ser mais clean, com bordas arredondadas e ícones mais visíveis.
+### 📖 Experiência de Leitura Totalmente Personalizável
+Agora você tem o controle total sobre como a Palavra é exibida:
+- **Configurações em Tempo Real**: Ajuste o tamanho do texto, a altura das linhas e o espaçamento entre letras e veja as mudanças instantaneamente.
+- **Justificação Automática**: Por padrão, os textos agora são exibidos com alinhamento justificado para uma leitura mais confortável e elegante.
+- **Google Fonts**: Integramos uma seleção de fontes profissionais do Google Fonts (como Montserrat e Poppins) para você escolher a que mais combina com seu estilo.
 
-### 📄 Exportação Completa e Profissional
-Agora você pode levar seus estudos para qualquer lugar!
-- **Múltiplos Formatos**: Exporte seus resultados de busca diretamente para **PDF**, **Markdown (.md)** ou **Arquivo de Texto (.txt)**.
-- **Seleção Múltipla**: Pressione e segure em qualquer versículo para selecionar vários de uma vez e exportar apenas o que importa para você.
-- **Títulos Customizados**: Suas exportações agora vêm com o termo da busca e a data/hora, facilitando a organização dos seus estudos.
+### 🚀 Navegação Avançada
+- **Botões Flutuantes Animados**: Além do deslize horizontal, agora você conta com botões laterais discretos para trocar de capítulo. Eles possuem uma animação suave para te lembrar que a navegação está disponível.
+- **Foco na Leitura**: Os botões de navegação se ocultam automaticamente enquanto você rola o texto ou após 5 segundos, garantindo que nada atrapalhe sua meditação.
 
-### ✨ Melhorias de UX e Estabilidade
-- **Status Bar Scroll**: Toque na barra de status do seu celular para subir rapidamente ao topo da lista de resultados.
-- **Animações Suaves**: As barras de ferramentas e ações agora entram e saem da tela com animações fluidas.
-- **Correção de Fontes no PDF**: Resolvemos o problema onde aspas e acentos podiam aparecer incorretamente no PDF. Agora tudo está legível e elegante.
+### 🧠 Memória de Leitura (Persistência de Scroll)
+- **Nunca Perca seu Lugar**: O aplicativo agora memoriza sua posição de leitura em cada capítulo individualmente. Se você trocar de versão ou até mesmo fechar o aplicativo, ao voltar, estará exatamente onde parou.
+- **Busca Persistente**: A mesma inteligência foi aplicada aos resultados de busca.
+
+### ✨ Melhorias de Design e Estabilidade
+- **Interface Inteligente**: A barra superior agora é responsiva, ocultando itens secundários em telas muito pequenas para manter o foco no essencial.
+- **Busca mais Robusta**: Corrigimos comportamentos inesperados no campo de busca e no filtro de versões.
 
 ---
-**Dica:** No modo de busca, experimente a **Pesquisa Avançada** (ícone de brilhos ao lado do campo) para combinar palavras e encontrar resultados ainda mais precisos!
+**Dica:** Experimente o novo ícone de texto (Aa) na barra superior para explorar as novas opções de personalização!
 
-Esperamos que essas melhorias edifiquem seu tempo na Palavra.
 Equipe Eu Sou.

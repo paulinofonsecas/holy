@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1+24] - 2026-02-16
+
+### ✨ Novas Funcionalidades
+- **Navegação Flutuante Animada**: Novos botões laterais para avançar e recuar capítulos com animação de "hint" horizontal.
+- **Auto-Ocultar Inteligente**: Botões de navegação desaparecem automaticamente durante o scroll ou após 5 segundos de inatividade.
+- **Configurações de Leitura em Tempo Real**: Novo painel para ajustar tamanho da fonte, entrelinha, espaçamento de letras e alinhamento (Justificado por padrão).
+- **Suporte a Google Fonts**: Agora é possível escolher entre fontes locais e uma seleção das melhores Google Fonts (Roboto, Montserrat, Poppins, etc).
+- **Persistência de Scroll**: O aplicativo agora lembra exatamente onde você parou em cada capítulo da Bíblia e na tela de busca, mesmo após fechar o app.
+
+### 🎨 Design e UI/UX
+- **AppBar Responsiva**: O seletor de livros e busca agora se ajustam dinamicamente para evitar sobreposição em telas menores.
+- **Novo Ícone de Formatação**: Adicionado ícone de texto na barra superior para acesso rápido às configurações de leitura.
+
+### 🐞 Correções e Melhorias
+- **Fix na Busca**: Corrigido erro onde o campo de busca desaparecia em certos estados de carregamento ou erro.
+- **Filtro de Versão**: Corrigida a lógica de filtragem por versão quando a busca global (todas as versões) está ativa.
+- **Estabilidade de Scroll**: Resolvido crash de "Multiple ScrollControllers" na tela de busca.
+
 ## [1.0.1+22] - 2026-02-16
 
 ### ✨ Novas Funcionalidades
