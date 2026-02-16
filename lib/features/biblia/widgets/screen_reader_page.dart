@@ -22,6 +22,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _verseKeys = {};
   String? _currentChapterId;
+  String? _currentVersionId;
 
   @override
   void initState() {
@@ -59,10 +60,15 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
     return BlocConsumer<BibliaBloc, BibliaState>(listener: (context, state) {
       if (state is BibleChapterLoaded) {
         final chapterId = "${state.chapter.bookId}-${state.chapter.number}";
+        final versionId = state.versionId;
+
         final isNewChapter = _currentChapterId != chapterId;
-        if (isNewChapter) {
+        final isNewVersion = _currentVersionId != versionId;
+
+        if (isNewChapter || isNewVersion) {
           _verseKeys.clear();
           _currentChapterId = chapterId;
+          _currentVersionId = versionId;
         }
 
         // Garantir que as chaves existam antes de tentar scrollar
@@ -70,7 +76,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
           _verseKeys.putIfAbsent(verse.number, () => GlobalKey());
         }
 
-        if (isNewChapter &&
+        if ((isNewChapter || isNewVersion) &&
             state.initialScrollOffset > 0 &&
             state.targetVerse == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -99,9 +105,12 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
     }, builder: (context, state) {
       if (state is BibleChapterLoaded) {
         final chapterId = "${state.chapter.bookId}-${state.chapter.number}";
-        if (_currentChapterId != chapterId) {
+        final versionId = state.versionId;
+
+        if (_currentChapterId != chapterId || _currentVersionId != versionId) {
           _verseKeys.clear();
           _currentChapterId = chapterId;
+          _currentVersionId = versionId;
         }
 
         // Garantir que as chaves existam para o builder
@@ -115,7 +124,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
             child: Column(
               children: [
                 ReadSessionWidget(
-                  key: Key(chapterId),
+                  key: Key("$chapterId-$versionId"),
                   chapter: state.chapter,
                   verseKeys: _verseKeys,
                 ),

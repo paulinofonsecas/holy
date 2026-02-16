@@ -20,7 +20,11 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       transformer: (events, mapper) => events.switchMap(mapper),
     );
     on<ClearTargetVerse>(_onClearTargetVerse);
-    on<UpdateBibleScroll>(_onUpdateScroll);
+    on<UpdateBibleScroll>(
+      _onUpdateScroll,
+      transformer: (events, mapper) =>
+          events.debounce(const Duration(milliseconds: 500)).switchMap(mapper),
+    );
   }
 
   void _onUpdateScroll(

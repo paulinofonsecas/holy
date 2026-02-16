@@ -42,7 +42,11 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     on<FiltrarPorVersao>(_onFilterByVersion);
     on<LimparBusca>(_onClearSearch);
     on<CarregarVersao>(_onLoadVersion);
-    on<AtualizarScrollBusca>(_onUpdateScroll);
+    on<AtualizarScrollBusca>(
+      _onUpdateScroll,
+      transformer: (events, mapper) =>
+          events.debounce(_debounceDuration).switchMap(mapper),
+    );
     on<ReordenarConsultas>(_onReorderQueryParts);
     on<TransformarEmBuscaAvancada>(_onTransformToAdvancedSearch);
     on<PesquisaRandomica>(_onRandomSearch);
