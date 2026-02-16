@@ -12,6 +12,7 @@ class AppThemeData {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: 'TASAOrbiter',
       colorScheme: colorScheme,
 
       // AppBar
@@ -181,6 +182,7 @@ class AppThemeData {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      fontFamily: 'TASAOrbiter',
       colorScheme: colorScheme,
 
       // AppBar

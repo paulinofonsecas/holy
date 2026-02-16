@@ -17,10 +17,6 @@ class MultipleSearchHeader extends StatelessWidget {
     return SizedBox(
       key: keySearchField,
       child: BlocBuilder<SearchBloc, EstadoBusca>(
-        buildWhen: (previous, current) =>
-            current is BuscaCarregada ||
-            current is BuscaInicial ||
-            current is BuscaCarregando,
         builder: (context, state) {
           final bloc = context.read<SearchBloc>();
           final searchState = context.read<SearchBloc>().state;
