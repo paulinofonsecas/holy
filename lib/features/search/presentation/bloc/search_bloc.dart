@@ -276,6 +276,12 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     _registrador.info(
         '🔄 Alternar busca em todas as versões: ${event.buscarTodasVersoes}');
     _buscarTodasVersoes = event.buscarTodasVersoes;
+    
+    // Se desativar a busca em todas as versões, limpamos o filtro de versão específica
+    if (!_buscarTodasVersoes) {
+      _idVersaoSelecionada = null;
+    }
+    
     if (_consultas.any((q) => q.term.length >= 3)) {
       await _realizarBusca(emit);
     }
@@ -287,13 +293,14 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   ) {
     _registrador.debug('🧹 Limpando busca');
     _consultas = [const SearchQueryPart(term: '')];
+    _idVersaoSelecionada = null;
     _scrollOffset = 0;
     emit(BuscaInicial());
   }
 
   Future<void> _realizarBusca(Emitter<EstadoBusca> emit) async {
     _registrador.info(
-      '🔎 Realizando busca - Consultas: ${_consultas.length}, TodasVersoes: $_buscarTodasVersoes',
+      '🔎 Realizando busca - Consultas: ${_consultas.length}, TodasVersoes: $_buscarTodasVersoes, Selecionada: $_idVersaoSelecionada',
     );
     emit(BuscaCarregando());
     try {
@@ -303,29 +310,44 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
               orElse: () => const SearchQueryPart(term: ''))
           .term;
 
+      // Na busca em todas as versões, sempre buscamos tudo inicialmente para ter a lista de versões disponíveis
+      final idVersaoBase = _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao);
+
       final correspondenciasLivrosFuture = _repositorioBusca.corresponderLivros(
         firstValidTerm,
-        idVersao:
-            _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao),
+        idVersao: idVersaoBase,
       );
 
-      final resultados = await _repositorioBusca.buscaAvancada(
+      final resultadosCompletos = await _repositorioBusca.buscaAvancada(
         _consultas,
-        idVersao:
-            _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao),
+        idVersao: idVersaoBase,
       );
 
       final correspondenciasLivros = await correspondenciasLivrosFuture;
 
-      // Extrair versões disponíveis dos resultados para o filtro
-      final versoesDisponiveis = resultados.results
+      // Extrair versões disponíveis dos resultados totais para o filtro
+      final versoesDisponiveis = resultadosCompletos.results
           .map((r) => r.versionAbbreviation ?? r.versionId)
           .toSet()
           .toList();
       versoesDisponiveis.sort();
 
+      // Se estiver buscando em todas as versões e houver uma selecionada, filtramos os resultados
+      var resultadosExibidos = resultadosCompletos;
+      if (_buscarTodasVersoes && _idVersaoSelecionada != null) {
+        final resultadosFiltrados = resultadosCompletos.results
+            .where((r) => (r.versionAbbreviation ?? r.versionId) == _idVersaoSelecionada)
+            .toList();
+            
+        resultadosExibidos = SearchResults(
+          query: resultadosCompletos.query,
+          totalResults: resultadosFiltrados.length,
+          results: resultadosFiltrados,
+        );
+      }
+
       emit(BuscaCarregada(
-        resultados: resultados,
+        resultados: resultadosExibidos,
         correspondenciasLivros: correspondenciasLivros,
         consultas: List.from(_consultas),
         buscarTodasVersoes: _buscarTodasVersoes,
