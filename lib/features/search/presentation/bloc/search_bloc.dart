@@ -332,6 +332,8 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     _registrador.info(
       '🔎 Realizando busca - Consultas: ${_consultas.length}, TodasVersoes: $_buscarTodasVersoes, Selecionada: $_idVersaoSelecionada',
     );
+    _scrollOffset = 0;
+    _scrollPersistenceService.saveSearchScrollOffset(0.0);
     emit(BuscaCarregando());
     try {
       // For book matching, we use the first valid term

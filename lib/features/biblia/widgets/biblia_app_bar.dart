@@ -22,22 +22,29 @@ class BibleAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          VersaoWidget(
-            key: keyBibleVersionTab,
-          ),
-          const SizedBox(width: 24),
-          const Spacer(),
-          BookSelectorWidget(onBookTap: onBookTap),
-          const Spacer(),
-          const CustomSearchBibleWidget(),
-          IconButton(
-            onPressed: () => ReadingSettingsModal.show(context),
-            icon: const Icon(CupertinoIcons.textformat_alt),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Row(
+            children: [
+              VersaoWidget(
+                key: keyBibleVersionTab,
+              ),
+              const Gap(8),
+              Expanded(
+                child: Center(
+                  child: BookSelectorWidget(onBookTap: onBookTap),
+                ),
+              ),
+              const Gap(8),
+              // if (showSearch) const CustomSearchBibleWidget(),
+              IconButton(
+                onPressed: () => ReadingSettingsModal.show(context),
+                icon: const Icon(CupertinoIcons.textformat_alt),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -155,16 +155,54 @@ class ReadingSettingsModal extends StatelessWidget {
                   return Row(
                     children: [
                       FilterChip(
-                        label: const Text('Negrito', style: TextStyle(fontWeight: FontWeight.bold)),
+                        label: const Text('Negrito',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
                         selected: state.isBold,
-                        onSelected: (_) => context.read<ReadingSettingsCubit>().toggleBold(),
+                        onSelected: (_) =>
+                            context.read<ReadingSettingsCubit>().toggleBold(),
                       ),
                       const Gap(8),
                       FilterChip(
-                        label: const Text('Itálico', style: TextStyle(fontStyle: FontStyle.italic)),
+                        label: const Text('Itálico',
+                            style: TextStyle(fontStyle: FontStyle.italic)),
                         selected: state.isItalic,
-                        onSelected: (_) => context.read<ReadingSettingsCubit>().toggleItalic(),
+                        onSelected: (_) =>
+                            context.read<ReadingSettingsCubit>().toggleItalic(),
                       ),
+                    ],
+                  );
+                },
+              ),
+              const Gap(16),
+
+              // Alignment
+              _buildSectionTitle('Alinhamento'),
+              BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
+                builder: (context, state) {
+                  return ToggleButtons(
+                    isSelected: [
+                      state.textAlign == TextAlign.left,
+                      state.textAlign == TextAlign.center,
+                      state.textAlign == TextAlign.right,
+                      state.textAlign == TextAlign.justify,
+                    ],
+                    onPressed: (index) {
+                      final alignments = [
+                        TextAlign.left,
+                        TextAlign.center,
+                        TextAlign.right,
+                        TextAlign.justify,
+                      ];
+                      context
+                          .read<ReadingSettingsCubit>()
+                          .setTextAlign(alignments[index]);
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    children: const [
+                      Icon(Icons.format_align_left),
+                      Icon(Icons.format_align_center),
+                      Icon(Icons.format_align_right),
+                      Icon(Icons.format_align_justify),
                     ],
                   );
                 },

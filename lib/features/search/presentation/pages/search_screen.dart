@@ -43,7 +43,8 @@ class _TelaBuscaState extends State<TelaBusca> {
   }
 
   void _aoMudarScroll() {
-    if (_controladorScroll.hasClients) {
+    if (_controladorScroll.hasClients &&
+        _controladorScroll.positions.length == 1) {
       context
           .read<SearchBloc>()
           .add(AtualizarScrollBusca(_controladorScroll.offset));
@@ -123,10 +124,8 @@ class _TelaBuscaState extends State<TelaBusca> {
       create: (context) => SearchSelectionBloc(),
       child: BlocBuilder<SearchSelectionBloc, SearchSelectionState>(
         builder: (context, selectionState) {
-          return PrimaryScrollController(
-            controller: _controladorScroll,
-            child: Scaffold(
-              appBar: AppBar(
+          return Scaffold(
+            appBar: AppBar(
                 leading: selectionState.isInSelectionMode
                     ? IconButton(
                         icon: const Icon(Icons.close),
@@ -666,8 +665,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                   },
                 ),
               ),
-            ),
-          );
+            );
         },
       ),
     );

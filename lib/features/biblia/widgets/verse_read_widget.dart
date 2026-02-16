@@ -85,7 +85,11 @@ class VerseReadWidget extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(4),
                     child: Align(
-                      alignment: Alignment.topLeft,
+                      alignment: settingsState.textAlign == TextAlign.center
+                          ? Alignment.topCenter
+                          : settingsState.textAlign == TextAlign.right
+                              ? Alignment.topRight
+                              : Alignment.topLeft,
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
@@ -97,14 +101,19 @@ class VerseReadWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: RichText(
+                          textAlign: settingsState.textAlign,
                           text: TextSpan(
                             children: [
                               TextSpan(
                                 text: "${verse.number} ",
                                 style: style.copyWith(
                                   fontWeight: FontWeight.w500,
-                                  decoration:
-                                      isSelected ? TextDecoration.underline : null,
+                                 decoration: isSelected
+                                      ? TextDecoration.underline
+                                      : null,
+                                  decorationStyle: TextDecorationStyle.dashed,
+                                  decorationColor:
+                                      Theme.of(context).colorScheme.primary,
                                   color: !isHighlighted
                                       ? Theme.brightnessOf(context) ==
                                               Brightness.light

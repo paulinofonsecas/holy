@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 class ReadingSettingsState extends Equatable {
   final double fontSize;
@@ -8,6 +9,7 @@ class ReadingSettingsState extends Equatable {
   final bool isBold;
   final bool isItalic;
   final bool isGoogleFont;
+  final TextAlign textAlign;
 
   const ReadingSettingsState({
     this.fontSize = 18.0,
@@ -17,6 +19,7 @@ class ReadingSettingsState extends Equatable {
     this.isBold = false,
     this.isItalic = false,
     this.isGoogleFont = false,
+    this.textAlign = TextAlign.left,
   });
 
   ReadingSettingsState copyWith({
@@ -27,6 +30,7 @@ class ReadingSettingsState extends Equatable {
     bool? isBold,
     bool? isItalic,
     bool? isGoogleFont,
+    TextAlign? textAlign,
   }) {
     return ReadingSettingsState(
       fontSize: fontSize ?? this.fontSize,
@@ -36,6 +40,7 @@ class ReadingSettingsState extends Equatable {
       isBold: isBold ?? this.isBold,
       isItalic: isItalic ?? this.isItalic,
       isGoogleFont: isGoogleFont ?? this.isGoogleFont,
+      textAlign: textAlign ?? this.textAlign,
     );
   }
 
@@ -48,5 +53,6 @@ class ReadingSettingsState extends Equatable {
         isBold,
         isItalic,
         isGoogleFont,
+        textAlign,
       ];
 }
