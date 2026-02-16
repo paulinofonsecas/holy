@@ -155,10 +155,14 @@ class _TelaBuscaState extends State<TelaBusca> {
                 ),
               ),
               if (estado is BuscaInicial)
-                const SliverFillRemaining(
+                SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
-                      child: Text('Digite um termo para começar a busca')),
+                    child: Image.asset(
+                      'assets/images/mind.png',
+                      width: 200,
+                    ),
+                  ),
                 )
               else if (estado is BuscaCarregando)
                 const SliverFillRemaining(

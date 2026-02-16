@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:eu_sou/core/services/toast_service.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
@@ -146,7 +147,8 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                             itemCount: viewModel.compositions.length,
                             itemBuilder: (context, index) {
                               return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: VerseImageCanvas(
                                   composition: viewModel.compositions[index],
                                   repaintKey: _repaintKeys[index],
@@ -186,43 +188,17 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                 },
               ),
 
-              const SizedBox(height: 8),
-
-              // Drag hint
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.touch_app,
-                        size: 16, color: Colors.blue.shade700),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Arraste o texto para posicioná-lo. Deslize para ver outras imagens.',
-                        style:
-                            TextStyle(fontSize: 12, color: Colors.blue.shade700),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
               const SizedBox(height: 24),
 
               // Aspect Ratio Selector
               AspectRatioSelector(viewModel: viewModel),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
               // Share Button
               ElevatedButton.icon(
-                onPressed: viewModel.isGenerating
+                onPressed: (viewModel.isGenerating ||
+                        viewModel.compositions.length > 1)
                     ? null
                     : () async {
                         await _generateAndShareImages(viewModel);
@@ -238,7 +214,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                   viewModel.isGenerating
                       ? 'Gerando...'
                       : viewModel.compositions.length > 1
-                          ? 'Partilhar Todas (${viewModel.compositions.length})'
+                          ? 'Partilha múltipla indisponível'
                           : 'Partilhar Imagem',
                 ),
                 style: ElevatedButton.styleFrom(
@@ -259,7 +235,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
 
               const SizedBox(height: 16),
               // Download Button
-              OutlinedButton.icon(
+              ElevatedButton.icon(
                 onPressed: viewModel.isGenerating
                     ? null
                     : () async {
@@ -321,14 +297,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
             '${viewModel.compositions.map((c) => c.fullText).join('\n\n')}\n\n${viewModel.compositions.first.verseReference}',
       );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao gerar imagens: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      toastService.showError('Erro ao gerar imagens: $e');
     } finally {
       viewModel.setGenerating(false);
     }
@@ -351,41 +320,42 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
         );
 
         if (imageBytes != null) {
-          final bool success = await _imageService.saveImageToGallery(imageBytes);
+          final bool success =
+              await _imageService.saveImageToGallery(imageBytes);
           if (success) successCount++;
         }
       }
 
-      if (mounted) {
-        if (successCount == viewModel.compositions.length) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Todas as imagens foram salvas na galeria!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        } else if (successCount > 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$successCount de ${viewModel.compositions.length} imagens salvas.'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        } else {
-          throw Exception('Nenhuma imagem foi salva');
+            if (successCount == viewModel.compositions.length) {
+
+              toastService
+
+                  .showSuccess('Todas as imagens foram salvas na galeria!');
+
+            } else if (successCount > 0) {
+
+              toastService.showWarning(
+
+                  '$successCount de ${viewModel.compositions.length} imagens salvas.');
+
+            } else {
+
+              throw Exception('Nenhuma imagem foi salva');
+
+            }
+
+          } catch (e) {
+
+            toastService.showError('Erro ao salvar imagens: $e');
+
+          } finally {
+
+            viewModel.setGenerating(false);
+
+          }
+
         }
+
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao salvar imagens: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      viewModel.setGenerating(false);
-    }
-  }
-}
+
+      

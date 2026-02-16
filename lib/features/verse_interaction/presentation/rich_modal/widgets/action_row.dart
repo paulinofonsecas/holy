@@ -21,6 +21,7 @@ class ActionRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        const SizedBox(width: 8),
         _ActionButton(
           icon: Icons.share_outlined,
           label: 'Partilhar',

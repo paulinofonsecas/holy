@@ -15,6 +15,7 @@ class MultipleSearchHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      key: keySearchField,
       child: BlocBuilder<SearchBloc, EstadoBusca>(
         buildWhen: (previous, current) =>
             current is BuscaCarregada ||
@@ -107,33 +108,30 @@ class MultipleSearchHeader extends StatelessWidget {
                 },
                 itemBuilder: (context, index) {
                   final query = queries[index];
-                  return Container(
-                    key: keySearchField,
-                    child: SearchInputBar(
-                      key: ValueKey('search-bar-$index'),
-                      initialValue: query.term,
-                      showRemove: queries.length > 1,
-                      hintText:
-                          index == 0 ? 'Buscar por...' : 'E também por...',
-                      dragHandle: queries.length > 1
-                          ? ReorderableDragStartListener(
-                              index: index,
-                              child: const Icon(
-                                Icons.drag_handle,
-                                color: Colors.grey,
-                                size: 20,
-                              ),
-                            )
-                          : null,
-                      onChanged: (val) {
-                        context
-                            .read<SearchBloc>()
-                            .add(TermoBuscaAlterado(val, index: index));
-                      },
-                      onRemove: () {
-                        context.read<SearchBloc>().add(RemoverConsulta(index));
-                      },
-                    ),
+                  return SearchInputBar(
+                    key: ValueKey('search-bar-$index'),
+                    initialValue: query.term,
+                    showRemove: queries.length > 1,
+                    hintText:
+                        index == 0 ? 'Ex: O anjo do Senhor' : 'Ex: no deserto',
+                    dragHandle: queries.length > 1
+                        ? ReorderableDragStartListener(
+                            index: index,
+                            child: const Icon(
+                              Icons.drag_handle,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                          )
+                        : null,
+                    onChanged: (val) {
+                      context
+                          .read<SearchBloc>()
+                          .add(TermoBuscaAlterado(val, index: index));
+                    },
+                    onRemove: () {
+                      context.read<SearchBloc>().add(RemoverConsulta(index));
+                    },
                   );
                 },
               ),

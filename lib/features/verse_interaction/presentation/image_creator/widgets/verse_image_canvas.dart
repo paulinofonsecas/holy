@@ -105,10 +105,10 @@ class VerseImageCanvas extends StatelessWidget {
             if (hasMultipleVerses)
               ..._buildMultiVerseText()
             else
-              Text(
-                composition.fullText,
-                textAlign: composition.textAlign,
-                style: TextStyle(
+              Builder(builder: (context) {
+                final verse = composition.verses.first;
+
+                final textStyle = TextStyle(
                   fontFamily: composition.fontFamily,
                   fontSize: composition.fontSize,
                   color: composition.textColor
@@ -121,8 +121,39 @@ class VerseImageCanvas extends StatelessWidget {
                     ),
                   ],
                   height: 1.3,
-                ),
-              ),
+                );
+
+                final numberStyle = TextStyle(
+                  fontFamily: composition.fontFamily,
+                  fontSize: composition.fontSize * 0.75,
+                  color: composition.textColor
+                      .withOpacity(composition.textOpacity * 0.7),
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(1, 1),
+                      blurRadius: 3,
+                      color: Colors.black.withOpacity(0.5),
+                    ),
+                  ],
+                );
+
+                return RichText(
+                  textAlign: composition.textAlign,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${verse.number} ',
+                        style: numberStyle,
+                      ),
+                      TextSpan(
+                        text: verse.text,
+                        style: textStyle,
+                      ),
+                    ],
+                  ),
+                );
+              }),
 
             const SizedBox(height: 16),
 
