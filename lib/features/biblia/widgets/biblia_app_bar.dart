@@ -35,7 +35,7 @@ class BibleAppBar extends StatelessWidget {
           const CustomSearchBibleWidget(),
           IconButton(
             onPressed: () => ReadingSettingsModal.show(context),
-            icon: const Icon(CupertinoIcons.text_alignleft),
+            icon: const Icon(CupertinoIcons.textformat_alt),
           ),
         ],
       ),

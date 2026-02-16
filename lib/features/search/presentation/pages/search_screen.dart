@@ -220,10 +220,10 @@ class _TelaBuscaState extends State<TelaBusca> {
                                       ? estado.buscarTodasVersoes
                                       : false,
                             ),
-                            const SizedBox(height: 12),
                             if (estado is BuscaCarregada &&
                                 estado.buscarTodasVersoes &&
                                 estado.versoesDisponiveis.isNotEmpty) ...[
+                              const SizedBox(height: 12),
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 8.0),
                                 child: Text(
@@ -343,6 +343,12 @@ class _TelaBuscaState extends State<TelaBusca> {
                           child: Center(
                               child: Text(
                                   'O termo de busca deve ter pelo menos 3 caracteres')),
+                        )
+                      else if (estado is BuscaErro)
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child:
+                              Center(child: Text('Erro: ${estado.mensagem}')),
                         )
                       else if (estado is BuscaCarregada) ...[
                         if (estado.resultados.results.isEmpty &&
@@ -721,12 +727,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                             ),
                           ],
                         ],
-                      ] else if (estado is BuscaErro)
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child:
-                              Center(child: Text('Erro: ${estado.mensagem}')),
-                        ),
+                      ],
                     ],
                   );
                 },
