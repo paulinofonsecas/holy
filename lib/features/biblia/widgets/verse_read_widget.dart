@@ -65,86 +65,77 @@ class VerseReadWidget extends StatelessWidget {
                 );
 
                 return GestureDetector(
-              onTap: () {
-                // if (selectionState.isInSelectionMode) {
-                context
-                    .read<VerseSelectionBloc>()
-                    .add(ToggleVerseSelection(verse));
-                // }
-              },
-              onLongPress: () {
-                if (!selectionState.isInSelectionMode) {
-                  context
-                      .read<VerseSelectionBloc>()
-                      .add(ToggleVerseSelection(verse));
-                } else {
-                  // If already in selection mode, maybe show options for the whole selection?
-                  // For now, let's just keep it simple.
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: backgroundColor,
-                      borderRadius: BorderRadius.circular(4),
-                      // border: isSelected
-                      //     ? Border.all(
-                      //         color: Theme.of(context).colorScheme.primary,
-                      //         width: 1,
-                      //       )
-                      //     : null,
-                    ),
-                    child: RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "${verse.number} ",
-                            style: style.copyWith(
-                              fontWeight: FontWeight.w500,
-                              decoration:
-                                  isSelected ? TextDecoration.underline : null,
-                              color: !isHighlighted
-                                  ? Theme.brightnessOf(context) ==
-                                          Brightness.light
-                                      ? Colors.black
-                                      : Colors.white
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
-                            ),
+                  onTap: () {
+                    context
+                        .read<VerseSelectionBloc>()
+                        .add(ToggleVerseSelection(verse));
+                  },
+                  onLongPress: () {
+                    if (!selectionState.isInSelectionMode) {
+                      context
+                          .read<VerseSelectionBloc>()
+                          .add(ToggleVerseSelection(verse));
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "${verse.number} ",
+                                style: style.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  decoration:
+                                      isSelected ? TextDecoration.underline : null,
+                                  color: !isHighlighted
+                                      ? Theme.brightnessOf(context) ==
+                                              Brightness.light
+                                          ? Colors.black
+                                          : Colors.white
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                ),
+                              ),
+                              TextSpan(
+                                text: verse.text,
+                                style: style.copyWith(
+                                  decoration:
+                                      isSelected ? TextDecoration.underline : null,
+                                  decorationStyle: TextDecorationStyle.dashed,
+                                  decorationColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  color: !isHighlighted
+                                      ? Theme.brightnessOf(context) ==
+                                              Brightness.light
+                                          ? Colors.black
+                                          : Colors.white
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                ),
+                              ),
+                            ],
                           ),
-                          TextSpan(
-                            text: verse.text,
-                            style: style.copyWith(
-                              decoration:
-                                  isSelected ? TextDecoration.underline : null,
-                              decorationStyle: TextDecorationStyle.dashed,
-                              decorationColor:
-                                  Theme.of(context).colorScheme.primary,
-                              color: !isHighlighted
-                                  ? Theme.brightnessOf(context) ==
-                                          Brightness.light
-                                      ? Colors.black
-                                      : Colors.white
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
         );

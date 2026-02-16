@@ -20,7 +20,6 @@ class ReadingSettingsModal extends StatelessWidget {
           providers: [
             BlocProvider.value(value: context.read<ReadingSettingsCubit>()),
             BlocProvider.value(value: context.read<BibleVersionCubit>()),
-            BlocProvider.value(value: context.read<BibleCacheProvider>()),
           ],
           child: const ReadingSettingsModal(),
         );
