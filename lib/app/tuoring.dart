@@ -261,6 +261,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       alignSkip: AlignmentGeometry.topRight,
       colorShadow: Colors.black.withValues(alpha: 0.8),
       textSkip: "Pular",
+      showSkipInLastTarget: false,
       onClickTarget: (target) {
         log(target.toString(), name: "TutorialCoachMark");
 
