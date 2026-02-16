@@ -17,6 +17,9 @@ import 'package:gap/gap.dart';
 import '../bloc/biblia_bloc.dart';
 import '../widgets/biblia_app_bar.dart';
 
+import 'dart:async';
+import '../widgets/animated_chapter_navigation.dart';
+
 class BibliaPage extends StatelessWidget {
   const BibliaPage({super.key});
 
@@ -37,8 +40,109 @@ class BibliaPage extends StatelessWidget {
   }
 }
 
-class BibliaView extends StatelessWidget {
+class BibliaView extends StatefulWidget {
   const BibliaView({super.key});
+
+  @override
+  State<BibliaView> createState() => _BibliaViewState();
+}
+
+class _BibliaViewState extends State<BibliaView> {
+  bool _showButtons = true;
+  Timer? _hideTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startHideTimer();
+  }
+
+  @override
+  void dispose() {
+    _hideTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startHideTimer() {
+    _hideTimer?.cancel();
+    _hideTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted && _showButtons) {
+        setState(() {
+          _showButtons = false;
+        });
+      }
+    });
+  }
+
+  void _navigateToPreviousChapter() {
+    _startHideTimer(); // Reset timer on interaction
+    final bibleBloc = context.read<BibliaBloc>();
+    final state = bibleBloc.state;
+
+    if (state is! BibleChapterLoaded) return;
+
+    final chapter = state.chapter;
+    final bibleVersion = context.read<BibleVersionCubit>().state.version;
+
+    if (chapter.number > 1) {
+      bibleBloc.add(
+        GetChapter(
+          bibleVersion.id,
+          chapter.bookId,
+          (chapter.number - 1).toString(),
+        ),
+      );
+    } else {
+      // Previous Book
+      final currentBookIndex =
+          BibleBooks.values.indexWhere((b) => b.bookId == chapter.bookId);
+      if (currentBookIndex > 0) {
+        final prevBook = BibleBooks.values[currentBookIndex - 1];
+        bibleBloc.add(
+          GetChapter(
+            bibleVersion.id,
+            prevBook.bookId,
+            prevBook.chapterCount.toString(),
+          ),
+        );
+      }
+    }
+  }
+
+  void _navigateToNextChapter() {
+    _startHideTimer(); // Reset timer on interaction
+    final bibleBloc = context.read<BibliaBloc>();
+    final state = bibleBloc.state;
+
+    if (state is! BibleChapterLoaded) return;
+
+    final chapter = state.chapter;
+    final bibleVersion = context.read<BibleVersionCubit>().state.version;
+
+    if (chapter.number < chapter.totalChapters) {
+      bibleBloc.add(
+        GetChapter(
+          bibleVersion.id,
+          chapter.bookId,
+          (chapter.number + 1).toString(),
+        ),
+      );
+    } else {
+      // Next Book
+      final currentBookIndex =
+          BibleBooks.values.indexWhere((b) => b.bookId == chapter.bookId);
+      if (currentBookIndex < BibleBooks.values.length - 1) {
+        final nextBook = BibleBooks.values[currentBookIndex + 1];
+        bibleBloc.add(
+          GetChapter(
+            bibleVersion.id,
+            nextBook.bookId,
+            '1',
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,73 +212,66 @@ class BibliaView extends StatelessWidget {
                 },
               ),
               Expanded(
-                child: GestureDetector(
-                  onHorizontalDragEnd: (details) {
-                    final bibleBloc = context.read<BibliaBloc>();
-                    final state = bibleBloc.state;
-
-                    if (state is! BibleChapterLoaded) return;
-
-                    final chapter = state.chapter;
-                    final bibleVersion =
-                        context.read<BibleVersionCubit>().state.version;
-
-                    // Sensitivity adjustment if needed
-                    if (details.primaryVelocity! > 0) {
-                      // Swipe Right -> Previous Chapter
-                      if (chapter.number > 1) {
-                        bibleBloc.add(
-                          GetChapter(
-                            bibleVersion.id,
-                            chapter.bookId,
-                            (chapter.number - 1).toString(),
-                          ),
-                        );
-                      } else {
-                        // Previous Book
-                        final currentBookIndex = BibleBooks.values
-                            .indexWhere((b) => b.bookId == chapter.bookId);
-                        if (currentBookIndex > 0) {
-                          final prevBook =
-                              BibleBooks.values[currentBookIndex - 1];
-                          bibleBloc.add(
-                            GetChapter(
-                              bibleVersion.id,
-                              prevBook.bookId,
-                              prevBook.chapterCount.toString(),
-                            ),
-                          );
+                child: Stack(
+                  children: [
+                    NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification is ScrollStartNotification) {
+                          _hideTimer?.cancel();
+                          if (_showButtons) {
+                            setState(() {
+                              _showButtons = false;
+                            });
+                          }
+                        } else if (notification is ScrollEndNotification) {
+                          if (!_showButtons) {
+                            setState(() {
+                              _showButtons = true;
+                            });
+                          }
+                          _startHideTimer();
                         }
-                      }
-                    } else if (details.primaryVelocity! < 0) {
-                      // Swipe Left -> Next Chapter
-                      if (chapter.number < chapter.totalChapters) {
-                        bibleBloc.add(
-                          GetChapter(
-                            bibleVersion.id,
-                            chapter.bookId,
-                            (chapter.number + 1).toString(),
-                          ),
-                        );
-                      } else {
-                        // Next Book
-                        final currentBookIndex = BibleBooks.values
-                            .indexWhere((b) => b.bookId == chapter.bookId);
-                        if (currentBookIndex < BibleBooks.values.length - 1) {
-                          final nextBook =
-                              BibleBooks.values[currentBookIndex + 1];
-                          bibleBloc.add(
-                            GetChapter(
-                              bibleVersion.id,
-                              nextBook.bookId,
-                              '1',
-                            ),
-                          );
-                        }
-                      }
-                    }
-                  },
-                  child: const ScreenReaderPage(),
+                        return false;
+                      },
+                      child: GestureDetector(
+                        onHorizontalDragEnd: (details) {
+                          // Sensitivity adjustment if needed
+                          if (details.primaryVelocity! > 0) {
+                            // Swipe Right -> Previous Chapter
+                            _navigateToPreviousChapter();
+                          } else if (details.primaryVelocity! < 0) {
+                            // Swipe Left -> Next Chapter
+                            _navigateToNextChapter();
+                          }
+                        },
+                        child: const ScreenReaderPage(),
+                      ),
+                    ),
+                    Positioned(
+                      left: 12,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: AnimatedChapterNavigation(
+                          isNext: false,
+                          visible: _showButtons,
+                          onTap: _navigateToPreviousChapter,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 12,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: AnimatedChapterNavigation(
+                          isNext: true,
+                          visible: _showButtons,
+                          onTap: _navigateToNextChapter,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               BlocBuilder<BibliaBloc, BibliaState>(
