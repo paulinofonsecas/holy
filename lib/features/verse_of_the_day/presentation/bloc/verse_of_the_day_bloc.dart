@@ -45,15 +45,15 @@ class VerseOfTheDayBloc extends Bloc<VerseOfTheDayEvent, VerseOfTheDayState> {
     if (state is VerseOfTheDayLoaded) {
       final currentState = state as VerseOfTheDayLoaded;
       try {
-        await _repository.saveSettings(event.settings);
-
-        // Reschedule notifications with new settings
-        await _service.scheduleNextNotifications();
-
         emit(VerseOfTheDayLoaded(
           event.settings,
           downloadedVersions: currentState.downloadedVersions,
         ));
+
+        await _repository.saveSettings(event.settings);
+
+        // Reschedule notifications with new settings
+        await _service.scheduleNextNotifications();
       } catch (e) {
         emit(VerseOfTheDayError(e.toString()));
       }

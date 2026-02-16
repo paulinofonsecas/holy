@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../../../shared/bible_models.dart';
@@ -22,6 +23,23 @@ class RichModalViewModel extends BaseViewModel {
     required this.highlightBloc,
     required this.selectionBloc,
   });
+
+  void copyToClipboard() {
+    if (verses.isEmpty) return;
+
+    final sortedVerses = List<BibleVerse>.from(verses)
+      ..sort((a, b) => a.number.compareTo(b.number));
+
+    final buffer = StringBuffer();
+    for (var i = 0; i < sortedVerses.length; i++) {
+      buffer.write('${sortedVerses[i].number}. ${sortedVerses[i].text}');
+      if (i < sortedVerses.length - 1) buffer.write('\n');
+    }
+
+    buffer.write('\n\n$verseReference ($versionId)');
+
+    Clipboard.setData(ClipboardData(text: buffer.toString()));
+  }
 
   void applyHighlight(String colorHex) {
     for (var verse in verses) {

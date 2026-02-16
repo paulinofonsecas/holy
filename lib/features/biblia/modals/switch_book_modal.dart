@@ -1,9 +1,8 @@
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
-import 'package:eu_sou/features/biblia/modals/modalpages/list_bible_books_modalpage.dart';
+import 'package:eu_sou/features/biblia/presentation/pages/book_selection_page.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 class SwitchBookModal {
   static void show(BuildContext context) {
@@ -56,7 +55,6 @@ class SwitchBookModal {
     scrollController.addListener(scrollListener);
 
     // Ensure we scroll to the current book after the modal is built
-    // Using a delay to allow the modal animation and sliver tree to stabilize
     if (currentBookId.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(const Duration(milliseconds: 150), () {
@@ -71,21 +69,25 @@ class SwitchBookModal {
       });
     }
 
-    WoltModalSheet.show<void>(
-      context: context,
-      pageListBuilder: (modalSheetContext) {
-        return [
-          listBibleBooksModalPage(
-            modalSheetContext,
-            context,
-            scrollController: scrollController,
-          ),
-        ];
-      },
-      onModalDismissedWithBarrierTap: () {
-        debugPrint('Closed modal sheet with barrier tap');
-        Navigator.of(context).pop();
-      },
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            BookSelectionPage(scrollController: scrollController),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        fullscreenDialog: true,
+      ),
     );
   }
 }

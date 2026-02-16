@@ -30,11 +30,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp(
@@ -52,126 +55,123 @@ void main() async {
     };
   }
 
-  runApp(const EntryPoint());
+  await notificationHandler.initialize();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  final dbHelper = DatabaseHelper();
+  final db = await dbHelper.database;
+  final searchProvider = SqlBibleSearchProvider(db);
+  final cacheProvider = BibleCacheProvider(db);
+
+  final sharedPreferences = await SharedPreferences.getInstance();
+
+  final verseRepo = VerseOfTheDayRepository(sharedPreferences);
+  final verseService = VerseOfTheDayService(
+    repository: verseRepo,
+    searchProvider: searchProvider,
+    notificationService: notificationHandler.localNotificationService,
+  );
+
+  await verseService.scheduleNextNotifications();
+
+  final profileRepo = ProfileRepository();
+  final themeBloc = ThemeBloc(profileRepo);
+
+  // Wait for theme to be initialized from preferences
+  await themeBloc.stream.firstWhere((state) => state.isInitialized);
+
+  runApp(EntryPoint(
+    db: db,
+    searchProvider: searchProvider,
+    cacheProvider: cacheProvider,
+    sharedPreferences: sharedPreferences,
+    verseRepo: verseRepo,
+    verseService: verseService,
+    profileRepo: profileRepo,
+    themeBloc: themeBloc,
+  ));
 }
 
-class EntryPoint extends StatefulWidget {
-  const EntryPoint({super.key});
+class EntryPoint extends StatelessWidget {
+  final Database db;
+  final SqlBibleSearchProvider searchProvider;
+  final BibleCacheProvider cacheProvider;
+  final SharedPreferences sharedPreferences;
+  final VerseOfTheDayRepository verseRepo;
+  final VerseOfTheDayService verseService;
+  final ProfileRepository profileRepo;
+  final ThemeBloc themeBloc;
 
-  @override
-  State<EntryPoint> createState() => _EntryPointState();
-}
-
-class _EntryPointState extends State<EntryPoint> {
-  bool _initialized = false;
-  late final Database _db;
-  late final SqlBibleSearchProvider _searchProvider;
-  late final BibleCacheProvider _cacheProvider;
-  late final SharedPreferences _sharedPreferences;
-  late final VerseOfTheDayRepository _verseRepo;
-  late final VerseOfTheDayService _verseService;
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
-
-  Future<void> _init() async {
-    await notificationHandler.initialize();
-
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-
-    final dbHelper = DatabaseHelper();
-    _db = await dbHelper.database;
-    _searchProvider = SqlBibleSearchProvider(_db);
-    _cacheProvider = BibleCacheProvider(_db);
-
-    _sharedPreferences = await SharedPreferences.getInstance();
-
-    _verseRepo = VerseOfTheDayRepository(_sharedPreferences);
-    _verseService = VerseOfTheDayService(
-      repository: _verseRepo,
-      searchProvider: _searchProvider,
-      notificationService: notificationHandler.localNotificationService,
-    );
-
-    await _verseService.scheduleNextNotifications();
-
-    if (mounted) {
-      setState(() {
-        _initialized = true;
-      });
-    }
-  }
+  const EntryPoint({
+    super.key,
+    required this.db,
+    required this.searchProvider,
+    required this.cacheProvider,
+    required this.sharedPreferences,
+    required this.verseRepo,
+    required this.verseService,
+    required this.profileRepo,
+    required this.themeBloc,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (!_initialized) {
-      return const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      );
-    }
-
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
           create: (context) => Dio(),
         ),
         RepositoryProvider(
-          create: (context) => _cacheProvider,
+          create: (context) => cacheProvider,
         ),
         RepositoryProvider<IBibleProvider>(
           create: (context) => GithubBibleProvider(
             context.read(),
-            _cacheProvider,
+            cacheProvider,
           ),
         ),
         RepositoryProvider<VerseOfTheDayRepository>.value(
-          value: _verseRepo,
+          value: verseRepo,
         ),
         RepositoryProvider<LocalNotificationService>(
           create: (context) => notificationHandler.localNotificationService,
         ),
         RepositoryProvider<BibleSearchProvider>(
-          create: (context) => _searchProvider,
+          create: (context) => searchProvider,
         ),
         RepositoryProvider<VerseOfTheDayService>.value(
-          value: _verseService,
+          value: verseService,
         ),
         RepositoryProvider<IBibleRepository>(
           create: (context) => BibleRepository(context.read()),
         ),
         RepositoryProvider(
-          create: (context) => RepositorioBusca(_searchProvider),
+          create: (context) => RepositorioBusca(searchProvider),
         ),
         RepositoryProvider(
-          create: (context) => HighlightRepository(_db),
+          create: (context) => HighlightRepository(db),
         ),
         RepositoryProvider<VerseInteractionProvider>(
-          create: (context) => SqlVerseInteractionProvider(_db),
+          create: (context) => SqlVerseInteractionProvider(db),
         ),
         RepositoryProvider<ISearchHistoryRepository>(
-          create: (context) => SearchHistoryRepository(_db),
+          create: (context) => SearchHistoryRepository(db),
         ),
         RepositoryProvider<IVerseHistoryRepository>(
-          create: (context) => VerseHistoryRepository(_db),
+          create: (context) => VerseHistoryRepository(db),
         ),
         RepositoryProvider<IMarkedVersesRepository>(
-          create: (context) => MarkedVersesRepository(_db),
+          create: (context) => MarkedVersesRepository(db),
         ),
-        RepositoryProvider<IProfileRepository>(
-          create: (context) => ProfileRepository(),
+        RepositoryProvider<IProfileRepository>.value(
+          value: profileRepo,
         ),
-        RepositoryProvider<ThemeBloc>(
-          create: (context) => ThemeBloc(context.read<IProfileRepository>()),
+        RepositoryProvider<ThemeBloc>.value(
+          value: themeBloc,
         ),
         BlocProvider(create: (context) => TabControllerCubit()),
       ],

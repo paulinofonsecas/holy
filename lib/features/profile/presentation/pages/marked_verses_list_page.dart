@@ -114,7 +114,7 @@ class MarkedVersesListPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     itemCount: state.markedVerses.length,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 0),
                     itemBuilder: (context, index) {
                       final verse = state.markedVerses[index];
                       return MarkedVerseItem(
@@ -150,11 +150,20 @@ class MarkedVersesListPage extends StatelessWidget {
                             log('Error navigating to verse: //\n$e');
                           }
                         },
-                        onDelete: () {
-                          _showDeleteDialog(context, verse.verseRef, () {
-                            context
-                                .read<MarkedVersesBloc>()
-                                .add(LoadMarkedVerses());
+                        onDelete: () async {
+                          await context
+                              .read<IMarkedVersesRepository>()
+                              .unmarkVerse(verse.verseRef)
+                              .then((v) {
+                            if (context.mounted) {
+                              context
+                                  .read<MarkedVersesBloc>()
+                                  .add(LoadMarkedVerses());
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Marcação removida')),
+                              );
+                            }
                           });
                         },
                       );
@@ -167,46 +176,6 @@ class MarkedVersesListPage extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showDeleteDialog(
-      BuildContext context, String verseRef, VoidCallback onDeleted) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Remover marcação'),
-        content: const Text('Deseja remover a marcação deste versículo?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              try {
-                await context
-                    .read<IMarkedVersesRepository>()
-                    .unmarkVerse(verseRef);
-                onDeleted();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Marcação removida')),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Erro ao remover: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('Remover'),
-          ),
-        ],
       ),
     );
   }

@@ -54,7 +54,7 @@ class BackgroundPicker extends StatelessWidget {
                   viewModel.customBackgroundPath != null ? index - 1 : index;
               final background = viewModel.backgrounds[bgIndex];
               final isSelected =
-                  viewModel.composition?.backgroundId == background.id &&
+                  viewModel.currentComposition?.backgroundId == background.id &&
                       viewModel.customBackgroundPath == null;
 
               return _buildBackgroundTile(

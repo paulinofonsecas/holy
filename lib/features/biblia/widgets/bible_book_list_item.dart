@@ -35,9 +35,8 @@ class BibleBookListItem extends StatelessWidget {
             context.read<BookSelectionCubit>().setBookExpanded(book.bookId, b);
           },
           headerBuilder: (headerContext, isExpanded) {
-            final textColor = Theme.brightnessOf(context) == Brightness.dark
-                ? Colors.white
-                : Colors.black;
+            final colorScheme = Theme.of(context).colorScheme;
+            final textColor = colorScheme.onSurface;
 
             return Row(
               children: [
@@ -53,83 +52,82 @@ class BibleBookListItem extends StatelessWidget {
                             ?.copyWith(
                               fontSize: 14,
                               color: textColor,
+                              fontWeight: FontWeight.bold,
                             ),
                       ),
-                      if (isOldTestamentBook(book))
-                        Text('Antigo Testamento',
-                            style: Theme.of(headerContext)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  fontSize: 10,
-                                  color: textColor,
-                                ))
-                      else
-                        Text(
-                          'Novo Testamento',
-                          style: Theme.of(headerContext)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                fontSize: 10,
-                                color: textColor,
-                              ),
-                        ),
+                      Text(
+                        isOldTestamentBook(book)
+                            ? 'Antigo Testamento'
+                            : 'Novo Testamento',
+                        style: Theme.of(headerContext)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(
+                              fontSize: 10,
+                              color: textColor.withOpacity(0.6),
+                            ),
+                      ),
                     ],
                   ),
                 ),
                 AnimatedRotation(
                   turns: isExpanded ? 0.5 : 0.0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.chevron_down,
-                    color: Colors.black45,
+                    color: textColor.withOpacity(0.45),
                     size: 18,
                   ),
                 ),
               ],
             );
           },
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            alignment: WrapAlignment.start,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runAlignment: WrapAlignment.start,
-            children: List.generate(
-              book.chapterCount,
-              (index) {
-                final chapterNum = index + 1;
-                final isSelected = selectionState.bookId == book.bookId &&
-                    selectionState.chapterNumber == chapterNum;
+          child: isExpanded
+              ? Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runAlignment: WrapAlignment.start,
+                  children: List.generate(
+                    book.chapterCount,
+                    (index) {
+                      final chapterNum = index + 1;
+                      final isSelected = selectionState.bookId == book.bookId &&
+                          selectionState.chapterNumber == chapterNum;
 
-                return ChapterWidget(
-                  chapterNum,
-                  isSelected: isSelected,
-                  onTap: () {
-                    context.read<BibliaBloc>().add(GetChapter(
-                          context.read<BibleVersionCubit>().state.version.id,
-                          book.bookId,
-                          chapterNum.toString(),
-                        ));
+                      return ChapterWidget(
+                        chapterNum,
+                        isSelected: isSelected,
+                        onTap: () {
+                          context.read<BibliaBloc>().add(GetChapter(
+                                context
+                                    .read<BibleVersionCubit>()
+                                    .state
+                                    .version
+                                    .id,
+                                book.bookId,
+                                chapterNum.toString(),
+                              ));
 
-                    context.read<BookSelectionCubit>().updateContext(
-                          translationId: context
-                              .read<BibleVersionCubit>()
-                              .state
-                              .version
-                              .id,
-                          bookId: book.bookId,
-                          chapterNumber: chapterNum,
-                          source: SelectionSource.modalTap,
-                        );
+                          context.read<BookSelectionCubit>().updateContext(
+                                translationId: context
+                                    .read<BibleVersionCubit>()
+                                    .state
+                                    .version
+                                    .id,
+                                bookId: book.bookId,
+                                chapterNumber: chapterNum,
+                                source: SelectionSource.modalTap,
+                              );
 
-                    Navigator.of(context).pop();
-                  },
-                );
-              },
-            ),
-          ),
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    },
+                  ),
+                )
+              : const SizedBox.shrink(),
         );
       },
     );

@@ -184,27 +184,6 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
                 const Divider(),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      context
-                          .read<VerseOfTheDayBloc>()
-                          .add(SendTestNotification());
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Enviando notificação de teste...'),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.notification_important),
-                    label: const Text('Testar Notificação'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
                   child: Text(
                     'Categorias de Livros',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(

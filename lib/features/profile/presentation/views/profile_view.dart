@@ -1,3 +1,4 @@
+import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:feedback/feedback.dart';
@@ -18,9 +19,11 @@ class ProfileView extends StatelessWidget {
   ProfileView({
     super.key,
     FeedbackService? feedbackService,
+    this.onShowTutorial,
   }) : _feedbackService = feedbackService ?? FeedbackService();
 
   final FeedbackService _feedbackService;
+  final VoidCallback? onShowTutorial;
 
   void _navigateToAbout(BuildContext context) {
     Navigator.push(
@@ -85,21 +88,6 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
-                  icon: Icons.palette,
-                  title: l10n.themeColorTitle,
-                  subtitle: 'Personalizar cores e tema',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ThemeSettingsPage(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildProfileOption(
-                  context,
                   icon: Icons.menu_book,
                   title: 'Histórico de Versículos',
                   subtitle: 'Ver versículos visualizados recentemente',
@@ -134,20 +122,42 @@ class ProfileView extends StatelessWidget {
                     );
                   },
                 ),
-                /*
-                ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('Sobre'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: viewModel.navigateToAbout,
-          ),
-          ListTile(
-            leading: const Icon(Icons.bug_report_outlined),
-            title: const Text('Relatar um Problema'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => viewModel.showFeedback(context),
-          ),
-                */
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.palette,
+                  title: l10n.themeColorTitle,
+                  subtitle: 'Personalizar cores e tema',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ThemeSettingsPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                if (onShowTutorial != null) ...[
+                  _buildProfileOption(
+                    context,
+                    key: keyTutorialField,
+                    icon: Icons.help_outline,
+                    title: 'Tutorial',
+                    subtitle: 'Rever o guia do aplicativo',
+                    onTap: () {
+                      onShowTutorial!();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                _buildProfileOption(
+                  context,
+                  icon: Icons.bug_report,
+                  title: 'Relatar um Problema',
+                  subtitle: 'Relatar um problema ou enviar feedback',
+                  onTap: () => _showFeedback(context),
+                ),
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
@@ -155,14 +165,6 @@ class ProfileView extends StatelessWidget {
                   title: 'Sobre',
                   subtitle: 'Saiba mais sobre este aplicativo',
                   onTap: () => _navigateToAbout(context),
-                ),
-                const SizedBox(height: 8),
-                _buildProfileOption(
-                  context,
-                  icon: Icons.bug_report,
-                  title: 'Relatar um Problema',
-                  subtitle: 'Relatar um problema ou enviar feedback',
-                  onTap: () => _showFeedback(context),
                 ),
               ],
             ),
@@ -178,8 +180,10 @@ class ProfileView extends StatelessWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    Key? key,
   }) {
     return Container(
+      key: key,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),

@@ -18,34 +18,32 @@ class ActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        const SizedBox(width: 8),
+        _ActionButton(
+          icon: Icons.share_outlined,
+          label: 'Partilhar',
+          onTap: onShare,
+        ),
+        _ActionButton(
+          icon: Icons.image_outlined,
+          label: 'Criar Imagem',
+          onTap: onCreateImage,
+        ),
+        _ActionButton(
+          icon: Icons.copy_outlined,
+          label: 'Copiar',
+          onTap: onCopy,
+        ),
+        if (onCompare != null)
           _ActionButton(
-            icon: Icons.share_outlined,
-            label: 'Partilhar',
-            onTap: onShare,
+            icon: Icons.compare_arrows_outlined,
+            label: 'Comparar Versão',
+            onTap: onCompare,
           ),
-          _ActionButton(
-            icon: Icons.image_outlined,
-            label: 'Criar Imagem',
-            onTap: onCreateImage,
-          ),
-          _ActionButton(
-            icon: Icons.copy_outlined,
-            label: 'Copiar',
-            onTap: onCopy,
-          ),
-          if (onCompare != null)
-            _ActionButton(
-              icon: Icons.compare_arrows_outlined,
-              label: 'Comparar Versão',
-              onTap: onCompare,
-            ),
-        ],
-      ),
+      ],
     );
   }
 }
