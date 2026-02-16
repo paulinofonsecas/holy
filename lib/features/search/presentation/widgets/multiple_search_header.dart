@@ -29,6 +29,10 @@ class MultipleSearchHeader extends StatelessWidget {
             queries = bloc.consultas;
           }
 
+          if (queries.isEmpty) {
+            queries = [const SearchQueryPart(term: '')];
+          }
+
           // Use the operator from the second part (if exists) as the global toggle
           final operadorGeral =
               (queries.length > 1) ? queries[1].operator : JoinOperator.and;
