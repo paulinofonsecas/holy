@@ -189,7 +189,6 @@ class BibliaView extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                         child: ActionRowWidget(
-                        
                           verses: context
                               .read<VerseSelectionBloc>()
                               .state

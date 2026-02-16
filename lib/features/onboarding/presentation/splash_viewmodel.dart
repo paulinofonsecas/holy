@@ -1,4 +1,6 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/app/tuoring.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
 
 class SplashViewModel extends BaseViewModel {
@@ -10,17 +12,28 @@ class SplashViewModel extends BaseViewModel {
   bool _isDownloading = false;
   bool get isDownloading => _isDownloading;
 
+  bool _shouldShowTutorial = false;
+  bool get shouldShowTutorial => _shouldShowTutorial;
+
   SplashViewModel(this._cacheProvider);
 
-  Future<void> initialize() async {
+  Future<bool> initialize() async {
     const versionId = 'KJA'; // Default version
 
+    // Check if tutorial should be shown
+    final prefs = await SharedPreferences.getInstance();
+    _shouldShowTutorial = !(prefs.getBool(tutorialShownKey) ?? false);
+
     final isCached = await _cacheProvider.isVersionCached(versionId);
-    if (isCached) {
-      _navigateToMain();
-    } else {
-      await _startDownloadAndImport(versionId);
+    if (!isCached) {
+      return false;
     }
+    return true;
+  }
+
+  Future<void> startDownload() async {
+    const versionId = 'KJA';
+    await _startDownloadAndImport(versionId);
   }
 
   Future<void> _startDownloadAndImport(String versionId) async {

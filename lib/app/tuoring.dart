@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
+const String tutorialShownKey = 'tutorial_shown';
+
 final GlobalKey keyBibleContentTab = GlobalKey();
 final GlobalKey keyBibleVersionTab = GlobalKey();
 final GlobalKey keySearchField = GlobalKey();

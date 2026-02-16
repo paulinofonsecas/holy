@@ -17,10 +17,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScaffold extends StatefulWidget {
   final FeedbackService? feedbackService;
+  final bool showTutorialOnStart;
 
   const MainScaffold({
     super.key,
     this.feedbackService,
+    this.showTutorialOnStart = false,
   });
 
   @override
@@ -40,17 +42,16 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     super.initState();
     notificationHandler.addOnNotificationTapListener(_handleNotificationTap);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkFirstTimeTutorial();
+      if (widget.showTutorialOnStart) {
+        _startTutorial();
+      }
     });
   }
 
-  Future<void> _checkFirstTimeTutorial() async {
+  Future<void> _startTutorial() async {
+    showTutorial();
     final prefs = await SharedPreferences.getInstance();
-    final bool shown = prefs.getBool('tutorial_shown1') ?? false;
-    if (!shown) {
-      showTutorial();
-      await prefs.setBool('tutorial_shown', true);
-    }
+    await prefs.setBool(tutorialShownKey, true);
   }
 
   @override

@@ -64,16 +64,6 @@ class App extends StatelessWidget {
         builder: (context) {
           return BlocBuilder<ThemeBloc, ThemeState>(
             builder: (context, themeState) {
-              if (!themeState.isInitialized) {
-                return const MaterialApp(
-                  home: Scaffold(
-                    body: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                );
-              }
-
               return MaterialApp(
                 title: 'Eu Sou',
                 debugShowCheckedModeBanner: false,

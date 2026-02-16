@@ -6,6 +6,7 @@ import 'package:stacked/stacked.dart';
 
 import '../../download/presentation/widgets/download_progress_bar.dart';
 import 'splash_viewmodel.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
@@ -17,11 +18,23 @@ class SplashPage extends StatelessWidget {
         context.read<BibleCacheProvider>(),
       ),
       onModelReady: (model) async {
-        await model.initialize();
+        final isCached = await model.initialize();
+        
+        if (!isCached) {
+          // If downloading, remove native splash immediately to show progress
+          FlutterNativeSplash.remove();
+          await model.startDownload();
+        } else {
+          // If cached, we can remove it now or just before navigation
+          FlutterNativeSplash.remove();
+        }
+
         if (context.mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => const MainScaffold(),
+              builder: (context) => MainScaffold(
+                showTutorialOnStart: model.shouldShowTutorial,
+              ),
             ),
           );
         }
