@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
+import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:meta/meta.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -10,13 +11,30 @@ part 'biblia_state.dart';
 
 class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
   final IBibleRepository _bibleReposity;
+  final ScrollPersistenceService _scrollPersistenceService;
 
-  BibliaBloc(this._bibleReposity) : super(BibliaInitial()) {
+  BibliaBloc(this._bibleReposity, this._scrollPersistenceService)
+      : super(BibliaInitial()) {
     on<GetChapter>(
       _onGetChapter,
       transformer: (events, mapper) => events.switchMap(mapper),
     );
     on<ClearTargetVerse>(_onClearTargetVerse);
+    on<UpdateBibleScroll>(_onUpdateScroll);
+  }
+
+  void _onUpdateScroll(
+    UpdateBibleScroll event,
+    Emitter<BibliaState> emit,
+  ) {
+    if (state is BibleChapterLoaded) {
+      final currentState = state as BibleChapterLoaded;
+      _scrollPersistenceService.saveBibleScrollOffset(
+        currentState.chapter.bookId,
+        currentState.chapter.number,
+        event.offset,
+      );
+    }
   }
 
   void _onClearTargetVerse(
@@ -53,6 +71,7 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
             currentState.chapter,
             versionId: currentState.versionId,
             targetVerse: event.verse,
+            initialScrollOffset: currentState.initialScrollOffset,
           ));
         }
         return;
@@ -68,10 +87,16 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
         event.chapter,
       );
 
+      final savedOffset = _scrollPersistenceService.getBibleScrollOffset(
+        result.bookId,
+        result.number,
+      );
+
       emit(BibleChapterLoaded(
         result,
         versionId: event.version,
         targetVerse: event.verse,
+        initialScrollOffset: savedOffset,
       ));
 
       // Pre-fetch adjacent chapters for smoother navigation

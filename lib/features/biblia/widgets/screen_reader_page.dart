@@ -23,6 +23,18 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
   final Map<int, GlobalKey> _verseKeys = {};
   String? _currentChapterId;
 
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.hasClients) {
+      context.read<BibliaBloc>().add(UpdateBibleScroll(_scrollController.offset));
+    }
+  }
+
   void _scrollToVerse(int verseNumber) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final key = _verseKeys[verseNumber];
@@ -47,7 +59,8 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
     return BlocConsumer<BibliaBloc, BibliaState>(listener: (context, state) {
       if (state is BibleChapterLoaded) {
         final chapterId = "${state.chapter.bookId}-${state.chapter.number}";
-        if (_currentChapterId != chapterId) {
+        final isNewChapter = _currentChapterId != chapterId;
+        if (isNewChapter) {
           _verseKeys.clear();
           _currentChapterId = chapterId;
         }
@@ -55,6 +68,16 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
         // Garantir que as chaves existam antes de tentar scrollar
         for (var verse in state.chapter.verses) {
           _verseKeys.putIfAbsent(verse.number, () => GlobalKey());
+        }
+
+        if (isNewChapter &&
+            state.initialScrollOffset > 0 &&
+            state.targetVerse == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_scrollController.hasClients) {
+              _scrollController.jumpTo(state.initialScrollOffset);
+            }
+          });
         }
 
         if (state.targetVerse != null) {

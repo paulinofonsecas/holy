@@ -19,3 +19,12 @@ class ClearTargetVerse extends BibliaEvent {
   @override
   List<Object?> get props => [];
 }
+
+class UpdateBibleScroll extends BibliaEvent {
+  final double offset;
+
+  UpdateBibleScroll(this.offset);
+
+  @override
+  List<Object?> get props => [offset];
+}

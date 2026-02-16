@@ -220,6 +220,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                                       ? estado.buscarTodasVersoes
                                       : false,
                             ),
+                            
                             if (estado is BuscaCarregada &&
                                 estado.buscarTodasVersoes &&
                                 estado.versoesDisponiveis.isNotEmpty) ...[

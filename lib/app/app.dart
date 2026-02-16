@@ -38,14 +38,14 @@ class App extends StatelessWidget {
           create: (context) {
             final bibleVersion =
                 context.read<BibleVersionCubit>().state.version;
-            return BibliaBloc(context.read())
+            return BibliaBloc(context.read(), context.read())
               ..add(
                 GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
               );
           },
         ),
         BlocProvider(
-          create: (context) => SearchBloc(context.read())
+          create: (context) => SearchBloc(context.read(), context.read())
             ..add(CarregarVersao(
               idVersao: context.read<BibleVersionCubit>().state.version.id,
             )),

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import '../../../../core/services/logger_service.dart';
+import '../../../../core/services/scroll_persistence_service.dart';
 import '../../data/repositories/search_repository.dart';
 
 part 'search_event.dart';
@@ -13,6 +14,7 @@ const _debounceDuration = Duration(milliseconds: 500);
 
 class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   final RepositorioBusca _repositorioBusca;
+  final ScrollPersistenceService _scrollPersistenceService;
   final LoggerService _registrador = LoggerService();
   List<SearchQueryPart> _consultas = [const SearchQueryPart(term: '')];
   bool _buscarTodasVersoes = false;
@@ -23,8 +25,10 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   List<SearchQueryPart> get consultas => _consultas;
   double get scrollOffset => _scrollOffset;
 
-  SearchBloc(this._repositorioBusca, {String? idVersao})
+  SearchBloc(this._repositorioBusca, this._scrollPersistenceService,
+      {String? idVersao})
       : _idVersao = idVersao,
+        _scrollOffset = _scrollPersistenceService.getSearchScrollOffset(),
         super(BuscaInicial()) {
     on<TermoBuscaAlterado>(
       _onSearchQueryChanged,
@@ -236,6 +240,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
 
   void _onUpdateScroll(AtualizarScrollBusca event, Emitter<EstadoBusca> emit) {
     _scrollOffset = event.offset;
+    _scrollPersistenceService.saveSearchScrollOffset(_scrollOffset);
   }
 
   Future<void> _onFilterByVersion(
@@ -295,6 +300,7 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     _consultas = [const SearchQueryPart(term: '')];
     _idVersaoSelecionada = null;
     _scrollOffset = 0;
+    _scrollPersistenceService.saveSearchScrollOffset(0.0);
     emit(BuscaInicial());
   }
 

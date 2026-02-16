@@ -2,18 +2,29 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
+import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockSearchRepository extends Mock implements RepositorioBusca {}
 
+class MockScrollPersistenceService extends Mock
+    implements ScrollPersistenceService {}
+
 void main() {
   late SearchBloc searchBloc;
   late MockSearchRepository mockSearchRepository;
+  late MockScrollPersistenceService mockScrollPersistenceService;
 
   setUp(() {
     mockSearchRepository = MockSearchRepository();
-    searchBloc = SearchBloc(mockSearchRepository, idVersao: 'ACF');
+    mockScrollPersistenceService = MockScrollPersistenceService();
+
+    when(() => mockScrollPersistenceService.getSearchScrollOffset())
+        .thenReturn(0.0);
+
+    searchBloc = SearchBloc(mockSearchRepository, mockScrollPersistenceService,
+        idVersao: 'ACF');
 
     registerFallbackValue(const SearchQueryPart(term: ''));
   });
