@@ -111,9 +111,6 @@ class SelectionToolbar extends StatelessWidget {
       context: context,
       verses: verses,
       verseReference: verseReference,
-      bookId: chapter.bookId,
-      bookName: chapter.bookName ?? chapter.bookId,
-      chapterNumber: chapter.number,
     );
   }
 

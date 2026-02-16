@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class HighlightRow extends StatelessWidget {
+class HighlightRow extends StatefulWidget {
   final Function(String colorHex) onColorSelected;
   final VoidCallback onRemoveHighlight;
 
@@ -9,6 +9,13 @@ class HighlightRow extends StatelessWidget {
     required this.onColorSelected,
     required this.onRemoveHighlight,
   });
+
+  @override
+  State<HighlightRow> createState() => _HighlightRowState();
+}
+
+class _HighlightRowState extends State<HighlightRow> {
+  bool isOpen = false;
 
   static const List<Map<String, dynamic>> colors = [
     {'name': 'Yellow', 'color': Color(0xFFFFF176), 'hex': 'FFFFF176'},
@@ -20,44 +27,97 @@ class HighlightRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
+    return !isOpen
+        ? Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: .05),
+                borderRadius: BorderRadius.circular(12)),
+            child: Row(
+              children: [
+                ...colors.take(2).map(
+                  (e) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: ColorItemWidget(
+                        onColorSelected: widget.onColorSelected,
+                        hexColor: e['hex'],
+                        color: e['color'],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 4),
+                _switchExpansionColorsWidget()
+              ],
+            ),
+          )
+        : Row(
             children: [
               IconButton(
                 icon: const Icon(Icons.format_color_reset_outlined),
-                onPressed: onRemoveHighlight,
+                onPressed: widget.onRemoveHighlight,
                 tooltip: 'Remover destaque',
               ),
               const SizedBox(width: 8),
               ...colors.map((colorData) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: GestureDetector(
-                    onTap: () => onColorSelected(colorData['hex']),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: colorData['color'],
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outline
-                              .withValues(alpha: 0.2),
-                        ),
-                      ),
-                    ),
+                  child: ColorItemWidget(
+                    onColorSelected: widget.onColorSelected,
+                    hexColor: colorData['hex'],
+                    color: colorData['color'],
                   ),
                 );
               }),
+              const SizedBox(width: 8),
+              _switchExpansionColorsWidget(),
             ],
+          );
+  }
+
+  InkWell _switchExpansionColorsWidget() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          isOpen = !isOpen;
+        });
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Icon(!isOpen ? Icons.chevron_right : Icons.chevron_left),
+      ),
+    );
+  }
+}
+
+class ColorItemWidget extends StatelessWidget {
+  const ColorItemWidget({
+    super.key,
+    required this.onColorSelected,
+    required this.hexColor,
+    this.color,
+  });
+
+  final Function(String colorHex) onColorSelected;
+  final Color? color;
+  final String hexColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onColorSelected.call(hexColor),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           ),
         ),
-      ],
+      ),
     );
   }
 }

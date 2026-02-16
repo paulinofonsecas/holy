@@ -8,6 +8,7 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 final GlobalKey keyBibleContentTab = GlobalKey();
 final GlobalKey keyBibleVersionTab = GlobalKey();
 final GlobalKey keySearchField = GlobalKey();
+final GlobalKey keyTutorialField = GlobalKey();
 
 /// Mixin to handle tutorials in widgets.
 mixin TutorialMixin<T extends StatefulWidget> on State<T> {
@@ -63,7 +64,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       TargetFocus(
         identify: "BibleContentTarget",
         keyTarget: keyBibleContentTab,
-        radius: 100,
+        shape: ShapeLightFocus.RRect,
         contents: [
           TargetContent(
             align: ContentAlign.bottom,
@@ -86,7 +87,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
                     Padding(
                       padding: EdgeInsets.only(top: 12),
                       child: Text(
-                        "Aqui você pode selecionar o livro e capitulo deseja.",
+                        "Aqui você pode selecionar o livro e capitulo que deseja.",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -143,6 +144,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       TargetFocus(
         identify: "SearchTarget",
         keyTarget: keySearchField,
+        shape: ShapeLightFocus.RRect,
         contents: [
           TargetContent(
             customPosition: CustomTargetContentPosition(
@@ -167,6 +169,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
                     padding: EdgeInsets.only(top: 12),
                     child: Text(
                       "Encontre rapidamente versículos, temas ou palavras-chave em toda a Bíblia.",
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12.0,
@@ -204,6 +207,40 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
                   padding: EdgeInsets.only(top: 12),
                   child: Text(
                     "Acesse seus versículos marcados, mude o tema do app e configure notificações aqui.",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    _targets.add(
+      TargetFocus(
+        identify: "TutorialTarget",
+        keyTarget: keyTutorialField,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Tutorial",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: Text(
+                    "Volte a este tutorial sempre que achar necessário",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

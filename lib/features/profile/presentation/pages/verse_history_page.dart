@@ -25,7 +25,7 @@ class VerseHistoryPage extends StatelessWidget {
               if (state is VerseHistoryLoaded && state.history.isNotEmpty) {
                 return IconButton(
                   onPressed: () => _showClearHistoryDialog(context),
-                  icon: const Icon(Icons.clear_all),
+                  icon: const Icon(Icons.delete),
                   tooltip: 'Limpar histórico',
                 );
               }

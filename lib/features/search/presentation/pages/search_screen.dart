@@ -1,4 +1,3 @@
-import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
@@ -7,6 +6,7 @@ import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 
 import '../bloc/search_bloc.dart';
 import '../widgets/highlighted_text.dart';
@@ -57,8 +57,7 @@ class _TelaBuscaState extends State<TelaBusca> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          key: keySearchField,
+        title: const Text(
           'Buscar Versículos',
         ),
         actions: [
@@ -392,43 +391,40 @@ class _TelaBuscaState extends State<TelaBusca> {
                           return ListTile(
                             onTap: aoInteragir,
                             onLongPress: aoInteragir,
+                            titleAlignment: ListTileTitleAlignment.top,
                             title: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    '${resultado.book.name} ${resultado.chapter.number}:${resultado.verse.number}',
-                                  ),
+                                Text(
+                                  '${resultado.book.name} ${resultado.chapter.number}:${resultado.verse.number}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
                                 ),
-                                if (resultado.versionAbbreviation != null)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
+                                const Gap(8),
+                                Text(
+                                  '(${resultado.versionId})',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .primary
-                                          .withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      resultado.versionAbbreviation!,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary),
-                                    ),
-                                  ),
+                                          .primary),
+                                ),
                               ],
                             ),
                             subtitle: HighlightedText(
                               text: resultado.verse.text,
                               style: TextStyle(
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.color),
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color,
+                              ),
                               highlightedWords: estado.consultas
                                   .map((q) => q.term)
                                   .where((t) => t.isNotEmpty)

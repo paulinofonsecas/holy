@@ -7,7 +7,7 @@ import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
-import 'package:eu_sou/features/verse_interaction/presentation/widgets/selection_toolbar.dart';
+import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widgets/verse_actions_page.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/material.dart';
@@ -103,7 +103,6 @@ class BibliaView extends StatelessWidget {
             children: [
               const Gap(16),
               BibleAppBar(
-                
                 onBookTap: () {
                   SwitchBookModal.show(context);
                 },
@@ -180,8 +179,29 @@ class BibliaView extends StatelessWidget {
               ),
               BlocBuilder<BibliaBloc, BibliaState>(
                 builder: (context, state) {
-                  if (state is BibleChapterLoaded) {
-                    return SelectionToolbar(chapter: state.chapter);
+                  if (state is BibleChapterLoaded &&
+                      context
+                          .watch<VerseSelectionBloc>()
+                          .state
+                          .isInSelectionMode) {
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                        child: ActionRowWidget(
+                        
+                          verses: context
+                              .read<VerseSelectionBloc>()
+                              .state
+                              .selectedVerses
+                              .values
+                              .toList(),
+                          verseReference: state.versionId,
+                          bookId: state.chapter.bookId,
+                          chapterNumber: state.chapter.number,
+                        ),
+                      ),
+                    );
                   }
                   return const SizedBox.shrink();
                 },

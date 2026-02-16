@@ -1,4 +1,5 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/app/tuoring.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,21 +25,21 @@ class MultipleSearchHeader extends StatelessWidget {
           final searchState = context.read<SearchBloc>().state;
 
           // Handle local state if BuscaCarregada hasn't updated yet or we are in other states
-          List<SearchQueryPart> consultas;
+          List<SearchQueryPart> queries;
           if (state is BuscaCarregada) {
-            consultas = state.consultas;
+            queries = state.consultas;
           } else {
-            consultas = bloc.consultas;
+            queries = bloc.consultas;
           }
 
           // Use the operator from the second part (if exists) as the global toggle
           final operadorGeral =
-              (consultas.length > 1) ? consultas[1].operator : JoinOperator.and;
+              (queries.length > 1) ? queries[1].operator : JoinOperator.and;
 
           return Column(
             children: [
               // Join Operator Toggle (only if multiple queries)
-              if (consultas.length > 1)
+              if (queries.length > 1)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: Row(
@@ -90,7 +91,7 @@ class MultipleSearchHeader extends StatelessWidget {
               ReorderableListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: consultas.length,
+                itemCount: queries.length,
                 onReorder: (oldIndex, newIndex) {
                   context
                       .read<SearchBloc>()
@@ -105,30 +106,34 @@ class MultipleSearchHeader extends StatelessWidget {
                   );
                 },
                 itemBuilder: (context, index) {
-                  final query = consultas[index];
-                  return SearchInputBar(
-                    key: ValueKey('search-bar-$index'),
-                    initialValue: query.term,
-                    showRemove: consultas.length > 1,
-                    hintText: index == 0 ? 'Buscar por...' : 'E também por...',
-                    dragHandle: consultas.length > 1
-                        ? ReorderableDragStartListener(
-                            index: index,
-                            child: const Icon(
-                              Icons.drag_handle,
-                              color: Colors.grey,
-                              size: 20,
-                            ),
-                          )
-                        : null,
-                    onChanged: (val) {
-                      context
-                          .read<SearchBloc>()
-                          .add(TermoBuscaAlterado(val, index: index));
-                    },
-                    onRemove: () {
-                      context.read<SearchBloc>().add(RemoverConsulta(index));
-                    },
+                  final query = queries[index];
+                  return Container(
+                    key: keySearchField,
+                    child: SearchInputBar(
+                      key: ValueKey('search-bar-$index'),
+                      initialValue: query.term,
+                      showRemove: queries.length > 1,
+                      hintText:
+                          index == 0 ? 'Buscar por...' : 'E também por...',
+                      dragHandle: queries.length > 1
+                          ? ReorderableDragStartListener(
+                              index: index,
+                              child: const Icon(
+                                Icons.drag_handle,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                            )
+                          : null,
+                      onChanged: (val) {
+                        context
+                            .read<SearchBloc>()
+                            .add(TermoBuscaAlterado(val, index: index));
+                      },
+                      onRemove: () {
+                        context.read<SearchBloc>().add(RemoverConsulta(index));
+                      },
+                    ),
                   );
                 },
               ),
