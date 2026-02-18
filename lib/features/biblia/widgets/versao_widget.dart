@@ -8,7 +8,14 @@ import 'package:gap/gap.dart';
 class VersaoWidget extends StatelessWidget {
   const VersaoWidget({
     super.key,
+    this.isMini = false,
   });
+
+  final bool isMini;
+
+  factory VersaoWidget.mini({Key? key}) {
+    return VersaoWidget(key: key, isMini: true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +49,7 @@ class VersaoWidget extends StatelessWidget {
                       ),
                       const Gap(16),
                       ...BibleVersions.values.map((e) {
+                        final isSelected = bibleVersion.id == e.id;
                         return Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -58,28 +66,24 @@ class VersaoWidget extends StatelessWidget {
                               '${e.id} - ${e.name}',
                               style: const TextStyle(),
                             ),
-                            trailing: FutureBuilder<bool>(
-                              future: context
-                                  .read<BibleCacheProvider>()
-                                  .isVersionCached(e.id),
-                              builder: (context, snapshot) {
-                                final isDownloaded = snapshot.data ?? false;
-
-                                return Icon(
-                                  isDownloaded
-                                      ? Icons.check_circle
-                                      : Icons.download_for_offline,
-                                  color: isDownloaded
-                                      ? Colors.green
-                                      : Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .color!
-                                          .withOpacity(0.5),
-                                  size: 24,
-                                );
-                              },
-                            ),
+                            trailing: isSelected
+                                ? Icon(Icons.check_circle,
+                                    color:
+                                        Theme.of(context).colorScheme.primary)
+                                : FutureBuilder<bool>(
+                                    future: context
+                                        .read<BibleCacheProvider>()
+                                        .isVersionCached(e.id),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.data == true) {
+                                        return const Icon(
+                                            Icons.offline_pin_outlined,
+                                            size: 20);
+                                      }
+                                      return const Icon(Icons.download_outlined,
+                                          size: 20);
+                                    },
+                                  ),
                           ),
                         );
                       }),
@@ -91,23 +95,21 @@ class VersaoWidget extends StatelessWidget {
           },
         );
       },
+      borderRadius: BorderRadius.circular(24),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 8,
-        ),
+        padding: !isMini
+            ? const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              )
+            : const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              CupertinoIcons.globe,
-              size: 18,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
-            const Gap(8),
             Text(
               bibleVersion.id,
               style: TextStyle(
@@ -115,7 +117,13 @@ class VersaoWidget extends StatelessWidget {
                 fontSize: 12,
               ),
             ),
-            const Gap(3),
+            if (!isMini) ...[
+              Icon(
+                CupertinoIcons.chevron_down,
+                size: 14,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ],
           ],
         ),
       ),

@@ -27,40 +27,40 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
 
   void initTargets() {
     _targets.clear();
-    _targets.add(
-      TargetFocus(
-        identify: "BibleTarget",
-        keyTarget: keyBibleTab,
-        contents: [
-          TargetContent(
-            align: ContentAlign.top,
-            builder: (context, controller) {
-              return const Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Bíblia Sagrada",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 20.0,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: Text(
-                      "Aqui você pode ler e explorar todos os livros da Bíblia.",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
+    // _targets.add(
+    //   TargetFocus(
+    //     identify: "BibleTarget",
+    //     keyTarget: keyBibleTab,
+    //     contents: [
+    //       TargetContent(
+    //         align: ContentAlign.top,
+    //         builder: (context, controller) {
+    //           return const Column(
+    //             mainAxisSize: MainAxisSize.min,
+    //             crossAxisAlignment: CrossAxisAlignment.start,
+    //             children: [
+    //               Text(
+    //                 "Bíblia Sagrada",
+    //                 style: TextStyle(
+    //                   fontWeight: FontWeight.bold,
+    //                   color: Colors.white,
+    //                   fontSize: 20.0,
+    //                 ),
+    //               ),
+    //               Padding(
+    //                 padding: EdgeInsets.only(top: 12),
+    //                 child: Text(
+    //                   "Aqui você pode ler e explorar todos os livros da Bíblia.",
+    //                   style: TextStyle(color: Colors.white),
+    //                 ),
+    //               ),
+    //             ],
+    //           );
+    //         },
+    //       ),
+    //     ],
+    //   ),
+    // );
 
     _targets.add(
       TargetFocus(
@@ -188,39 +188,6 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
 
     _targets.add(
       TargetFocus(
-        identify: "ProfileTarget",
-        keyTarget: keyProfileTab,
-        contents: [
-          TargetContent(
-            align: ContentAlign.top,
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Seu Perfil e Ajustes",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 20.0,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: Text(
-                    "Acesse seus versículos marcados, mude o tema do app e configure notificações aqui.",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-
-    _targets.add(
-      TargetFocus(
         identify: "TutorialTarget",
         keyTarget: keyTutorialField,
         shape: ShapeLightFocus.RRect,
@@ -252,6 +219,39 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
         ],
       ),
     );
+
+    _targets.add(
+      TargetFocus(
+        identify: "ProfileTarget",
+        keyTarget: keyProfileTab,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Ajustes",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: Text(
+                    "Acesse seus versículos marcados, mude o tema do app e configure notificações aqui.",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void showTutorial() {
@@ -262,6 +262,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       colorShadow: Colors.black.withValues(alpha: 0.8),
       // textSkip: "Pular",
       hideSkip: true,
+      useSafeArea: true,
       skipWidget: null,
       showSkipInLastTarget: false,
       onClickTarget: (target) {

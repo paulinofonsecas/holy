@@ -138,44 +138,41 @@ class MultipleSearchHeader extends StatelessWidget {
 
               const SizedBox(height: 8),
               if (searchState is BuscaCarregada)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: InkWell(
-                    onTap: () {
-                      context.read<SearchBloc>().add(
-                            AlternarBuscaTodasVersoes(!isGlobalSearchAllVersions),
-                          );
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Todos as versões',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
+                InkWell(
+                  onTap: () {
+                    context.read<SearchBloc>().add(
+                          AlternarBuscaTodasVersoes(!isGlobalSearchAllVersions),
+                        );
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Todos as versões',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
-                          Transform.scale(
-                            scale: 0.9,
-                            child: Checkbox(
-                              value: isGlobalSearchAllVersions,
-                              onChanged: (valor) {
-                                context.read<SearchBloc>().add(
-                                      AlternarBuscaTodasVersoes(valor ?? false),
-                                    );
-                              },
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
-                              ),
+                        ),
+                        Transform.scale(
+                          scale: 0.9,
+                          child: Checkbox(
+                            value: isGlobalSearchAllVersions,
+                            onChanged: (valor) {
+                              context.read<SearchBloc>().add(
+                                    AlternarBuscaTodasVersoes(valor ?? false),
+                                  );
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

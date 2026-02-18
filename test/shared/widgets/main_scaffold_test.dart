@@ -129,7 +129,7 @@ void main() {
 
       expect(find.text('Bíblia'), findsWidgets); // Might be in multiple places
       expect(find.text('Pesquisa'), findsWidgets);
-      expect(find.text('Perfil'), findsWidgets);
+      expect(find.text('Ajustes'), findsWidgets);
     });
 
     testWidgets('starts with index 0 selected', (tester) async {

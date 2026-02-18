@@ -1,5 +1,7 @@
 // ignore_for_file: library_prefixes
 
+import 'dart:async';
+
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
@@ -15,10 +17,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 
 import '../bloc/biblia_bloc.dart';
-import '../widgets/biblia_app_bar.dart';
-
-import 'dart:async';
 import '../widgets/animated_chapter_navigation.dart';
+import '../widgets/biblia_app_bar.dart';
 
 class BibliaPage extends StatelessWidget {
   const BibliaPage({super.key});
@@ -205,7 +205,7 @@ class _BibliaViewState extends State<BibliaView> {
         body: SafeArea(
           child: Column(
             children: [
-              const Gap(16),
+              const Gap(2),
               BibleAppBar(
                 onBookTap: () {
                   SwitchBookModal.show(context);

@@ -12,6 +12,7 @@ import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -139,16 +140,16 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                     labelType: NavigationRailLabelType.all,
                     destinations: [
                       NavigationRailDestination(
-                        icon: Icon(Icons.book, key: keyBibleTab),
+                        icon: Icon(CupertinoIcons.book, key: keyBibleTab),
                         label: Text(l10n.bible),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.search, key: keySearchTab),
+                        icon: Icon(CupertinoIcons.search, key: keySearchTab),
                         label: Text(l10n.search),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.person, key: keyProfileTab),
-                        label: Text(l10n.profile),
+                        icon: Icon(CupertinoIcons.settings, key: keyProfileTab),
+                        label: const Text('Ajustes'),
                       ),
                     ],
                   ),
@@ -176,16 +177,16 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
               },
               items: [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.book, key: keyBibleTab),
+                  icon: Icon(CupertinoIcons.book, key: keyBibleTab),
                   label: l10n.bible,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.search, key: keySearchTab),
+                  icon: Icon(CupertinoIcons.search, key: keySearchTab),
                   label: l10n.search,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.person, key: keyProfileTab),
-                  label: l10n.profile,
+                  icon: Icon(CupertinoIcons.settings, key: keyProfileTab),
+                  label: 'Ajustes',
                 ),
               ],
             ),

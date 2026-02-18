@@ -74,7 +74,7 @@ class AboutView extends StackedView<AboutViewModel> {
                 const SizedBox(height: 40),
                 const Center(
                   child: Text(
-                    'Desenvolvido para Deus, com \n❤️ por Paulino Fonseca',
+                    'By ForjaTek',
                     style: TextStyle(fontStyle: FontStyle.italic),
                     textAlign: TextAlign.center,
                   ),

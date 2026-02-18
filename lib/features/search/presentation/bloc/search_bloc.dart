@@ -78,32 +78,31 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   ) async {
     _registrador.info('🎲 Realizando pesquisa randômica');
     final termos = [
-      'amor',
-      'fé',
-      'esperança',
-      'graça',
-      'paz',
-      'justiça',
-      'misericórdia',
-      'sabedoria',
-      'força',
-      'luz',
-      'verdade',
-      'vida',
-      'salvação',
-      'perdão',
-      'alegria',
-      'oração',
-      'espírito',
-      'coração',
-      'reino',
-      'promessa'
+      'amor de Deus',
+      'fé inabalável',
+      'esperança viva',
+      'graça divina',
+      'paz interior',
+      'justiça eterna',
+      'sabedoria celestial',
+      'força espiritual',
+      'luz do mundo',
+      'verdade absoluta',
+      'vida abundante',
+      'salvação eterna',
+      'perdão sincero',
+      'alegria verdadeira',
+      'oração constante',
+      'Espírito Santo',
+      'coração quebrantado',
+      'reino de Deus',
     ];
+
     final termoAleatorio = (List.from(termos)..shuffle()).first;
 
     _consultas = [SearchQueryPart(term: termoAleatorio)];
     _registrador.debug('🎲 Termo escolhido: $termoAleatorio');
-    
+
     await _realizarBusca(emit);
   }
 
@@ -305,12 +304,12 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     _registrador.info(
         '🔄 Alternar busca em todas as versões: ${event.buscarTodasVersoes}');
     _buscarTodasVersoes = event.buscarTodasVersoes;
-    
+
     // Se desativar a busca em todas as versões, limpamos o filtro de versão específica
     if (!_buscarTodasVersoes) {
       _idVersaoSelecionada = null;
     }
-    
+
     if (_consultas.any((q) => q.term.length >= 3)) {
       await _realizarBusca(emit);
     }
@@ -343,7 +342,8 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
           .term;
 
       // Na busca em todas as versões, sempre buscamos tudo inicialmente para ter a lista de versões disponíveis
-      final idVersaoBase = _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao);
+      final idVersaoBase =
+          _buscarTodasVersoes ? null : (_idVersaoSelecionada ?? _idVersao);
 
       final correspondenciasLivrosFuture = _repositorioBusca.corresponderLivros(
         firstValidTerm,
@@ -368,9 +368,10 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
       var resultadosExibidos = resultadosCompletos;
       if (_buscarTodasVersoes && _idVersaoSelecionada != null) {
         final resultadosFiltrados = resultadosCompletos.results
-            .where((r) => (r.versionAbbreviation ?? r.versionId) == _idVersaoSelecionada)
+            .where((r) =>
+                (r.versionAbbreviation ?? r.versionId) == _idVersaoSelecionada)
             .toList();
-            
+
         resultadosExibidos = SearchResults(
           query: resultadosCompletos.query,
           totalResults: resultadosFiltrados.length,

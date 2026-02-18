@@ -1,11 +1,7 @@
-import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
-import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
-import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
-import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,106 +21,39 @@ class BibleAppBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return Row(
-            children: [
-              VersaoWidget(
-                key: keyBibleVersionTab,
-              ),
-              const Gap(8),
-              Expanded(
-                child: Center(
-                  child: BookSelectorWidget(onBookTap: onBookTap),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    VersaoWidget(key: keyBibleVersionTab),
+                    IconButton(
+                      onPressed: () => ReadingSettingsModal.show(context),
+                      style: IconButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(80),
+                        ),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                      ),
+                      icon: Icon(
+                        CupertinoIcons.textformat_alt,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        size: 20,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const Gap(8),
-              // if (showSearch) const CustomSearchBibleWidget(),
-              IconButton(
-                onPressed: () => ReadingSettingsModal.show(context),
-                icon: const Icon(CupertinoIcons.textformat_alt),
-              ),
-            ],
+                Center(child: BookSelectorWidget(onBookTap: onBookTap)),
+              ],
+            ),
           );
         },
       ),
-    );
-  }
-}
-
-class CustomSearchBibleWidget extends StatelessWidget {
-  const CustomSearchBibleWidget({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SearchBloc, EstadoBusca>(
-      builder: (context, state) {
-        final hasSearch =
-            state is BuscaCarregada && state.resultados.results.isNotEmpty;
-        return IconButton(
-          onPressed: () async {
-            final resultado = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (newContext) => MultiBlocProvider(
-                  providers: [
-                    BlocProvider.value(value: context.read<BibliaBloc>()),
-                    BlocProvider.value(value: context.read<SearchBloc>()),
-                  ],
-                  child: const TelaBusca(),
-                ),
-              ),
-            );
-
-            if (resultado != null && context.mounted) {
-              if (resultado is SearchResult) {
-                context.read<BibliaBloc>().add(
-                      GetChapter(
-                        resultado.versionId,
-                        resultado.book.id,
-                        resultado.chapter.number.toString(),
-                        verse: resultado.verse.number,
-                      ),
-                    );
-              } else if (resultado is Book) {
-                final idVersao =
-                    context.read<BibleVersionCubit>().state.version.id;
-                context.read<BibliaBloc>().add(
-                      GetChapter(
-                        idVersao,
-                        resultado.id,
-                        '1',
-                      ),
-                    );
-              }
-            }
-          },
-          icon: Stack(
-            children: [
-              Icon(
-                Icons.search,
-                color: hasSearch ? Theme.of(context).colorScheme.primary : null,
-              ),
-              if (hasSearch)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.error,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 8,
-                      minHeight: 8,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
@@ -156,7 +85,7 @@ class BookSelectorWidget extends StatelessWidget {
                     "${state.chapter.bookName} ${state.chapter.number}",
                     key: keyBibleContentTab,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                     overflow: TextOverflow.ellipsis,
