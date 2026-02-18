@@ -326,36 +326,18 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
         }
       }
 
-            if (successCount == viewModel.compositions.length) {
-
-              toastService
-
-                  .showSuccess('Todas as imagens foram salvas na galeria!');
-
-            } else if (successCount > 0) {
-
-              toastService.showWarning(
-
-                  '$successCount de ${viewModel.compositions.length} imagens salvas.');
-
-            } else {
-
-              throw Exception('Nenhuma imagem foi salva');
-
-            }
-
-          } catch (e) {
-
-            toastService.showError('Erro ao salvar imagens: $e');
-
-          } finally {
-
-            viewModel.setGenerating(false);
-
-          }
-
-        }
-
+      if (successCount == viewModel.compositions.length) {
+        toastService.showSuccess('Todas as imagens foram salvas na galeria!');
+      } else if (successCount > 0) {
+        toastService.showWarning(
+            '$successCount de ${viewModel.compositions.length} imagens salvas.');
+      } else {
+        throw Exception('Nenhuma imagem foi salva');
       }
-
-      
+    } catch (e) {
+      toastService.showError('Erro ao salvar imagens: $e');
+    } finally {
+      viewModel.setGenerating(false);
+    }
+  }
+}
