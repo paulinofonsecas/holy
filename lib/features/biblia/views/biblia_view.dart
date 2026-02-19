@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
+import 'package:eu_sou/features/biblia/widgets/bible_book_list_item.dart';
 import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
@@ -13,12 +14,23 @@ import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widget
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 
 import '../bloc/biblia_bloc.dart';
 import '../widgets/animated_chapter_navigation.dart';
 import '../widgets/biblia_app_bar.dart';
+
+@Preview(name: 'My  ')
+Widget mySampleText() {
+  return BlocProvider(
+    create: (context) => BookSelectionCubit(),
+    child: const BibleBookListItem(
+      book: BibleBooks.john,
+    ),
+  );
+}
 
 class BibliaPage extends StatelessWidget {
   const BibliaPage({super.key});

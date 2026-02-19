@@ -32,7 +32,9 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
 
   void _onScroll() {
     if (_scrollController.hasClients) {
-      context.read<BibliaBloc>().add(UpdateBibleScroll(_scrollController.offset));
+      context
+          .read<BibliaBloc>()
+          .add(UpdateBibleScroll(_scrollController.offset));
     }
   }
 
@@ -137,10 +139,11 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
 
         late String message;
 
-        if (state.message.contains('No internet connection')) {
-          message = 'Ocorreu um erro de conexão com a internet';
+        if (state.message.contains('ClientException with SocketException')) {
+          message =
+              'Não foi possível conectar-se ao servidor de biblías, verifique a sua conexão a Internet. Tente novamente';
         } else {
-          message = "Erro ao carregar o capítulo";
+          message = "Erro ao carregar o capítulo. Tente novamente";
         }
 
         return ShowErrorWidget(message: message);
