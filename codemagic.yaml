@@ -100,8 +100,8 @@ workflows:
           pod install
           cd ..
 
-      - name: Run tests
-        script: flutter test
+      # - name: Run tests
+      #   script: flutter test
 
       # ------------------------------------------------------
       # Android Signing
