@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -186,8 +187,16 @@ class FCMService {
   /// Check if the app is running on a physical device
   Future<bool> _isPhysicalDevice() async {
     try {
-      // This is a simplified check - in production, use a package like 'device_info_plus'
-      // to more accurately determine if the device is physical
+      if (kIsWeb) return true;
+
+      final deviceInfo = DeviceInfoPlugin();
+      if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        return iosInfo.isPhysicalDevice;
+      } else if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        return androidInfo.isPhysicalDevice;
+      }
       return !const bool.fromEnvironment('dart.vm.product');
     } catch (e) {
       return false;
@@ -232,7 +241,8 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   const InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);
 
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await flutterLocalNotificationsPlugin.initialize(
+      settings: initializationSettings);
 
   // Show notification if there is a notification payload
   if (message.notification != null) {
@@ -248,10 +258,10 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         NotificationDetails(android: androidPlatformChannelSpecifics);
 
     await flutterLocalNotificationsPlugin.show(
-      message.hashCode,
-      message.notification?.title,
-      message.notification?.body,
-      platformChannelSpecifics,
+      id: message.hashCode,
+      title: message.notification?.title,
+      body: message.notification?.body,
+      notificationDetails: platformChannelSpecifics,
       payload: json.encode(message.data),
     );
   }
