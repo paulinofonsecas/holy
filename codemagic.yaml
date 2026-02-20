@@ -19,10 +19,6 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.paulinofonseca.eusou
-        provisioning_profiles:
-          - dev1
-        certificates:
-          - prod
 
     triggering:
       events:
