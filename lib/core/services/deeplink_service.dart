@@ -23,9 +23,7 @@ class DeeplinkService implements IDeeplinkService {
 
   @override
   Stream<Uri?> get onLink => _appLinks.uriLinkStream.map((uri) {
-        if (uri != null) {
-          _logger.info('Foreground deep link received: $uri');
-        }
+        _logger.info('Foreground deep link received: $uri');
         return uri;
       });
 

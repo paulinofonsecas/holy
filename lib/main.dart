@@ -81,6 +81,7 @@ void main() async {
     notificationService: notificationHandler.localNotificationService,
   );
 
+  debugPrint('Main: Initializing verse notifications...');
   await verseService.scheduleNextNotifications();
 
   final profileRepo = ProfileRepository();

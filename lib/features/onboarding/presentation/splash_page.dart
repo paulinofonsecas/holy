@@ -19,6 +19,9 @@ class SplashPage extends StatelessWidget {
         context.read<BibleCacheProvider>(),
       ),
       onModelReady: (model) async {
+        final deeplinkService = context.read<IDeeplinkService>();
+        final navigator = Navigator.of(context);
+        
         final isCached = await model.initialize();
         
         if (!isCached) {
@@ -32,21 +35,19 @@ class SplashPage extends StatelessWidget {
 
         Uri? initialLink;
         try {
-          initialLink = await context.read<IDeeplinkService>().getInitialLink();
+          initialLink = await deeplinkService.getInitialLink();
         } catch (e) {
           debugPrint('Error getting initial link: $e');
         }
 
-        if (context.mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => MainScaffold(
-                showTutorialOnStart: model.shouldShowTutorial,
-                initialDeepLink: initialLink,
-              ),
+        navigator.pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => MainScaffold(
+              showTutorialOnStart: model.shouldShowTutorial,
+              initialDeepLink: initialLink,
             ),
-          );
-        }
+          ),
+        );
       },
       builder: (context, model, child) {
         return Scaffold(

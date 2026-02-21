@@ -70,8 +70,10 @@ class LocalNotificationService {
           AndroidNotificationDetails(
         'high_importance_channel',
         'High Importance Notifications',
+        channelDescription: 'High importance notifications for verses',
         importance: Importance.max,
         priority: Priority.high,
+        ticker: 'ticker',
       );
 
       const DarwinNotificationDetails iOSPlatformChannelSpecifics =
@@ -113,8 +115,10 @@ class LocalNotificationService {
           AndroidNotificationDetails(
         'daily_verse_channel',
         'Daily Verse Notifications',
+        channelDescription: 'Daily Bible verse notifications',
         importance: Importance.max,
         priority: Priority.high,
+        ticker: 'ticker',
       );
 
       const DarwinNotificationDetails iOSPlatformChannelSpecifics =
@@ -158,8 +162,10 @@ class LocalNotificationService {
           AndroidNotificationDetails(
         'daily_verse_channel',
         'Daily Verse Notifications',
+        channelDescription: 'Daily Bible verse notifications',
         importance: Importance.max,
         priority: Priority.high,
+        ticker: 'ticker',
       );
 
       const DarwinNotificationDetails iOSPlatformChannelSpecifics =
@@ -184,6 +190,7 @@ class LocalNotificationService {
         notificationDetails: platformChannelSpecifics,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
+      debugPrint('Scheduled notification $id at $scheduledDate');
     } catch (e) {
       debugPrint('Error scheduling notification at date: $e');
       toastService.showError('Falha ao agendar versículo do dia.');

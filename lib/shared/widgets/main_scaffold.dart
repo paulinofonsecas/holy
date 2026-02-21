@@ -16,6 +16,7 @@ import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dar
 import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
+import 'package:eu_sou/features/verse_of_the_day/domain/services/verse_of_the_day_service.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/cupertino.dart';
@@ -56,7 +57,12 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     
     _setupDeeplinks();
 
+    // Ensure verse of the day notifications are scheduled
+    // This handles the case where the app just finished onboarding/downloading the first bible
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<VerseOfTheDayService>().scheduleNextNotifications();
+      }
       if (widget.showTutorialOnStart) {
         _startTutorial();
       }
