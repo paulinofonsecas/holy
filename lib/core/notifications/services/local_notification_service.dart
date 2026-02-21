@@ -41,7 +41,7 @@ class LocalNotificationService {
       );
 
       await _flutterLocalNotificationsPlugin.initialize(
-        initializationSettings,
+        settings: initializationSettings,
         onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
       );
 
@@ -87,10 +87,10 @@ class LocalNotificationService {
       );
 
       await _flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        platformChannelSpecifics,
+        id: notification.hashCode,
+        title: notification.title,
+        body: notification.body,
+        notificationDetails: platformChannelSpecifics,
         payload: notification.payload,
       );
     } catch (e) {
@@ -130,16 +130,14 @@ class LocalNotificationService {
       );
 
       await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        _nextInstanceOfTime(hour, minute),
-        platformChannelSpecifics,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
+        id: id,
+        title: title,
+        body: body,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payload,
+        scheduledDate: _nextInstanceOfTime(hour, minute),
+        notificationDetails: platformChannelSpecifics,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
     } catch (e) {
       debugPrint('Error scheduling daily notification: $e');
@@ -177,15 +175,14 @@ class LocalNotificationService {
       );
 
       await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tz.TZDateTime.from(scheduledDate, tz.local),
-        platformChannelSpecifics,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
+        id: id,
+        title: title,
+        body: body,
+        matchDateTimeComponents: DateTimeComponents.time,
         payload: payload,
+        scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
+        notificationDetails: platformChannelSpecifics,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
     } catch (e) {
       debugPrint('Error scheduling notification at date: $e');
@@ -231,7 +228,7 @@ class LocalNotificationService {
 
   /// Cancel a specific notification
   Future<void> cancelNotification(int id) async {
-    await _flutterLocalNotificationsPlugin.cancel(id);
+    await _flutterLocalNotificationsPlugin.cancel(id: id);
   }
 
   /// Cancel all notifications
