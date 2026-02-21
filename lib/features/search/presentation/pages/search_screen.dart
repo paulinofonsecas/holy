@@ -2,6 +2,8 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/widgets/multiple_search_header.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_export_service.dart';
@@ -231,7 +233,34 @@ class _TelaBuscaState extends State<TelaBusca> {
                                       );
                                     },
                                   ),
-                                  if (!selectionState.isInSelectionMode)
+                                  if (!selectionState.isInSelectionMode) ...[
+                                    IconButton(
+                                      tooltip: 'Entendimento Aprofundado',
+                                      icon: const Icon(Icons.auto_awesome),
+                                      onPressed: () {
+                                        final currentQuery = estado.consultas
+                                            .map((q) => q.term)
+                                            .where((t) => t.isNotEmpty)
+                                            .join(' + ');
+
+                                        context
+                                            .read<DeepUnderstandingBloc>()
+                                            .add(
+                                              StartAnalysisEvent(
+                                                currentQuery,
+                                                estado.resultados.results,
+                                              ),
+                                            );
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const DeepUnderstandingPage(),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                     IconButton(
                                       tooltip: 'Limpar busca',
                                       icon: const Icon(
@@ -242,6 +271,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                                             .add(LimparBusca());
                                       },
                                     ),
+                                  ],
                                 ],
                               );
                             },
@@ -618,7 +648,7 @@ class NoResultToSingleWorldWidget extends StatelessWidget {
             onPressed: () {
               context.read<SearchBloc>().add(PesquisaRandomica());
             },
-            icon: const Icon(Icons.auto_awesome, size: 18),
+            icon: const Icon(Icons.more, size: 18),
             label: const Text('Surpreenda com uma busca aleatória'),
             style: ElevatedButton.styleFrom(
               elevation: 0,

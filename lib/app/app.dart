@@ -1,3 +1,5 @@
+import 'package:eu_sou/core/notifications/notification_handler.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
 import 'package:eu_sou/core/design_system/theme/theme_data.dart';
 import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
@@ -23,9 +25,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Main App widget that configures the application using BLoC pattern.
-class App extends StatelessWidget {
-  /// Creates a new App instance.
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+    _setupNotificationListener();
+  }
+
+  void _setupNotificationListener() {
+    notificationHandler.addOnNotificationTapListener((payload) {
+      if (payload != null && payload.startsWith('deep_understanding:')) {
+        // Since we don't have the original query or results here easily,
+        // we might just want to show the results page if it was already in success state.
+        // Or the Bloc should handle loading from session ID if we implement a LoadSession event.
+        
+        // For now, let's just push the page if it's the result of our feature.
+        toastService.navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => const DeepUnderstandingPage()),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
