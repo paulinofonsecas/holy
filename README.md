@@ -7,7 +7,7 @@ A modern Bible application built with Flutter, focusing on speed, offline access
 
 # Guia do Usuário - Holy App
 
-Bem-vindo ao guia oficial do usuário do Holy App. Este documento ajudará você a aproveitar ao máximo todas as funcionalidades do aplicativo.
+Bem-vindo ao guia oficial do usuário do Holy App. Este documento ajudará você a aproveitar ao máximo todas as funcionalidades do aplicativo .
 
 ---
 
