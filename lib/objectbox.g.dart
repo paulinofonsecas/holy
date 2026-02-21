@@ -23,7 +23,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 795792232932813392),
     name: 'AnalysisSession',
-    lastPropertyId: const obx_int.IdUid(10, 5509001783183294485),
+    lastPropertyId: const obx_int.IdUid(14, 1739034297125974665),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -85,6 +85,30 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(10, 5509001783183294485),
         name: 'updatedAt',
         type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 1675110034444379766),
+        name: 'embeddingDurationMillis',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(12, 9006372578112263410),
+        name: 'searchDurationMillis',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(13, 1976364457849664017),
+        name: 'summaryDurationMillis',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(14, 1739034297125974665),
+        name: 'totalDurationMillis',
+        type: 6,
         flags: 0,
       ),
     ],
@@ -212,7 +236,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final resultOffset = object.result == null
             ? null
             : fbb.writeString(object.result!);
-        fbb.startTable(11);
+        fbb.startTable(15);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, sessionIdOffset);
         fbb.addOffset(2, queryOffset);
@@ -223,6 +247,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(7, resultOffset);
         fbb.addInt64(8, object.createdAt.millisecondsSinceEpoch);
         fbb.addInt64(9, object.updatedAt.millisecondsSinceEpoch);
+        fbb.addInt64(10, object.embeddingDurationMillis);
+        fbb.addInt64(11, object.searchDurationMillis);
+        fbb.addInt64(12, object.summaryDurationMillis);
+        fbb.addInt64(13, object.totalDurationMillis);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -262,6 +290,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final updatedAtParam = DateTime.fromMillisecondsSinceEpoch(
           const fb.Int64Reader().vTableGet(buffer, rootOffset, 22, 0),
         );
+        final embeddingDurationMillisParam = const fb.Int64Reader()
+            .vTableGetNullable(buffer, rootOffset, 24);
+        final searchDurationMillisParam = const fb.Int64Reader()
+            .vTableGetNullable(buffer, rootOffset, 26);
+        final summaryDurationMillisParam = const fb.Int64Reader()
+            .vTableGetNullable(buffer, rootOffset, 28);
+        final totalDurationMillisParam = const fb.Int64Reader()
+            .vTableGetNullable(buffer, rootOffset, 30);
         final object = AnalysisSession(
           sessionId: sessionIdParam,
           query: queryParam,
@@ -272,6 +308,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
           result: resultParam,
           createdAt: createdAtParam,
           updatedAt: updatedAtParam,
+          embeddingDurationMillis: embeddingDurationMillisParam,
+          searchDurationMillis: searchDurationMillisParam,
+          summaryDurationMillis: summaryDurationMillisParam,
+          totalDurationMillis: totalDurationMillisParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
         return object;
@@ -380,6 +420,24 @@ class AnalysisSession_ {
   /// See [AnalysisSession.updatedAt].
   static final updatedAt = obx.QueryDateProperty<AnalysisSession>(
     _entities[0].properties[9],
+  );
+
+  /// See [AnalysisSession.embeddingDurationMillis].
+  static final embeddingDurationMillis =
+      obx.QueryIntegerProperty<AnalysisSession>(_entities[0].properties[10]);
+
+  /// See [AnalysisSession.searchDurationMillis].
+  static final searchDurationMillis = obx.QueryIntegerProperty<AnalysisSession>(
+    _entities[0].properties[11],
+  );
+
+  /// See [AnalysisSession.summaryDurationMillis].
+  static final summaryDurationMillis =
+      obx.QueryIntegerProperty<AnalysisSession>(_entities[0].properties[12]);
+
+  /// See [AnalysisSession.totalDurationMillis].
+  static final totalDurationMillis = obx.QueryIntegerProperty<AnalysisSession>(
+    _entities[0].properties[13],
   );
 }
 

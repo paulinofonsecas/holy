@@ -48,6 +48,8 @@ class DeepUnderstandingService {
 
     logger.debug('Starting analysis for query: $query');
     final limitedResults = results.take(session.totalItems).toList();
+    final totalStopwatch = Stopwatch()..start();
+    final embeddingStopwatch = Stopwatch()..start();
 
     try {
       // Tamanho do lote ajustado para 500 conforme solicitado
@@ -104,7 +106,7 @@ class DeepUnderstandingService {
                 '[${result.book.name} ${result.chapter.number}:${result.verse.number}] ${result.verse.text}';
 
             verseEmbeddings.add(VerseEmbedding(
-              verseId: verseId,kw
+              verseId: verseId,
               content: content,
               vector: newVectors[j],
               sessionId: sessionId,
@@ -124,6 +126,10 @@ class DeepUnderstandingService {
         yield session;
       }
 
+      embeddingStopwatch.stop();
+      session.embeddingDurationMillis = embeddingStopwatch.elapsedMilliseconds;
+      logger.debug('Benchmark: Embedding stage completed in ${embeddingStopwatch.elapsedMilliseconds}ms');
+
       // Se foi cancelado durante o loop, encerramos a execução do método aqui
       final finalCheck = await _vectorStore.getSession(sessionId);
       if (finalCheck?.status == 'cancelled') return;
@@ -135,13 +141,25 @@ class DeepUnderstandingService {
       yield session;
 
       logger.debug('Generating query embedding for: $query');
+      final searchStopwatch = Stopwatch()..start();
       final queryEmbedding = (await _aiService.getEmbeddings([query])).first;
       final topVerses =
           await _vectorStore.searchMostRelevant(queryEmbedding, sessionId, 20);
+      searchStopwatch.stop();
+      session.searchDurationMillis = searchStopwatch.elapsedMilliseconds;
+      logger.debug('Benchmark: Vector search completed in ${searchStopwatch.elapsedMilliseconds}ms');
 
       // 5. Gerar o resumo final
+      final summaryStopwatch = Stopwatch()..start();
       final contextTexts = topVerses.map((v) => v.content).toList();
       final summary = await _aiService.generateSummary(query, contextTexts);
+      summaryStopwatch.stop();
+      session.summaryDurationMillis = summaryStopwatch.elapsedMilliseconds;
+      logger.debug('Benchmark: Summary generation completed in ${summaryStopwatch.elapsedMilliseconds}ms');
+
+      totalStopwatch.stop();
+      session.totalDurationMillis = totalStopwatch.elapsedMilliseconds;
+      logger.debug('Benchmark: Total analysis completed in ${totalStopwatch.elapsedMilliseconds}ms');
 
       session.status = 'completed';
       session.result = summary;
@@ -177,5 +195,13 @@ class DeepUnderstandingService {
       session.updatedAt = DateTime.now();
       await _vectorStore.saveSession(session);
     }
+  }
+
+  Future<List<AnalysisSession>> getHistory() async {
+    return await _vectorStore.getAllSessions();
+  }
+
+  Future<void> deleteSession(String sessionId) async {
+    await _vectorStore.clearSession(sessionId);
   }
 }

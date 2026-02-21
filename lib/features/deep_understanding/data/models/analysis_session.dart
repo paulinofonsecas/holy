@@ -20,6 +20,11 @@ class AnalysisSession {
   @Property(type: PropertyType.date)
   DateTime updatedAt;
 
+  int? embeddingDurationMillis;
+  int? searchDurationMillis;
+  int? summaryDurationMillis;
+  int? totalDurationMillis;
+
   AnalysisSession({
     required this.sessionId,
     required this.query,
@@ -30,5 +35,9 @@ class AnalysisSession {
     this.result,
     required this.createdAt,
     required this.updatedAt,
+    this.embeddingDurationMillis,
+    this.searchDurationMillis,
+    this.summaryDurationMillis,
+    this.totalDurationMillis,
   });
 }

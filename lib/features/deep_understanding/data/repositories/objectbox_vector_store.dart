@@ -74,4 +74,15 @@ class ObjectBoxVectorStore implements IVectorStore {
   Future<void> saveSession(AnalysisSession session) async {
     _sessionBox.put(session);
   }
+
+  @override
+  Future<List<AnalysisSession>> getAllSessions() async {
+    final query = _sessionBox
+        .query()
+        .order(AnalysisSession_.updatedAt, flags: Order.descending)
+        .build();
+    final sessions = query.find();
+    query.close();
+    return sessions;
+  }
 }

@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:795792232932813392",
-      "lastPropertyId": "10:5509001783183294485",
+      "lastPropertyId": "14:1739034297125974665",
       "name": "AnalysisSession",
       "properties": [
         {
@@ -60,6 +60,26 @@
           "id": "10:5509001783183294485",
           "name": "updatedAt",
           "type": 10
+        },
+        {
+          "id": "11:1675110034444379766",
+          "name": "embeddingDurationMillis",
+          "type": 6
+        },
+        {
+          "id": "12:9006372578112263410",
+          "name": "searchDurationMillis",
+          "type": 6
+        },
+        {
+          "id": "13:1976364457849664017",
+          "name": "summaryDurationMillis",
+          "type": 6
+        },
+        {
+          "id": "14:1739034297125974665",
+          "name": "totalDurationMillis",
+          "type": 6
         }
       ],
       "relations": []

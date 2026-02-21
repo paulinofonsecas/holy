@@ -8,51 +8,60 @@ class DeepUnderstandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Entendimento Aprofundado'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            final state = context.read<DeepUnderstandingBloc>().state;
-            if (state is DeepUnderstandingInProgress) {
-              _showCancelDialog(context, state.session.sessionId);
-            } else {
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          // Quando voltamos de uma visualização, recarregamos o histórico
+          // para garantir que o estado do Bloc volte para 'HistoryLoaded' se necessário
+          context.read<DeepUnderstandingBloc>().add(const LoadHistoryEvent());
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Entendimento Aprofundado'),
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              final state = context.read<DeepUnderstandingBloc>().state;
+              if (state is DeepUnderstandingInProgress) {
+                _showCancelDialog(context, state.session.sessionId);
+              } else {
+                Navigator.pop(context);
+              }
+            },
+          ),
+        ),
+        body: BlocConsumer<DeepUnderstandingBloc, DeepUnderstandingState>(
+          listener: (context, state) {
+            if (state is DeepUnderstandingFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.error)),
+              );
+            }
+            if (state is DeepUnderstandingCancelled) {
               Navigator.pop(context);
             }
           },
+          builder: (context, state) {
+            if (state is DeepUnderstandingInitial) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is DeepUnderstandingInProgress) {
+              return _buildProgressView(context, state);
+            }
+
+            if (state is DeepUnderstandingSuccess) {
+              return _buildSuccessView(context, state);
+            }
+
+            if (state is DeepUnderstandingFailure) {
+              return _buildErrorView(context, state);
+            }
+
+            return const SizedBox.shrink();
+          },
         ),
-      ),
-      body: BlocConsumer<DeepUnderstandingBloc, DeepUnderstandingState>(
-        listener: (context, state) {
-          if (state is DeepUnderstandingFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
-            );
-          }
-          if (state is DeepUnderstandingCancelled) {
-            Navigator.pop(context);
-          }
-        },
-        builder: (context, state) {
-          if (state is DeepUnderstandingInitial) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is DeepUnderstandingInProgress) {
-            return _buildProgressView(context, state);
-          }
-
-          if (state is DeepUnderstandingSuccess) {
-            return _buildSuccessView(context, state);
-          }
-
-          if (state is DeepUnderstandingFailure) {
-            return _buildErrorView(context, state);
-          }
-
-          return const SizedBox.shrink();
-        },
       ),
     );
   }
@@ -116,6 +125,56 @@ class DeepUnderstandingPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
+          const Divider(),
+          _buildBenchmarks(state),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBenchmarks(DeepUnderstandingSuccess state) {
+    if (state.totalDurationMillis == null) return const SizedBox.shrink();
+
+    String formatTime(int? ms) {
+      if (ms == null) return 'N/A';
+      if (ms < 1000) return '${ms}ms';
+      return '${(ms / 1000).toStringAsFixed(2)}s';
+    }
+
+    return ExpansionTile(
+      leading: const Icon(Icons.timer_outlined, size: 20),
+      title: const Text(
+        'Benchmarks de Performance',
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      ),
+      subtitle: Text(
+        'Tempo total: ${formatTime(state.totalDurationMillis)}',
+        style: const TextStyle(fontSize: 12),
+      ),
+      childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      children: [
+        _buildBenchmarkRow('Vetorização (Embeddings):', formatTime(state.embeddingDurationMillis)),
+        _buildBenchmarkRow('Busca Vetorial:', formatTime(state.searchDurationMillis)),
+        _buildBenchmarkRow('Geração de Resumo:', formatTime(state.summaryDurationMillis)),
+        const Divider(),
+        _buildBenchmarkRow('Tempo Total de Processamento:', formatTime(state.totalDurationMillis), isBold: true),
+      ],
+    );
+  }
+
+  Widget _buildBenchmarkRow(String label, String value, {bool isBold = false}) {
+    final style = TextStyle(
+      fontSize: 13,
+      fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: style),
+          Text(value, style: style),
         ],
       ),
     );

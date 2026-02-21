@@ -21,4 +21,7 @@ abstract interface class IVectorStore {
 
   /// Update or create session
   Future<void> saveSession(AnalysisSession session);
+
+  /// Get all sessions (for history)
+  Future<List<AnalysisSession>> getAllSessions();
 }

@@ -3,6 +3,7 @@ import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/widgets/multiple_search_header.dart';
@@ -234,6 +235,19 @@ class _TelaBuscaState extends State<TelaBusca> {
                                     },
                                   ),
                                   if (!selectionState.isInSelectionMode) ...[
+                                    IconButton(
+                                      tooltip: 'Histórico de Entendimentos',
+                                      icon: const Icon(Icons.history_edu),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const DeepUnderstandingHistoryPage(),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                     IconButton(
                                       tooltip: 'Entendimento Aprofundado',
                                       icon: const Icon(Icons.auto_awesome),
