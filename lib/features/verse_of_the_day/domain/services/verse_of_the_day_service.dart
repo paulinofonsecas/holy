@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bible_handler/bible_handler.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/notifications/models/push_notification_model.dart';
 import '../../../../core/notifications/services/local_notification_service.dart';
@@ -28,8 +29,11 @@ class VerseOfTheDayService {
     }
 
     if (!settings.isEnabled) {
+      debugPrint('Verse of the day notifications are disabled.');
       return;
     }
+
+    debugPrint('Scheduling next 7 verse of the day notifications...');
 
     final now = nowOverride ?? DateTime.now();
 

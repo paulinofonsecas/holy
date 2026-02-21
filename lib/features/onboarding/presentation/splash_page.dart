@@ -1,4 +1,5 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +19,9 @@ class SplashPage extends StatelessWidget {
         context.read<BibleCacheProvider>(),
       ),
       onModelReady: (model) async {
+        final deeplinkService = context.read<IDeeplinkService>();
+        final navigator = Navigator.of(context);
+        
         final isCached = await model.initialize();
         
         if (!isCached) {
@@ -29,15 +33,21 @@ class SplashPage extends StatelessWidget {
           FlutterNativeSplash.remove();
         }
 
-        if (context.mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => MainScaffold(
-                showTutorialOnStart: model.shouldShowTutorial,
-              ),
-            ),
-          );
+        Uri? initialLink;
+        try {
+          initialLink = await deeplinkService.getInitialLink();
+        } catch (e) {
+          debugPrint('Error getting initial link: $e');
         }
+
+        navigator.pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => MainScaffold(
+              showTutorialOnStart: model.shouldShowTutorial,
+              initialDeepLink: initialLink,
+            ),
+          ),
+        );
       },
       builder: (context, model, child) {
         return Scaffold(

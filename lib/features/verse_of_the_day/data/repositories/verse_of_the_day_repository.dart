@@ -18,8 +18,8 @@ class VerseOfTheDayRepository {
     final String? json = _prefs.getString(_key);
     if (json == null) {
       return VerseOfTheDaySettings(
-        isEnabled: false,
-        hour: 8,
+        isEnabled: true,
+        hour: 6,
         minute: 0,
         versionId: defaultVersionId ?? 'NVI',
         bookIds: const [], // Empty means "All Books"
@@ -29,8 +29,8 @@ class VerseOfTheDayRepository {
       return VerseOfTheDaySettings.fromJson(jsonDecode(json));
     } catch (e) {
       return VerseOfTheDaySettings(
-        isEnabled: false,
-        hour: 8,
+        isEnabled: true,
+        hour: 6,
         minute: 0,
         versionId: defaultVersionId ?? 'NVI',
         bookIds: const [],

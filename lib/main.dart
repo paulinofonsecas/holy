@@ -8,6 +8,7 @@ import 'package:eu_sou/core/data/repositories/bible_repository.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
+import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
@@ -59,6 +60,8 @@ void main() async {
 
   await notificationHandler.initialize();
 
+  final deeplinkService = DeeplinkService();
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -78,6 +81,7 @@ void main() async {
     notificationService: notificationHandler.localNotificationService,
   );
 
+  debugPrint('Main: Initializing verse notifications...');
   await verseService.scheduleNextNotifications();
 
   final profileRepo = ProfileRepository();
@@ -95,6 +99,7 @@ void main() async {
     verseService: verseService,
     profileRepo: profileRepo,
     themeBloc: themeBloc,
+    deeplinkService: deeplinkService,
   ));
 }
 
@@ -107,6 +112,7 @@ class EntryPoint extends StatelessWidget {
   final VerseOfTheDayService verseService;
   final ProfileRepository profileRepo;
   final ThemeBloc themeBloc;
+  final IDeeplinkService deeplinkService;
 
   const EntryPoint({
     super.key,
@@ -118,6 +124,7 @@ class EntryPoint extends StatelessWidget {
     required this.verseService,
     required this.profileRepo,
     required this.themeBloc,
+    required this.deeplinkService,
   });
 
   @override
@@ -129,6 +136,9 @@ class EntryPoint extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => cacheProvider,
+        ),
+        RepositoryProvider<IDeeplinkService>.value(
+          value: deeplinkService,
         ),
         RepositoryProvider(
           create: (context) => ScrollPersistenceService(sharedPreferences),
