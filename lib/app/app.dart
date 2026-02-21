@@ -1,7 +1,9 @@
+import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
 import 'package:eu_sou/core/design_system/theme/theme_data.dart';
 import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
 import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/toast_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
@@ -37,6 +39,7 @@ class App extends StatelessWidget {
             create: (context) => ReadingSettingsCubit(
                 context.read<ReadingSettingsRepository>())),
         BlocProvider(create: (_) => BookSelectionCubit()),
+        BlocProvider(create: (context) => DeeplinkBloc(context.read<IDeeplinkService>())),
         BlocProvider(
           create: (context) {
             final bibleVersion =

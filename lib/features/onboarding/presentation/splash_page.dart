@@ -1,4 +1,5 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,11 +30,19 @@ class SplashPage extends StatelessWidget {
           FlutterNativeSplash.remove();
         }
 
+        Uri? initialLink;
+        try {
+          initialLink = await context.read<IDeeplinkService>().getInitialLink();
+        } catch (e) {
+          debugPrint('Error getting initial link: $e');
+        }
+
         if (context.mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => MainScaffold(
                 showTutorialOnStart: model.shouldShowTutorial,
+                initialDeepLink: initialLink,
               ),
             ),
           );
