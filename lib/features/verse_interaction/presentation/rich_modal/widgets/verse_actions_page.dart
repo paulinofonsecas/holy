@@ -1,5 +1,6 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
+import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/core/services/share_service.dart';
 import 'package:eu_sou/core/services/toast_service.dart';
@@ -136,12 +137,26 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
       return fallback;
     }
 
-    viewModel.onShareText = () {
+    viewModel.onShareText = () async {
+      final deeplinkService = context.read<IDeeplinkService>();
+      String? deeplink;
+      
+      try {
+        final verseRef = "${widget.bookId}_${widget.chapterNumber}_${widget.verses.first.number}";
+        deeplink = await deeplinkService.createShortLink(
+          verseRef: verseRef,
+          source: 'share',
+        );
+      } catch (e) {
+        logger.warning('Failed to generate deep link for sharing: $e');
+      }
+
       ShareService.shareVerses(
         verses: widget.verses,
         bookName: widget.bookId,
         chapterNumber: widget.chapterNumber,
         versionId: versionId,
+        deeplink: deeplink,
       );
     };
 

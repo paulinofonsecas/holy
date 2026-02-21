@@ -7,6 +7,7 @@ class ShareService {
     required String bookName,
     required int chapterNumber,
     required String versionId,
+    String? deeplink,
   }) async {
     if (verses.isEmpty) return;
 
@@ -41,6 +42,11 @@ class ShareService {
 
     for (final verse in verses) {
       buffer.writeln("${verse.number}. ${verse.text}");
+    }
+
+    if (deeplink != null) {
+      buffer.writeln();
+      buffer.writeln("Leia no App Eu Sou: $deeplink");
     }
 
     await Share.share(buffer.toString());

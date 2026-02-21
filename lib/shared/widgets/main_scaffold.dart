@@ -1,8 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:eu_sou/app/tuoring.dart';
+import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
+import 'package:eu_sou/core/deeplinks/bloc/deeplink_event.dart';
+import 'package:eu_sou/core/deeplinks/bloc/deeplink_state.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
+import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
@@ -11,6 +16,8 @@ import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dar
 import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
+import 'package:eu_sou/features/verse_of_the_day/domain/services/verse_of_the_day_service.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +27,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MainScaffold extends StatefulWidget {
   final FeedbackService? feedbackService;
   final bool showTutorialOnStart;
+  final Uri? initialDeepLink;
 
   const MainScaffold({
     super.key,
     this.feedbackService,
     this.showTutorialOnStart = false,
+    this.initialDeepLink,
   });
 
   @override
@@ -32,6 +41,8 @@ class MainScaffold extends StatefulWidget {
 }
 
 class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
+  StreamSubscription<Uri?>? _deeplinkSubscription;
+
   @override
   final GlobalKey keyBibleTab = GlobalKey();
   @override
@@ -43,11 +54,63 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   void initState() {
     super.initState();
     notificationHandler.addOnNotificationTapListener(_handleNotificationTap);
+    
+    _setupDeeplinks();
+
+    // Ensure verse of the day notifications are scheduled
+    // This handles the case where the app just finished onboarding/downloading the first bible
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<VerseOfTheDayService>().scheduleNextNotifications();
+      }
       if (widget.showTutorialOnStart) {
         _startTutorial();
       }
     });
+  }
+
+  void _setupDeeplinks() {
+    final deeplinkService = context.read<IDeeplinkService>();
+    final deeplinkBloc = context.read<DeeplinkBloc>();
+
+    // Handle initial link if provided
+    if (widget.initialDeepLink != null) {
+      deeplinkBloc.add(HandleDeeplink(widget.initialDeepLink!));
+    }
+
+    // Listen for foreground links
+    _deeplinkSubscription = deeplinkService.onLink.listen((Uri? uri) {
+      if (uri != null) {
+        deeplinkBloc.add(HandleDeeplink(uri));
+      }
+    });
+  }
+
+  void _handleDeepLinkData(Map<String, String> data) {
+    final bookId = data['bookId'];
+    final chapter = data['chapter'];
+    final verse = data['verse'];
+
+    if (bookId != null && chapter != null) {
+      if (mounted) {
+        // Reset navigation stack to ensure we're at the root of the app
+        Navigator.popUntil(context, (route) => route.isFirst);
+
+        // Switch to Bible tab
+        context.read<TabControllerCubit>().changeTo(0);
+
+        // Get the current version ID or a default
+        final versionId = context.read<BibleVersionCubit>().state.version.id;
+
+        // Load the verse
+        context.read<BibliaBloc>().add(GetChapter(
+              versionId,
+              bookId,
+              chapter,
+              verse: verse != null ? int.tryParse(verse) : null,
+            ));
+      }
+    }
   }
 
   Future<void> _startTutorial() async {
@@ -58,6 +121,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
 
   @override
   void dispose() {
+    _deeplinkSubscription?.cancel();
     notificationHandler.removeOnNotificationTapListener(_handleNotificationTap);
     super.dispose();
   }
@@ -118,14 +182,25 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     final l10n = AppLocalizations.of(context);
     final isWide = MediaQuery.of(context).size.width > 900;
 
-    return BlocListener<TabControllerCubit, int>(
-      listener: (context, currentIndex) {
-        if (currentIndex == 0) {
-          context.read<BibliaBloc>().add(ForceScrollRestoration());
-        } else if (currentIndex == 1) {
-          context.read<SearchBloc>().add(ForcarRestauracaoScrollBusca());
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<TabControllerCubit, int>(
+          listener: (context, currentIndex) {
+            if (currentIndex == 0) {
+              context.read<BibliaBloc>().add(ForceScrollRestoration());
+            } else if (currentIndex == 1) {
+              context.read<SearchBloc>().add(ForcarRestauracaoScrollBusca());
+            }
+          },
+        ),
+        BlocListener<DeeplinkBloc, DeeplinkState>(
+          listener: (context, state) {
+            if (state is DeeplinkNavigating) {
+              _handleDeepLinkData(state.data);
+            }
+          },
+        ),
+      ],
       child: BlocBuilder<TabControllerCubit, int>(
         builder: (context, currentIndex) {
           if (isWide) {

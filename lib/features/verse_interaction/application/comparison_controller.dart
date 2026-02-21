@@ -16,6 +16,7 @@ class ComparisonController extends BaseViewModel {
 
   List<VersionComparisonEntry> get entries => _entries;
   String? get errorMessage => _error;
+  @override
   bool get hasError => _error != null;
   bool get hasContent => _entries.isNotEmpty;
 

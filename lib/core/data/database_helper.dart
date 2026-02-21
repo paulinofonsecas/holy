@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
@@ -37,33 +36,30 @@ class DatabaseHelper {
       return await databaseFactoryFfiWeb.openDatabase(
         dbName,
         options: OpenDatabaseOptions(
-          version: 5,
+          version: 6,
           onCreate: _onCreate,
           onUpgrade: _onUpgrade,
         ),
       );
     }
 
-    if (Platform.isAndroid) {
-      _logger.info('🤖 Initializing Android FFI for FTS5 support...');
+    // On desktop platforms (Windows/Linux/macOS), use FFI with the bundled sqlite3.
+    // On Android/iOS, the platform's built-in SQLite already supports FTS5
+    // (Android API 21+), so the standard sqflite factory is used directly.
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      _logger.info('🖥️ Initializing desktop FFI for SQLite...');
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
 
-    String path;
-    if (Platform.isAndroid) {
-      final appDir = await getApplicationDocumentsDirectory();
-      path = join(appDir.path, dbName);
-    } else {
-      final dbPath = await getDatabasesPath();
-      path = join(dbPath, dbName);
-    }
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, dbName);
 
     _logger.info('📁 Database path: $path');
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -164,18 +160,18 @@ class DatabaseHelper {
       )
     ''');
 
-    _logger.info('📑 Creating FTS5 virtual table for full-text search...');
+    _logger.info('📑 Creating FTS4 virtual table for full-text search...');
     await db.execute('''
-      CREATE VIRTUAL TABLE verses_fts USING fts5(
+      CREATE VIRTUAL TABLE verses_fts USING fts4(
         version_id,
         book_id,
         chapter,
         verse,
         text,
-        tokenize='unicode61'
+        tokenize=unicode61
       )
     ''');
-    _logger.info('✅ FTS5 virtual table created successfully');
+    _logger.info('✅ FTS4 virtual table created successfully');
   }
 
   Future<void> close() async {
