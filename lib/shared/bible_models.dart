@@ -165,12 +165,24 @@ enum BibleBooks {
   revelation(bookId: 'REV', book: 'Apocalipse', chapterCount: 22);
 
   static BibleBooks? byName(String name) {
-    final searchName = name.trim().toLowerCase();
+    // 1. Standardize the search name: lowercase and replace underscores with spaces
+    final searchName = name.trim().replaceAll('_', ' ').toLowerCase();
+
+    // 2. Try exact match after standardization (handles "1 reis" vs "1 Reis")
     for (var value in BibleBooks.values) {
       if (value.book.toLowerCase() == searchName) {
         return value;
       }
     }
+
+    // 3. Try matching without any spaces (handles "1reis" vs "1 Reis")
+    final noSpaceSearch = searchName.replaceAll(' ', '');
+    for (var value in BibleBooks.values) {
+      if (value.book.toLowerCase().replaceAll(' ', '') == noSpaceSearch) {
+        return value;
+      }
+    }
+
     return null;
   }
 
