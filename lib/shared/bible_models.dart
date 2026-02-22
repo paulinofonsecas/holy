@@ -164,6 +164,16 @@ enum BibleBooks {
   jude(bookId: 'JUD', book: 'Judas', chapterCount: 1),
   revelation(bookId: 'REV', book: 'Apocalipse', chapterCount: 22);
 
+  static BibleBooks? byName(String name) {
+    final searchName = name.trim().toLowerCase();
+    for (var value in BibleBooks.values) {
+      if (value.book.toLowerCase() == searchName) {
+        return value;
+      }
+    }
+    return null;
+  }
+
   final String bookId;
   final String book;
   final int chapterCount;

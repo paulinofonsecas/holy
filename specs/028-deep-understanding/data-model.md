@@ -1,48 +1,10 @@
 # Data Model: Deep Understanding
 
-## Entities
+**Date**: 2026-02-21
+**Feature**: Selection-Based Deep Understanding
 
-### `AnalysisSession` (Root Entity)
-Represents a single request for "Deep Understanding". It tracks the overall progress and user query.
+No significant changes are required for the core data models (`AnalysisSession`, `VerseEmbedding`).
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `String` | Unique ID for the session. |
-| `query` | `String` | The original user search term. |
-| `totalItems` | `int` | Total verses returned from the initial search. |
-| `processedItems` | `int` | Number of verses already embedded and saved. |
-| `status` | `Enum` | `idle`, `embedding`, `generating`, `completed`, `error`, `cancelled`. |
-| `error` | `String?` | Error message if status is `error`. |
-| `result` | `String?` | The final Markdown summary from Gemini. |
+The existing `AnalysisSession` entity is already flexible enough to support the new requirements. The `query` field will store a user-defined theme for the selected verses, and the `totalItems` and `processedItems` will reflect the number of verses in the manual selection.
 
-### `VerseEmbedding` (ObjectBox Entity)
-Storage for the semantic vector of a verse to facilitate Top 20 local search.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `int` | Internal ObjectBox ID. |
-| `verseId` | `String` | Global verse identifier (e.g., "John-3-16"). |
-| `content` | `String` | The full text of the verse (used for final prompt). |
-| `vector` | `List<double>` | The 768-dimensional embedding vector. |
-| `sessionId` | `String` | Reference to the `AnalysisSession` that generated it. |
-
-## Relationships
-
-- `AnalysisSession` **Has Many** `VerseEmbedding`.
-- After analysis is complete or session is cleared, embeddings for that session can be pruned (unless we decide to cache them globally by verse).
-
-## State Transitions
-
-1.  **idle** -> **embedding**: User clicks "Deep Understanding".
-2.  **embedding** -> **generating**: All verses (up to 1000) have embeddings saved in ObjectBox.
-3.  **embedding** -> **error**: Network failure or API quota hit (saves progress).
-4.  **embedding** -> **cancelled**: User stops the process.
-5.  **generating** -> **completed**: Gemini-1.5-Flash returns the theological summary.
-6.  **generating** -> **error**: Generation failed (e.g., prompt rejected).
-
-## Validation Rules
-
-- `query` cannot be empty.
-- `totalItems` must be > 0 (checked before starting analysis).
-- `processedItems` always <= `totalItems`.
-- Vectors must be of the fixed dimension provided by `gemini-embedding-001`.
+The primary changes are in the application logic (how an analysis is initiated) rather than the data structure itself.

@@ -1,52 +1,36 @@
-# Research: Deep Understanding
+# Research: Selection-Based Deep Understanding & Navigation Integration
 
-## Decisions & Rationale
+**Date**: 2026-02-21
+**Feature**: Selection-Based Deep Understanding
 
-### Decision: Local Vector Storage (ObjectBox)
-**Rationale**: 
-1.  **High performance**: ObjectBox is specifically designed for mobile and provides extremely low-latency local storage.
-2.  **Vector capability**: It supports efficient vector search, which is essential for identifying the "Top 20" verses most relevant to the query from the 1000 items retrieved.
-3.  **Cross-platform**: Works seamlessly on Android/iOS.
+## 1. Verse Selection Mechanism
 
-**Alternatives considered**: 
--   **SQLite (SQFlite)**: Rejected. Lacks native vector search performance; FTS5 is not a vector search.
--   **In-memory Map**: Rejected. 1000 768-dimensional vectors (standard for many models) would consume significant RAM and wouldn't persist for retries.
+### Findings
+- **Bible Chapter (`BibliaView`)**: Uses `VerseSelectionBloc` to manage a `Map<int, BibleVerse>` of selected verses. When `isInSelectionMode` is true, an `ActionRowWidget` is displayed with actions for the selected verses.
+- **Search Results (`SearchScreen`)**: Uses a `SearchSelectionBloc` which also manages a map of selected `SearchResult` objects.
+- **Decision**: Integrate the "Deep Understanding" action into the existing selection widgets of both screens.
 
----
+## 2. Deep Understanding Service & BLoC
 
-### Decision: Background Processing (Flutter Isolates)
-**Rationale**: 
-1.  **No UI Blocking**: 1000 embedding operations (even in batches) and database insertions can easily block the main thread, causing frame drops (jank).
-2.  **Multicore usage**: Utilizes modern mobile CPU architecture to parallelize the "Heavy" work.
-3.  **State Safety**: Isolates don't share memory, preventing accidental UI thread data corruption during long operations.
+### Findings
+- **Current Implementation**: `DeepUnderstandingBloc` has a `StartAnalysisEvent` that accepts a `String query` and `List<SearchResult> results`. The `DeepUnderstandingService` then processes this list.
+- **Decision**: To support analysis of specific verses without a search context (e.g., from a chapter), we will create a new event:
+  - `StartAnalysisForVersesEvent(List<BibleVerse> verses, String query)`
+  - The `DeepUnderstandingService` will be updated with a new method `startAnalysisForVerses` that takes a list of `BibleVerse`, converts them to the necessary format (if different from `SearchResult`), and proceeds with the embedding and analysis workflow. The `query` will be a user-provided summary of the selection's theme.
 
-**Alternatives considered**: 
--   **Standard async/await**: Rejected. Long-running CPU-bound tasks still block the single Dart thread even if they are `async`.
--   **Service-side only**: Rejected. This app aims for "Local Power" and privacy; processing on-device is a core principle.
+## 3. Bottom Navigation Bar
 
----
+### Findings
+- The main navigation is handled in `lib/shared/widgets/main_scaffold.dart`.
+- The `BottomNavigationBar` and its items are defined inside the `build` method of `_MainScaffoldState`.
+- The `_buildPages` method contains the list of pages corresponding to the navigation items.
+- **Decision**:
+  1. Add a new `BottomNavigationBarItem` to the `items` list in `MainScaffold`. An icon like `Icons.auto_awesome` or `Icons.psychology` would be suitable.
+  2. Add the `DeepUnderstandingHistoryPage` to the `_buildPages` list at the corresponding index. This page will serve as the main entry point for the feature, showing past analyses.
 
-### Decision: API Interaction (Batching & Google Gemini)
-**Rationale**: 
-1.  **Efficiency**: Batching 100 texts per `text-embedding-004` call reduces network overhead and respects API rate limits.
-2.  **Theological Persona**: Using Gemini-1.5-Flash with a robust `systemInstruction` allows for consistent, high-quality, acadamic-theological summaries as requested.
-3.  **Cost/Speed**: Flash is chosen over Pro for the final summary to ensure fast response times for the user.
+## 4. Chapter-level Analysis
 
-**Alternatives considered**: 
--   **Single item calls**: Rejected. Too slow and prone to network instability for 1000 items.
--   **Gemini 1.5 Pro**: Rejected for general use. Flash is sufficient for synthesis tasks and much faster/cheaper.
-
----
-
-### Decision: Local Notifications (flutter_local_notifications)
-**Rationale**: 
-1.  **User Experience**: Essential for "Process in Background" workflows.
-2.  **Reliability**: Doesn't require a backend for Push; works purely on-device.
-
----
-
-## Research Tasks (Resolved)
-
-1.  **Gemini Embedding Batch Limits**: `text-embedding-004` supports batches up to 100-2048 depending on region/tier, but we'll stick to 100 for safety and responsiveness.
-2.  **ObjectBox Vector Support**: Verified ObjectBox supports `float32` vectors and similarity search.
-3.  **Isolate communication**: Plan to use `Isolate.run()` for simple embedding batches or a long-lived isolate for the full 1000-item sequence.
+### Findings
+- The spec requires analysis for entire chapters.
+- The `BibliaView` has access to the `BibleChapterLoaded` state, which contains all verses for the current chapter.
+- **Decision**: In `BibliaView`, add a menu option (e.g., in the `AppBar`) to trigger "Deep Understanding for This Chapter". This action will dispatch a `StartAnalysisForVersesEvent` with all verses from the current chapter state. A default query like "Análise do capítulo X do livro Y" will be used.

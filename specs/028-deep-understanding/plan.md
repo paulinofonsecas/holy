@@ -1,39 +1,31 @@
-# Implementation Plan: Deep Understanding
+# Implementation Plan: Selection-Based Deep Understanding & Navigation
 
 **Branch**: `028-deep-understanding` | **Date**: 2026-02-21 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/028-deep-understanding/spec.md`
 
 ## Summary
 
-The "Deep Understanding" feature provides users with an AI-synthesized theological analysis of their search results. It works by:
-1.  Gathering search result verses (up to 1000).
-2.  Generating embeddings in batches via Google Gemini (text-embedding-004) in a background isolate.
-3.  Storing embeddings in a local high-performance database (ObjectBox).
-4.  Performing a local vector search to find the Top 20 most relevant verses for the user's specific query.
-5.  Generating a structured summary using Gemini-1.5-Flash with a specific theological persona.
-6.  Providing background processing support with local notifications.
+Expand the "Deep Understanding" feature to allow triggering analysis from specific verse selections in both search results and Bible chapters. This includes integrating with the existing selection mechanisms and adding a new entry point in the main bottom navigation bar to improve accessibility. The technical approach involves updating the `DeepUnderstandingBloc` to handle specific verse lists and modifying the UI across `SearchScreen` and `BiblePage`.
 
 ## Technical Context
 
 **Language/Version**: Dart ^3.6.0, Flutter >=3.38.4
-**Primary Dependencies**: `google_generative_ai`, `flutter_bloc`, `objectbox`, `flutter_local_notifications`, `flutter_dotenv`
-**Storage**: ObjectBox (for vector embeddings and local search)
-**Testing**: `flutter test` (Unit/Widget), integration tests for Isolate communication
+**Primary Dependencies**: google_generative_ai, flutter_bloc, objectbox, flutter_local_notifications, bible_handler
+**Storage**: ObjectBox (Vector Store & Session Persistence)
+**Testing**: flutter_test, bloc_test, mocktail
 **Target Platform**: Android, iOS
 **Project Type**: Mobile (Flutter)
-**Performance Goals**: 60 fps during processing (via Isolates), Batch processing (100 texts/call)
-**Constraints**: MAX_EMBEDDINGS_LIMIT=1000, offline-aware (retry logic), secure API keys (.env)
-**Scale/Scope**: Up to 1000 verses per analysis, Top 20 context window for final generation
+**Performance Goals**: UI 60fps during background processing; analysis of 100 items < 30s.
+**Constraints**: Gemini API rate limits (batched requests); offline persistence for sessions.
+**Scale/Scope**: Integration into 3 main screens (Search, Bible, Main Navigation).
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Test-First**: [PASS] Mandatory. We will define contracts and test scenarios before implementation.
-2.  **Library-First**: [PASS] The AI analysis logic should be encapsulated as a service/package if possible, or at least a clean "data" layer.
-3.  **Simplicity**: [PASS] Use `Isolate.run()` for straightforward background work where possible.
-4.  **CLI Interface**: [N/A] Mobile app primarily, but the service layer will be testable from CLI unit tests.
-5.  **Observability**: [PASS] Structured logging in isolates for background work.
+- [X] **Principle I: Library-First** - Deep Understanding logic is isolated in its own feature module (`lib/features/deep_understanding`).
+- [X] **Principle III: Test-First** - Plans include unit tests for new BLoC events and integration tests for selection flows.
+- [X] **Principle VII: Simplicity** - Leveraging existing selection models in search and bible to avoid redundant state.
 
 ## Project Structure
 
@@ -41,50 +33,44 @@ The "Deep Understanding" feature provides users with an AI-synthesized theologic
 
 ```text
 specs/028-deep-understanding/
+├── spec.md              # Original and updated specification
 ├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── research.md          # Research on selection integration
+├── data-model.md        # Updates to session models if any
+├── quickstart.md        # Guide for selection flows
+├── contracts/           # API contracts for the service
+└── tasks.md             # Implementation tasks
 ```
 
 ### Source Code (repository root)
 
 ```text
 lib/
-├── core/
-│   └── services/
-│       ├── ai_service.dart          # Gemini integration
-│       └── notification_service.dart # Local notifications
 ├── features/
-│   └── deep_understanding/
-│       ├── data/
-│       │   ├── models/              # Embedding and AnalysisSession entities
-│       │   └── repositories/        # ObjectBox and Remote AI logic
-│       ├── presentation/
-│       │   ├── bloc/                # State management for analysis
-│       │   ├── pages/               # Analysis results and progress page
-│       │   └── widgets/             # Progress bar, action buttons
-│       └── domain/
-│           └── usecases/            # Business logic for background analysis
-└── shared/
-    └── utils/
-        └── isolate_helper.dart      # Generic isolate runners
-
-test/
-└── features/
-    └── deep_understanding/
-        ├── data/
-        ├── presentation/
-        └── domain/
+│   ├── deep_understanding/
+│   │   ├── domain/
+│   │   │   ├── usecases/ (DeepUnderstandingService)
+│   │   ├── presentation/
+│   │   │   ├── bloc/ (DeepUnderstandingBloc updates)
+│   │   │   ├── pages/ (DeepUnderstandingHistoryPage, etc.)
+│   ├── search/
+│   │   ├── presentation/
+│   │   │   ├── pages/ (SearchScreen selection integration)
+│   ├── biblia/
+│   │   ├── presentation/
+│   │   │   ├── pages/ (Bible chapter selection integration)
+├── app/
+│   ├── (Bottom Navigation Bar updates)
 ```
 
-**Structure Decision**: Clean Architecture with feature-first organization within `lib/features/deep_understanding`.
+**Structure Decision**: Standard feature-first structure with cross-feature integration in Search and Bible modules.
+
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| ObjectBox for Vector | High-speed local similarity search | SQFlite is not optimized for vector operations |
-| Flutter Isolates | 1000-item processing blocks UI | Main thread processing causes dropped frames |
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

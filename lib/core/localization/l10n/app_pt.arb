@@ -1,39 +1,163 @@
 {
   "@@locale": "pt",
-  "appTitle": "Minha Aplicação",
+  "appTitle": "Eu Sou",
+  "@appTitle": {
+    "description": "O título da aplicação"
+  },
   "welcome": "Bem-vindo",
+  "@welcome": {
+    "description": "Mensagem de boas-vindas"
+  },
   "hello": "Olá, {name}",
-  "counter": "{count, plural, =0{Sem itens} =1{1 item} other{{count} itens}}",
+  "@hello": {
+    "description": "Uma mensagem de boas-vindas com um parâmetro de nome",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "João"
+      }
+    }
+  },
+  "counter": "{count, plural, =0{Nenhum item} =1{1 item} other{{count} itens}}",
+  "@counter": {
+    "description": "Uma mensagem plural para itens contadores",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
+    }
+  },
   "signIn": "Entrar",
-  "signUp": "Registrar-se",
-  "email": "E-mail",
+  "@signIn": {
+    "description": "Texto do botão Entrar"
+  },
+  "signUp": "Cadastrar",
+  "@signUp": {
+    "description": "Texto do botão Cadastrar"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Etiqueta do campo de email"
+  },
   "password": "Senha",
-  "forgotPassword": "Esqueceu a sua senha?",
+  "@password": {
+    "description": "Etiqueta do campo de senha"
+  },
+  "forgotPassword": "Esqueceu a senha?",
+  "@forgotPassword": {
+    "description": "Texto do botão Esqueceu a senha?"
+  },
   "settings": "Configurações",
+  "@settings": {
+    "description": "Item do menu de configurações"
+  },
   "language": "Idioma",
+  "@language": {
+    "description": "Configuração de idioma"
+  },
   "theme": "Tema",
+  "@theme": {
+    "description": "Configuração de tema"
+  },
   "darkMode": "Modo Escuro",
+  "@darkMode": {
+    "description": "Configuração de modo escuro"
+  },
   "lightMode": "Modo Claro",
+  "@lightMode": {
+    "description": "Configuração de modo claro"
+  },
   "systemMode": "Modo do Sistema",
+  "@systemMode": {
+    "description": "Configuração do modo de tema do sistema"
+  },
   "notifications": "Notificações",
+  "@notifications": {
+    "description": "Título das notificações"
+  },
   "notificationSent": "Notificação enviada",
-  "enableNotifications": "Ativar notificações",
+  "@notificationSent": {
+    "description": "Mensagem exibida quando a notificação é enviada"
+  },
+  "enableNotifications": "Ativar Notificações",
+  "@enableNotifications": {
+    "description": "Etiqueta do interruptor para ativar notificações"
+  },
   "receiveNotifications": "Receber notificações push",
-  "sendTestNotification": "Enviar notificação de teste",
-  "deviceToken": "Token do dispositivo",
+  "@receiveNotifications": {
+    "description": "Descrição do interruptor de notificação"
+  },
+  "sendTestNotification": "Enviar Notificação de Teste",
+  "@sendTestNotification": {
+    "description": "Botão para enviar uma notificação de teste"
+  },
+  "deviceToken": "Token do Dispositivo",
+  "@deviceToken": {
+    "description": "Etiqueta para a seção do token do dispositivo"
+  },
   "loading": "Carregando...",
+  "@loading": {
+    "description": "Texto de carregamento"
+  },
   "notAvailable": "Não disponível",
+  "@notAvailable": {
+    "description": "Texto para quando um recurso não está disponível"
+  },
   "profile": "Perfil",
+  "@profile": {
+    "description": "Título da tela de perfil"
+  },
   "profileTitle": "Perfil",
+  "@profileTitle": {
+    "description": "Título da tela de perfil"
+  },
   "markedVerses": "Versículos Marcados",
+  "@markedVerses": {
+    "description": "Título da seção de versículos marcados"
+  },
   "markedVersesTitle": "Versículos Marcados",
-  "searchHistory": "Histórico de Pesquisas",
+  "@markedVersesTitle": {
+    "description": "Título da seção de versículos marcados"
+  },
+  "searchHistory": "Histórico de Pesquisa",
+  "@searchHistory": {
+    "description": "Título da seção de histórico de pesquisa"
+  },
   "clearHistory": "Limpar Histórico",
+  "@clearHistory": {
+    "description": "Botão para limpar o histórico de pesquisa"
+  },
   "themeColor": "Cor do Tema",
+  "@themeColor": {
+    "description": "Etiqueta para personalização da cor do tema"
+  },
   "themeColorTitle": "Cor do Tema",
+  "@themeColorTitle": {
+    "description": "Título da seção de cor do tema"
+  },
   "searchHistoryTitle": "Histórico de Pesquisa",
+  "@searchHistoryTitle": {
+    "description": "Título da seção de histórico de pesquisa"
+  },
   "noMarkedVerses": "Você ainda não marcou nenhum versículo.",
-  "noSearchHistory": "Seu histórico de pesquisas está vazio.",
+  "@noMarkedVerses": {
+    "description": "Mensagem exibida quando não há versículos marcados"
+  },
+  "noSearchHistory": "Seu histórico de pesquisa está vazio.",
+  "@noSearchHistory": {
+    "description": "Mensagem exibida quando o histórico de pesquisa está vazio"
+  },
   "bible": "Bíblia",
-  "search": "Pesquisa"
+  "@bible": {
+    "description": "Etiqueta da barra inferior da Bíblia"
+  },
+  "search": "Pesquisar",
+  "@search": {
+    "description": "Etiqueta da barra inferior de pesquisa"
+  },
+  "deepUnderstandingChapter": "Entendimento do Capítulo",
+  "@deepUnderstandingChapter": {
+    "description": "Opção para iniciar o entendimento aprofundado de um capítulo inteiro."
+  }
 }

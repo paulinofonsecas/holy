@@ -315,6 +315,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search'**
   String get search;
+
+  /// Option to start deep understanding of an entire chapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter Deep Understanding'**
+  String get deepUnderstandingChapter;
 }
 
 class _AppLocalizationsDelegate

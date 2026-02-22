@@ -13,6 +13,9 @@ abstract interface class IVectorStore {
   Future<List<VerseEmbedding>> searchMostRelevant(
       List<double> queryVector, String sessionId, int limit);
 
+  /// Get all verses for a session
+  Future<List<VerseEmbedding>> getVerseEmbeddingsBySessionId(String sessionId);
+
   /// Prunes all embeddings for a session to save local space.
   Future<void> clearSession(String sessionId);
 

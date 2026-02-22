@@ -1,4 +1,5 @@
 import 'package:eu_sou/core/services/logger_service.dart';
+import 'package:eu_sou/shared/bible_models.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/services/ai_service.dart';
 import '../../data/models/analysis_session.dart';
@@ -20,14 +21,11 @@ class DeepUnderstandingService {
   Stream<AnalysisSession> startAnalysis(
       String query, List<SearchResult> results,
       {String? existingSessionId}) async* {
-    final logger = LoggerService();
-
     final sessionId = existingSessionId ?? _uuid.v4();
-
     var session = await _vectorStore.getSession(sessionId);
+
     if (session == null) {
-      // Mantendo o limite em 500 para estabilidade
-      final totalItems = results.length > 500 ? 500 : results.length;
+      final totalItems = results.length > 20 ? 20 : results.length;
       session = AnalysisSession(
         sessionId: sessionId,
         query: query,
@@ -46,56 +44,98 @@ class DeepUnderstandingService {
 
     yield session;
 
-    logger.debug('Starting analysis for query: $query');
     final limitedResults = results.take(session.totalItems).toList();
-    final totalStopwatch = Stopwatch()..start();
-    final embeddingStopwatch = Stopwatch()..start();
+    yield* _performAnalysis(session, limitedResults);
+  }
 
+  Stream<AnalysisSession> startAnalysisForVerses(
+      String query,
+      List<BibleVerse> verses,
+      String bookId,
+      int chapterNumber,
+      String versionId,
+      {String? existingSessionId}) async* {
+    final sessionId = existingSessionId ?? _uuid.v4();
+    var session = await _vectorStore.getSession(sessionId);
+
+    if (session == null) {
+      final totalItems = verses.length > 20 ? 20 : verses.length;
+      session = AnalysisSession(
+        sessionId: sessionId,
+        query: query,
+        totalItems: totalItems,
+        processedItems: 0,
+        status: 'embedding',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      await _vectorStore.saveSession(session);
+    } else {
+      session.status = 'embedding';
+      session.updatedAt = DateTime.now();
+      await _vectorStore.saveSession(session);
+    }
+
+    yield session;
+
+    final book = BibleBooks.values.firstWhere((b) => b.bookId == bookId);
+    final results = verses
+        .map((verse) => SearchResult(
+              versionId: versionId,
+              book: Book(
+                id: bookId,
+                name: book.book,
+                longName: book.book,
+                abbreviation: book.bookId,
+                chapters: [],
+              ),
+              chapter: Chapter(number: chapterNumber, verses: []),
+              verse: Verse(number: verse.number, text: verse.text),
+            ))
+        .toList();
+
+    final limitedResults = results.take(session.totalItems).toList();
+    yield* _performAnalysis(session, limitedResults);
+  }
+
+  Stream<AnalysisSession> _performAnalysis(
+      AnalysisSession session, List<SearchResult> results) async* {
     try {
-      // Tamanho do lote ajustado para 500 conforme solicitado
-      const batchSize = 500;
+      // Reduzido para 20. Assim a barra de progresso avança suavemente
+      // e não estouramos o limite de Tokens por Minuto do Free Tier.
+      const batchSize = 20;
 
-      for (var i = session.processedItems; i < limitedResults.length; i += batchSize) {
-        // Checagem crucial: verifica se a sessão foi cancelada em outra parte do app
-        final currentSessionState = await _vectorStore.getSession(sessionId);
-        if (currentSessionState?.status == 'cancelled') {
-          logger.debug('Analysis cancelled by user. Stopping embedding loop.');
-          break; // Sai do loop e para de consumir a API
-        }
+      for (var i = session.processedItems; i < results.length; i += batchSize) {
+        final currentSessionState =
+            await _vectorStore.getSession(session.sessionId);
+        if (currentSessionState?.status == 'cancelled') break;
 
-        final end = (i + batchSize < limitedResults.length)
-            ? i + batchSize
-            : limitedResults.length;
-        final batch = limitedResults.sublist(i, end);
+        final end =
+            (i + batchSize < results.length) ? i + batchSize : results.length;
+        final batch = results.sublist(i, end);
 
         final versesToEmbed = <SearchResult>[];
         final verseEmbeddings = <VerseEmbedding>[];
 
-        // 1. Verificar cache global para cada versículo no lote
         for (final result in batch) {
           final verseId =
               '${result.versionId}:${result.book.id}:${result.chapter.number}:${result.verse.number}';
           final cached = await _vectorStore.getEmbeddingByVerseId(verseId);
 
           if (cached != null) {
-            logger.debug('Found cached embedding for verse: $verseId');
             verseEmbeddings.add(VerseEmbedding(
               verseId: verseId,
               content: cached.content,
               vector: cached.vector,
-              sessionId: sessionId,
+              sessionId: session.sessionId,
             ));
           } else {
-            logger.debug('Queuing verse for embedding: $verseId');
             versesToEmbed.add(result);
           }
         }
 
-        // 2. Obter embeddings na API do Gemini em lote
         if (versesToEmbed.isNotEmpty) {
           final texts = versesToEmbed.map((r) => r.verse.text).toList();
-
-          logger.debug('Calling API to embed ${texts.length} verses...');
           final newVectors = await _aiService.getEmbeddings(texts);
 
           for (var j = 0; j < versesToEmbed.length; j++) {
@@ -109,15 +149,14 @@ class DeepUnderstandingService {
               verseId: verseId,
               content: content,
               vector: newVectors[j],
-              sessionId: sessionId,
+              sessionId: session.sessionId,
             ));
           }
 
-          // Pequeno delay para respeitar o limite de requisições (RPM) da API gratuita
-          await Future.delayed(const Duration(seconds: 2));
+          // Delay de 3 segundos garante um fluxo constante sem bloquear a API
+          await Future.delayed(const Duration(seconds: 3));
         }
 
-        // 3. Salvar todos os embeddings (vinculados à sessão)
         await _vectorStore.saveEmbeddings(verseEmbeddings);
 
         session.processedItems = end;
@@ -126,40 +165,23 @@ class DeepUnderstandingService {
         yield session;
       }
 
-      embeddingStopwatch.stop();
-      session.embeddingDurationMillis = embeddingStopwatch.elapsedMilliseconds;
-      logger.debug('Benchmark: Embedding stage completed in ${embeddingStopwatch.elapsedMilliseconds}ms');
-
-      // Se foi cancelado durante o loop, encerramos a execução do método aqui
-      final finalCheck = await _vectorStore.getSession(sessionId);
-      if (finalCheck?.status == 'cancelled') return;
-
-      // 4. Realizar busca vetorial para o Top 20
+      // 4. Realizar busca vetorial final
       session.status = 'generating';
       session.updatedAt = DateTime.now();
       await _vectorStore.saveSession(session);
       yield session;
 
-      logger.debug('Generating query embedding for: $query');
-      final searchStopwatch = Stopwatch()..start();
-      final queryEmbedding = (await _aiService.getEmbeddings([query])).first;
-      final topVerses =
-          await _vectorStore.searchMostRelevant(queryEmbedding, sessionId, 20);
-      searchStopwatch.stop();
-      session.searchDurationMillis = searchStopwatch.elapsedMilliseconds;
-      logger.debug('Benchmark: Vector search completed in ${searchStopwatch.elapsedMilliseconds}ms');
+      final queryEmbeddingResponse =
+          await _aiService.getEmbeddings([session.query]);
+      final queryEmbedding = queryEmbeddingResponse.first;
+
+      final topVerses = await _vectorStore.searchMostRelevant(
+          queryEmbedding, session.sessionId, 20);
 
       // 5. Gerar o resumo final
-      final summaryStopwatch = Stopwatch()..start();
       final contextTexts = topVerses.map((v) => v.content).toList();
-      final summary = await _aiService.generateSummary(query, contextTexts);
-      summaryStopwatch.stop();
-      session.summaryDurationMillis = summaryStopwatch.elapsedMilliseconds;
-      logger.debug('Benchmark: Summary generation completed in ${summaryStopwatch.elapsedMilliseconds}ms');
-
-      totalStopwatch.stop();
-      session.totalDurationMillis = totalStopwatch.elapsedMilliseconds;
-      logger.debug('Benchmark: Total analysis completed in ${totalStopwatch.elapsedMilliseconds}ms');
+      final summary =
+          await _aiService.generateSummary(session.query, contextTexts);
 
       session.status = 'completed';
       session.result = summary;
@@ -170,14 +192,13 @@ class DeepUnderstandingService {
         PushNotificationModel(
           title: 'Entendimento Aprofundado',
           body: 'A análise sobre "${session.query}" foi concluída!',
-          payload: 'deep_understanding:$sessionId',
+          payload: 'deep_understanding:${session.sessionId}',
         ),
       );
 
       yield session;
     } catch (e) {
-      final logger = LoggerService();
-      logger.error('DeepUnderstandingService Error: ${e.toString()}');
+      LoggerService().error('DeepUnderstandingService Error: ${e.toString()}');
       session.status = 'error';
       session.error = e.toString();
       session.updatedAt = DateTime.now();
@@ -187,8 +208,6 @@ class DeepUnderstandingService {
   }
 
   Future<void> cancelAnalysis(String sessionId) async {
-    final logger = LoggerService();
-    logger.debug('Cancelling analysis for session: $sessionId');
     final session = await _vectorStore.getSession(sessionId);
     if (session != null) {
       session.status = 'cancelled';
@@ -203,5 +222,9 @@ class DeepUnderstandingService {
 
   Future<void> deleteSession(String sessionId) async {
     await _vectorStore.clearSession(sessionId);
+  }
+
+  Future<List<VerseEmbedding>> getVersesBySession(String sessionId) async {
+    return await _vectorStore.getVerseEmbeddingsBySessionId(sessionId);
   }
 }

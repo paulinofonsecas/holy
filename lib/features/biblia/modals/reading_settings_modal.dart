@@ -97,7 +97,7 @@ class ReadingSettingsModal extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('Locais',
-                          style: TextStyle(fontSize: 12, color: Colors.grey)),
+                          style: TextStyle(fontSize: 12, color: Colors.black)),
                       const Gap(4),
                       Wrap(
                         spacing: 8,
@@ -120,7 +120,7 @@ class ReadingSettingsModal extends StatelessWidget {
                       ),
                       const Gap(8),
                       const Text('Google Fonts',
-                          style: TextStyle(fontSize: 12, color: Colors.grey)),
+                          style: TextStyle(fontSize: 12, color: Colors.black)),
                       const Gap(4),
                       SizedBox(
                         height: 40,
@@ -261,7 +261,7 @@ class ReadingSettingsModal extends StatelessWidget {
       child: Text(
         title,
         style: const TextStyle(
-            fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey),
+            fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
       ),
     );
   }

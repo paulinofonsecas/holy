@@ -77,3 +77,4 @@ key.properties
 *.log
 
 UTF8
+.env

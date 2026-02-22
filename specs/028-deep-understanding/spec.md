@@ -74,11 +74,40 @@ As a user, I want to be able to cancel an analysis or retry if the connection fa
 - **API Quota Exceeded**: User should see a friendly error message if the API limit is hit.
 - **App Killed**: If the app is force-closed by OS during background processing, the process halts. On restart, it does not automatically resume (unless explicitly designed to, but basic expectation is clean state or manual retry).
 
+### User Story 5 - Selection-Based Deep Understanding (Priority: P1)
+
+As a user reading a chapter or viewing search results, I want to select specific verses and request an in-depth understanding only of those selected verses, so I can focus the AI's analysis on my specific interests.
+
+**Why this priority**: Enhances precision and user control.
+
+**Acceptance Scenarios**:
+1. **Given** a search result screen, **When** the user is in "Selection Mode", **Then** a "Deep Understanding" action is available for the selected verses.
+2. **Given** a Bible chapter screen, **When** the user selects one or more verses, **Then** a "Deep Understanding" action is available in the selection menu/toolbar.
+3. **Given** the user triggers the action, **When** the analysis starts, **Then** only the selected verses are used as the source for embeddings and summary generation.
+
+---
+
+### User Story 6 - Bottom Bar Integration (Priority: P2)
+
+As a user, I want to access my Deep Understanding history and active sessions from the main navigation (bottom bar), so I can easily return to my theological studies.
+
+**Why this priority**: Improves discoverability and accessibility.
+
+**Acceptance Scenarios**:
+1. **Given** the main app screen, **When** the user looks at the bottom navigation bar, **Then** a "Deep Understanding" icon (or similar) is present.
+2. **Given** the user taps the bottom bar icon, **When** the screen opens, **Then** it shows the Deep Understanding history/dashboard.
+
+---
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST provide a "Get Deep Understanding" action on the search results screen.
+- **FR-012**: The system MUST support triggering "Deep Understanding" from a list of manually selected verses.
+- **FR-013**: The system MUST provide an entry point for Deep Understanding in the main Bottom Navigation Bar.
+- **FR-014**: The system MUST allow selecting an entire chapter to be sent for Deep Understanding analysis.
+- **FR-015**: The system MUST integrate with the existing verse selection mechanism in both Search and Bible Reader modules.
+
 - **FR-002**: The system MUST perform semantic analysis (embeddings) on the search result text content using the configured AI service.
 - **FR-003**: The system MUST limit the analysis to a configurable maximum number of items (default: 1000) to prevent performance issues and excessive costs.
 - **FR-004**: The system MUST display a real-time progress indicator showing "X/Y items analyzed" during the embedding phase.

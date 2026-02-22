@@ -37,10 +37,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   try {
@@ -59,6 +59,12 @@ void main() async {
     }
 
     await notificationHandler.initialize();
+
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      debugPrint('Warning: .env file not found or could not be loaded: $e');
+    }
 
     final objectBoxService = await ObjectBoxService.create();
     final aiService = GeminiAIService();
@@ -206,6 +212,9 @@ class EntryPoint extends StatelessWidget {
         ),
         RepositoryProvider<ThemeBloc>.value(
           value: themeBloc,
+        ),
+        RepositoryProvider<DeepUnderstandingService>.value(
+          value: deepUnderstandingService,
         ),
         BlocProvider(create: (context) => TabControllerCubit()),
         BlocProvider(

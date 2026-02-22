@@ -1,4 +1,5 @@
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -169,12 +170,8 @@ class _SearchInputBarState extends State<SearchInputBar> {
               offset: const Offset(0, 40),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
-                    Theme.of(context).colorScheme.primaryContainer),
-              ),
-              icon: Icon(Icons.auto_awesome,
-                  size: 24, color: Theme.of(context).colorScheme.primary),
+              icon: Icon(CupertinoIcons.ellipsis_vertical,
+                  size: 24, color: Theme.of(context).colorScheme.onSurface),
               itemBuilder: (context) => [
                 const PopupMenuItem(
                   value: 'advanced',

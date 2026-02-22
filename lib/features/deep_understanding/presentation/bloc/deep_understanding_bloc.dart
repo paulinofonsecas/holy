@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/shared/bible_models.dart';
 import '../../data/models/analysis_session.dart';
 import '../../domain/usecases/deep_understanding_service.dart';
 
@@ -22,6 +23,20 @@ class StartAnalysisEvent extends DeepUnderstandingEvent {
 
   @override
   List<Object?> get props => [query, results];
+}
+
+class StartAnalysisForVersesEvent extends DeepUnderstandingEvent {
+  final String query;
+  final List<BibleVerse> verses;
+  final String bookId;
+  final int chapterNumber;
+  final String versionId;
+
+  const StartAnalysisForVersesEvent(
+      this.query, this.verses, this.bookId, this.chapterNumber, this.versionId);
+
+  @override
+  List<Object?> get props => [query, verses, bookId, chapterNumber, versionId];
 }
 
 class CancelAnalysisEvent extends DeepUnderstandingEvent {
@@ -101,6 +116,7 @@ class DeepUnderstandingInProgress extends DeepUnderstandingState {
 class DeepUnderstandingSuccess extends DeepUnderstandingState {
   final String result;
   final String query;
+  final String sessionId;
   final int? embeddingDurationMillis;
   final int? searchDurationMillis;
   final int? summaryDurationMillis;
@@ -108,7 +124,8 @@ class DeepUnderstandingSuccess extends DeepUnderstandingState {
 
   const DeepUnderstandingSuccess(
     this.result,
-    this.query, {
+    this.query,
+    this.sessionId, {
     this.embeddingDurationMillis,
     this.searchDurationMillis,
     this.summaryDurationMillis,
@@ -119,6 +136,7 @@ class DeepUnderstandingSuccess extends DeepUnderstandingState {
   List<Object?> get props => [
         result,
         query,
+        sessionId,
         embeddingDurationMillis,
         searchDurationMillis,
         summaryDurationMillis,
@@ -164,6 +182,7 @@ class DeepUnderstandingBloc
   DeepUnderstandingBloc(this._service)
       : super(const DeepUnderstandingInitial()) {
     on<StartAnalysisEvent>(_onStartAnalysis);
+    on<StartAnalysisForVersesEvent>(_onStartAnalysisForVerses);
     on<ResumeAnalysisEvent>(_onResumeAnalysis);
     on<CancelAnalysisEvent>(_onCancelAnalysis);
     on<LoadHistoryEvent>(_onLoadHistory);
@@ -178,6 +197,7 @@ class DeepUnderstandingBloc
     emit(DeepUnderstandingSuccess(
       session.result ?? '',
       session.query,
+      session.sessionId,
       embeddingDurationMillis: session.embeddingDurationMillis,
       searchDurationMillis: session.searchDurationMillis,
       summaryDurationMillis: session.summaryDurationMillis,
@@ -195,8 +215,8 @@ class DeepUnderstandingBloc
     }
   }
 
-  Future<void> _onDeleteHistorySession(
-      DeleteHistorySessionEvent event, Emitter<DeepUnderstandingState> emit) async {
+  Future<void> _onDeleteHistorySession(DeleteHistorySessionEvent event,
+      Emitter<DeepUnderstandingState> emit) async {
     try {
       await _service.deleteSession(event.sessionId);
       add(const LoadHistoryEvent());
@@ -215,6 +235,27 @@ class DeepUnderstandingBloc
       logger.debug('DeepUnderstandingBloc: Session updated: ${session.id}');
       add(_UpdateSessionEvent(session));
     });
+  }
+
+  void _onStartAnalysisForVerses(
+      StartAnalysisForVersesEvent event, Emitter<DeepUnderstandingState> emit) {
+    _analysisSubscription?.cancel();
+
+    _analysisSubscription = _service
+        .startAnalysisForVerses(event.query, event.verses, event.bookId,
+            event.chapterNumber, event.versionId)
+        .listen(
+      (session) {
+        final logger = LoggerService();
+        logger.debug('DeepUnderstandingBloc: Session updated: ${session.id}');
+        add(_UpdateSessionEvent(session));
+      },
+      onError: (error) {
+        final logger = LoggerService();
+        logger.error('DeepUnderstandingBloc: Stream error: $error');
+        emit(DeepUnderstandingFailure(error.toString()));
+      },
+    );
   }
 
   void _onResumeAnalysis(
@@ -244,6 +285,7 @@ class DeepUnderstandingBloc
       emit(DeepUnderstandingSuccess(
         session.result ?? '',
         session.query,
+        session.sessionId,
         embeddingDurationMillis: session.embeddingDurationMillis,
         searchDurationMillis: session.searchDurationMillis,
         summaryDurationMillis: session.summaryDurationMillis,

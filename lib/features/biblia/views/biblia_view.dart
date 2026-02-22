@@ -1,3 +1,6 @@
+import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 // ignore_for_file: library_prefixes
 
 import 'dart:async';
@@ -222,6 +225,52 @@ class _BibliaViewState extends State<BibliaView> {
                 onBookTap: () {
                   SwitchBookModal.show(context);
                 },
+                actions: const [
+                  // BlocBuilder<BibliaBloc, BibliaState>(
+                  //   builder: (context, state) {
+                  //     if (state is BibleChapterLoaded) {
+                  //       return PopupMenuButton<String>(
+                  //         onSelected: (value) async {
+                  //           if (value == 'deepUnderstandingChapter') {
+                  //             final query =
+                  //                 await _showQueryInputDialog(context);
+                  //             if (query != null && context.mounted) {
+                  //               final versionId = context
+                  //                   .read<BibleVersionCubit>()
+                  //                   .state
+                  //                   .version
+                  //                   .id;
+                  //               context.read<DeepUnderstandingBloc>().add(
+                  //                     StartAnalysisForVersesEvent(
+                  //                       query,
+                  //                       state.chapter.verses,
+                  //                       state.chapter.bookId,
+                  //                       state.chapter.number,
+                  //                       versionId,
+                  //                     ),
+                  //                   );
+                  //               Navigator.push(
+                  //                 context,
+                  //                 MaterialPageRoute(
+                  //                     builder: (_) =>
+                  //                         const DeepUnderstandingPage()),
+                  //               );
+                  //             }
+                  //           }
+                  //         },
+                  //         itemBuilder: (context) => [
+                  //           PopupMenuItem(
+                  //             value: 'deepUnderstandingChapter',
+                  //             child: Text(AppLocalizations.of(context)
+                  //                 .deepUnderstandingChapter),
+                  //           ),
+                  //         ],
+                  //       );
+                  //     }
+                  //     return const SizedBox.shrink();
+                  //   },
+                  // ),
+                ],
               ),
               Expanded(
                 child: Stack(
@@ -319,8 +368,7 @@ class _BibliaViewState extends State<BibliaView> {
                             key: const ValueKey('ActionRowActive'),
                             scrollDirection: Axis.horizontal,
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                               child: ActionRowWidget(
                                 verses: context
                                     .read<VerseSelectionBloc>()
@@ -342,6 +390,33 @@ class _BibliaViewState extends State<BibliaView> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<String?> _showQueryInputDialog(BuildContext context) {
+    final TextEditingController queryController = TextEditingController();
+    return showDialog<String?>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Entendimento Aprofundado'),
+        content: TextField(
+          controller: queryController,
+          decoration: const InputDecoration(
+            hintText: 'Qual o tema da sua análise?',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, queryController.text),
+            child: const Text('Analisar'),
+          ),
+        ],
       ),
     );
   }

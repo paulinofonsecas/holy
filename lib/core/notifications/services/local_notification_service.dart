@@ -72,6 +72,7 @@ class LocalNotificationService {
         importance: Importance.max,
         priority: Priority.high,
         ticker: 'ticker',
+        icon: '@mipmap/launcher_icon',
       );
 
       const DarwinNotificationDetails iOSPlatformChannelSpecifics =

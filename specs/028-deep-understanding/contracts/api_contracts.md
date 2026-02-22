@@ -1,59 +1,50 @@
-# Deep Understanding API Contracts
+# API Contracts: Deep Understanding Service
 
-## Analysis Service Interface (Internal Dart Contract)
+**Date**: 2026-02-21
+**Feature**: Selection-Based Deep Understanding
 
-Defines the core functionality for managing the deep understanding process across isolates.
+This document outlines the updated contract for the `DeepUnderstandingService`.
+
+## IDeepUnderstandingService
+
+The service will be extended to support analysis initiated from a pre-selected list of verses.
 
 ```dart
-abstract interface class IDeepUnderstandingService {
-  /// Starts a new analysis session for the given query and verses.
-  /// 
-  /// Returns a stream of [AnalysisSession] to track progress.
-  Stream<AnalysisSession> startAnalysis(String query, List<Verse> verses);
+import 'package:bible_handler/bible_handler.dart';
+import '../../data/models/analysis_session.dart';
 
-  /// Cancels the current running analysis for a specific session.
+abstract interface class IDeepUnderstandingService {
+  /// Starts analysis from a search query and its results.
+  Stream<AnalysisSession> startAnalysis(
+    String query,
+    List<SearchResult> results, {
+    String? existingSessionId,
+  });
+
+  /// Starts analysis from a list of selected Bible verses and a user-defined query/theme.
+  /// This is the new method to support selection-based analysis.
+  Stream<AnalysisSession> startAnalysisForVerses(
+    String query,
+    List<BibleVerse> verses, {
+    String? existingSessionId,
+  });
+
+  /// Cancels an ongoing analysis.
   Future<void> cancelAnalysis(String sessionId);
 
-  /// Resumes a failed or paused analysis session from its last known state.
-  Stream<AnalysisSession> resumeAnalysis(String sessionId);
+  /// Retrieves the history of all analysis sessions.
+  Future<List<AnalysisSession>> getHistory();
 
-  /// Retrieves the final summary result for a completed session.
-  Future<String?> getSummary(String sessionId);
+  /// Deletes a specific session and its associated data.
+  Future<void> deleteSession(String sessionId);
 }
 ```
 
-## Local Vector Store Contract (ObjectBox)
+## `bible_handler` Models
 
-Interface for semantic searching.
+This feature relies on the following models from the `bible_handler` package:
 
-```dart
-abstract interface class IVectorStore {
-  /// Saves a batch of embeddings for a session.
-  Future<void> saveEmbeddings(List<VerseEmbedding> embeddings);
+- `BibleVerse`: Represents a single verse with its number and text.
+- `SearchResult`: Represents a verse found via search, including version and book context.
 
-  /// Returns the Top N most relevant verses for the given search vector
-  /// within the context of a specific session.
-  Future<List<VerseEmbedding>> searchMostRelevant(List<double> queryVector, String sessionId, int limit);
-
-  /// Prunes all embeddings for a session to save local space.
-  Future<void> clearSession(String sessionId);
-}
-```
-
-## AI Generation Prompt Contract
-
-The structure of the prompt sent to `gemini-1.5-flash`.
-
-```json
-{
-  "systemInstruction": "You are a theological assistent... (detailed Markdown persona)",
-  "prompt": {
-    "userQuery": "{user_query}",
-    "retrievedContext": [
-      { "reference": "John 3:16", "text": "For God so loved..." },
-      { "reference": "1 John 4:8", "text": "He that loveth not..." }
-    ]
-  },
-  "expectedResponseFormat": "Markdown structure with: Summary, Bullet Points, References, Practical Application."
-}
-```
+No new contracts are needed for external APIs, as the interaction with Gemini remains the same (embedding texts and generating summaries).

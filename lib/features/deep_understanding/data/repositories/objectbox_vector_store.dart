@@ -48,6 +48,17 @@ class ObjectBoxVectorStore implements IVectorStore {
   }
 
   @override
+  Future<List<VerseEmbedding>> getVerseEmbeddingsBySessionId(
+      String sessionId) async {
+    final query = _embeddingBox
+        .query(VerseEmbedding_.sessionId.equals(sessionId))
+        .build();
+    final results = query.find();
+    query.close();
+    return results;
+  }
+
+  @override
   Future<void> clearSession(String sessionId) async {
     final query = _embeddingBox
         .query(VerseEmbedding_.sessionId.equals(sessionId))

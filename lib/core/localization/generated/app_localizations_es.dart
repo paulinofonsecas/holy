@@ -131,4 +131,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get search => 'Buscar';
+
+  @override
+  String get deepUnderstandingChapter => 'Comprensión del Capítulo';
 }
