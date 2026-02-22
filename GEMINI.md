@@ -26,8 +26,8 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
+- 028-deep-understanding: Implemented clickable Bible references, PDF/Markdown/TXT export, and optimized AI analysis with a 20-verse limit and robust error handling.
 - 028-deep-understanding: Added Dart ^3.6.0, Flutter >=3.38.4 + google_generative_ai, flutter_bloc, objectbox, flutter_local_notifications, bible_handler
-- 028-deep-understanding: Added Dart ^3.6.0, Flutter >=3.38.4 + `google_generative_ai`, `flutter_bloc`, `objectbox`, `flutter_local_notifications`, `flutter_dotenv`
 
 - 001-app-deeplinks: Added Dart ^3.6.0, Flutter >=3.38.4 + `firebase_core`, `firebase_dynamic_links`, `flutter_bloc`
 
