@@ -19,7 +19,10 @@
             "name": "eu_sou (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "args": [
+                "--dart-define-from-file=.env"
+            ]
         },
         {
             "name": "bible_handler",

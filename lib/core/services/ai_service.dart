@@ -5,7 +5,7 @@ class GeminiAIService {
   late final GenerativeModel _embeddingModel;
   final String _apiKey;
 
-  GeminiAIService() : _apiKey = 'AIzaSyAealhbgAahnUzaDqEXqzXLhSA4jaXurvY' {
+  GeminiAIService() : _apiKey = const String.fromEnvironment('GEMINI_API_KEY') {
     _model = GenerativeModel(
       model: 'gemini-3-flash-preview',
       apiKey: _apiKey,
@@ -25,7 +25,7 @@ REGRAS ESTRITAS DE COMPORTAMENTO:
     );
 
     _embeddingModel = GenerativeModel(
-      model: 'gemini-embedding-001',
+      model: const String.fromEnvironment('GEMINI_EMBEDDING_MODEL'),
       apiKey: _apiKey,
     );
   }

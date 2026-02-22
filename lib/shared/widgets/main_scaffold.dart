@@ -42,6 +42,7 @@ class MainScaffold extends StatefulWidget {
 
 class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   StreamSubscription<Uri?>? _deeplinkSubscription;
+  bool _tutorialStarted = false;
 
   @override
   final GlobalKey keyBibleTab = GlobalKey();
@@ -62,9 +63,6 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<VerseOfTheDayService>().scheduleNextNotifications();
-      }
-      if (widget.showTutorialOnStart) {
-        _startTutorial();
       }
     });
   }
@@ -129,6 +127,10 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   void _handleNotificationTap(String? payload) {
     if (payload == null) return;
 
+    if (payload.startsWith('deep_understanding:')) {
+      return;
+    }
+
     try {
       final data = jsonDecode(payload);
       if (data['type'] == 'verse_of_the_day') {
@@ -184,6 +186,16 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
 
     return MultiBlocListener(
       listeners: [
+        BlocListener<BibliaBloc, BibliaState>(
+          listener: (context, state) {
+            if (state is BibleChapterLoaded &&
+                widget.showTutorialOnStart &&
+                !_tutorialStarted) {
+              _tutorialStarted = true;
+              _startTutorial();
+            }
+          },
+        ),
         BlocListener<TabControllerCubit, int>(
           listener: (context, currentIndex) {
             if (currentIndex == 0) {
