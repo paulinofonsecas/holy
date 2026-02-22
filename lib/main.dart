@@ -19,6 +19,11 @@ import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repo
 import 'package:eu_sou/features/profile/domain/repositories/i_profile_repository.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_search_history_repository.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repository.dart';
+import 'package:eu_sou/core/services/ai_service.dart';
+import 'package:eu_sou/core/services/objectbox_service.dart';
+import 'package:eu_sou/features/deep_understanding/data/repositories/objectbox_vector_store.dart';
+import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
@@ -32,75 +37,90 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  try {
+    final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  await dotenv.load(fileName: ".env");
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+    if (!kIsWeb) {
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    }
 
-  if (!kIsWeb) {
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-    };
+    await notificationHandler.initialize();
 
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      debugPrint('Warning: .env file not found or could not be loaded: $e');
+    }
+
+    final objectBoxService = await ObjectBoxService.create();
+    final aiService = GeminiAIService();
+    final vectorStore = ObjectBoxVectorStore(objectBoxService.store);
+    final deepUnderstandingService = DeepUnderstandingService(
+      vectorStore,
+      aiService,
+      notificationHandler.localNotificationService,
+    );
+
+    final deeplinkService = DeeplinkService();
+
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    final dbHelper = DatabaseHelper();
+    final db = await dbHelper.database;
+    final searchProvider = SqlBibleSearchProvider(db);
+    final cacheProvider = BibleCacheProvider(db);
+
+    final sharedPreferences = await SharedPreferences.getInstance();
+
+    final verseRepo = VerseOfTheDayRepository(sharedPreferences);
+    final verseService = VerseOfTheDayService(
+      repository: verseRepo,
+      searchProvider: searchProvider,
+      notificationService: notificationHandler.localNotificationService,
+    );
+
+    debugPrint('Main: Initializing verse notifications...');
+    await verseService.scheduleNextNotifications();
+
+    final profileRepo = ProfileRepository();
+    final themeBloc = ThemeBloc(profileRepo);
+
+    // Wait for theme to be initialized from preferences
+    await themeBloc.stream.firstWhere((state) => state.isInitialized);
+
+    runApp(EntryPoint(
+      db: db,
+      searchProvider: searchProvider,
+      cacheProvider: cacheProvider,
+      sharedPreferences: sharedPreferences,
+      verseRepo: verseRepo,
+      verseService: verseService,
+      profileRepo: profileRepo,
+      themeBloc: themeBloc,
+      deeplinkService: deeplinkService,
+      deepUnderstandingService: deepUnderstandingService,
+    ));
+  } catch (e) {
+    debugPrint('Erro ao inicializar o aplicativo: $e');
+    runApp(const ErrorScreen());
   }
-
-  await notificationHandler.initialize();
-
-  final deeplinkService = DeeplinkService();
-
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-
-  final dbHelper = DatabaseHelper();
-  final db = await dbHelper.database;
-  final searchProvider = SqlBibleSearchProvider(db);
-  final cacheProvider = BibleCacheProvider(db);
-
-  final sharedPreferences = await SharedPreferences.getInstance();
-
-  final verseRepo = VerseOfTheDayRepository(sharedPreferences);
-  final verseService = VerseOfTheDayService(
-    repository: verseRepo,
-    searchProvider: searchProvider,
-    notificationService: notificationHandler.localNotificationService,
-  );
-
-  debugPrint('Main: Initializing verse notifications...');
-  await verseService.scheduleNextNotifications();
-
-  final profileRepo = ProfileRepository();
-  final themeBloc = ThemeBloc(profileRepo);
-
-  // Wait for theme to be initialized from preferences
-  await themeBloc.stream.firstWhere((state) => state.isInitialized);
-
-  runApp(EntryPoint(
-    db: db,
-    searchProvider: searchProvider,
-    cacheProvider: cacheProvider,
-    sharedPreferences: sharedPreferences,
-    verseRepo: verseRepo,
-    verseService: verseService,
-    profileRepo: profileRepo,
-    themeBloc: themeBloc,
-    deeplinkService: deeplinkService,
-  ));
 }
 
 class EntryPoint extends StatelessWidget {
@@ -113,6 +133,7 @@ class EntryPoint extends StatelessWidget {
   final ProfileRepository profileRepo;
   final ThemeBloc themeBloc;
   final IDeeplinkService deeplinkService;
+  final DeepUnderstandingService deepUnderstandingService;
 
   const EntryPoint({
     super.key,
@@ -125,6 +146,7 @@ class EntryPoint extends StatelessWidget {
     required this.profileRepo,
     required this.themeBloc,
     required this.deeplinkService,
+    required this.deepUnderstandingService,
   });
 
   @override
@@ -191,9 +213,30 @@ class EntryPoint extends StatelessWidget {
         RepositoryProvider<ThemeBloc>.value(
           value: themeBloc,
         ),
+        RepositoryProvider<DeepUnderstandingService>.value(
+          value: deepUnderstandingService,
+        ),
         BlocProvider(create: (context) => TabControllerCubit()),
+        BlocProvider(
+          create: (context) => DeepUnderstandingBloc(deepUnderstandingService),
+        ),
       ],
       child: const App(),
+    );
+  }
+}
+
+class ErrorScreen extends StatelessWidget {
+  const ErrorScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text('Erro ao inicializar o aplicativo'),
+        ),
+      ),
     );
   }
 }

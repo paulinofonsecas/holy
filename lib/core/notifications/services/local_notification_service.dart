@@ -19,10 +19,8 @@ class LocalNotificationService {
     try {
       // Initialize timezone database
       tz.initializeTimeZones();
-      final String timeZoneName = await FlutterTimezone.getLocalTimezone().then(
-        (timezoneInfo) => timezoneInfo.identifier,
-      );
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
+      final timezoneInfo = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
 
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('launcher_icon');
@@ -74,6 +72,7 @@ class LocalNotificationService {
         importance: Importance.max,
         priority: Priority.high,
         ticker: 'ticker',
+        icon: '@mipmap/launcher_icon',
       );
 
       const DarwinNotificationDetails iOSPlatformChannelSpecifics =

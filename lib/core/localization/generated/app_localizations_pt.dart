@@ -9,7 +9,7 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get appTitle => 'Minha Aplicação';
+  String get appTitle => 'Eu Sou';
 
   @override
   String get welcome => 'Bem-vindo';
@@ -31,7 +31,7 @@ class AppLocalizationsPt extends AppLocalizations {
       locale: localeName,
       other: '$countString itens',
       one: '1 item',
-      zero: 'Sem itens',
+      zero: 'Nenhum item',
     );
     return '$_temp0';
   }
@@ -40,16 +40,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get signIn => 'Entrar';
 
   @override
-  String get signUp => 'Registrar-se';
+  String get signUp => 'Cadastrar';
 
   @override
-  String get email => 'E-mail';
+  String get email => 'Email';
 
   @override
   String get password => 'Senha';
 
   @override
-  String get forgotPassword => 'Esqueceu a sua senha?';
+  String get forgotPassword => 'Esqueceu a senha?';
 
   @override
   String get settings => 'Configurações';
@@ -76,16 +76,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notificationSent => 'Notificação enviada';
 
   @override
-  String get enableNotifications => 'Ativar notificações';
+  String get enableNotifications => 'Ativar Notificações';
 
   @override
   String get receiveNotifications => 'Receber notificações push';
 
   @override
-  String get sendTestNotification => 'Enviar notificação de teste';
+  String get sendTestNotification => 'Enviar Notificação de Teste';
 
   @override
-  String get deviceToken => 'Token do dispositivo';
+  String get deviceToken => 'Token do Dispositivo';
 
   @override
   String get loading => 'Carregando...';
@@ -106,7 +106,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get markedVersesTitle => 'Versículos Marcados';
 
   @override
-  String get searchHistory => 'Histórico de Pesquisas';
+  String get searchHistory => 'Histórico de Pesquisa';
 
   @override
   String get clearHistory => 'Limpar Histórico';
@@ -124,11 +124,14 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noMarkedVerses => 'Você ainda não marcou nenhum versículo.';
 
   @override
-  String get noSearchHistory => 'Seu histórico de pesquisas está vazio.';
+  String get noSearchHistory => 'Seu histórico de pesquisa está vazio.';
 
   @override
   String get bible => 'Bíblia';
 
   @override
-  String get search => 'Pesquisa';
+  String get search => 'Pesquisar';
+
+  @override
+  String get deepUnderstandingChapter => 'Entendimento do Capítulo';
 }

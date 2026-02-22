@@ -1,3 +1,5 @@
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
@@ -140,9 +142,10 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
     viewModel.onShareText = () async {
       final deeplinkService = context.read<IDeeplinkService>();
       String? deeplink;
-      
+
       try {
-        final verseRef = "${widget.bookId}_${widget.chapterNumber}_${widget.verses.first.number}";
+        final verseRef =
+            "${widget.bookId}_${widget.chapterNumber}_${widget.verses.first.number}";
         deeplink = await deeplinkService.createShortLink(
           verseRef: verseRef,
           source: 'share',
@@ -231,8 +234,62 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
           onCompare: () {
             viewModel.onCompareVersions?.call();
           },
+          onDeepUnderstanding: () async {
+            // TBD: Show dialog for query and dispatch event
+            final query = await _showQueryInputDialog(context);
+            if (query != null && context.mounted) {
+              context.read<DeepUnderstandingBloc>().add(
+                    StartAnalysisForVersesEvent(
+                      query,
+                      widget.verses,
+                      widget.bookId,
+                      widget.chapterNumber,
+                      versionId,
+                    ),
+                  );
+              viewModel.clearSelection();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const DeepUnderstandingPage()),
+              );
+            }
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            viewModel.clearSelection();
+          },
         ),
       ],
+    );
+  }
+
+  Future<String?> _showQueryInputDialog(BuildContext context) {
+    final TextEditingController queryController = TextEditingController();
+    return showDialog<String?>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Entendimento Aprofundado'),
+        content: TextField(
+          controller: queryController,
+          decoration: const InputDecoration(
+            hintText: 'Qual o tema da sua análise?',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, queryController.text),
+            child: const Text('Analisar'),
+          ),
+        ],
+      ),
     );
   }
 }

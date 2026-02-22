@@ -2,6 +2,9 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/widgets/multiple_search_header.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_export_service.dart';
@@ -15,6 +18,7 @@ import 'package:gap/gap.dart';
 import '../bloc/search_bloc.dart';
 import '../bloc/search_selection_bloc.dart';
 import '../widgets/highlighted_text.dart';
+import 'package:eu_sou/shared/bible_models.dart';
 
 class TelaBusca extends StatefulWidget {
   const TelaBusca({super.key});
@@ -57,6 +61,33 @@ class _TelaBuscaState extends State<TelaBusca> {
     _controladorScroll.removeListener(_aoMudarScroll);
     _controladorScroll.dispose();
     super.dispose();
+  }
+
+  Future<String?> _showQueryInputDialog(BuildContext context) {
+    final TextEditingController queryController = TextEditingController();
+    return showDialog<String?>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Entendimento Aprofundado'),
+        content: TextField(
+          controller: queryController,
+          decoration: const InputDecoration(
+            hintText: 'Qual o tema da sua análise?',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, queryController.text),
+            child: const Text('Analisar'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showExportOptions(BuildContext context, List<SearchResult> results,
@@ -194,7 +225,59 @@ class _TelaBuscaState extends State<TelaBusca> {
                               return Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (selectionState.isInSelectionMode)
+                                  if (selectionState.isInSelectionMode) ...[
+                                    IconButton(
+                                      tooltip: 'Entendimento Aprofundado',
+                                      icon: const Icon(Icons.auto_awesome),
+                                      onPressed: () async {
+                                        final query =
+                                            await _showQueryInputDialog(
+                                                context);
+                                        if (query != null && context.mounted) {
+                                          final versionId = context
+                                              .read<BibleVersionCubit>()
+                                              .state
+                                              .version
+                                              .id;
+                                          final selectedResults = selectionState
+                                              .selectedResults.values
+                                              .toList();
+                                          final verses = selectedResults
+                                              .map((sr) => BibleVerse(
+                                                  number: sr.verse.number,
+                                                  text: sr.verse.text))
+                                              .toList();
+
+                                          // Assuming all selected results are from the same book/chapter for now.
+                                          // This might need more robust handling for multi-chapter/book selections.
+                                          final bookId =
+                                              selectedResults.first.book.id;
+                                          final chapterNumber = selectedResults
+                                              .first.chapter.number;
+
+                                          context
+                                              .read<DeepUnderstandingBloc>()
+                                              .add(
+                                                StartAnalysisForVersesEvent(
+                                                  query,
+                                                  verses,
+                                                  bookId,
+                                                  chapterNumber,
+                                                  versionId,
+                                                ),
+                                              );
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) =>
+                                                    const DeepUnderstandingPage()),
+                                          );
+                                          context
+                                              .read<SearchSelectionBloc>()
+                                              .add(ClearSearchSelection());
+                                        }
+                                      },
+                                    ),
                                     IconButton(
                                       tooltip: 'Selecionar todos',
                                       icon: const Icon(Icons.select_all),
@@ -205,33 +288,78 @@ class _TelaBuscaState extends State<TelaBusca> {
                                             );
                                       },
                                     ),
-                                  IconButton(
-                                    tooltip: selectionState.isInSelectionMode
-                                        ? 'Exportar selecionados'
-                                        : 'Exportar todos',
-                                    icon: const Icon(Icons.ios_share),
-                                    onPressed: () {
-                                      final resultsToExport =
-                                          selectionState.isInSelectionMode
-                                              ? selectionState
-                                                  .selectedResults.values
-                                                  .toList()
-                                              : estado.resultados.results;
+                                    IconButton(
+                                      tooltip: 'Exportar selecionados',
+                                      icon: const Icon(Icons.ios_share),
+                                      onPressed: () {
+                                        final resultsToExport = selectionState
+                                            .selectedResults.values
+                                            .toList();
 
-                                      // Pega o termo de busca para usar no título
-                                      final currentQuery = estado.consultas
-                                          .map((q) => q.term)
-                                          .where((t) => t.isNotEmpty)
-                                          .join(' + ');
+                                        final currentQuery = estado.consultas
+                                            .map((q) => q.term)
+                                            .where((t) => t.isNotEmpty)
+                                            .join(' + ');
 
-                                      _showExportOptions(
-                                        context,
-                                        resultsToExport,
-                                        query: currentQuery,
-                                      );
-                                    },
-                                  ),
-                                  if (!selectionState.isInSelectionMode)
+                                        _showExportOptions(
+                                          context,
+                                          resultsToExport,
+                                          query: currentQuery,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                  if (!selectionState.isInSelectionMode) ...[
+                                    // IconButton(
+                                    //   tooltip: 'Histórico de Entendimentos',
+                                    //   icon: const Icon(Icons.history_edu),
+                                    //   onPressed: () {
+                                    //     Navigator.push(
+                                    //       context,
+                                    //       MaterialPageRoute(
+                                    //         builder: (_) =>
+                                    //             const DeepUnderstandingHistoryPage(),
+                                    //       ),
+                                    //     );
+                                    //   },
+                                    // ),
+                                    IconButton(
+                                      tooltip: 'Entendimento Aprofundado',
+                                      icon: Icon(Icons.auto_awesome,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .primaryContainer),
+                                      ),
+                                      onPressed: () {
+                                        final currentQuery = estado.consultas
+                                            .map((q) => q.term)
+                                            .where((t) => t.isNotEmpty)
+                                            .join(' + ');
+
+                                        context
+                                            .read<DeepUnderstandingBloc>()
+                                            .add(
+                                              StartAnalysisEvent(
+                                                currentQuery,
+                                                estado.resultados.results,
+                                              ),
+                                            );
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const DeepUnderstandingPage(),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                     IconButton(
                                       tooltip: 'Limpar busca',
                                       icon: const Icon(
@@ -242,6 +370,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                                             .add(LimparBusca());
                                       },
                                     ),
+                                  ],
                                 ],
                               );
                             },
@@ -614,18 +743,17 @@ class NoResultToSingleWorldWidget extends StatelessWidget {
             style: TextStyle(color: Colors.grey[700], fontSize: 14),
           ),
           const SizedBox(height: 20),
-          ElevatedButton.icon(
+          ElevatedButton(
             onPressed: () {
               context.read<SearchBloc>().add(PesquisaRandomica());
             },
-            icon: const Icon(Icons.auto_awesome, size: 18),
-            label: const Text('Surpreenda com uma busca aleatória'),
             style: ElevatedButton.styleFrom(
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
+            child: const Text('Surpreenda com uma busca aleatória'),
           ),
         ],
       ),

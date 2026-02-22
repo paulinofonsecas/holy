@@ -11,9 +11,11 @@ class BibleAppBar extends StatelessWidget {
   const BibleAppBar({
     super.key,
     this.onBookTap,
+    this.actions,
   });
 
   final VoidCallback? onBookTap;
+  final List<Widget>? actions;
 
   @override
   Widget build(BuildContext context) {
@@ -31,20 +33,31 @@ class BibleAppBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     VersaoWidget(key: keyBibleVersionTab),
-                    IconButton(
-                      onPressed: () => ReadingSettingsModal.show(context),
-                      style: IconButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(80),
+                    // Centered content is handled by the Stack's Center widget
+                    const Gap(
+                        48), // Spacer to avoid overlap if needed, but Center is absolute
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () => ReadingSettingsModal.show(context),
+                          style: IconButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(80),
+                            ),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primaryContainer,
+                          ),
+                          icon: Icon(
+                            CupertinoIcons.textformat_alt,
+                            size: 18,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          ),
                         ),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                      ),
-                      icon: Icon(
-                        CupertinoIcons.textformat_alt,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        size: 20,
-                      ),
+                        if (actions != null) ...actions!,
+                      ],
                     ),
                   ],
                 ),

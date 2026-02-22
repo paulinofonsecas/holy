@@ -155,5 +155,9 @@
   "search": "Search",
   "@search": {
     "description": "Search bottom bar label"
+  },
+  "deepUnderstandingChapter": "Chapter Deep Understanding",
+  "@deepUnderstandingChapter": {
+    "description": "Option to start deep understanding of an entire chapter."
   }
 }

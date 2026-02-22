@@ -22,7 +22,7 @@ dependencies:
   app_links: ^6.3.2
   firebase_crashlytics: ^5.0.6
   firebase_storage: ^13.0.5
-  flutter_local_notifications: ^21.0.0-dev.1
+  flutter_local_notifications: ^20.1.0
 
   # Core packages
   cupertino_icons: ^1.0.6
@@ -36,6 +36,11 @@ dependencies:
   package_info_plus: ^9.0.0
   device_info_plus: ^12.3.0
   feedback: ^3.1.0
+
+  # Gemini AI
+  google_generative_ai: ^0.4.5
+  objectbox: 5.2.0
+  objectbox_flutter_libs: 5.2.0
 
   flutter_svg: ^2.0.9
   flutter_dotenv: ^6.0.0
@@ -64,7 +69,7 @@ dependencies:
   flutter_smartdio: ^1.0.4
   wolt_modal_sheet: ^0.11.0
   sqlite3: ^2.9.4
-  timezone: ^0.11.0
+  timezone: ^0.10.0
   flutter_timezone: ^5.0.1
   sqflite_common_ffi: ^2.3.7+1
   sqflite_common_ffi_web: ^1.0.2
@@ -74,15 +79,17 @@ dependencies:
   pdf: ^3.11.3
   printing: ^5.14.2
   google_fonts: ^8.0.2
+  flutter_markdown: ^0.7.7+1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   build_runner: ^2.4.6
+  objectbox_generator: 5.2.0
   flutter_gen_runner: ^5.12.0
   flutter_launcher_icons: ^0.14.4
-  source_gen: ^4.2.0
+  source_gen: 4.2.0
   bloc_test: ^10.0.0
   mocktail: ^1.0.4
   json_serializable: ^6.7.1
