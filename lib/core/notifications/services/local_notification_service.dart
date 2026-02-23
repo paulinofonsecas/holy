@@ -23,7 +23,7 @@ class LocalNotificationService {
       tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
 
       const AndroidInitializationSettings initializationSettingsAndroid =
-          AndroidInitializationSettings('launcher_icon');
+          AndroidInitializationSettings('@drawable/notification_icon');
 
       const DarwinInitializationSettings initializationSettingsIOS =
           DarwinInitializationSettings(
@@ -72,7 +72,7 @@ class LocalNotificationService {
         importance: Importance.max,
         priority: Priority.high,
         ticker: 'ticker',
-        icon: '@mipmap/launcher_icon',
+        icon: '@drawable/notification_icon',
       );
 
       const DarwinNotificationDetails iOSPlatformChannelSpecifics =

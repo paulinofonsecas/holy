@@ -225,51 +225,47 @@ class _BibliaViewState extends State<BibliaView> {
                 onBookTap: () {
                   SwitchBookModal.show(context);
                 },
-                actions: const [
-                  // BlocBuilder<BibliaBloc, BibliaState>(
-                  //   builder: (context, state) {
-                  //     if (state is BibleChapterLoaded) {
-                  //       return PopupMenuButton<String>(
-                  //         onSelected: (value) async {
-                  //           if (value == 'deepUnderstandingChapter') {
-                  //             final query =
-                  //                 await _showQueryInputDialog(context);
-                  //             if (query != null && context.mounted) {
-                  //               final versionId = context
-                  //                   .read<BibleVersionCubit>()
-                  //                   .state
-                  //                   .version
-                  //                   .id;
-                  //               context.read<DeepUnderstandingBloc>().add(
-                  //                     StartAnalysisForVersesEvent(
-                  //                       query,
-                  //                       state.chapter.verses,
-                  //                       state.chapter.bookId,
-                  //                       state.chapter.number,
-                  //                       versionId,
-                  //                     ),
-                  //                   );
-                  //               Navigator.push(
-                  //                 context,
-                  //                 MaterialPageRoute(
-                  //                     builder: (_) =>
-                  //                         const DeepUnderstandingPage()),
-                  //               );
-                  //             }
-                  //           }
-                  //         },
-                  //         itemBuilder: (context) => [
-                  //           PopupMenuItem(
-                  //             value: 'deepUnderstandingChapter',
-                  //             child: Text(AppLocalizations.of(context)
-                  //                 .deepUnderstandingChapter),
-                  //           ),
-                  //         ],
-                  //       );
-                  //     }
-                  //     return const SizedBox.shrink();
-                  //   },
-                  // ),
+                actions: [
+                  BlocBuilder<BibliaBloc, BibliaState>(
+                    builder: (context, state) {
+                      return IconButton(
+                        tooltip: AppLocalizations.of(context)
+                            .deepUnderstandingChapter,
+                        icon: Icon(
+                          Icons.auto_awesome,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        onPressed: state is! BibleChapterLoaded
+                            ? null
+                            : () async {
+                                final query =
+                                    await _showQueryInputDialog(context);
+                                if (query != null && context.mounted) {
+                                  final versionId = context
+                                      .read<BibleVersionCubit>()
+                                      .state
+                                      .version
+                                      .id;
+                                  context.read<DeepUnderstandingBloc>().add(
+                                        StartAnalysisForVersesEvent(
+                                          query,
+                                          state.chapter.verses,
+                                          state.chapter.bookId,
+                                          state.chapter.number,
+                                          versionId,
+                                        ),
+                                      );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const DeepUnderstandingPage()),
+                                  );
+                                }
+                              },
+                      );
+                    },
+                  ),
                 ],
               ),
               Expanded(

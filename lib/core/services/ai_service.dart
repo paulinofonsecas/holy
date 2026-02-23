@@ -95,7 +95,6 @@ REGRAS ESTRITAS DE COMPORTAMENTO:
   }
 
   Future<String> generateSummary(String query, List<String> context) async {
-    final logger = LoggerService();
     final prompt = '''
 CONTEXTO FORNECIDO (Resultados da Busca Vetorial Local):
 ${context.join('\n')}
@@ -108,8 +107,28 @@ Com base estritamente no contexto acima, elabore o entendimento aprofundado:''';
       final response = await _model.generateContent([Content.text(prompt)]);
       return response.text ?? 'Não foi possível gerar um resumo.';
     } catch (e, stack) {
+      final logger = LoggerService();
       logger.error('Failed to generate summary', e, stack);
-      return 'Erro ao gerar entendimento aprofundado: ${e.toString()}';
+      rethrow;
     }
+  }
+
+  String formatErrorMessage(Object e) {
+    final errorStr = e.toString().toLowerCase();
+    if (errorStr.contains('quota') || errorStr.contains('429')) {
+      return 'O limite de uso gratuito foi atingido. Por favor, tente novamente em alguns minutos.';
+    }
+    if (errorStr.contains('safety rating') || errorStr.contains('blocked')) {
+      return 'O conteúdo foi bloqueado pelos filtros de segurança da IA. Tente uma pergunta diferente.';
+    }
+    if (errorStr.contains('model is busy') || errorStr.contains('503')) {
+      return 'O servidor da IA está sobrecarregado no momento. Tente novamente em breve.';
+    }
+    if (errorStr.contains('socketexception') ||
+        errorStr.contains('connection failed') ||
+        errorStr.contains('network_error')) {
+      return 'Erro de conexão. Verifique sua internet e tente novamente.';
+    }
+    return 'Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.';
   }
 }

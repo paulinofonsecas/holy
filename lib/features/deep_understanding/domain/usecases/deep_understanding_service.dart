@@ -25,7 +25,7 @@ class DeepUnderstandingService {
     var session = await _vectorStore.getSession(sessionId);
 
     if (session == null) {
-      final totalItems = results.length > 20 ? 20 : results.length;
+      final totalItems = results.length > 60 ? 60 : results.length;
       session = AnalysisSession(
         sessionId: sessionId,
         query: query,
@@ -59,7 +59,7 @@ class DeepUnderstandingService {
     var session = await _vectorStore.getSession(sessionId);
 
     if (session == null) {
-      final totalItems = verses.length > 20 ? 20 : verses.length;
+      final totalItems = verses.length > 60 ? 60 : verses.length;
       session = AnalysisSession(
         sessionId: sessionId,
         query: query,
@@ -101,9 +101,7 @@ class DeepUnderstandingService {
   Stream<AnalysisSession> _performAnalysis(
       AnalysisSession session, List<SearchResult> results) async* {
     try {
-      // Reduzido para 20. Assim a barra de progresso avança suavemente
-      // e não estouramos o limite de Tokens por Minuto do Free Tier.
-      const batchSize = 20;
+      const batchSize = 30;
 
       for (var i = session.processedItems; i < results.length; i += batchSize) {
         final currentSessionState =
@@ -176,10 +174,10 @@ class DeepUnderstandingService {
       final queryEmbedding = queryEmbeddingResponse.first;
 
       final topVerses = await _vectorStore.searchMostRelevant(
-          queryEmbedding, session.sessionId, 20);
+          queryEmbedding, session.sessionId, 50);
 
       // 5. Gerar o resumo final
-      final contextTexts = topVerses.map((v) => v.content).toList();
+      final contextTexts = topVerses.map((v) => v.content).toSet().toList();
       final summary =
           await _aiService.generateSummary(session.query, contextTexts);
 
@@ -200,7 +198,7 @@ class DeepUnderstandingService {
     } catch (e) {
       LoggerService().error('DeepUnderstandingService Error: ${e.toString()}');
       session.status = 'error';
-      session.error = e.toString();
+      session.error = _aiService.formatErrorMessage(e);
       session.updatedAt = DateTime.now();
       await _vectorStore.saveSession(session);
       yield session;
