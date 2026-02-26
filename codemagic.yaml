@@ -13,21 +13,13 @@ workflows:
       app_store_connect: "martins"
 
     environment:
-      groups:
-        - ios_signing
-      #   - google_play_credentials
-      #   - keystore_credentials
-      
-      # ios_signing:
-      #   distribution_type: app_store
-      #   bundle_identifier: "com.paulinofonseca.eusou"
-        
       flutter: stable
       xcode: latest
       cocoapods: default
-      vars:
-        PACKAGE_NAME: "com.paulinofonseca.eusou"
-        BUNDLE_ID: "com.paulinofonseca.eusou"
+
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.paulinofonseca.eusou
 
     triggering:
       events:
@@ -91,14 +83,6 @@ workflows:
           cd ios
           pod install
           cd ..
-
-      - name: "[iOS] Configurar Keychain e Certificados"
-        script: |
-          keychain add-certificates
-
-      - name: "[iOS] Configurar Provisioning Profiles"
-        script: |
-          xcode-project use-profiles
 
       - name: "[iOS] Build IPA"
         script: |
