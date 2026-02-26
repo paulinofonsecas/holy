@@ -18,7 +18,7 @@ workflows:
       #   - keystore_credentials
       
       ios_signing:
-        distribution_type: app
+        distribution_type: app_store
         bundle_identifier: "com.paulinofonseca.eusou"
         
       flutter: stable
