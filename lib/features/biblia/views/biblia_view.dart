@@ -238,9 +238,10 @@ class _BibliaViewState extends State<BibliaView> {
                         onPressed: state is! BibleChapterLoaded
                             ? null
                             : () async {
-                                final query =
+                                var query =
                                     await _showQueryInputDialog(context);
-                                if (query != null && context.mounted) {
+                                if (context.mounted) {
+                                  query ??= 'Entendimento geral';
                                   final versionId = context
                                       .read<BibleVersionCubit>()
                                       .state
@@ -410,7 +411,8 @@ class _BibliaViewState extends State<BibliaView> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, queryController.text),
+            onPressed: () => Navigator.pop(context,
+                queryController.text.isEmpty ? null : queryController.text),
             child: const Text('Analisar'),
           ),
         ],

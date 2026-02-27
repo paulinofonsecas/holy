@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import '../bloc/deep_understanding_bloc.dart';
 import 'deep_understanding_page.dart';
@@ -43,11 +44,11 @@ class _DeepUnderstandingHistoryPageState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F6F0), // Warm off-white
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF4A2B1D)),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   iconTheme: const IconThemeData(color: Color(0xFF4A2B1D)),
+      // ),
       body: BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
         builder: (context, state) {
           if (state is DeepUnderstandingInitial) {
@@ -74,54 +75,57 @@ class _DeepUnderstandingHistoryPageState
               grouped.putIfAbsent(dateStr, () => []).add(s);
             }
 
-            return CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 16.0, bottom: 40.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Jornada da Alma',
-                          style: TextStyle(
-                            fontSize: 34,
-                            fontFamily:
-                                'Times New Roman', // General Serif fallback
-                            color: Color(0xFF2D1B13),
-                            fontWeight: FontWeight.bold,
+            return SafeArea(
+              child: CustomScrollView(
+                slivers: [
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 16.0, bottom: 40.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Gap(24),
+                          Text(
+                            'Jornada da Alma',
+                            style: TextStyle(
+                              fontSize: 34,
+                              fontFamily:
+                                  'Times New Roman', // General Serif fallback
+                              color: Color(0xFF2D1B13),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'REGISTRO DE ESTUDOS E REFLEXÕES',
-                          style: TextStyle(
-                            fontSize: 11,
-                            letterSpacing: 2.0,
-                            color: const Color(0xFF8B7765),
-                            fontWeight: FontWeight.w600,
+                          SizedBox(height: 8),
+                          Text(
+                            'REGISTRO DE ESTUDOS E REFLEXÕES',
+                            style: TextStyle(
+                              fontSize: 11,
+                              letterSpacing: 2.0,
+                              color: Color(0xFF8B7765),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final keys = grouped.keys.toList();
-                        final dateStr = keys[index];
-                        final dateSessions = grouped[dateStr]!;
-                        return _buildDateGroup(dateStr, dateSessions);
-                      },
-                      childCount: grouped.keys.length,
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final keys = grouped.keys.toList();
+                          final dateStr = keys[index];
+                          final dateSessions = grouped[dateStr]!;
+                          return _buildDateGroup(dateStr, dateSessions);
+                        },
+                        childCount: grouped.keys.length,
+                      ),
                     ),
                   ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 40)),
-              ],
+                  const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                ],
+              ),
             );
           }
 

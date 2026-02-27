@@ -24,10 +24,13 @@ class DeepUnderstandingPage extends StatelessWidget {
         }
       },
       child: Scaffold(
+        backgroundColor: const Color(0xFFF9F6F0),
         appBar: AppBar(
-          title: const Text('Entendimento Aprofundado'),
+          backgroundColor: const Color(0xFFF9F6F0),
+          elevation: 0,
+          scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF2D1B13)),
             onPressed: () {
               final state = context.read<DeepUnderstandingBloc>().state;
               if (state is DeepUnderstandingInProgress) {
@@ -37,12 +40,34 @@ class DeepUnderstandingPage extends StatelessWidget {
               }
             },
           ),
+          title: const Column(
+            children: [
+              const Text(
+                'JORNADA DA ALMA',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2.0,
+                  color: Color(0xFFB05B3B),
+                ),
+              ),
+              const Text(
+                'Entendimento Aprofundado',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2D1B13),
+                ),
+              ),
+            ],
+          ),
+          centerTitle: true,
           actions: [
             BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
               builder: (context, state) {
                 if (state is DeepUnderstandingSuccess) {
                   return IconButton(
-                    icon: const Icon(Icons.ios_share),
+                    icon: const Icon(Icons.ios_share, color: Color(0xFF2D1B13)),
                     onPressed: () => _showExportOptions(context, state),
                   );
                 }
@@ -91,76 +116,249 @@ class DeepUnderstandingPage extends StatelessWidget {
 
   Widget _buildProgressView(
       BuildContext context, DeepUnderstandingInProgress state) {
-    final statusText = state.session.status == 'embedding'
+    final isEmbedding = state.session.status == 'embedding';
+    final statusText = isEmbedding
         ? 'Vetorizando e analisando trechos...'
         : 'Gerando entendimento teológico...';
 
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.auto_awesome, size: 64, color: Colors.blue),
-          const SizedBox(height: 24),
-          Text(
-            statusText,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          LinearProgressIndicator(value: state.progress),
-          const SizedBox(height: 8),
-          Text(
-              '${state.session.processedItems} / ${state.session.totalItems} concluídos'),
-          const SizedBox(height: 48),
-          OutlinedButton(
-            onPressed: () {
-              // TODO: Implement "Process in jBackground" in User Story 2
-              Navigator.pop(context);
-            },
-            child: const Text('Processar em Segundo Plano'),
-          ),
-          TextButton(
-            onPressed: () =>
-                _showCancelDialog(context, state.session.sessionId),
-            child: const Text('Cancelar Análise',
-                style: TextStyle(color: Colors.red)),
-          ),
-        ],
+    return Container(
+      color: const Color(0xFFF9F6F0),
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF3B5E53).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.auto_awesome,
+                  size: 40, color: Color(0xFF3B5E53)),
+            ),
+            const SizedBox(height: 32),
+            Text(
+              statusText,
+              style: const TextStyle(
+                fontSize: 18,
+                fontFamily: 'Georgia',
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D1B13),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: state.progress,
+                minHeight: 6,
+                backgroundColor: const Color(0xFFE6E0D4),
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(Color(0xFF3B5E53)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '${state.session.processedItems} / ${state.session.totalItems} trechos processados',
+              style: const TextStyle(fontSize: 13, color: Color(0xFF8B7765)),
+            ),
+            const SizedBox(height: 48),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF3B5E53)),
+                foregroundColor: const Color(0xFF3B5E53),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Continuar em Segundo Plano'),
+            ),
+            TextButton(
+              onPressed: () =>
+                  _showCancelDialog(context, state.session.sessionId),
+              child: const Text('Cancelar Análise',
+                  style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSuccessView(
       BuildContext context, DeepUnderstandingSuccess state) {
+    // Extract a short first-paragraph teaser from the result
+    String teaser = state.result;
+    teaser = teaser.replaceAll(RegExp(r'\*\*|\*|#|`|\[.*?\]\(.*?\)'), '');
+    teaser = teaser.trim();
+    if (teaser.length > 120) teaser = '${teaser.substring(0, 120)}...';
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Entendimento sobre: ${state.query}',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          // ── Hero Banner ──────────────────────────────────────────────
+          Stack(
+            children: [
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF4A2B1D), Color(0xFF3B5E53)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Opacity(
+                  opacity: 0.12,
+                  child: GridView.count(
+                    crossAxisCount: 20,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: List.generate(
+                      200,
+                      (i) => const Text('✦',
+                          style: TextStyle(color: Colors.white, fontSize: 10)),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Text(
+                        'ESTUDO',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                          color: Color(0xFFD4A96A),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        state.query.isEmpty
+                            ? 'Entendimento Aprofundado'
+                            : state.query,
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontFamily: 'Georgia',
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          height: 1.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          const Divider(height: 32),
-          MarkdownBody(
-            data: state.result,
-            selectable: true,
-            onTapLink: (text, href, title) {
-              if (href != null && href.startsWith('bible://')) {
-                _handleBibleLink(context, href);
-              }
-            },
-            styleSheet: MarkdownStyleSheet(
-              p: const TextStyle(fontSize: 16, height: 1.5),
-              h1: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              h2: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+
+          // ── Teaser / Lead paragraph ───────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            child: Text(
+              '"$teaser"',
+              style: const TextStyle(
+                fontSize: 15,
+                fontFamily: 'Georgia',
+                fontStyle: FontStyle.italic,
+                color: Color(0xFF5A4034),
+                height: 1.5,
+              ),
             ),
           ),
-          const SizedBox(height: 32),
-          const Divider(),
-          _buildBenchmarks(state),
-          const SizedBox(height: 32),
+
+          // ── Main Markdown body ────────────────────────────────────────
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+            child: MarkdownBody(
+              data: state.result,
+              selectable: true,
+              onTapLink: (text, href, title) {
+                if (href != null && href.startsWith('bible://')) {
+                  _handleBibleLink(context, href);
+                }
+              },
+              styleSheet: MarkdownStyleSheet(
+                p: const TextStyle(
+                  fontSize: 15,
+                  height: 1.7,
+                  color: Color(0xFF2D1B13),
+                ),
+                h1: const TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'Georgia',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D1B13),
+                  height: 2.0,
+                ),
+                h2: TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'Georgia',
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF2D1B13),
+                  height: 2.0,
+                  decoration: TextDecoration.none,
+                ),
+                h3: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF3B5E53),
+                ),
+                strong: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D1B13),
+                ),
+                em: const TextStyle(
+                  fontStyle: FontStyle.italic,
+                  color: Color(0xFF5A4034),
+                ),
+                a: const TextStyle(
+                  color: Color(0xFFB05B3B),
+                  decoration: TextDecoration.underline,
+                ),
+                blockquote: const TextStyle(
+                  fontSize: 15,
+                  fontFamily: 'Georgia',
+                  fontStyle: FontStyle.italic,
+                  color: Color(0xFFB05B3B),
+                  height: 1.6,
+                ),
+                blockquoteDecoration: BoxDecoration(
+                  color: const Color(0xFFFDF5EB),
+                  borderRadius: BorderRadius.circular(4),
+                  border: const Border(
+                    left: BorderSide(color: Color(0xFFB05B3B), width: 4),
+                  ),
+                ),
+                blockquotePadding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                h2Padding: const EdgeInsets.only(top: 8),
+                h1Padding: const EdgeInsets.only(top: 8),
+                horizontalRuleDecoration: const BoxDecoration(
+                  border: Border(
+                      bottom: BorderSide(color: Color(0xFFE6E0D4), width: 1)),
+                ),
+              ),
+            ),
+          ),
+
+          // ── Benchmarks ────────────────────────────────────────────────
+          Container(
+            margin: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+            child: _buildBenchmarks(state),
+          ),
         ],
       ),
     );
