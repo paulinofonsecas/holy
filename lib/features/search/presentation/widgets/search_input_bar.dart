@@ -63,6 +63,7 @@ class _SearchInputBarState extends State<SearchInputBar> {
           Expanded(
             child: TextField(
               controller: _controller,
+              autocorrect: false,
               decoration: InputDecoration(
                 hintText: widget.hintText,
                 hintStyle: TextStyle(

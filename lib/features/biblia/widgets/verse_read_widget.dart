@@ -38,9 +38,16 @@ class VerseReadWidget extends StatelessWidget {
 
                 Color? backgroundColor;
                 if (isSelected) {
-                  backgroundColor = Theme.brightnessOf(context) == Brightness.light
-                      ? Theme.of(context).colorScheme.primary.withValues(alpha: .2)
-                      : Theme.of(context).colorScheme.primary.withValues(alpha: .2);
+                  backgroundColor =
+                      Theme.brightnessOf(context) == Brightness.light
+                          ? Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: .2)
+                          : Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: .2);
                 } else if (highlightState is HighlightsLoaded) {
                   final highlight = highlightState.highlights[verseRef];
                   if (highlight != null) {
@@ -57,10 +64,12 @@ class VerseReadWidget extends StatelessWidget {
                   fontSize: settingsState.fontSize,
                   height: settingsState.lineHeight,
                   letterSpacing: settingsState.letterSpacing,
-                  fontWeight:
-                      settingsState.isBold ? FontWeight.bold : FontWeight.normal,
-                  fontStyle:
-                      settingsState.isItalic ? FontStyle.italic : FontStyle.normal,
+                  fontWeight: settingsState.isBold
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  fontStyle: settingsState.isItalic
+                      ? FontStyle.italic
+                      : FontStyle.normal,
                   color: AppColor.textPrimary,
                 );
 
@@ -108,7 +117,7 @@ class VerseReadWidget extends StatelessWidget {
                                 text: "${verse.number} ",
                                 style: style.copyWith(
                                   fontWeight: FontWeight.w500,
-                                 decoration: isSelected
+                                  decoration: isSelected
                                       ? TextDecoration.underline
                                       : null,
                                   decorationStyle: TextDecorationStyle.dashed,
@@ -127,8 +136,9 @@ class VerseReadWidget extends StatelessWidget {
                               TextSpan(
                                 text: verse.text,
                                 style: style.copyWith(
-                                  decoration:
-                                      isSelected ? TextDecoration.underline : null,
+                                  decoration: isSelected
+                                      ? TextDecoration.underline
+                                      : null,
                                   decorationStyle: TextDecorationStyle.dashed,
                                   decorationColor:
                                       Theme.of(context).colorScheme.primary,

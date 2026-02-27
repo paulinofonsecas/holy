@@ -13,6 +13,7 @@ class DeepUnderstandingDialog extends StatelessWidget {
     return AlertDialog(
       title: const Text('Entendimento Aprofundado'),
       content: TextField(
+        autocorrect: false,
         controller: queryController,
         decoration: const InputDecoration(
           hintText: 'Qual o tema da sua análise?',
@@ -25,7 +26,9 @@ class DeepUnderstandingDialog extends StatelessWidget {
           child: const Text('Cancelar'),
         ),
         TextButton(
-          onPressed: () => Navigator.pop(context, queryController.text),
+          onPressed: queryController.text.isNotEmpty
+              ? () => Navigator.pop(context, queryController.text)
+              : null,
           child: const Text('Analisar'),
         ),
       ],

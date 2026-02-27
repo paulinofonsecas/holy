@@ -66,7 +66,9 @@ class ProfileView extends StatelessWidget {
         builder: (context, state) {
           return RefreshIndicator(
             onRefresh: () async {
-              context.read<MarkedVersesBloc>().add(LoadMarkedVerses());
+              context
+                  .read<MarkedVersesBloc>()
+                  .add(const LoadMarkedVerses(page: 1, pageSize: 30));
             },
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -80,7 +82,10 @@ class ProfileView extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const MarkedVersesListPage(),
+                        builder: (context) => BlocProvider(
+                          create: (context) => MarkedVersesBloc(context.read()),
+                          child: const MarkedVersesListPage(),
+                        ),
                       ),
                     );
                   },

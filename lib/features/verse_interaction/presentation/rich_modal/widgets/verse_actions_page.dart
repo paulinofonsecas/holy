@@ -234,6 +234,9 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
           onCompare: () {
             viewModel.onCompareVersions?.call();
           },
+          onClose: () {
+            viewModel.clearSelection();
+          },
           onDeepUnderstanding: () async {
             // TBD: Show dialog for query and dispatch event
             final query = await _showQueryInputDialog(context);
@@ -256,12 +259,6 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
             }
           },
         ),
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            viewModel.clearSelection();
-          },
-        ),
       ],
     );
   }
@@ -273,6 +270,7 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
       builder: (context) => AlertDialog(
         title: const Text('Entendimento Aprofundado'),
         content: TextField(
+          autocorrect: false,
           controller: queryController,
           decoration: const InputDecoration(
             hintText: 'Qual o tema da sua análise?',
@@ -285,7 +283,9 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, queryController.text),
+            onPressed: queryController.text.isNotEmpty
+                ? () => Navigator.pop(context, queryController.text)
+                : null,
             child: const Text('Analisar'),
           ),
         ],

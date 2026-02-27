@@ -38,6 +38,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Add Category'),
         content: TextField(
+          autocorrect: false,
           controller: _categoryNameController,
           decoration: const InputDecoration(hintText: 'Category name'),
         ),

@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class ActionRow extends StatelessWidget {
@@ -7,6 +8,7 @@ class ActionRow extends StatelessWidget {
   final VoidCallback? onFavorite;
   final VoidCallback? onCompare;
   final VoidCallback? onDeepUnderstanding;
+  final VoidCallback? onClose;
 
   const ActionRow({
     super.key,
@@ -16,6 +18,7 @@ class ActionRow extends StatelessWidget {
     this.onFavorite,
     this.onCompare,
     this.onDeepUnderstanding,
+    this.onClose,
   });
 
   @override
@@ -35,37 +38,46 @@ class ActionRow extends StatelessWidget {
           onTap: onCreateImage,
         ),
         _ActionButton(
-          icon: Icons.copy_outlined,
-          label: 'Copiar',
-          onTap: onCopy,
+          icon: Icons.close,
+          label: 'Fechar',
+          onTap: onClose,
         ),
+        if (onDeepUnderstanding != null)
+          _ActionButton(
+            icon: Icons.auto_awesome,
+            color: context.colorScheme.primaryContainer,
+            label: 'Entendimento',
+            onTap: onDeepUnderstanding,
+          ),
         if (onCompare != null)
           _ActionButton(
             icon: Icons.compare_arrows_outlined,
             label: 'Comparar Versão',
             onTap: onCompare,
           ),
-        if (onDeepUnderstanding != null)
-          _ActionButton(
-            icon: Icons.auto_awesome_outlined,
-            label: 'Entendimento',
-            onTap: onDeepUnderstanding,
-          ),
+        _ActionButton(
+          icon: Icons.copy_outlined,
+          label: 'Copiar',
+          onTap: onCopy,
+        ),
       ],
     );
   }
 }
 
 class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-
   const _ActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
+    // ignore: unused_element_parameter
+    this.color,
   });
+
+  final IconData icon;
+  final Color? color;
+  final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +89,7 @@ class _ActionButton extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 28),
+            Icon(icon, size: 28, color: color),
             const SizedBox(height: 4),
             Text(
               label,

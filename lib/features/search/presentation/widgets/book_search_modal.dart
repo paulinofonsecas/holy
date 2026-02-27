@@ -30,6 +30,7 @@ class _BookSearchModalState extends State<BookSearchModal> {
         children: [
           TextField(
             controller: _textController,
+            autocorrect: false,
             decoration: const InputDecoration(
               hintText: 'Search for a book...',
               prefixIcon: Icon(Icons.book),

@@ -87,9 +87,11 @@ class _BookSelectionPageState extends State<BookSelectionPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: TextField(
                 controller: _searchController,
+                autocorrect: false,
                 decoration: InputDecoration(
                   hintText: 'Pesquisar livro...',
                   prefixIcon: const Icon(Icons.search),

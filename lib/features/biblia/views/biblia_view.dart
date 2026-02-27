@@ -397,6 +397,7 @@ class _BibliaViewState extends State<BibliaView> {
       builder: (context) => AlertDialog(
         title: const Text('Entendimento Aprofundado'),
         content: TextField(
+          autocorrect: false,
           controller: queryController,
           decoration: const InputDecoration(
             hintText: 'Qual o tema da sua análise?',
@@ -409,11 +410,17 @@ class _BibliaViewState extends State<BibliaView> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, queryController.text),
+            onPressed: queryController.text.isNotEmpty
+                ? () => Navigator.pop(context, queryController.text)
+                : null,
             child: const Text('Analisar'),
           ),
         ],
       ),
     );
   }
+
+  // Future<bool> _canYouContinueToGenerateDialog(BuildContext context) {
+
+  // }
 }
