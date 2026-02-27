@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:eu_sou/shared/bible_models.dart';
-import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/features/biblia/views/biblia_view.dart';
 import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/widgets/deep_understanding_export_service.dart';
 import 'package:gap/gap.dart';
@@ -297,19 +297,19 @@ class DeepUnderstandingPage extends StatelessWidget {
       // Navigate
       final versionId = context.read<BibleVersionCubit>().state.version.id;
 
-      // Close the DeepUnderstandingPage first
-      Navigator.pop(context);
-
-      // Go to Bible Tab
-      context.read<TabControllerCubit>().goToBible();
-
-      // Load Chapter
+      // Load Chapter before navigating
       context.read<BibliaBloc>().add(GetChapter(
             versionId,
             book.bookId,
             chapter.toString(),
             verse: verse,
           ));
+
+      // Push BibliaPage on top to allow returning
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const BibliaPage()),
+      );
     } catch (e) {
       debugPrint('Error handling bible link: $e');
     }

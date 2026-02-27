@@ -3,6 +3,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_input_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -55,7 +56,7 @@ void main() {
     await tester.pumpWidget(createTestWidget());
 
     expect(find.byType(PopupMenuButton<String>), findsOneWidget);
-    expect(find.byIcon(Icons.auto_awesome), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.ellipsis_vertical), findsOneWidget);
   });
 
   testWidgets('PopupMenuButton shows correct options when tapped',
@@ -67,7 +68,7 @@ void main() {
     await tester.pumpWidget(createTestWidget());
 
     // Tap the menu button
-    await tester.tap(find.byIcon(Icons.auto_awesome));
+    await tester.tap(find.byIcon(CupertinoIcons.ellipsis_vertical));
     await tester.pumpAndSettle();
 
     expect(find.text('Pesquisa Avançada'), findsOneWidget);
@@ -83,7 +84,7 @@ void main() {
 
     await tester.pumpWidget(createTestWidget(initialValue: 'Jesus'));
 
-    await tester.tap(find.byIcon(Icons.auto_awesome));
+    await tester.tap(find.byIcon(CupertinoIcons.ellipsis_vertical));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Pesquisa Avançada'));
@@ -109,7 +110,7 @@ void main() {
 
     await tester.pumpWidget(createTestWidget(initialValue: 'Jesus chorou'));
 
-    await tester.tap(find.byIcon(Icons.auto_awesome));
+    await tester.tap(find.byIcon(CupertinoIcons.ellipsis_vertical));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Pesquisa Avançada'));
@@ -128,7 +129,7 @@ void main() {
 
     await tester.pumpWidget(createTestWidget());
 
-    await tester.tap(find.byIcon(Icons.auto_awesome));
+    await tester.tap(find.byIcon(CupertinoIcons.ellipsis_vertical));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Novo campo de busca'));

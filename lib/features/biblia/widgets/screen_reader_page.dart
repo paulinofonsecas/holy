@@ -28,6 +28,31 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // Only handle target verse if this route is currently active
+      if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
+
+      final state = context.read<BibliaBloc>().state;
+      if (state is BibleChapterLoaded && state.targetVerse != null) {
+        _scrollToVerse(state.targetVerse!);
+
+        final verse = state.chapter.verses.firstWhere(
+          (v) => v.number == state.targetVerse,
+          orElse: () => state.chapter.verses.first,
+        );
+
+        context.read<VerseSelectionBloc>().add(ClearSelection());
+        context.read<VerseSelectionBloc>().add(ToggleVerseSelection(verse));
+
+        context.read<BibliaBloc>().add(ClearTargetVerse());
+      } else if (state is BibleChapterLoaded && state.initialScrollOffset > 0) {
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(state.initialScrollOffset);
+        }
+      }
+    });
   }
 
   void _onScroll() {
@@ -89,6 +114,9 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
         }
 
         if (state.targetVerse != null) {
+          // Only handle target verse if this route is currently active
+          if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
+
           _scrollToVerse(state.targetVerse!);
 
           // Auto-select the verse when navigating from search

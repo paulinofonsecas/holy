@@ -32,7 +32,22 @@ class BibleAppBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    VersaoWidget(key: keyBibleVersionTab),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!(ModalRoute.of(context)?.isFirst ?? true)) ...[
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const Gap(8),
+                        ],
+                        VersaoWidget(
+                            key: (ModalRoute.of(context)?.isFirst ?? true)
+                                ? keyBibleVersionTab
+                                : null),
+                      ],
+                    ),
                     // Centered content is handled by the Stack's Center widget
                     const Gap(
                         48), // Spacer to avoid overlap if needed, but Center is absolute
@@ -96,7 +111,9 @@ class BookSelectorWidget extends StatelessWidget {
                 children: [
                   Text(
                     "${state.chapter.bookName} ${state.chapter.number}",
-                    key: keyBibleContentTab,
+                    key: (ModalRoute.of(context)?.isFirst ?? true)
+                        ? keyBibleContentTab
+                        : null,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

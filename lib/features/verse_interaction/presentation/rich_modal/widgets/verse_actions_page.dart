@@ -6,6 +6,7 @@ import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/core/services/share_service.dart';
 import 'package:eu_sou/core/services/toast_service.dart';
+import 'package:eu_sou/features/search/presentation/widgets/deep_understanding_dialog.dart';
 import 'package:eu_sou/features/verse_interaction/domain/models/comparison_request.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
@@ -187,6 +188,7 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
       if (!navigator.context.mounted) return;
 
       await CompareVersionsModal.show(
+        // ignore: use_build_context_synchronously
         context: navigator.context,
         bibleRepository: bibleRepository,
         request: ComparisonRequest(
@@ -238,8 +240,7 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
             viewModel.clearSelection();
           },
           onDeepUnderstanding: () async {
-            // TBD: Show dialog for query and dispatch event
-            final query = await _showQueryInputDialog(context);
+            final query = await DeepUnderstandingDialog.show(context);
             if (query != null && context.mounted) {
               context.read<DeepUnderstandingBloc>().add(
                     StartAnalysisForVersesEvent(
@@ -260,36 +261,6 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
           },
         ),
       ],
-    );
-  }
-
-  Future<String?> _showQueryInputDialog(BuildContext context) {
-    final TextEditingController queryController = TextEditingController();
-    return showDialog<String?>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Entendimento Aprofundado'),
-        content: TextField(
-          autocorrect: false,
-          controller: queryController,
-          decoration: const InputDecoration(
-            hintText: 'Qual o tema da sua análise?',
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, null),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: queryController.text.isNotEmpty
-                ? () => Navigator.pop(context, queryController.text)
-                : null,
-            child: const Text('Analisar'),
-          ),
-        ],
-      ),
     );
   }
 }

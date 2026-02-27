@@ -45,7 +45,7 @@ class ActionRow extends StatelessWidget {
         if (onDeepUnderstanding != null)
           _ActionButton(
             icon: Icons.auto_awesome,
-            color: context.colorScheme.primaryContainer,
+            color: context.colorScheme.primary,
             label: 'Entendimento',
             onTap: onDeepUnderstanding,
           ),

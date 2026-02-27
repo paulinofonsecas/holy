@@ -9,7 +9,7 @@ import 'package:eu_sou/features/search/presentation/widgets/search_empty_states.
 import 'package:eu_sou/features/search/presentation/widgets/search_result_tile.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_version_filter.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
-import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
+import "package:eu_sou/features/biblia/views/biblia_view.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -80,6 +80,7 @@ class _TelaBuscaState extends State<TelaBusca> {
               child: BlocBuilder<SearchBloc, EstadoBusca>(
                 builder: (context, estado) {
                   return CustomScrollView(
+                    key: const PageStorageKey('search_results_scroll'),
                     controller: _controladorScroll,
                     primary: false,
                     slivers: [
@@ -236,7 +237,11 @@ class _TelaBuscaState extends State<TelaBusca> {
                       context
                           .read<BibliaBloc>()
                           .add(GetChapter(idVersao, livro.id, '1'));
-                      context.read<TabControllerCubit>().goToBible();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const BibliaPage()),
+                      );
                     }
                   },
                 );
@@ -292,6 +297,12 @@ class _TelaBuscaState extends State<TelaBusca> {
                     context
                         .read<BibleVersionCubit>()
                         .changeVersionById(resultado.versionId);
+                    if (_controladorScroll.hasClients) {
+                      context
+                          .read<SearchBloc>()
+                          .add(AtualizarScrollBusca(_controladorScroll.offset));
+                    }
+
                     context.read<BibliaBloc>().add(
                           GetChapter(
                             resultado.versionId,
@@ -303,7 +314,11 @@ class _TelaBuscaState extends State<TelaBusca> {
                     if (Navigator.of(context).canPop()) {
                       Navigator.of(context).pop(resultado);
                     } else {
-                      context.read<TabControllerCubit>().goToBible();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const BibliaPage()),
+                      );
                     }
                   },
                   onLongPress: () {

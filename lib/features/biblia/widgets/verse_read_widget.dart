@@ -85,11 +85,9 @@ class VerseReadWidget extends StatelessWidget {
                         .add(ToggleVerseSelection(verse));
                   },
                   onLongPress: () {
-                    if (!selectionState.isInSelectionMode) {
-                      context
-                          .read<VerseSelectionBloc>()
-                          .add(ToggleVerseSelection(verse));
-                    }
+                    context
+                        .read<VerseSelectionBloc>()
+                        .add(ToggleVerseSelection(verse));
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(4),
