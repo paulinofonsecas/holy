@@ -109,7 +109,22 @@ Com base estritamente no contexto acima, elabore o entendimento aprofundado:''';
 
     try {
       final response = await _model.generateContent([Content.text(prompt)]);
-      return response.text ?? 'Não foi possível gerar um resumo.';
+      var text = response.text ?? 'Não foi possível gerar um resumo.';
+      // Post-process to ensure all [Book Chapter:Verse] are formatted as markdown links
+      final RegExp refPattern =
+          RegExp(r'\[(.*?)\s+(\d+):([0-9\-\,\.\s]+)\](?!\()');
+      text = text.replaceAllMapped(refPattern, (match) {
+        final book = match.group(1)?.trim();
+        final chapter = match.group(2);
+        final verse = match.group(3)?.trim();
+        if (book != null && book.isNotEmpty) {
+          final encodedBook = Uri.encodeComponent(book);
+          final encodedVerse = Uri.encodeComponent(verse ?? '');
+          return '[$book $chapter:$verse](bible://$encodedBook/$chapter/$encodedVerse)';
+        }
+        return match.group(0)!;
+      });
+      return text;
     } catch (e, stack) {
       final logger = LoggerService();
       logger.error('Failed to generate summary', e, stack);

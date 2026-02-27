@@ -113,20 +113,36 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
           });
         }
 
-        if (state.targetVerse != null) {
+        if ((state.targetVerses != null && state.targetVerses!.isNotEmpty) ||
+            state.targetVerse != null) {
           // Only handle target verse if this route is currently active
           if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
 
-          _scrollToVerse(state.targetVerse!);
+          final firstVerseToScroll = state.targetVerses?.isNotEmpty == true
+              ? state.targetVerses!.first
+              : state.targetVerse!;
 
-          // Auto-select the verse when navigating from search
-          final verse = state.chapter.verses.firstWhere(
-            (v) => v.number == state.targetVerse,
-            orElse: () => state.chapter.verses.first,
-          );
+          _scrollToVerse(firstVerseToScroll);
 
           context.read<VerseSelectionBloc>().add(ClearSelection());
-          context.read<VerseSelectionBloc>().add(ToggleVerseSelection(verse));
+
+          if (state.targetVerses != null && state.targetVerses!.isNotEmpty) {
+            for (final verseNum in state.targetVerses!) {
+              final verse = state.chapter.verses.firstWhere(
+                (v) => v.number == verseNum,
+                orElse: () => state.chapter.verses.first,
+              );
+              context
+                  .read<VerseSelectionBloc>()
+                  .add(ToggleVerseSelection(verse));
+            }
+          } else {
+            final verse = state.chapter.verses.firstWhere(
+              (v) => v.number == state.targetVerse,
+              orElse: () => state.chapter.verses.first,
+            );
+            context.read<VerseSelectionBloc>().add(ToggleVerseSelection(verse));
+          }
 
           // Clear target verse after handling to avoid re-triggering and allow re-selection
           context.read<BibliaBloc>().add(ClearTargetVerse());

@@ -117,10 +117,6 @@ class SearchActions extends StatelessWidget {
             tooltip: 'Entendimento Aprofundado',
             icon: Icon(Icons.auto_awesome,
                 color: Theme.of(context).colorScheme.primary),
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(
-                  Theme.of(context).colorScheme.primaryContainer),
-            ),
             onPressed: () {
               final currentQuery = buscaCarregada.consultas
                   .map((q) => q.term)

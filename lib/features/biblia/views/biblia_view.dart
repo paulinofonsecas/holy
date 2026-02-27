@@ -410,9 +410,7 @@ class _BibliaViewState extends State<BibliaView> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: queryController.text.isNotEmpty
-                ? () => Navigator.pop(context, queryController.text)
-                : null,
+            onPressed: () => Navigator.pop(context, queryController.text),
             child: const Text('Analisar'),
           ),
         ],

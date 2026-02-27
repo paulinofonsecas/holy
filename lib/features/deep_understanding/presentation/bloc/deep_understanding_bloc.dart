@@ -82,7 +82,7 @@ class ViewSessionEvent extends DeepUnderstandingEvent {
 class _UpdateSessionEvent extends DeepUnderstandingEvent {
   final AnalysisSession session;
 
-  _UpdateSessionEvent(this.session);
+  const _UpdateSessionEvent(this.session);
 
   @override
   List<Object?> get props => [session];

@@ -8,11 +8,13 @@ class GetChapter extends BibliaEvent {
   final String book;
   final String chapter;
   final int? verse;
+  final List<int>? targetVerses;
 
-  GetChapter(this.version, this.book, this.chapter, {this.verse});
+  GetChapter(this.version, this.book, this.chapter,
+      {this.verse, this.targetVerses});
 
   @override
-  List<Object?> get props => [version, book, chapter, verse];
+  List<Object?> get props => [version, book, chapter, verse, targetVerses];
 }
 
 class ClearTargetVerse extends BibliaEvent {

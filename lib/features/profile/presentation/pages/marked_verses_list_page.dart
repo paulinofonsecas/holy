@@ -70,7 +70,7 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
     // Dispara o carregamento quando faltar 200 pixels para o fim
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
-    final threshold = 200.0;
+    const threshold = 200.0;
 
     if (maxScroll - currentScroll <= threshold) {
       final state = context.read<MarkedVersesBloc>().state;

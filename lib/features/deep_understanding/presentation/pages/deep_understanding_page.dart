@@ -64,6 +64,9 @@ class DeepUnderstandingPage extends StatelessWidget {
           },
           builder: (context, state) {
             if (state is DeepUnderstandingInitial) {
+              context
+                  .read<DeepUnderstandingBloc>()
+                  .add(const LoadHistoryEvent());
               return const Center(child: CircularProgressIndicator());
             }
 
@@ -247,40 +250,29 @@ class DeepUnderstandingPage extends StatelessWidget {
   void _handleBibleLink(BuildContext context, String href) {
     debugPrint('DeepUnderstandingPage: Handling bible link: $href');
     try {
-      // Format can be bible://BookName/Chapter/Verse
-      // Or bible:///BookName/Chapter/Verse
-      final uri = Uri.parse(href);
-      if (uri.scheme != 'bible') return;
+      if (!href.startsWith('bible://')) return;
 
-      String? bookName;
-      String? chapterStr;
-      String? verseStr;
-
-      if (uri.host.isNotEmpty) {
-        // Case: bible://BookName/Chapter/Verse
-        bookName = Uri.decodeComponent(uri.host);
-        if (uri.pathSegments.isNotEmpty) {
-          chapterStr = Uri.decodeComponent(uri.pathSegments[0]);
-          if (uri.pathSegments.length > 1) {
-            verseStr = Uri.decodeComponent(uri.pathSegments[1]);
-          }
-        }
-      } else if (uri.pathSegments.length >= 2) {
-        // Case: bible:///BookName/Chapter/Verse
-        bookName = Uri.decodeComponent(uri.pathSegments[0]);
-        chapterStr = Uri.decodeComponent(uri.pathSegments[1]);
-        if (uri.pathSegments.length > 2) {
-          verseStr = Uri.decodeComponent(uri.pathSegments[2]);
-        }
+      // Extract the path after bible://
+      // Handle optional third slash e.g., bible:///BookName
+      var pathPart = href.substring('bible://'.length);
+      if (pathPart.startsWith('/')) {
+        pathPart = pathPart.substring(1);
       }
+
+      final parts = pathPart.split('/').where((p) => p.isNotEmpty).toList();
+      if (parts.isEmpty) return;
+
+      // Decode in case it's percent-encoded, and sanitize
+      final bookName =
+          Uri.decodeComponent(parts[0]).replaceAll("'", "").replaceAll('"', '');
+      final chapterStr =
+          parts.length > 1 ? Uri.decodeComponent(parts[1]) : null;
+      final verseStr = parts.length > 2 ? Uri.decodeComponent(parts[2]) : null;
 
       debugPrint(
           'DeepUnderstandingPage: Parsed - Book: $bookName, Chapter: $chapterStr, Verse: $verseStr');
 
-      if (bookName == null || chapterStr == null) return;
-
-      // Unquote bookName if necessary (LLMs sometimes add quotes inside links)
-      bookName = bookName.replaceAll("'", "").replaceAll('"', '');
+      if (chapterStr == null) return;
 
       final book = BibleBooks.byName(bookName);
       if (book == null) {
@@ -292,7 +284,26 @@ class DeepUnderstandingPage extends StatelessWidget {
       final chapter = int.tryParse(chapterStr);
       if (chapter == null) return;
 
-      final verse = verseStr != null ? int.tryParse(verseStr) : null;
+      List<int>? verses;
+      if (verseStr != null) {
+        if (verseStr.contains('-')) {
+          final parts = verseStr.split('-');
+          final start = int.tryParse(parts[0].trim());
+          final end = int.tryParse(parts[1].trim());
+          if (start != null && end != null && start <= end) {
+            verses = List.generate(end - start + 1, (i) => start + i);
+          }
+        } else if (verseStr.contains(',')) {
+          verses = verseStr
+              .split(',')
+              .map((v) => int.tryParse(v.trim()))
+              .whereType<int>()
+              .toList();
+        } else {
+          final v = int.tryParse(verseStr.trim());
+          if (v != null) verses = [v];
+        }
+      }
 
       // Navigate
       final versionId = context.read<BibleVersionCubit>().state.version.id;
@@ -302,7 +313,8 @@ class DeepUnderstandingPage extends StatelessWidget {
             versionId,
             book.bookId,
             chapter.toString(),
-            verse: verse,
+            verse: verses?.isNotEmpty == true ? verses!.first : null,
+            targetVerses: verses,
           ));
 
       // Push BibliaPage on top to allow returning
