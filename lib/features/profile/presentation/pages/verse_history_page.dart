@@ -145,7 +145,9 @@ class VerseHistoryPage extends StatelessWidget {
                               ),
                             );
                         context.read<TabControllerCubit>().goToBible();
-                        Navigator.pop(context);
+                        if (Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        }
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

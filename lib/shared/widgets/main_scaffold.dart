@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -24,6 +25,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
 class MainScaffold extends StatefulWidget {
   final FeedbackService? feedbackService;
@@ -236,9 +238,13 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                         icon: Icon(CupertinoIcons.search, key: keySearchTab),
                         label: Text(l10n.search),
                       ),
+                      const NavigationRailDestination(
+                        icon: Icon(Icons.auto_awesome),
+                        label: Text('Insights'),
+                      ),
                       NavigationRailDestination(
                         icon: Icon(CupertinoIcons.settings, key: keyProfileTab),
-                        label: const Text('Ajustes'),
+                        label: Text(l10n.profile),
                       ),
                     ],
                   ),
@@ -259,27 +265,33 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
               index: currentIndex,
               children: _buildPages(context),
             ),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: currentIndex,
-              onDestinationSelected: (index) {
+            bottomNavigationBar: ConvexAppBar(
+              style: TabStyle.reactCircle,
+              backgroundColor: context.colorScheme.surface,
+              color: context.colorScheme.onSurfaceVariant,
+              activeColor: context.colorScheme.primaryContainer,
+              initialActiveIndex: currentIndex,
+              onTap: (index) {
                 context.read<TabControllerCubit>().changeTo(index);
               },
-              destinations: [
-                NavigationDestination(
-                  icon: Icon(CupertinoIcons.book, key: keyBibleTab),
-                  label: l10n.bible,
+              items: [
+                TabItem(
+                  icon: Icon(CupertinoIcons.book, key: keyBibleTab, size: 20),
+                  title: l10n.bible,
                 ),
-                NavigationDestination(
-                  icon: Icon(CupertinoIcons.search, key: keySearchTab),
-                  label: l10n.search,
+                TabItem(
+                  icon:
+                      Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
+                  title: l10n.search,
                 ),
-                const NavigationDestination(
-                  icon: Icon(Icons.auto_awesome),
-                  label: 'Entendimentos',
+                const TabItem(
+                  icon: Icon(Icons.auto_awesome, size: 20),
+                  title: 'Insights',
                 ),
-                NavigationDestination(
-                  icon: Icon(CupertinoIcons.settings, key: keyProfileTab),
-                  label: 'Ajustes',
+                TabItem(
+                  icon: Icon(CupertinoIcons.settings,
+                      key: keyProfileTab, size: 20),
+                  title: l10n.profile,
                 ),
               ],
             ),
