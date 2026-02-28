@@ -1,3 +1,5 @@
+import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
+import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -24,13 +26,22 @@ class DeepUnderstandingPage extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF9F6F0),
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface
+            : const Color(0xFFF9F6F0),
         appBar: AppBar(
-          backgroundColor: const Color(0xFFF9F6F0),
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? Theme.of(context).colorScheme.surface
+              : const Color(0xFFF9F6F0),
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Color(0xFF2D1B13)),
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).colorScheme.onSurface
+                  : const Color(0xFF2D1B13),
+            ),
             onPressed: () {
               final state = context.read<DeepUnderstandingBloc>().state;
               if (state is DeepUnderstandingInProgress) {
@@ -40,23 +51,27 @@ class DeepUnderstandingPage extends StatelessWidget {
               }
             },
           ),
-          title: const Column(
+          title: Column(
             children: [
-              const Text(
+              Text(
                 'JORNADA DA ALMA',
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2.0,
-                  color: Color(0xFFB05B3B),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).colorScheme.onSurface
+                      : const Color(0xFF2D1B13),
                 ),
               ),
-              const Text(
+              Text(
                 'Entendimento Aprofundado',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF2D1B13),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).colorScheme.onSurface
+                      : const Color(0xFF2D1B13),
                 ),
               ),
             ],
@@ -67,7 +82,12 @@ class DeepUnderstandingPage extends StatelessWidget {
               builder: (context, state) {
                 if (state is DeepUnderstandingSuccess) {
                   return IconButton(
-                    icon: const Icon(Icons.ios_share, color: Color(0xFF2D1B13)),
+                    icon: Icon(
+                      Icons.ios_share,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Theme.of(context).colorScheme.onSurface
+                          : const Color(0xFF2D1B13),
+                    ),
                     onPressed: () => _showExportOptions(context, state),
                   );
                 }
@@ -192,6 +212,26 @@ class DeepUnderstandingPage extends StatelessWidget {
 
   Widget _buildSuccessView(
       BuildContext context, DeepUnderstandingSuccess state) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurface
+        : const Color(0xFF2D1B13);
+    final secondaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : const Color(0xFF5A4034);
+    final accentTextColor = isDark
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFFB05B3B);
+    final accentColor = isDark
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFF3B5E53);
+    final ruleColor = isDark
+        ? Theme.of(context).colorScheme.outlineVariant
+        : const Color(0xFFE6E0D4);
+    final blockquoteBg = isDark
+        ? Theme.of(context).colorScheme.surfaceContainer
+        : const Color(0xFFFDF5EB);
+
     // Extract a short first-paragraph teaser from the result
     String teaser = state.result;
     teaser = teaser.replaceAll(RegExp(r'\*\*|\*|#|`|\[.*?\]\(.*?\)'), '');
@@ -208,9 +248,14 @@ class DeepUnderstandingPage extends StatelessWidget {
               Container(
                 height: 200,
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF4A2B1D), Color(0xFF3B5E53)],
+                    colors: isDark
+                        ? [
+                            Theme.of(context).colorScheme.primaryContainer,
+                            Theme.of(context).colorScheme.surfaceContainer
+                          ]
+                        : [const Color(0xFF4A2B1D), const Color(0xFF3B5E53)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -235,13 +280,15 @@ class DeepUnderstandingPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const Text(
+                      Text(
                         'ESTUDO',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2.0,
-                          color: Color(0xFFD4A96A),
+                          color: isDark
+                              ? Theme.of(context).colorScheme.primary
+                              : const Color(0xFFD4A96A),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -249,10 +296,12 @@ class DeepUnderstandingPage extends StatelessWidget {
                         state.query.isEmpty
                             ? 'Entendimento Aprofundado'
                             : state.query,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 26,
                           fontFamily: 'Georgia',
-                          color: Colors.white,
+                          color: isDark
+                              ? Theme.of(context).colorScheme.onPrimaryContainer
+                              : Colors.white,
                           fontWeight: FontWeight.bold,
                           height: 1.2,
                         ),
@@ -269,11 +318,11 @@ class DeepUnderstandingPage extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
             child: Text(
               '"$teaser"',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontFamily: 'Georgia',
                 fontStyle: FontStyle.italic,
-                color: Color(0xFF5A4034),
+                color: secondaryTextColor,
                 height: 1.5,
               ),
             ),
@@ -292,63 +341,63 @@ class DeepUnderstandingPage extends StatelessWidget {
                 }
               },
               styleSheet: MarkdownStyleSheet(
-                p: const TextStyle(
+                p: TextStyle(
                   fontSize: 15,
                   height: 1.7,
-                  color: Color(0xFF2D1B13),
+                  color: primaryTextColor,
                 ),
-                h1: const TextStyle(
+                h1: TextStyle(
                   fontSize: 24,
                   fontFamily: 'Georgia',
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D1B13),
+                  color: primaryTextColor,
                   height: 2.0,
                 ),
                 h2: TextStyle(
                   fontSize: 20,
                   fontFamily: 'Georgia',
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF2D1B13),
+                  color: primaryTextColor,
                   height: 2.0,
                   decoration: TextDecoration.none,
                 ),
-                h3: const TextStyle(
+                h3: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF3B5E53),
+                  color: accentColor,
                 ),
-                strong: const TextStyle(
+                strong: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D1B13),
+                  color: primaryTextColor,
                 ),
-                em: const TextStyle(
+                em: TextStyle(
                   fontStyle: FontStyle.italic,
-                  color: Color(0xFF5A4034),
+                  color: secondaryTextColor,
                 ),
-                a: const TextStyle(
-                  color: Color(0xFFB05B3B),
+                a: TextStyle(
+                  color: accentTextColor,
                   decoration: TextDecoration.underline,
                 ),
-                blockquote: const TextStyle(
+                blockquote: TextStyle(
                   fontSize: 15,
                   fontFamily: 'Georgia',
                   fontStyle: FontStyle.italic,
-                  color: Color(0xFFB05B3B),
+                  color: accentTextColor,
                   height: 1.6,
                 ),
                 blockquoteDecoration: BoxDecoration(
-                  color: const Color(0xFFFDF5EB),
+                  color: blockquoteBg,
                   borderRadius: BorderRadius.circular(4),
-                  border: const Border(
-                    left: BorderSide(color: Color(0xFFB05B3B), width: 4),
+                  border: Border(
+                    left: BorderSide(color: accentTextColor, width: 4),
                   ),
                 ),
                 blockquotePadding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 h2Padding: const EdgeInsets.only(top: 8),
                 h1Padding: const EdgeInsets.only(top: 8),
-                horizontalRuleDecoration: const BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(color: Color(0xFFE6E0D4), width: 1)),
+                horizontalRuleDecoration: BoxDecoration(
+                  border:
+                      Border(bottom: BorderSide(color: ruleColor, width: 1)),
                 ),
               ),
             ),
@@ -594,12 +643,26 @@ class DeepUnderstandingPage extends StatelessWidget {
   }
 
   void _showCancelDialog(BuildContext context, String sessionId) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark
+        ? Theme.of(context).colorScheme.surface
+        : const Color(0xFFF9F6F0);
+    final primaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurface
+        : const Color(0xFF2D1B13);
+    final bodyTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : const Color(0xFF6B5A51);
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Cancelar Análise?'),
-        content: const Text(
-            'Deseja realmente interromper o processo de entendimento?'),
+        title: Text('Cancelar Análise?',
+            style: TextStyle(color: primaryTextColor)),
+        content: Text(
+            'Deseja realmente interromper o processo de entendimento?',
+            style: TextStyle(color: bodyTextColor)),
+        backgroundColor: backgroundColor,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),

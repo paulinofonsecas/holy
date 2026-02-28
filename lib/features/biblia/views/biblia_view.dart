@@ -340,47 +340,51 @@ class _BibliaViewState extends State<BibliaView> {
                           .state
                           .isInSelectionMode;
 
-                  return AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    reverseDuration: const Duration(milliseconds: 200),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    transitionBuilder:
-                        (Widget child, Animation<double> animation) {
-                      final offsetAnimation = Tween<Offset>(
-                        begin: const Offset(0, 0.5),
-                        end: Offset.zero,
-                      ).animate(animation);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 18.0),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      reverseDuration: const Duration(milliseconds: 200),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        final offsetAnimation = Tween<Offset>(
+                          begin: const Offset(0, 0.5),
+                          end: Offset.zero,
+                        ).animate(animation);
 
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: offsetAnimation,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: isInSelectionMode
-                        ? SingleChildScrollView(
-                            key: const ValueKey('ActionRowActive'),
-                            scrollDirection: Axis.horizontal,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                              child: ActionRowWidget(
-                                verses: context
-                                    .read<VerseSelectionBloc>()
-                                    .state
-                                    .selectedVerses
-                                    .values
-                                    .toList(),
-                                verseReference: (state).versionId,
-                                bookId: state.chapter.bookId,
-                                chapterNumber: state.chapter.number,
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: isInSelectionMode
+                          ? SingleChildScrollView(
+                              key: const ValueKey('ActionRowActive'),
+                              scrollDirection: Axis.horizontal,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                                child: ActionRowWidget(
+                                  verses: context
+                                      .read<VerseSelectionBloc>()
+                                      .state
+                                      .selectedVerses
+                                      .values
+                                      .toList(),
+                                  verseReference: (state).versionId,
+                                  bookId: state.chapter.bookId,
+                                  chapterNumber: state.chapter.number,
+                                ),
                               ),
-                            ),
-                          )
-                        : const SizedBox.shrink(
-                            key: ValueKey('ActionRowInactive')),
+                            )
+                          : const SizedBox.shrink(
+                              key: ValueKey('ActionRowInactive')),
+                    ),
                   );
                 },
               ),

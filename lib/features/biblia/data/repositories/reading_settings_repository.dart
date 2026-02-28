@@ -14,6 +14,7 @@ class ReadingSettingsRepository {
   static const String _keyIsBold = 'reading_is_bold';
   static const String _keyIsItalic = 'reading_is_italic';
   static const String _keyIsGoogleFont = 'reading_is_google_font';
+  static const String _keyIsContinuous = 'reading_is_continuous';
   static const String _keyTextAlign = 'reading_text_align';
 
   ReadingSettingsState loadSettings() {
@@ -25,6 +26,7 @@ class ReadingSettingsRepository {
       isBold: _prefs.getBool(_keyIsBold) ?? false,
       isItalic: _prefs.getBool(_keyIsItalic) ?? false,
       isGoogleFont: _prefs.getBool(_keyIsGoogleFont) ?? false,
+      isContinuous: _prefs.getBool(_keyIsContinuous) ?? false,
       textAlign: TextAlign.values[
           _prefs.getInt(_keyTextAlign) ?? TextAlign.justify.index],
     );
@@ -38,6 +40,7 @@ class ReadingSettingsRepository {
     await _prefs.setBool(_keyIsBold, settings.isBold);
     await _prefs.setBool(_keyIsItalic, settings.isItalic);
     await _prefs.setBool(_keyIsGoogleFont, settings.isGoogleFont);
+    await _prefs.setBool(_keyIsContinuous, settings.isContinuous);
     await _prefs.setInt(_keyTextAlign, settings.textAlign.index);
   }
 }

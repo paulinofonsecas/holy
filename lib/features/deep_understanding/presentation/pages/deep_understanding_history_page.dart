@@ -42,18 +42,26 @@ class _DeepUnderstandingHistoryPageState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark
+        ? Theme.of(context).colorScheme.surface
+        : const Color(0xFFF9F6F0);
+    final primaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurface
+        : const Color(0xFF2D1B13);
+    final secondaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : const Color(0xFF8B7765);
+    final accentColor = isDark
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFF3B5E53);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F6F0), // Warm off-white
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   iconTheme: const IconThemeData(color: Color(0xFF4A2B1D)),
-      // ),
+      backgroundColor: backgroundColor,
       body: BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
         builder: (context, state) {
           if (state is DeepUnderstandingInitial) {
-            return const Center(
-                child: CircularProgressIndicator(color: Color(0xFF4A2B1D)));
+            return Center(child: CircularProgressIndicator(color: accentColor));
           }
 
           if (state is DeepUnderstandingHistoryLoaded) {
@@ -61,10 +69,10 @@ class _DeepUnderstandingHistoryPageState
               ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
             if (sessions.isEmpty) {
-              return const Center(
+              return Center(
                 child: Text(
                   'Nenhuma reflexão registrada ainda.',
-                  style: TextStyle(color: Color(0xFF8C7D70), fontSize: 16),
+                  style: TextStyle(color: secondaryTextColor, fontSize: 16),
                 ),
               );
             }
@@ -78,30 +86,30 @@ class _DeepUnderstandingHistoryPageState
             return SafeArea(
               child: CustomScrollView(
                 slivers: [
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.only(top: 16.0, bottom: 40.0),
+                      padding: const EdgeInsets.only(top: 16.0, bottom: 40.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Gap(24),
+                          const Gap(24),
                           Text(
                             'Jornada da Alma',
                             style: TextStyle(
                               fontSize: 34,
                               fontFamily:
                                   'Times New Roman', // General Serif fallback
-                              color: Color(0xFF2D1B13),
+                              color: primaryTextColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             'REGISTRO DE ESTUDOS E REFLEXÕES',
                             style: TextStyle(
                               fontSize: 11,
                               letterSpacing: 2.0,
-                              color: Color(0xFF8B7765),
+                              color: secondaryTextColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -117,7 +125,8 @@ class _DeepUnderstandingHistoryPageState
                           final keys = grouped.keys.toList();
                           final dateStr = keys[index];
                           final dateSessions = grouped[dateStr]!;
-                          return _buildDateGroup(dateStr, dateSessions);
+                          return _buildDateGroup(
+                              context, dateStr, dateSessions);
                         },
                         childCount: grouped.keys.length,
                       ),
@@ -134,14 +143,22 @@ class _DeepUnderstandingHistoryPageState
                 child: Text('Erro ao carregar histórico: ${state.error}'));
           }
 
-          return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF4A2B1D)));
+          return Center(child: CircularProgressIndicator(color: accentColor));
         },
       ),
     );
   }
 
-  Widget _buildDateGroup(String dateStr, List<AnalysisSession> sessions) {
+  Widget _buildDateGroup(
+      BuildContext context, String dateStr, List<AnalysisSession> sessions) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = isDark
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFF3B5E53);
+    final lineColor = isDark
+        ? Theme.of(context).colorScheme.outlineVariant
+        : const Color(0xFFE6E0D4);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -151,18 +168,18 @@ class _DeepUnderstandingHistoryPageState
             Container(
               width: 12,
               height: 12,
-              decoration: const BoxDecoration(
-                color: Color(0xFF3B5E53), // Dark green dot
+              decoration: BoxDecoration(
+                color: accentColor, // Dark green dot
                 shape: BoxShape.circle,
               ),
             ),
             const SizedBox(width: 16),
             Text(
               dateStr,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF3B5E53),
+                color: accentColor,
                 letterSpacing: 0.5,
               ),
             ),
@@ -177,7 +194,7 @@ class _DeepUnderstandingHistoryPageState
                 alignment: Alignment.center,
                 child: Container(
                   width: 1.5,
-                  color: const Color(0xFFE6E0D4),
+                  color: lineColor,
                 ),
               ),
               const SizedBox(width: 16),
@@ -185,7 +202,8 @@ class _DeepUnderstandingHistoryPageState
                 child: Padding(
                   padding: const EdgeInsets.only(top: 16.0, bottom: 24.0),
                   child: Column(
-                    children: sessions.map((s) => _buildCard(s)).toList(),
+                    children:
+                        sessions.map((s) => _buildCard(context, s)).toList(),
                   ),
                 ),
               ),
@@ -196,13 +214,38 @@ class _DeepUnderstandingHistoryPageState
     );
   }
 
-  Widget _buildCard(AnalysisSession session) {
+  Widget _buildCard(BuildContext context, AnalysisSession session) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor =
+        isDark ? Theme.of(context).colorScheme.surfaceContainer : Colors.white;
+    final borderColor = isDark
+        ? Theme.of(context).colorScheme.outlineVariant
+        : const Color(0xFFE6E0D4);
+    final primaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurface
+        : const Color(0xFF2D1B13);
+    final secondaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : const Color(0xFF8B7765);
+    final quoteTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8)
+        : const Color(0xFF6B5A51);
+    final dividerColor = isDark
+        ? Theme.of(context).colorScheme.outlineVariant
+        : const Color(0xFFF0EBE1);
+    final accentColor = isDark
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFF3B5E53);
+    final iconColor = isDark
+        ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+        : const Color(0xFFE2C9B6);
+
     // Extract a snippet without markdown links maybe?
     String snippet = session.result ?? '';
     // Basic clean of some markdown tags
     snippet = snippet.replaceAll(RegExp(r'\*\*|\*|#|`'), '');
     if (snippet.length > 90) {
-      snippet = snippet.substring(0, 90) + '...';
+      snippet = '${snippet.substring(0, 90)}...';
     } else if (snippet.isEmpty) {
       snippet = 'Sem resumo disponível.';
     }
@@ -210,13 +253,15 @@ class _DeepUnderstandingHistoryPageState
     final timeStr = DateFormat('HH:mm').format(session.updatedAt);
 
     String statusStr = 'Em Processo';
-    if (session.status == 'completed')
+    if (session.status == 'completed') {
       statusStr = 'Insight Concluído';
-    else if (session.status == 'error')
+    } else if (session.status == 'error') {
       statusStr = 'Erro';
-    else if (session.status == 'cancelled')
+    } else if (session.status == 'cancelled') {
       statusStr = 'Registro Arquivado';
-    else if (session.status == 'embedding') statusStr = 'Vetorizando...';
+    } else if (session.status == 'embedding') {
+      statusStr = 'Vetorizando...';
+    }
 
     return GestureDetector(
       onTap: () {
@@ -237,12 +282,12 @@ class _DeepUnderstandingHistoryPageState
       child: Container(
         margin: const EdgeInsets.only(bottom: 16.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE6E0D4), width: 1.5),
+          border: Border.all(color: borderColor, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withOpacity(isDark ? 0.2 : 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -256,21 +301,21 @@ class _DeepUnderstandingHistoryPageState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'ESTUDO BÍBLICO',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
-                      color: Color(0xFF8B7765),
+                      color: secondaryTextColor,
                     ),
                   ),
                   GestureDetector(
                     onTap: () => _confirmDelete(context, session.sessionId),
-                    child: const Icon(
+                    child: Icon(
                       Icons.delete_outline,
                       size: 20,
-                      color: Color(0xFFE2C9B6),
+                      color: iconColor,
                     ),
                   ),
                 ],
@@ -278,10 +323,10 @@ class _DeepUnderstandingHistoryPageState
               const SizedBox(height: 12),
               Text(
                 session.query.isEmpty ? 'Estudo' : session.query,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontFamily: 'Georgia',
-                  color: Color(0xFF2D1B13),
+                  color: primaryTextColor,
                   fontWeight: FontWeight.bold,
                   height: 1.2,
                 ),
@@ -289,40 +334,40 @@ class _DeepUnderstandingHistoryPageState
               const SizedBox(height: 12),
               Text(
                 '"$snippet"',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontFamily: 'Georgia',
                   fontStyle: FontStyle.italic,
-                  color: Color(0xFF6B5A51),
+                  color: quoteTextColor,
                   height: 1.4,
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 16),
-              const Divider(color: Color(0xFFF0EBE1), height: 1),
+              Divider(color: dividerColor, height: 1),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     '$timeStr • $statusStr',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF8B7765),
+                      color: secondaryTextColor,
                     ),
                   ),
                   Row(
                     children: [
                       if (session.status == 'completed')
-                        const Text(
+                        Text(
                           'ANALISAR',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
-                            color: Color(0xFF3B5E53),
+                            color: accentColor,
                           ),
                         ),
                       if (session.status == 'completed')
@@ -333,8 +378,8 @@ class _DeepUnderstandingHistoryPageState
                             : Icons.chevron_right,
                         size: 16,
                         color: session.status == 'completed'
-                            ? const Color(0xFF3B5E53)
-                            : const Color(0xFFE2C9B6),
+                            ? accentColor
+                            : iconColor,
                       ),
                     ],
                   ),
@@ -348,21 +393,34 @@ class _DeepUnderstandingHistoryPageState
   }
 
   void _confirmDelete(BuildContext context, String sessionId) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark
+        ? Theme.of(context).colorScheme.surface
+        : const Color(0xFFF9F6F0);
+    final primaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurface
+        : const Color(0xFF2D1B13);
+    final secondaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : const Color(0xFF8B7765);
+    final bodyTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : const Color(0xFF6B5A51);
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Excluir Análise?',
-            style: TextStyle(color: Color(0xFF2D1B13))),
-        content: const Text(
-            'Deseja realmente excluir este registro do histórico?',
-            style: TextStyle(color: Color(0xFF6B5A51))),
-        backgroundColor: const Color(0xFFF9F6F0),
+        title:
+            Text('Excluir Análise?', style: TextStyle(color: primaryTextColor)),
+        content: Text('Deseja realmente excluir este registro do histórico?',
+            style: TextStyle(color: bodyTextColor)),
+        backgroundColor: backgroundColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancelar',
-                style: TextStyle(color: Color(0xFF8B7765))),
+            child:
+                Text('Cancelar', style: TextStyle(color: secondaryTextColor)),
           ),
           TextButton(
             onPressed: () {
