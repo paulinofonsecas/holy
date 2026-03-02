@@ -32,7 +32,7 @@ REGRAS ESTRITAS DE COMPORTAMENTO:
 8. Se o usuário pedir para gerar um relatório completo, gere um relatório completo.
 '''),
     );
-
+      
     _embeddingModel = GenerativeModel(
       model: dotenv.env['GEMINI_EMBEDDING_MODEL'] ?? 'text-embedding-004',
       apiKey: _apiKey,
