@@ -180,10 +180,9 @@ class DeepUnderstandingActions {
           ),
           TextButton(
             onPressed: () {
+              context.read<DeepUnderstandingBloc>().add(
+                  CancelAnalysisEvent(sessionId));
               Navigator.pop(dialogContext);
-              context
-                  .read<DeepUnderstandingBloc>()
-                  .add(CancelAnalysisEvent(sessionId));
             },
             child: const Text('Cancelar', style: TextStyle(color: Colors.red)),
           ),

@@ -115,9 +115,10 @@ class DeepUnderstandingPage extends StatelessWidget {
             if (state is DeepUnderstandingInProgress) {
               return DeepUnderstandingProgressView(
                 state: state,
-                onCancelPressed: () =>
-                    DeepUnderstandingActions.showCancelDialog(
-                        context, state.session.sessionId),
+                onCancelPressed: () {
+                  DeepUnderstandingActions.showCancelDialog(
+                      context, state.session.sessionId);
+                },
               );
             }
 
