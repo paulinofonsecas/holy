@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/deep_understanding_bloc.dart';
+import '../widgets/deep_understanding_actions.dart';
+import '../widgets/deep_understanding_error_view.dart';
 import '../widgets/deep_understanding_progress_view.dart';
 import '../widgets/deep_understanding_success_view.dart';
-import '../widgets/deep_understanding_error_view.dart';
-import '../widgets/deep_understanding_actions.dart';
 
 class DeepUnderstandingPage extends StatelessWidget {
   const DeepUnderstandingPage({super.key});
@@ -38,30 +38,22 @@ class DeepUnderstandingPage extends StatelessWidget {
                   : const Color(0xFF2D1B13),
             ),
             onPressed: () {
+              Navigator.pop(context);
               final state = context.read<DeepUnderstandingBloc>().state;
               if (state is DeepUnderstandingInProgress) {
-                DeepUnderstandingActions.showCancelDialog(
-                    context, state.session.sessionId);
-              } else {
-                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('A análise continua em segundo plano.'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
               }
             },
           ),
           title: Column(
             children: [
               Text(
-                'JORNADA DA ALMA',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2.0,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Theme.of(context).colorScheme.onSurface
-                      : const Color(0xFF2D1B13),
-                ),
-              ),
-              Text(
-                'Entendimento Aprofundado',
+                'Eu Sou',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

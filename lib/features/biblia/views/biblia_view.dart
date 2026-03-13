@@ -1,15 +1,15 @@
-import 'package:eu_sou/core/localization/generated/app_localizations.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 // ignore_for_file: library_prefixes
 
 import 'dart:async';
 
+import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/widgets/bible_book_list_item.dart';
 import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
@@ -340,51 +340,47 @@ class _BibliaViewState extends State<BibliaView> {
                           .state
                           .isInSelectionMode;
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 18.0),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      reverseDuration: const Duration(milliseconds: 200),
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeInCubic,
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) {
-                        final offsetAnimation = Tween<Offset>(
-                          begin: const Offset(0, 0.5),
-                          end: Offset.zero,
-                        ).animate(animation);
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    reverseDuration: const Duration(milliseconds: 200),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                      final offsetAnimation = Tween<Offset>(
+                        begin: const Offset(0, 0.5),
+                        end: Offset.zero,
+                      ).animate(animation);
 
-                        return FadeTransition(
-                          opacity: animation,
-                          child: SlideTransition(
-                            position: offsetAnimation,
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: isInSelectionMode
-                          ? SingleChildScrollView(
-                              key: const ValueKey('ActionRowActive'),
-                              scrollDirection: Axis.horizontal,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                                child: ActionRowWidget(
-                                  verses: context
-                                      .read<VerseSelectionBloc>()
-                                      .state
-                                      .selectedVerses
-                                      .values
-                                      .toList(),
-                                  verseReference: (state).versionId,
-                                  bookId: state.chapter.bookId,
-                                  chapterNumber: state.chapter.number,
-                                ),
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: isInSelectionMode
+                        ? SingleChildScrollView(
+                            key: const ValueKey('ActionRowActive'),
+                            scrollDirection: Axis.horizontal,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 25),
+                              child: ActionRowWidget(
+                                verses: context
+                                    .read<VerseSelectionBloc>()
+                                    .state
+                                    .selectedVerses
+                                    .values
+                                    .toList(),
+                                verseReference: (state).versionId,
+                                bookId: state.chapter.bookId,
+                                chapterNumber: state.chapter.number,
                               ),
-                            )
-                          : const SizedBox.shrink(
-                              key: ValueKey('ActionRowInactive')),
-                    ),
+                            ),
+                          )
+                        : const SizedBox.shrink(
+                            key: ValueKey('ActionRowInactive')),
                   );
                 },
               ),
@@ -400,7 +396,7 @@ class _BibliaViewState extends State<BibliaView> {
     return showDialog<String?>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Entendimento Aprofundado'),
+        title: const Text('Eu Sou'),
         content: TextField(
           autocorrect: false,
           controller: queryController,

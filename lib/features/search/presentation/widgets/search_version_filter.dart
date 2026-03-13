@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../bloc/search_bloc.dart';
 
 class SearchVersionFilter extends StatelessWidget {
@@ -17,8 +18,8 @@ class SearchVersionFilter extends StatelessWidget {
     if (versoesDisponiveis.isEmpty) return const SizedBox.shrink();
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 8.0),
           child: Text(

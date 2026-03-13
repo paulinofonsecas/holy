@@ -16,8 +16,21 @@ class DeepUnderstandingProgressView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEmbedding = state.session.status == 'embedding';
     final statusText = isEmbedding
-        ? 'Vetorizando e analisando trechos...'
-        : 'Gerando entendimento teológico...';
+        ? 'Processando e analisando o conteúdo...'
+        : 'Sintetizando o entendimento teológico...';
+
+    final primaryColor = isDark
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFF3B5E53);
+    final primaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurface
+        : const Color(0xFF2D1B13);
+    final secondaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : const Color(0xFF8B7765);
+    final progressBg = isDark
+        ? Theme.of(context).colorScheme.surfaceContainerHighest
+        : const Color(0xFFE6E0D4);
 
     return Container(
       color: isDark
@@ -32,20 +45,19 @@ class DeepUnderstandingProgressView extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF3B5E53).withOpacity(0.1),
+                color: primaryColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.auto_awesome,
-                  size: 40, color: Color(0xFF3B5E53)),
+              child: Icon(Icons.auto_awesome, size: 40, color: primaryColor),
             ),
             const SizedBox(height: 32),
             Text(
               statusText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontFamily: 'Georgia',
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2D1B13),
+                color: primaryTextColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -55,21 +67,20 @@ class DeepUnderstandingProgressView extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: state.progress,
                 minHeight: 6,
-                backgroundColor: const Color(0xFFE6E0D4),
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(Color(0xFF3B5E53)),
+                backgroundColor: progressBg,
+                valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              '${state.session.processedItems} / ${state.session.totalItems} trechos processados',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF8B7765)),
+              '${state.session.processedItems} / ${state.session.totalItems} versos processados',
+              style: TextStyle(fontSize: 13, color: secondaryTextColor),
             ),
             const SizedBox(height: 48),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF3B5E53)),
-                foregroundColor: const Color(0xFF3B5E53),
+                side: BorderSide(color: primaryColor),
+                foregroundColor: primaryColor,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
                 padding:

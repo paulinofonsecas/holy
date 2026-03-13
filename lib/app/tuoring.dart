@@ -12,56 +12,56 @@ final GlobalKey keyBibleVersionTab = GlobalKey();
 final GlobalKey keySearchField = GlobalKey();
 final GlobalKey keyTutorialField = GlobalKey();
 
+// New keys for bottom navigation
+final GlobalKey keyBibleTab = GlobalKey();
+final GlobalKey keySearchTab = GlobalKey();
+final GlobalKey keyStudiesTab = GlobalKey();
+final GlobalKey keyProfileTab = GlobalKey();
+
 /// Mixin to handle tutorials in widgets.
 mixin TutorialMixin<T extends StatefulWidget> on State<T> {
   final List<TargetFocus> _targets = [];
 
-  /// Key for the Bible tab target.
-  GlobalKey get keyBibleTab;
-
-  /// Key for the Search tab target.
-  GlobalKey get keySearchTab;
-
-  /// Key for the Profile tab target.
-  GlobalKey get keyProfileTab;
-
   void initTargets() {
     _targets.clear();
-    // _targets.add(
-    //   TargetFocus(
-    //     identify: "BibleTarget",
-    //     keyTarget: keyBibleTab,
-    //     contents: [
-    //       TargetContent(
-    //         align: ContentAlign.top,
-    //         builder: (context, controller) {
-    //           return const Column(
-    //             mainAxisSize: MainAxisSize.min,
-    //             crossAxisAlignment: CrossAxisAlignment.start,
-    //             children: [
-    //               Text(
-    //                 "Bíblia Sagrada",
-    //                 style: TextStyle(
-    //                   fontWeight: FontWeight.bold,
-    //                   color: Colors.white,
-    //                   fontSize: 20.0,
-    //                 ),
-    //               ),
-    //               Padding(
-    //                 padding: EdgeInsets.only(top: 12),
-    //                 child: Text(
-    //                   "Aqui você pode ler e explorar todos os livros da Bíblia.",
-    //                   style: TextStyle(color: Colors.white),
-    //                 ),
-    //               ),
-    //             ],
-    //           );
-    //         },
-    //       ),
-    //     ],
-    //   ),
-    // );
+    
+    // 1. Bible Tab (Bottom Bar)
+    _targets.add(
+      TargetFocus(
+        identify: "BibleTabTarget",
+        keyTarget: keyBibleTab,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            builder: (context, controller) {
+              return const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Bíblia Sagrada",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: Text(
+                      "Aqui você pode ler e explorar todos os livros da Bíblia.",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
 
+    // 2. Book & Chapter Selector
     _targets.add(
       TargetFocus(
         identify: "BibleContentTarget",
@@ -79,7 +79,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
                   children: [
                     SizedBox(height: 100),
                     Text(
-                      "Seletor de livro e capitulo",
+                      "Seletor de livro e capítulo",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -89,7 +89,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
                     Padding(
                       padding: EdgeInsets.only(top: 12),
                       child: Text(
-                        "Aqui você pode selecionar o livro e capitulo que deseja.",
+                        "Aqui você pode selecionar o livro e capítulo que deseja.",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -102,6 +102,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       ),
     );
 
+    // 3. Bible Version
     _targets.add(
       TargetFocus(
         identify: "BibleVersionTarget",
@@ -128,7 +129,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
                     Padding(
                       padding: EdgeInsets.only(top: 12),
                       child: Text(
-                        "Troque facilmente a versão da Bíblia para obter um entendimento mais aprofundados sobre a Palavra de Deus.",
+                        "Troque facilmente a versão da Bíblia para obter um entendimento mais aprofundado sobre a Palavra de Deus.",
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white),
                       ),
@@ -142,25 +143,21 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       ),
     );
 
+    // 4. Search Tab (Bottom Bar)
     _targets.add(
       TargetFocus(
-        identify: "SearchTarget",
-        keyTarget: keySearchField,
-        shape: ShapeLightFocus.RRect,
+        identify: "SearchTabTarget",
+        keyTarget: keySearchTab,
         contents: [
           TargetContent(
-            customPosition: CustomTargetContentPosition(
-              top: 100,
-              left: 100,
-            ),
+            align: ContentAlign.top,
             builder: (context, controller) {
               return const Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 200),
                   Text(
-                    "Pesquisa Avançada",
+                    "Pesquisa Bíblica",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -171,11 +168,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
                     padding: EdgeInsets.only(top: 12),
                     child: Text(
                       "Encontre rapidamente versículos, temas ou palavras-chave em toda a Bíblia.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.0,
-                      ),
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
@@ -186,6 +179,77 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       ),
     );
 
+    // 5. Studies Tab (Bottom Bar) - NEW
+    _targets.add(
+      TargetFocus(
+        identify: "StudiesTabTarget",
+        keyTarget: keyStudiesTab,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            builder: (context, controller) {
+              return const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Estudos e Histórico",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: Text(
+                      "Acesse suas análises profundas por IA e o histórico de navegação.",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
+    // 6. Profile Tab (Bottom Bar)
+    _targets.add(
+      TargetFocus(
+        identify: "ProfileTabTarget",
+        keyTarget: keyProfileTab,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Seu Perfil",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: Text(
+                    "Acesse seus versículos marcados, mude o tema do app e configure notificações aqui.",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // 7. Tutorial Option inside Profile
     _targets.add(
       TargetFocus(
         identify: "TutorialTarget",
@@ -209,40 +273,7 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
                 Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: Text(
-                    "Volte a este tutorial sempre que achar necessário",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-
-    _targets.add(
-      TargetFocus(
-        identify: "ProfileTarget",
-        keyTarget: keyProfileTab,
-        contents: [
-          TargetContent(
-            align: ContentAlign.top,
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Ajustes",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 20.0,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: Text(
-                    "Acesse seus versículos marcados, mude o tema do app e configure notificações aqui.",
+                    "Volte a este tutorial sempre que achar necessário clicando aqui.",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -260,7 +291,6 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       targets: _targets,
       alignSkip: AlignmentGeometry.topRight,
       colorShadow: Colors.black.withValues(alpha: 0.8),
-      // textSkip: "Pular",
       hideSkip: true,
       useSafeArea: true,
       skipWidget: null,
@@ -268,13 +298,13 @@ mixin TutorialMixin<T extends StatefulWidget> on State<T> {
       onClickTarget: (target) {
         log(target.toString(), name: "TutorialCoachMark");
 
+        // Logic to switch tabs during tutorial
         if (target.identify == "BibleVersionTarget") {
-          context.read<TabControllerCubit>().goToSearch();
-        }
-
-        if (target.identify == "SearchTarget") {
-          log('Going to profile page');
-          context.read<TabControllerCubit>().goToProfile();
+          context.read<TabControllerCubit>().changeTo(1); // Go to Search
+        } else if (target.identify == "SearchTabTarget") {
+          context.read<TabControllerCubit>().changeTo(2); // Go to Studies
+        } else if (target.identify == "StudiesTabTarget") {
+          context.read<TabControllerCubit>().changeTo(3); // Go to Profile
         }
       },
       onSkip: () {

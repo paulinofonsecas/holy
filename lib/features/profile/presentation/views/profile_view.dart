@@ -59,7 +59,7 @@ class ProfileView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajustes'),
+        title: const Text('Eu Sou'),
         centerTitle: true,
       ),
       body: BlocBuilder<ThemeBloc, ThemeState>(

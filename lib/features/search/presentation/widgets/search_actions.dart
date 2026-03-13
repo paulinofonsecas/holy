@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
-import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/bible_models.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../bloc/search_bloc.dart';
 import '../bloc/search_selection_bloc.dart';
-import 'search_export_bottom_sheet.dart';
 import 'deep_understanding_dialog.dart';
+import 'search_export_bottom_sheet.dart';
 
 class SearchActions extends StatelessWidget {
   final EstadoBusca estado;
@@ -29,7 +31,7 @@ class SearchActions extends StatelessWidget {
           children: [
             IconButton(
               tooltip: 'Limpar busca',
-              icon: const Icon(Icons.delete_sweep_outlined),
+              icon: const Icon(CupertinoIcons.trash),
               onPressed: () {
                 context.read<SearchBloc>().add(LimparBusca());
               },
@@ -140,7 +142,7 @@ class SearchActions extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Limpar busca',
-            icon: const Icon(Icons.delete_sweep_outlined),
+            icon: const Icon(CupertinoIcons.trash),
             onPressed: () {
               context.read<SearchBloc>().add(LimparBusca());
             },

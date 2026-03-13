@@ -1,18 +1,19 @@
-import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_event.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_state.dart';
+import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
@@ -25,7 +26,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
 class MainScaffold extends StatefulWidget {
   final FeedbackService? feedbackService;
@@ -53,6 +53,8 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   final GlobalKey keySearchTab = GlobalKey();
   @override
   final GlobalKey keyProfileTab = GlobalKey();
+  @override
+  final GlobalKey keyStudiesTab = GlobalKey();
 
   @override
   void initState() {
@@ -238,12 +240,13 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                         icon: Icon(CupertinoIcons.search, key: keySearchTab),
                         label: Text(l10n.search),
                       ),
-                      const NavigationRailDestination(
-                        icon: Icon(Icons.auto_awesome),
-                        label: Text('Insights'),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.auto_awesome, key: keyStudiesTab),
+                        label: Text('Estudos'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(CupertinoIcons.settings, key: keyProfileTab),
+                        icon: Icon(CupertinoIcons.profile_circled,
+                            key: keyProfileTab),
                         label: Text(l10n.profile),
                       ),
                     ],
@@ -280,16 +283,16 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                   title: l10n.bible,
                 ),
                 TabItem(
-                  icon:
-                      Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
+                  icon: Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
                   title: l10n.search,
                 ),
-                const TabItem(
-                  icon: Icon(Icons.auto_awesome, size: 20),
-                  title: 'Insights',
+                TabItem(
+                  icon: Icon(Icons.auto_awesome, key: keyStudiesTab, size: 20),
+                  title: 'Estudos',
                 ),
                 TabItem(
-                  icon: Icon(CupertinoIcons.settings,
+
+                  icon: Icon(CupertinoIcons.profile_circled,
                       key: keyProfileTab, size: 20),
                   title: l10n.profile,
                 ),

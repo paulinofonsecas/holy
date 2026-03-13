@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
+
+import '../../data/models/analysis_session.dart';
 import '../bloc/deep_understanding_bloc.dart';
 import 'deep_understanding_page.dart';
-import '../../data/models/analysis_session.dart';
 
 class DeepUnderstandingHistoryPage extends StatefulWidget {
   const DeepUnderstandingHistoryPage({super.key});
@@ -60,90 +61,120 @@ class _DeepUnderstandingHistoryPageState
       backgroundColor: backgroundColor,
       body: BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
         builder: (context, state) {
-          if (state is DeepUnderstandingInitial) {
+          if (state is DeepUnderstandingInitial && state.sessions.isEmpty) {
             return Center(child: CircularProgressIndicator(color: accentColor));
           }
 
-          if (state is DeepUnderstandingHistoryLoaded) {
-            final sessions = state.sessions.toList()
-              ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+          final sessions = state.sessions.toList()
+            ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-            if (sessions.isEmpty) {
+          if (sessions.isEmpty && state is! DeepUnderstandingInProgress) {
+            if (state is DeepUnderstandingHistoryError) {
               return Center(
-                child: Text(
-                  'Nenhuma reflexão registrada ainda.',
-                  style: TextStyle(color: secondaryTextColor, fontSize: 16),
-                ),
-              );
+                  child: Text('Erro ao carregar histórico: ${state.error}'));
             }
-
-            final grouped = <String, List<AnalysisSession>>{};
-            for (var s in sessions) {
-              final dateStr = _formatDate(s.updatedAt);
-              grouped.putIfAbsent(dateStr, () => []).add(s);
-            }
-
-            return SafeArea(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 16.0, bottom: 40.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Gap(24),
-                          Text(
-                            'Jornada da Alma',
-                            style: TextStyle(
-                              fontSize: 34,
-                              fontFamily:
-                                  'Times New Roman', // General Serif fallback
-                              color: primaryTextColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'REGISTRO DE ESTUDOS E REFLEXÕES',
-                            style: TextStyle(
-                              fontSize: 11,
-                              letterSpacing: 2.0,
-                              color: secondaryTextColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final keys = grouped.keys.toList();
-                          final dateStr = keys[index];
-                          final dateSessions = grouped[dateStr]!;
-                          return _buildDateGroup(
-                              context, dateStr, dateSessions);
-                        },
-                        childCount: grouped.keys.length,
-                      ),
-                    ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 40)),
-                ],
+            return Center(
+              child: Text(
+                'Nenhuma reflexão registrada ainda.',
+                style: TextStyle(color: secondaryTextColor, fontSize: 16),
               ),
             );
           }
 
-          if (state is DeepUnderstandingHistoryError) {
-            return Center(
-                child: Text('Erro ao carregar histórico: ${state.error}'));
+          final grouped = <String, List<AnalysisSession>>{};
+          for (var s in sessions) {
+            final dateStr = _formatDate(s.updatedAt);
+            grouped.putIfAbsent(dateStr, () => []).add(s);
           }
 
-          return Center(child: CircularProgressIndicator(color: accentColor));
+          return SafeArea(
+            child: Stack(
+              children: [
+                CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 16.0, bottom: 40.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Gap(24),
+                            Text(
+                              'Eu Sou',
+                              style: TextStyle(
+                                fontSize: 34,
+                                fontFamily:
+                                    'Times New Roman', // General Serif fallback
+                                color: primaryTextColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'ESTUDOS E REFLEXÕES',
+                              style: TextStyle(
+                                fontSize: 11,
+                                letterSpacing: 2.0,
+                                color: secondaryTextColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final keys = grouped.keys.toList();
+                            final dateStr = keys[index];
+                            final dateSessions = grouped[dateStr]!;
+                            return _buildDateGroup(
+                                context, dateStr, dateSessions);
+                          },
+                          childCount: grouped.keys.length,
+                        ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                  ],
+                ),
+                if (state is DeepUnderstandingInProgress)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Column(
+                      children: [
+                        LinearProgressIndicator(
+                          value: state.progress,
+                          backgroundColor: Colors.transparent,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(accentColor),
+                          minHeight: 4,
+                        ),
+                        Container(
+                          width: double.infinity,
+                          color: accentColor.withOpacity(0.1),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            'Gerando entendimento: ${(state.progress * 100).toInt()}%',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: accentColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          );
         },
       ),
     );

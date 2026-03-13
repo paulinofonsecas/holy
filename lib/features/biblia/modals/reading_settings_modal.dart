@@ -75,6 +75,40 @@ class ReadingSettingsModal extends StatelessWidget {
               ),
               const Gap(16),
 
+              // Alignment
+              _buildSectionTitle('Alinhamento'),
+              BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
+                builder: (context, state) {
+                  return ToggleButtons(
+                    isSelected: [
+                      state.textAlign == TextAlign.left,
+                      state.textAlign == TextAlign.center,
+                      state.textAlign == TextAlign.right,
+                      state.textAlign == TextAlign.justify,
+                    ],
+                    onPressed: (index) {
+                      final alignments = [
+                        TextAlign.left,
+                        TextAlign.center,
+                        TextAlign.right,
+                        TextAlign.justify,
+                      ];
+                      context
+                          .read<ReadingSettingsCubit>()
+                          .setTextAlign(alignments[index]);
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    children: const [
+                      Icon(Icons.format_align_left),
+                      Icon(Icons.format_align_center),
+                      Icon(Icons.format_align_right),
+                      Icon(Icons.format_align_justify),
+                    ],
+                  );
+                },
+              ),
+              const Gap(16),
+
               // Font Family
               _buildSectionTitle('Fonte'),
               BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
@@ -181,40 +215,6 @@ class ReadingSettingsModal extends StatelessWidget {
                             .read<ReadingSettingsCubit>()
                             .toggleContinuous(),
                       ),
-                    ],
-                  );
-                },
-              ),
-              const Gap(16),
-
-              // Alignment
-              _buildSectionTitle('Alinhamento'),
-              BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
-                builder: (context, state) {
-                  return ToggleButtons(
-                    isSelected: [
-                      state.textAlign == TextAlign.left,
-                      state.textAlign == TextAlign.center,
-                      state.textAlign == TextAlign.right,
-                      state.textAlign == TextAlign.justify,
-                    ],
-                    onPressed: (index) {
-                      final alignments = [
-                        TextAlign.left,
-                        TextAlign.center,
-                        TextAlign.right,
-                        TextAlign.justify,
-                      ];
-                      context
-                          .read<ReadingSettingsCubit>()
-                          .setTextAlign(alignments[index]);
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    children: const [
-                      Icon(Icons.format_align_left),
-                      Icon(Icons.format_align_center),
-                      Icon(Icons.format_align_right),
-                      Icon(Icons.format_align_justify),
                     ],
                   );
                 },

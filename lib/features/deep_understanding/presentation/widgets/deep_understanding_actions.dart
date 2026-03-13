@@ -91,8 +91,17 @@ class DeepUnderstandingActions {
 
     if (!context.mounted) return;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark
+        ? Theme.of(context).colorScheme.surface
+        : const Color(0xFFF9F6F0);
+    final primaryTextColor = isDark
+        ? Theme.of(context).colorScheme.onSurface
+        : const Color(0xFF2D1B13);
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -101,16 +110,22 @@ class DeepUnderstandingActions {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.all(16.0),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'Exportar Entendimento',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: primaryTextColor,
+                  ),
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.copy),
-                title: const Text('Copiar Texto'),
+                leading: Icon(Icons.copy,
+                    color: isDark ? null : const Color(0xFF2D1B13)),
+                title: Text('Copiar Texto',
+                    style: TextStyle(color: primaryTextColor)),
                 onTap: () {
                   Navigator.pop(context);
                   DeepUnderstandingExportService.copyToClipboard(
@@ -118,8 +133,10 @@ class DeepUnderstandingActions {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.text_snippet_outlined),
-                title: const Text('Exportar como .TXT'),
+                leading: Icon(Icons.text_snippet_outlined,
+                    color: isDark ? null : const Color(0xFF2D1B13)),
+                title: Text('Exportar como .TXT',
+                    style: TextStyle(color: primaryTextColor)),
                 onTap: () {
                   Navigator.pop(context);
                   DeepUnderstandingExportService.exportToTxt(
@@ -127,8 +144,10 @@ class DeepUnderstandingActions {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.description_outlined),
-                title: const Text('Exportar como .MD (Markdown)'),
+                leading: Icon(Icons.description_outlined,
+                    color: isDark ? null : const Color(0xFF2D1B13)),
+                title: Text('Exportar como .MD (Markdown)',
+                    style: TextStyle(color: primaryTextColor)),
                 onTap: () {
                   Navigator.pop(context);
                   DeepUnderstandingExportService.exportToMd(
@@ -136,8 +155,10 @@ class DeepUnderstandingActions {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf_outlined),
-                title: const Text('Exportar como .PDF'),
+                leading: Icon(Icons.picture_as_pdf_outlined,
+                    color: isDark ? null : const Color(0xFF2D1B13)),
+                title: Text('Exportar como .PDF',
+                    style: TextStyle(color: primaryTextColor)),
                 onTap: () {
                   Navigator.pop(context);
                   DeepUnderstandingExportService.exportToPdf(
@@ -180,8 +201,9 @@ class DeepUnderstandingActions {
           ),
           TextButton(
             onPressed: () {
-              context.read<DeepUnderstandingBloc>().add(
-                  CancelAnalysisEvent(sessionId));
+              context
+                  .read<DeepUnderstandingBloc>()
+                  .add(CancelAnalysisEvent(sessionId));
               Navigator.pop(dialogContext);
             },
             child: const Text('Cancelar', style: TextStyle(color: Colors.red)),

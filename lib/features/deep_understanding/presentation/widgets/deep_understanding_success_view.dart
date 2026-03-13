@@ -48,23 +48,11 @@ class DeepUnderstandingSuccessView extends StatelessWidget {
         children: [
           DeepUnderstandingHeroBanner(
             query: state.query,
+            teaser: teaser,
             isDark: isDark,
           ),
 
-          // ── Teaser / Lead paragraph ───────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-            child: Text(
-              '"$teaser"',
-              style: TextStyle(
-                fontSize: 15,
-                fontFamily: 'Georgia',
-                fontStyle: FontStyle.italic,
-                color: secondaryTextColor,
-                height: 1.5,
-              ),
-            ),
-          ),
+          // ── Main Markdown body ────────────────────────────────────────
 
           // ── Main Markdown body ────────────────────────────────────────
           Padding(

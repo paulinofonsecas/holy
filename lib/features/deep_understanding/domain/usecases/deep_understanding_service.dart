@@ -106,7 +106,8 @@ class DeepUnderstandingService {
       for (var i = session.processedItems; i < results.length; i += batchSize) {
         final currentSessionState =
             await _vectorStore.getSession(session.sessionId);
-        if (currentSessionState?.status == 'cancelled') break;
+        if (currentSessionState == null ||
+            currentSessionState.status == 'cancelled') break;
 
         final end =
             (i + batchSize < results.length) ? i + batchSize : results.length;

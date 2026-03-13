@@ -38,7 +38,9 @@ class NoResultToSingleWorldWidget extends StatelessWidget {
           Text(
             'Faça uma busca usando mais de uma palavra para encontrar versículos que contenham todas elas, mesmo que não estejam juntas.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[700], fontSize: 14),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                fontSize: 14),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
