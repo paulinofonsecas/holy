@@ -15,6 +15,7 @@ enum AspectRatioOption {
 class VerseImageComposition {
   final List<BibleVerse> verses;
   final String verseReference; // e.g. "João 3:16"
+  final String versionId; // e.g. "KJA"
   final String backgroundId; // Background ID for color
   final Color backgroundColor;
   final String fontFamily;
@@ -29,6 +30,7 @@ class VerseImageComposition {
   VerseImageComposition({
     required this.verses,
     required this.verseReference,
+    this.versionId = '',
     this.backgroundId = 'bg_gradient_blue',
     this.backgroundColor = const Color(0xFF1a472a),
     this.fontFamily = 'TASAOrbiter',
@@ -44,6 +46,7 @@ class VerseImageComposition {
   VerseImageComposition copyWith({
     List<BibleVerse>? verses,
     String? verseReference,
+    String? versionId,
     String? backgroundId,
     Color? backgroundColor,
     String? fontFamily,
@@ -58,6 +61,7 @@ class VerseImageComposition {
     return VerseImageComposition(
       verses: verses ?? this.verses,
       verseReference: verseReference ?? this.verseReference,
+      versionId: versionId ?? this.versionId,
       backgroundId: backgroundId ?? this.backgroundId,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       fontFamily: fontFamily ?? this.fontFamily,

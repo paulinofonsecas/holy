@@ -45,7 +45,8 @@ class ImageCreatorViewModel extends BaseViewModel {
   VerseImageComposition? get currentComposition =>
       _compositions.isNotEmpty ? _compositions[_currentIndex] : null;
 
-  void initialize(List<BibleVerse> verses, String verseReference) async {
+  void initialize(
+      List<BibleVerse> verses, String verseReference, String versionId) async {
     setBusy(true);
 
     // Load backgrounds and fonts
@@ -61,6 +62,7 @@ class ImageCreatorViewModel extends BaseViewModel {
       return VerseImageComposition(
         verses: chunk,
         verseReference: verseReference,
+        versionId: versionId,
         backgroundId: defaultBackground.id,
         backgroundColor: defaultBackground.color,
         fontFamily: _fonts.first,

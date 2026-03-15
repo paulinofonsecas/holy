@@ -9,6 +9,7 @@ class RichVerseActionModal {
     required BuildContext context,
     required List<BibleVerse> verses,
     required String verseReference,
+    String versionId = '',
   }) {
     WoltModalSheet.show<void>(
       context: context,
@@ -19,6 +20,7 @@ class RichVerseActionModal {
             context: modalSheetContext,
             verses: verses,
             verseReference: verseReference,
+            versionId: versionId,
           ),
         ];
       },

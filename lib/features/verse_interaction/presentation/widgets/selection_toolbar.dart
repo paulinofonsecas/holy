@@ -106,11 +106,13 @@ class SelectionToolbar extends StatelessWidget {
   void _showRichModal(BuildContext context, VerseSelectionState state) {
     final verses = state.selectedVerses.values.toList();
     final verseReference = _buildVerseReference(verses);
+    final versionId = context.read<BibleVersionCubit>().state.version.id;
 
     RichVerseActionModal.show(
       context: context,
       verses: verses,
       verseReference: verseReference,
+      versionId: versionId,
     );
   }
 

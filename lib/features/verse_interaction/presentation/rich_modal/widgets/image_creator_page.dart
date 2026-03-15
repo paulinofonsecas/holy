@@ -17,17 +17,20 @@ import '../../image_creator/widgets/verse_image_canvas.dart';
 class ImageCreatorPage extends StatefulWidget {
   final List<BibleVerse> verses;
   final String verseReference;
+  final String versionId;
 
   const ImageCreatorPage({
     super.key,
     required this.verses,
     required this.verseReference,
+    this.versionId = '',
   });
 
   static WoltModalSheetPage build({
     required BuildContext context,
     required List<BibleVerse> verses,
     required String verseReference,
+    String versionId = '',
   }) {
     return WoltModalSheetPage(
       hasTopBarLayer: true,
@@ -58,6 +61,7 @@ class ImageCreatorPage extends StatefulWidget {
       child: ImageCreatorPage(
         verses: verses,
         verseReference: verseReference,
+        versionId: versionId,
       ),
     );
   }
@@ -96,8 +100,8 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
   Widget build(BuildContext context) {
     return ViewModelBuilder<ImageCreatorViewModel>.reactive(
       viewModelBuilder: () => ImageCreatorViewModel(),
-      onViewModelReady: (viewModel) =>
-          viewModel.initialize(widget.verses, widget.verseReference),
+      onViewModelReady: (viewModel) => viewModel.initialize(
+          widget.verses, widget.verseReference, widget.versionId),
       builder: (context, viewModel, child) {
         if (viewModel.isBusy) {
           return const Center(

@@ -222,10 +222,18 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
             viewModel.clearSelection();
           },
           onCreateImage: () {
+            // Build proper verse reference from available fields
+            final sortedVerses = [...widget.verses]
+              ..sort((a, b) => a.number.compareTo(b.number));
+            final ref = sortedVerses.length == 1
+                ? '${widget.bookId} ${widget.chapterNumber}:${sortedVerses.first.number}'
+                : '${widget.bookId} ${widget.chapterNumber}:${sortedVerses.first.number}-${sortedVerses.last.number}';
             RichVerseActionModal.show(
               context: context,
               verses: widget.verses,
-              verseReference: widget.verseReference,
+              verseReference:
+                  widget.verseReference.isNotEmpty ? widget.verseReference : ref,
+              versionId: versionId,
             );
           },
           onCopy: () {
