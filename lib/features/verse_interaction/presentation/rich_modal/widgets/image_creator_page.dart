@@ -75,6 +75,9 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
   final ImageGeneratorService _imageService = ImageGeneratorService();
   late PageController _pageController;
 
+  // While capturing we hide editing handles so they don't appear in the image
+  bool _isCanvasEditing = true;
+
   @override
   void initState() {
     super.initState();
@@ -128,11 +131,40 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Editing hint
+              if (_isCanvasEditing)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.touch_app_rounded,
+                          size: 14,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.45)),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Toque para selecionar • Arraste para mover • Pinça para escalar',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.45),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               // Canvas Preview - PageView for multiple images
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final maxWidth =
-                      constraints.maxWidth > 600 ? 600.0 : constraints.maxWidth;
+                  final maxWidth = constraints.maxWidth > 600
+                      ? 600.0
+                      : constraints.maxWidth;
                   final aspectRatio =
                       viewModel.currentComposition!.aspectRatio.ratio;
                   final height = maxWidth / aspectRatio;
@@ -151,15 +183,16 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                             itemCount: viewModel.compositions.length,
                             itemBuilder: (context, index) {
                               return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0),
                                 child: VerseImageCanvas(
                                   composition: viewModel.compositions[index],
                                   repaintKey: _repaintKeys[index],
+                                  isEditing: _isCanvasEditing,
                                   customBackgroundPath:
                                       viewModel.customBackgroundPath,
-                                  onTextDrag: (position) {
-                                    viewModel.updateTextPosition(position);
+                                  onElementsUpdate: (elements) {
+                                    viewModel.updateElements(elements);
                                   },
                                 ),
                               );
@@ -174,7 +207,8 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                           children: List.generate(
                             viewModel.compositions.length,
                             (index) => Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4),
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
@@ -194,12 +228,10 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
 
               const SizedBox(height: 24),
 
-              // Aspect Ratio Selector
               AspectRatioSelector(viewModel: viewModel),
 
               const SizedBox(height: 16),
 
-              // Share Button
               ElevatedButton.icon(
                 onPressed: (viewModel.isGenerating ||
                         viewModel.compositions.length > 1)
@@ -211,7 +243,8 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                     ? const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child:
+                            CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.share),
                 label: Text(
@@ -229,16 +262,14 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
 
               const SizedBox(height: 24),
 
-              // Background Picker
               BackgroundPicker(viewModel: viewModel),
 
               const SizedBox(height: 24),
 
-              // Typography Controls
               TypographyControls(viewModel: viewModel),
 
               const SizedBox(height: 16),
-              // Download Button
+
               ElevatedButton.icon(
                 onPressed: viewModel.isGenerating
                     ? null
@@ -266,14 +297,23 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
     );
   }
 
+  Future<void> _prepareCanvasForCapture() async {
+    setState(() => _isCanvasEditing = false);
+    // Wait two frames so the canvas rebuilds without handles
+    await Future.delayed(const Duration(milliseconds: 80));
+  }
+
+  void _restoreCanvasAfterCapture() {
+    if (mounted) setState(() => _isCanvasEditing = true);
+  }
+
   Future<void> _generateAndShareImages(
     ImageCreatorViewModel viewModel,
   ) async {
     viewModel.setGenerating(true);
+    await _prepareCanvasForCapture();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 100));
-
       final List<XFile> xFiles = [];
 
       for (int i = 0; i < viewModel.compositions.length; i++) {
@@ -285,15 +325,14 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
         if (imageBytes != null) {
           xFiles.add(XFile.fromData(
             imageBytes,
-            name: 'verse_${i}_${DateTime.now().millisecondsSinceEpoch}.png',
+            name:
+                'verse_${i}_${DateTime.now().millisecondsSinceEpoch}.png',
             mimeType: 'image/png',
           ));
         }
       }
 
-      if (xFiles.isEmpty) {
-        throw Exception('Falha ao gerar imagens');
-      }
+      if (xFiles.isEmpty) throw Exception('Falha ao gerar imagens');
 
       await Share.shareXFiles(
         xFiles,
@@ -304,6 +343,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
       toastService.showError('Erro ao gerar imagens: $e');
     } finally {
       viewModel.setGenerating(false);
+      _restoreCanvasAfterCapture();
     }
   }
 
@@ -311,10 +351,9 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
     ImageCreatorViewModel viewModel,
   ) async {
     viewModel.setGenerating(true);
+    await _prepareCanvasForCapture();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 100));
-
       int successCount = 0;
 
       for (int i = 0; i < viewModel.compositions.length; i++) {
@@ -333,8 +372,8 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
       if (successCount == viewModel.compositions.length) {
         toastService.showSuccess('Todas as imagens foram salvas na galeria!');
       } else if (successCount > 0) {
-        toastService.showWarning(
-            '$successCount de ${viewModel.compositions.length} imagens salvas.');
+        toastService
+            .showWarning('$successCount de ${viewModel.compositions.length} imagens salvas.');
       } else {
         throw Exception('Nenhuma imagem foi salva');
       }
@@ -342,6 +381,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
       toastService.showError('Erro ao salvar imagens: $e');
     } finally {
       viewModel.setGenerating(false);
+      _restoreCanvasAfterCapture();
     }
   }
 }

@@ -4,28 +4,68 @@ import '../../../../shared/bible_models.dart';
 
 enum AspectRatioOption {
   square(1.0, '1:1'),
-  // widescreen(16 / 9, '16:9'),
-  portrait(4 / 5, '4:5');
+  portrait(4 / 5, '4:5'),
+  classic(3 / 4, '3:4'),
+  story(9 / 16, '9:16'),
+  landscape(16 / 9, '16:9');
 
   final double ratio;
   final String label;
   const AspectRatioOption(this.ratio, this.label);
 }
 
+enum CanvasElementType { header, verseBody, badge }
+
+class CanvasElement {
+  final CanvasElementType type;
+  final Offset position; // normalized -1..1 from canvas center
+  final double scale; // 1.0 = default size
+  final double rotation; // radians
+
+  const CanvasElement({
+    required this.type,
+    this.position = Offset.zero,
+    this.scale = 1.0,
+    this.rotation = 0.0,
+  });
+
+  CanvasElement copyWith({
+    Offset? position,
+    double? scale,
+    double? rotation,
+  }) =>
+      CanvasElement(
+        type: type,
+        position: position ?? this.position,
+        scale: scale ?? this.scale,
+        rotation: rotation ?? this.rotation,
+      );
+}
+
 class VerseImageComposition {
   final List<BibleVerse> verses;
-  final String verseReference; // e.g. "João 3:16"
-  final String versionId; // e.g. "KJA"
-  final String backgroundId; // Background ID for color
+  final String verseReference;
+  final String versionId;
+  final String backgroundId;
   final Color backgroundColor;
   final String fontFamily;
   final double fontSize;
   final Color textColor;
   final TextAlign textAlign;
   final double textOpacity;
-  final Offset textPosition; // Normalized alignment (-1 to 1)
+  final Offset textPosition; // kept for backward compat
   final AspectRatioOption aspectRatio;
-  final bool autoText; // Auto-adjust font size based on text length
+  final bool autoText;
+  final List<CanvasElement> elements;
+
+  static const List<CanvasElement> _defaultElements = [
+    CanvasElement(
+        type: CanvasElementType.header, position: Offset(0, -0.32)),
+    CanvasElement(
+        type: CanvasElementType.verseBody, position: Offset(0, 0.02)),
+    CanvasElement(
+        type: CanvasElementType.badge, position: Offset(0, 0.40)),
+  ];
 
   VerseImageComposition({
     required this.verses,
@@ -38,10 +78,11 @@ class VerseImageComposition {
     this.textColor = Colors.white,
     this.textAlign = TextAlign.center,
     this.textOpacity = 1.0,
-    this.textPosition = Offset.zero, // Center
+    this.textPosition = Offset.zero,
     this.aspectRatio = AspectRatioOption.square,
     this.autoText = true,
-  });
+    List<CanvasElement>? elements,
+  }) : elements = elements ?? _defaultElements;
 
   VerseImageComposition copyWith({
     List<BibleVerse>? verses,
@@ -57,6 +98,7 @@ class VerseImageComposition {
     Offset? textPosition,
     bool? autoText,
     AspectRatioOption? aspectRatio,
+    List<CanvasElement>? elements,
   }) {
     return VerseImageComposition(
       verses: verses ?? this.verses,
@@ -72,6 +114,7 @@ class VerseImageComposition {
       textPosition: textPosition ?? this.textPosition,
       autoText: autoText ?? this.autoText,
       aspectRatio: aspectRatio ?? this.aspectRatio,
+      elements: elements ?? this.elements,
     );
   }
 

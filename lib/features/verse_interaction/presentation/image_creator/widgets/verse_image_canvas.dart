@@ -4,115 +4,251 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/models/verse_image_composition.dart';
 
-class VerseImageCanvas extends StatelessWidget {
+class VerseImageCanvas extends StatefulWidget {
   final VerseImageComposition composition;
   final GlobalKey repaintKey;
-  final Function(Offset)? onTextDrag;
+  final bool isEditing;
+  final void Function(List<CanvasElement>)? onElementsUpdate;
   final String? customBackgroundPath;
 
   const VerseImageCanvas({
     super.key,
     required this.composition,
     required this.repaintKey,
-    this.onTextDrag,
+    this.isEditing = true,
+    this.onElementsUpdate,
     this.customBackgroundPath,
   });
 
-  // ── Parse helpers ────────────────────────────────────────────────────────────
+  @override
+  State<VerseImageCanvas> createState() => _VerseImageCanvasState();
+}
 
-  /// "João 3:16" → "João"
-  String get _bookName {
-    final ref = composition.verseReference.trim();
-    final lastSpace = ref.lastIndexOf(' ');
-    return lastSpace > 0 ? ref.substring(0, lastSpace) : ref;
+class _VerseImageCanvasState extends State<VerseImageCanvas> {
+  CanvasElementType? _selected;
+  late List<CanvasElement> _elements;
+
+  double _scaleStart = 1.0;
+  double _rotationStart = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _elements = List.from(widget.composition.elements);
   }
 
-  /// "João 3:16" → "3:16"
-  String get _chapterVerse {
-    final ref = composition.verseReference.trim();
-    final lastSpace = ref.lastIndexOf(' ');
-    return lastSpace > 0 ? ref.substring(lastSpace + 1) : ref;
+  @override
+  void didUpdateWidget(VerseImageCanvas old) {
+    super.didUpdateWidget(old);
+    if (!widget.isEditing) _selected = null;
+    if (old.composition.elements != widget.composition.elements &&
+        widget.composition.elements != _elements) {
+      _elements = List.from(widget.composition.elements);
+    }
   }
 
-  /// Chapter number parsed from "3:16" → "3"
-  String get _chapterLabel {
-    final cv = _chapterVerse;
-    final colon = cv.indexOf(':');
-    return colon > 0 ? cv.substring(0, colon) : cv;
+  CanvasElement _el(CanvasElementType t) =>
+      _elements.firstWhere((e) => e.type == t);
+
+  void _update(CanvasElement updated) {
+    setState(() {
+      final idx = _elements.indexWhere((e) => e.type == updated.type);
+      if (idx >= 0) _elements[idx] = updated;
+    });
+    widget.onElementsUpdate?.call(List.unmodifiable(_elements));
   }
 
-  /// Verse number(s) parsed from "3:16" → "16"
-  String get _verseLabel {
-    final cv = _chapterVerse;
-    final colon = cv.indexOf(':');
-    return colon > 0 ? cv.substring(colon + 1) : '';
-  }
-
-  // ── Colours ─────────────────────────────────────────────────────────────────
+  // ── Colour helpers ─────────────────────────────────────────────────────────
 
   Color get _textColor =>
-      composition.textColor.withOpacity(composition.textOpacity);
+      widget.composition.textColor.withOpacity(widget.composition.textOpacity);
 
-  Color get _accentColor =>
-      composition.textColor.withOpacity(composition.textOpacity * 0.55);
+  Color get _accentColor => widget.composition.textColor
+      .withOpacity(widget.composition.textOpacity * 0.55);
 
-  Color get _dimColor =>
-      composition.textColor.withOpacity(composition.textOpacity * 0.30);
+  Color get _dimColor => widget.composition.textColor
+      .withOpacity(widget.composition.textOpacity * 0.30);
 
-  // ── Build ────────────────────────────────────────────────────────────────────
+  // ── Reference helpers ──────────────────────────────────────────────────────
+
+  String get _bookName {
+    final ref = widget.composition.verseReference.trim();
+    final ls = ref.lastIndexOf(' ');
+    return ls > 0 ? ref.substring(0, ls) : ref;
+  }
+
+  String get _chapterVerse {
+    final ref = widget.composition.verseReference.trim();
+    final ls = ref.lastIndexOf(' ');
+    return ls > 0 ? ref.substring(ls + 1) : ref;
+  }
+
+  String get _chapterLabel {
+    final cv = _chapterVerse;
+    final c = cv.indexOf(':');
+    return c > 0 ? cv.substring(0, c) : cv;
+  }
+
+  String get _verseLabel {
+    final cv = _chapterVerse;
+    final c = cv.indexOf(':');
+    return c > 0 ? cv.substring(c + 1) : '';
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      key: repaintKey,
+      key: widget.repaintKey,
       child: AspectRatio(
-        aspectRatio: composition.aspectRatio.ratio,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // 1. Background
-            _buildBackground(),
-
-            // 2. Subtle vignette overlay
-            _buildVignette(),
-
-            // 3. Decorative grid lines (very faint)
-            _buildGridAccent(),
-
-            // 4. Corner brackets
-            ..._buildCorners(),
-
-            // 5. Main draggable content
-            Positioned.fill(
-              child: GestureDetector(
-                onPanUpdate: onTextDrag != null
-                    ? (details) {
-                        final box =
-                            context.findRenderObject() as RenderBox;
-                        final size = box.size;
-                        final local =
-                            box.globalToLocal(details.globalPosition);
-                        onTextDrag!(Offset(
-                          (local.dx / size.width) * 2 - 1,
-                          (local.dy / size.height) * 2 - 1,
-                        ));
-                      }
-                    : null,
-                child: _buildContent(),
+        aspectRatio: widget.composition.aspectRatio.ratio,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final sz = constraints.biggest;
+            return GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => setState(() => _selected = null),
+              child: Stack(
+                fit: StackFit.expand,
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  _buildBackground(),
+                  _buildVignette(),
+                  _buildGridAccent(),
+                  ..._buildCorners(),
+                  _positionedEl(CanvasElementType.header, sz, _buildHeader()),
+                  _positionedEl(
+                      CanvasElementType.verseBody, sz, _buildVerseBody(sz)),
+                  _positionedEl(CanvasElementType.badge, sz, _buildBadge()),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  // ── Background ───────────────────────────────────────────────────────────────
+  // ── Positioned + interactive wrapper ──────────────────────────────────────
+
+  Widget _positionedEl(CanvasElementType type, Size sz, Widget child) {
+    final el = _el(type);
+    final isSelected = widget.isEditing && _selected == type;
+
+    final px = (el.position.dx + 1) / 2 * sz.width;
+    final py = (el.position.dy + 1) / 2 * sz.height;
+
+    return Positioned(
+      left: px,
+      top: py,
+      child: FractionalTranslation(
+        translation: const Offset(-0.5, -0.5),
+        child: Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..rotateZ(el.rotation)
+            ..scale(el.scale),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.isEditing
+                ? () => setState(() => _selected = type)
+                : null,
+            onScaleStart: widget.isEditing
+                ? (d) {
+                    _scaleStart = el.scale;
+                    _rotationStart = el.rotation;
+                    setState(() => _selected = type);
+                  }
+                : null,
+            onScaleUpdate: widget.isEditing
+                ? (d) {
+                    final current = _el(type);
+                    final ndx = d.focalPointDelta.dx / sz.width * 2;
+                    final ndy = d.focalPointDelta.dy / sz.height * 2;
+                    _update(current.copyWith(
+                      position: Offset(
+                        (current.position.dx + ndx).clamp(-1.0, 1.0),
+                        (current.position.dy + ndy).clamp(-1.0, 1.0),
+                      ),
+                      scale: (_scaleStart * d.scale).clamp(0.25, 4.0),
+                      rotation: _rotationStart + d.rotation,
+                    ));
+                  }
+                : null,
+            child: _selectionWrapper(isSelected, child),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _selectionWrapper(bool selected, Widget child) {
+    if (!selected) return child;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        CustomPaint(
+          painter: _DashedBorderPainter(
+            color: Colors.white.withOpacity(0.85),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: child,
+          ),
+        ),
+        // Corner dots
+        Positioned(left: -5, top: -5, child: _cornerDot()),
+        Positioned(right: -5, top: -5, child: _cornerDot()),
+        Positioned(left: -5, bottom: -5, child: _cornerDot()),
+        // Scale handle (bottom-right, slightly larger)
+        Positioned(
+          right: -6,
+          bottom: -6,
+          child: Container(
+            width: 14,
+            height: 14,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.35),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: const Icon(Icons.open_in_full_rounded,
+                size: 8, color: Colors.black54),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _cornerDot() => Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.35),
+              blurRadius: 3,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+      );
+
+  // ── Background ─────────────────────────────────────────────────────────────
 
   Widget _buildBackground() {
-    if (customBackgroundPath != null) {
+    if (widget.customBackgroundPath != null) {
       return Stack(fit: StackFit.expand, children: [
-        Image.file(File(customBackgroundPath!), fit: BoxFit.cover),
+        Image.file(File(widget.customBackgroundPath!), fit: BoxFit.cover),
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -127,12 +263,9 @@ class VerseImageCanvas extends StatelessWidget {
         ),
       ]);
     }
-
-    // Solid-colour background with multi-stop gradient
-    final base = composition.backgroundColor;
+    final base = widget.composition.backgroundColor;
     final highlight = Color.lerp(base, Colors.white, 0.08)!;
     final shadow = Color.lerp(base, Colors.black, 0.22)!;
-
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -158,131 +291,185 @@ class VerseImageCanvas extends StatelessWidget {
         ),
       );
 
-  // ── Subtle grid accent ───────────────────────────────────────────────────────
-
-  Widget _buildGridAccent() {
-    return Opacity(
-      opacity: 0.045,
-      child: CustomPaint(painter: _GridPainter(color: composition.textColor)),
-    );
-  }
-
-  // ── Corner brackets ──────────────────────────────────────────────────────────
+  Widget _buildGridAccent() => Opacity(
+        opacity: 0.045,
+        child: CustomPaint(
+            painter: _GridPainter(color: widget.composition.textColor)),
+      );
 
   List<Widget> _buildCorners() {
-    const m = 14.0;
-    const s = 22.0;
-    final c = composition.textColor.withOpacity(0.28);
-
-    Widget bracket({
-      required bool top,
-      required bool left,
-    }) =>
-        SizedBox(
+    const m = 14.0, s = 22.0;
+    final c = widget.composition.textColor.withOpacity(0.28);
+    Widget b({required bool top, required bool left}) => SizedBox(
           width: s,
           height: s,
           child: Container(
             decoration: BoxDecoration(
               border: Border(
-                top: top
-                    ? BorderSide(color: c, width: 1.5)
-                    : BorderSide.none,
-                bottom: !top
-                    ? BorderSide(color: c, width: 1.5)
-                    : BorderSide.none,
-                left: left
-                    ? BorderSide(color: c, width: 1.5)
-                    : BorderSide.none,
-                right: !left
-                    ? BorderSide(color: c, width: 1.5)
-                    : BorderSide.none,
+                top: top ? BorderSide(color: c, width: 1.5) : BorderSide.none,
+                bottom:
+                    !top ? BorderSide(color: c, width: 1.5) : BorderSide.none,
+                left: left ? BorderSide(color: c, width: 1.5) : BorderSide.none,
+                right:
+                    !left ? BorderSide(color: c, width: 1.5) : BorderSide.none,
               ),
             ),
           ),
         );
-
     return [
-      Positioned(top: m, left: m, child: bracket(top: true, left: true)),
-      Positioned(top: m, right: m, child: bracket(top: true, left: false)),
-      Positioned(bottom: m, left: m, child: bracket(top: false, left: true)),
-      Positioned(bottom: m, right: m, child: bracket(top: false, left: false)),
+      Positioned(top: m, left: m, child: b(top: true, left: true)),
+      Positioned(top: m, right: m, child: b(top: true, left: false)),
+      Positioned(bottom: m, left: m, child: b(top: false, left: true)),
+      Positioned(bottom: m, right: m, child: b(top: false, left: false)),
     ];
   }
 
-  // ── Main content ─────────────────────────────────────────────────────────────
-
-  Widget _buildContent() {
-    final alignment = Alignment(
-      composition.textPosition.dx,
-      composition.textPosition.dy,
-    );
-
-    return Align(
-      alignment: alignment,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 48),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 18),
-            _buildDivider(),
-            const SizedBox(height: 18),
-            _buildVerseBody(),
-            const SizedBox(height: 18),
-            _buildDivider(),
-            const SizedBox(height: 14),
-            _buildVersionBadge(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Header: book + chapter:verse ─────────────────────────────────────────────
+  // ── Element widgets ────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
+    final comp = widget.composition;
     final bookStyle = TextStyle(
-      fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize * 0.52,
+      fontFamily: comp.fontFamily,
+      fontSize: comp.fontSize * 0.52,
       color: _textColor,
       fontWeight: FontWeight.w600,
       letterSpacing: 3.5,
       height: 1.2,
-      shadows: _textShadows(),
+      shadows: _shadows(),
     );
-
     final refStyle = TextStyle(
-      fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize * 0.42,
+      fontFamily: comp.fontFamily,
+      fontSize: comp.fontSize * 0.42,
       color: _accentColor,
       letterSpacing: 1.8,
       height: 1.4,
-      shadows: _textShadows(),
+      shadows: _shadows(),
     );
-
     final chap = _chapterLabel;
     final verse = _verseLabel;
     final refText =
         verse.isNotEmpty ? 'Cap. $chap  •  v. $verse' : _chapterVerse;
-
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          _bookName.toUpperCase(),
-          textAlign: TextAlign.center,
-          style: bookStyle,
-        ),
+        Text(_bookName.toUpperCase(),
+            textAlign: TextAlign.center, style: bookStyle),
         if (refText.isNotEmpty) ...[
           const SizedBox(height: 5),
           Text(refText, textAlign: TextAlign.center, style: refStyle),
         ],
+        const SizedBox(height: 10),
+        _buildDivider(),
       ],
     );
   }
 
-  // ── Thin divider ─────────────────────────────────────────────────────────────
+  Widget _buildVerseBody(Size sz) {
+    final comp = widget.composition;
+    final hasMulti = comp.verses.length > 1;
+    final quoteStyle = TextStyle(
+      fontFamily: comp.fontFamily,
+      fontSize: comp.fontSize * 2.2,
+      color: _dimColor,
+      height: 0.6,
+      shadows: _shadows(),
+    );
+    final textStyle = TextStyle(
+      fontFamily: comp.fontFamily,
+      fontSize: comp.fontSize,
+      color: _textColor,
+      fontStyle: FontStyle.italic,
+      height: 1.45,
+      shadows: _shadows(),
+    );
+    final numStyle = TextStyle(
+      fontFamily: comp.fontFamily,
+      fontSize: comp.fontSize * 0.62,
+      color: _accentColor,
+      fontWeight: FontWeight.w700,
+      shadows: _shadows(),
+    );
+
+    Widget body;
+    if (!hasMulti) {
+      final verse = comp.verses.first;
+      body = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text('\u201C', style: quoteStyle),
+          ),
+          const SizedBox(height: 4),
+          RichText(
+            textAlign: comp.textAlign,
+            text: TextSpan(children: [
+              TextSpan(text: '${verse.number} ', style: numStyle),
+              TextSpan(text: verse.text, style: textStyle),
+            ]),
+          ),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text('\u201D', style: quoteStyle),
+          ),
+        ],
+      );
+    } else {
+      body = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: comp.verses.asMap().entries.expand((e) {
+          final isLast = e.key == comp.verses.length - 1;
+          return [
+            RichText(
+              textAlign: comp.textAlign,
+              text: TextSpan(children: [
+                TextSpan(text: '${e.value.number} ', style: numStyle),
+                TextSpan(text: e.value.text, style: textStyle),
+              ]),
+            ),
+            if (!isLast) const SizedBox(height: 8),
+          ];
+        }).toList(),
+      );
+    }
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: sz.width * 0.78),
+      child: body,
+    );
+  }
+
+  Widget _buildBadge() {
+    final comp = widget.composition;
+    final version = comp.versionId.isNotEmpty
+        ? comp.versionId.toUpperCase()
+        : comp.verseReference;
+    final style = TextStyle(
+      fontFamily: comp.fontFamily,
+      fontSize: comp.fontSize * 0.42,
+      color: _accentColor,
+      letterSpacing: 2.8,
+      fontWeight: FontWeight.w300,
+      shadows: _shadows(),
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildDivider(),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+          decoration: BoxDecoration(
+            border: Border.all(color: _dimColor, width: 0.8),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(version, style: style, textAlign: TextAlign.center),
+        ),
+      ],
+    );
+  }
 
   Widget _buildDivider() => Center(
         child: SizedBox(
@@ -291,136 +478,7 @@ class VerseImageCanvas extends StatelessWidget {
         ),
       );
 
-  // ── Verse text ───────────────────────────────────────────────────────────────
-
-  Widget _buildVerseBody() {
-    final hasMultiple = composition.verses.length > 1;
-    return hasMultiple ? _buildMultiVerseText() : _buildSingleVerseText();
-  }
-
-  Widget _buildSingleVerseText() {
-    final verse = composition.verses.first;
-
-    final numberStyle = TextStyle(
-      fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize * 0.62,
-      color: _accentColor,
-      fontWeight: FontWeight.w700,
-      shadows: _textShadows(),
-    );
-
-    final textStyle = TextStyle(
-      fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize,
-      color: _textColor,
-      fontStyle: FontStyle.italic,
-      height: 1.45,
-      shadows: _textShadows(),
-    );
-
-    final quoteStyle = TextStyle(
-      fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize * 2.2,
-      color: _dimColor,
-      height: 0.6,
-      shadows: _textShadows(),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Opening decorative quote
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text('\u201C', style: quoteStyle),
-        ),
-        const SizedBox(height: 4),
-        RichText(
-          textAlign: composition.textAlign,
-          text: TextSpan(
-            children: [
-              TextSpan(text: '${verse.number} ', style: numberStyle),
-              TextSpan(text: verse.text, style: textStyle),
-            ],
-          ),
-        ),
-        const SizedBox(height: 4),
-        // Closing decorative quote
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text('\u201D', style: quoteStyle),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMultiVerseText() {
-    final textStyle = TextStyle(
-      fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize,
-      color: _textColor,
-      fontStyle: FontStyle.italic,
-      height: 1.45,
-      shadows: _textShadows(),
-    );
-
-    final numberStyle = TextStyle(
-      fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize * 0.62,
-      color: _accentColor,
-      fontWeight: FontWeight.w700,
-      shadows: _textShadows(),
-    );
-
-    return Column(
-      children: composition.verses.asMap().entries.expand((entry) {
-        final verse = entry.value;
-        final isLast = entry.key == composition.verses.length - 1;
-        return [
-          RichText(
-            textAlign: composition.textAlign,
-            text: TextSpan(
-              children: [
-                TextSpan(text: '${verse.number} ', style: numberStyle),
-                TextSpan(text: verse.text, style: textStyle),
-              ],
-            ),
-          ),
-          if (!isLast) const SizedBox(height: 8),
-        ];
-      }).toList(),
-    );
-  }
-
-  // ── Version badge ────────────────────────────────────────────────────────────
-
-  Widget _buildVersionBadge() {
-    final version = composition.versionId.isNotEmpty
-        ? composition.versionId.toUpperCase()
-        : composition.verseReference;
-
-    final style = TextStyle(
-      fontFamily: composition.fontFamily,
-      fontSize: composition.fontSize * 0.42,
-      color: _accentColor,
-      letterSpacing: 2.8,
-      fontWeight: FontWeight.w300,
-      shadows: _textShadows(),
-    );
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-      decoration: BoxDecoration(
-        border: Border.all(color: _dimColor, width: 0.8),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(version, style: style, textAlign: TextAlign.center),
-    );
-  }
-
-  // ── Shadow helper ────────────────────────────────────────────────────────────
-
-  List<Shadow> _textShadows() => [
+  List<Shadow> _shadows() => [
         Shadow(
           offset: const Offset(0, 1),
           blurRadius: 6,
@@ -429,11 +487,56 @@ class VerseImageCanvas extends StatelessWidget {
       ];
 }
 
-// ── Custom painter for subtle grid ───────────────────────────────────────────
+// ── Dashed border painter ─────────────────────────────────────────────────────
+
+class _DashedBorderPainter extends CustomPainter {
+  final Color color;
+
+  const _DashedBorderPainter({required this.color});
+
+  static const double strokeWidth = 1.5;
+  static const double dashWidth = 6;
+  static const double dashSpace = 4;
+  static const double borderRadius = 6;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
+
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(borderRadius)));
+
+    for (final metric in path.computeMetrics()) {
+      double distance = 0;
+      while (distance < metric.length) {
+        canvas.drawPath(
+          metric.extractPath(distance, distance + dashWidth),
+          paint,
+        );
+        distance += dashWidth + dashSpace;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedBorderPainter old) => old.color != color;
+}
+
+// ── Grid painter ──────────────────────────────────────────────────────────────
 
 class _GridPainter extends CustomPainter {
   final Color color;
-  _GridPainter({required this.color});
+  const _GridPainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {

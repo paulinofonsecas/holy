@@ -7,10 +7,10 @@ import '../../domain/models/verse_image_composition.dart';
 import '../../domain/services/font_service.dart';
 
 enum FontSizePreset {
-  small(18.0, 'Pequeno'),
+  small(14.0, 'Pequeno'),
   medium(18.0, 'Médio'),
-  large(18.0, 'Grande'),
-  xlarge(18.0, 'Extra Grande');
+  large(22.0, 'Grande'),
+  xlarge(28.0, 'Extra Grande');
 
   final double size;
   final String label;
@@ -49,15 +49,12 @@ class ImageCreatorViewModel extends BaseViewModel {
       List<BibleVerse> verses, String verseReference, String versionId) async {
     setBusy(true);
 
-    // Load backgrounds and fonts
     _backgrounds = await _backgroundRepository.getBackgrounds();
     _fonts = _fontService.getAvailableFonts();
 
-    // Split verses into chunks if needed
     final verseChunks = _splitVerses(verses);
-
-    // Initialize compositions with default background
     final defaultBackground = _backgrounds.first;
+
     _compositions = verseChunks.map((chunk) {
       return VerseImageComposition(
         verses: chunk,
@@ -75,7 +72,7 @@ class ImageCreatorViewModel extends BaseViewModel {
   }
 
   List<List<BibleVerse>> _splitVerses(List<BibleVerse> verses) {
-    const int maxCharsPerImage = 280; // Reduced from 350
+    const int maxCharsPerImage = 280;
     List<List<BibleVerse>> chunks = [];
     List<BibleVerse> currentChunk = [];
     int currentChars = 0;
@@ -91,10 +88,7 @@ class ImageCreatorViewModel extends BaseViewModel {
       currentChars += verse.text.length;
     }
 
-    if (currentChunk.isNotEmpty) {
-      chunks.add(currentChunk);
-    }
-
+    if (currentChunk.isNotEmpty) chunks.add(currentChunk);
     return chunks.isNotEmpty ? chunks : [verses];
   }
 
@@ -105,14 +99,12 @@ class ImageCreatorViewModel extends BaseViewModel {
 
   void selectBackground(BackgroundOption background) {
     if (_compositions.isEmpty) return;
-
     _compositions = _compositions
         .map((comp) => comp.copyWith(
               backgroundId: background.id,
               backgroundColor: background.color,
             ))
         .toList();
-
     _customBackgroundPath = null;
     notifyListeners();
   }
@@ -125,46 +117,42 @@ class ImageCreatorViewModel extends BaseViewModel {
 
   void selectFont(String fontFamily) {
     if (_compositions.isEmpty) return;
-
     _compositions = _compositions
         .map((comp) => comp.copyWith(fontFamily: fontFamily))
         .toList();
-
     for (var i = 0; i < _compositions.length; i++) {
-      if (_compositions[i].autoText) {
-        _autoAdjustFontSizeForIndex(i);
-      }
+      if (_compositions[i].autoText) _autoAdjustFontSizeForIndex(i);
     }
-
     notifyListeners();
   }
 
   void selectFontSizePreset(FontSizePreset preset) {
     if (_compositions.isEmpty) return;
-
     _compositions = _compositions
         .map((comp) => comp.copyWith(fontSize: preset.size, autoText: false))
         .toList();
-
     _checkFontSizeForText();
     notifyListeners();
   }
 
   void updateTextPosition(Offset position) {
     if (currentComposition == null) return;
-
-    // Clamp position to [-1, 1] range
     final clampedX = position.dx.clamp(-1.0, 1.0);
     final clampedY = position.dy.clamp(-1.0, 1.0);
-
     _compositions[_currentIndex] =
         currentComposition!.copyWith(textPosition: Offset(clampedX, clampedY));
     notifyListeners();
   }
 
+  void updateElements(List<CanvasElement> elements) {
+    if (currentComposition == null) return;
+    _compositions[_currentIndex] =
+        currentComposition!.copyWith(elements: List.from(elements));
+    notifyListeners();
+  }
+
   void selectAspectRatio(AspectRatioOption ratio) {
     if (_compositions.isEmpty) return;
-
     _compositions =
         _compositions.map((comp) => comp.copyWith(aspectRatio: ratio)).toList();
     notifyListeners();
@@ -172,25 +160,17 @@ class ImageCreatorViewModel extends BaseViewModel {
 
   void _checkFontSizeForText() {
     if (currentComposition == null) return;
-
     final textLength = currentComposition!.fullText.length;
     final currentSize = currentComposition!.fontSize;
-
-    if (textLength > 200 && currentSize >= 32.0) {
-      _fontSizeWarning = true;
-    } else {
-      _fontSizeWarning = false;
-    }
+    _fontSizeWarning = textLength > 200 && currentSize >= 32.0;
   }
 
   void autoReduceFontSize() {
     if (_compositions.isEmpty) return;
-
     for (var i = 0; i < _compositions.length; i++) {
       final comp = _compositions[i];
       final textLength = comp.fullText.length;
       double newSize = comp.fontSize;
-
       if (textLength > 400) {
         newSize = FontSizePreset.small.size;
       } else if (textLength > 300) {
@@ -198,20 +178,16 @@ class ImageCreatorViewModel extends BaseViewModel {
       } else if (textLength > 200) {
         newSize = FontSizePreset.medium.size;
       }
-
       _compositions[i] = comp.copyWith(fontSize: newSize);
     }
-
     _fontSizeWarning = false;
     notifyListeners();
   }
 
   void toggleAutoText(bool enabled) {
     if (_compositions.isEmpty) return;
-
     _compositions =
         _compositions.map((comp) => comp.copyWith(autoText: enabled)).toList();
-
     if (enabled) {
       for (var i = 0; i < _compositions.length; i++) {
         _autoAdjustFontSizeForIndex(i);
@@ -226,9 +202,7 @@ class ImageCreatorViewModel extends BaseViewModel {
     final comp = _compositions[index];
     final textLength = comp.fullText.length;
     final lines = comp.fullText.split('\n').length;
-
     double newSize = FontSizePreset.xlarge.size;
-
     if (textLength > 400) {
       newSize = 14.0;
     } else if (textLength > 300) {
@@ -246,7 +220,6 @@ class ImageCreatorViewModel extends BaseViewModel {
     } else {
       newSize = FontSizePreset.xlarge.size;
     }
-
     if (lines > 10) {
       newSize -= 4.0;
     } else if (lines > 8) {
@@ -254,7 +227,6 @@ class ImageCreatorViewModel extends BaseViewModel {
     } else if (lines > 6) {
       newSize -= 2.0;
     }
-
     newSize = newSize.clamp(12.0, 48.0);
     _compositions[index] = comp.copyWith(fontSize: newSize);
   }

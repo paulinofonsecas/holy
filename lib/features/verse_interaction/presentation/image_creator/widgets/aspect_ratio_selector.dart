@@ -13,6 +13,9 @@ class AspectRatioSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final selected = viewModel.currentComposition?.aspectRatio;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -20,72 +23,115 @@ class AspectRatioSelector extends StatelessWidget {
           'Proporção',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 42,
-          ),
-          child: Row(
-            children: AspectRatioOption.values.map((option) {
-              final isSelected =
-                  viewModel.currentComposition?.aspectRatio == option;
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 80,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            itemCount: AspectRatioOption.values.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (context, i) {
+              final option = AspectRatioOption.values[i];
+              final isSelected = selected == option;
+              final color = isSelected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.outline.withOpacity(0.4);
 
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: GestureDetector(
-                    onTap: () => viewModel.selectAspectRatio(option),
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 60,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.grey.shade300,
-                              width: isSelected ? 2 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: AspectRatio(
-                              aspectRatio: option.ratio,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? Theme.of(context)
-                                          .primaryColor
-                                          .withOpacity(0.2)
-                                      : Colors.grey.shade200,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          option.label,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected
-                                ? Theme.of(context).primaryColor
-                                : Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
+              return GestureDetector(
+                onTap: () => viewModel.selectAspectRatio(option),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  width: 64,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? theme.colorScheme.primary.withOpacity(0.08)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: color,
+                      width: isSelected ? 2 : 1,
                     ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Miniature canvas preview
+                      _RatioPreview(
+                        ratio: option.ratio,
+                        isSelected: isSelected,
+                        primaryColor: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        option.label,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: isSelected
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurface
+                                  .withOpacity(0.6),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
-            }).toList(),
+            },
           ),
         ),
       ],
+    );
+  }
+}
+
+class _RatioPreview extends StatelessWidget {
+  final double ratio;
+  final bool isSelected;
+  final Color primaryColor;
+
+  const _RatioPreview({
+    required this.ratio,
+    required this.isSelected,
+    required this.primaryColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Fit preview into a 36x36 bounding box
+    const maxSize = 36.0;
+    double w, h;
+    if (ratio >= 1.0) {
+      w = maxSize;
+      h = maxSize / ratio;
+    } else {
+      h = maxSize;
+      w = maxSize * ratio;
+    }
+
+    return SizedBox(
+      width: maxSize,
+      height: maxSize,
+      child: Center(
+        child: Container(
+          width: w,
+          height: h,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? primaryColor.withOpacity(0.18)
+                : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(
+              color: isSelected ? primaryColor : Colors.grey.shade400,
+              width: 1,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
