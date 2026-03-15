@@ -117,22 +117,22 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
                   _buildVignette(),
                   _buildGridAccent(),
                   ..._buildCorners(),
-                  // ── Safe-zone metadata (fixed, always readable) ──────────
+                  // ── Draggable verse body sticker ─────────────────────────
+                  _positionedEl(
+                      CanvasElementType.verseBody, sz, _buildVerseBody(sz)),
+                  // ── Safe-zone metadata rendered on top (always readable) ──
                   Positioned(
                     top: 28,
                     left: 24,
                     right: 24,
-                    child: _buildHeader(),
+                    child: IgnorePointer(child: _buildHeader()),
                   ),
                   Positioned(
                     bottom: 24,
                     left: 24,
                     right: 24,
-                    child: _buildBadge(),
+                    child: IgnorePointer(child: _buildBadge()),
                   ),
-                  // ── Draggable verse body sticker ─────────────────────────
-                  _positionedEl(
-                      CanvasElementType.verseBody, sz, _buildVerseBody(sz)),
                 ],
               ),
             );
