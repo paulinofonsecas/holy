@@ -117,10 +117,22 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
                   _buildVignette(),
                   _buildGridAccent(),
                   ..._buildCorners(),
-                  _positionedEl(CanvasElementType.header, sz, _buildHeader()),
+                  // ── Safe-zone metadata (fixed, always readable) ──────────
+                  Positioned(
+                    top: 28,
+                    left: 24,
+                    right: 24,
+                    child: _buildHeader(),
+                  ),
+                  Positioned(
+                    bottom: 24,
+                    left: 24,
+                    right: 24,
+                    child: _buildBadge(),
+                  ),
+                  // ── Draggable verse body sticker ─────────────────────────
                   _positionedEl(
                       CanvasElementType.verseBody, sz, _buildVerseBody(sz)),
-                  _positionedEl(CanvasElementType.badge, sz, _buildBadge()),
                 ],
               ),
             );
@@ -351,15 +363,14 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
         verse.isNotEmpty ? 'Cap. $chap  •  v. $verse' : _chapterVerse;
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(_bookName.toUpperCase(),
             textAlign: TextAlign.center, style: bookStyle),
         if (refText.isNotEmpty) ...[
-          const SizedBox(height: 5),
+          const SizedBox(height: 4),
           Text(refText, textAlign: TextAlign.center, style: refStyle),
         ],
-        const SizedBox(height: 10),
-        _buildDivider(),
       ],
     );
   }
@@ -454,29 +465,17 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
       fontWeight: FontWeight.w300,
       shadows: _shadows(),
     );
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildDivider(),
-        const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-          decoration: BoxDecoration(
-            border: Border.all(color: _dimColor, width: 0.8),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(version, style: style, textAlign: TextAlign.center),
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+        decoration: BoxDecoration(
+          border: Border.all(color: _dimColor, width: 0.8),
+          borderRadius: BorderRadius.circular(20),
         ),
-      ],
+        child: Text(version, style: style, textAlign: TextAlign.center),
+      ),
     );
   }
-
-  Widget _buildDivider() => Center(
-        child: SizedBox(
-          width: 48,
-          child: Divider(color: _dimColor, thickness: 1.0, height: 1),
-        ),
-      );
 
   List<Shadow> _shadows() => [
         Shadow(
@@ -514,7 +513,8 @@ class _DashedBorderPainter extends CustomPainter {
     );
 
     final path = Path()
-      ..addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(borderRadius)));
+      ..addRRect(
+          RRect.fromRectAndRadius(rect, const Radius.circular(borderRadius)));
 
     for (final metric in path.computeMetrics()) {
       double distance = 0;

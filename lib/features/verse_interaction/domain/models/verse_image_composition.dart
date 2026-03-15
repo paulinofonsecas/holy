@@ -59,12 +59,7 @@ class VerseImageComposition {
   final List<CanvasElement> elements;
 
   static const List<CanvasElement> _defaultElements = [
-    CanvasElement(
-        type: CanvasElementType.header, position: Offset(0, -0.32)),
-    CanvasElement(
-        type: CanvasElementType.verseBody, position: Offset(0, 0.02)),
-    CanvasElement(
-        type: CanvasElementType.badge, position: Offset(0, 0.40)),
+    CanvasElement(type: CanvasElementType.verseBody, position: Offset(0, 0.02)),
   ];
 
   VerseImageComposition({
