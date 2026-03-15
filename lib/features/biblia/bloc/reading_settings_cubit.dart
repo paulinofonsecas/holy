@@ -43,6 +43,11 @@ class ReadingSettingsCubit extends Cubit<ReadingSettingsState> {
     _save();
   }
 
+  void toggleContinuous() {
+    emit(state.copyWith(isContinuous: !state.isContinuous));
+    _save();
+  }
+
   void _save() {
     _repository.saveSettings(state);
   }

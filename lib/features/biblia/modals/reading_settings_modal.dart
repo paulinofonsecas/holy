@@ -75,6 +75,40 @@ class ReadingSettingsModal extends StatelessWidget {
               ),
               const Gap(16),
 
+              // Alignment
+              _buildSectionTitle('Alinhamento'),
+              BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
+                builder: (context, state) {
+                  return ToggleButtons(
+                    isSelected: [
+                      state.textAlign == TextAlign.left,
+                      state.textAlign == TextAlign.center,
+                      state.textAlign == TextAlign.right,
+                      state.textAlign == TextAlign.justify,
+                    ],
+                    onPressed: (index) {
+                      final alignments = [
+                        TextAlign.left,
+                        TextAlign.center,
+                        TextAlign.right,
+                        TextAlign.justify,
+                      ];
+                      context
+                          .read<ReadingSettingsCubit>()
+                          .setTextAlign(alignments[index]);
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    children: const [
+                      Icon(Icons.format_align_left),
+                      Icon(Icons.format_align_center),
+                      Icon(Icons.format_align_right),
+                      Icon(Icons.format_align_justify),
+                    ],
+                  );
+                },
+              ),
+              const Gap(16),
+
               // Font Family
               _buildSectionTitle('Fonte'),
               BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
@@ -96,8 +130,7 @@ class ReadingSettingsModal extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Locais',
-                          style: TextStyle(fontSize: 12, color: Colors.black)),
+                      const Text('Locais', style: TextStyle(fontSize: 12)),
                       const Gap(4),
                       Wrap(
                         spacing: 8,
@@ -120,7 +153,7 @@ class ReadingSettingsModal extends StatelessWidget {
                       ),
                       const Gap(8),
                       const Text('Google Fonts',
-                          style: TextStyle(fontSize: 12, color: Colors.black)),
+                          style: TextStyle(fontSize: 12)),
                       const Gap(4),
                       SizedBox(
                         height: 40,
@@ -174,40 +207,14 @@ class ReadingSettingsModal extends StatelessWidget {
                         onSelected: (_) =>
                             context.read<ReadingSettingsCubit>().toggleItalic(),
                       ),
-                    ],
-                  );
-                },
-              ),
-              const Gap(16),
-
-              // Alignment
-              _buildSectionTitle('Alinhamento'),
-              BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
-                builder: (context, state) {
-                  return ToggleButtons(
-                    isSelected: [
-                      state.textAlign == TextAlign.left,
-                      state.textAlign == TextAlign.center,
-                      state.textAlign == TextAlign.right,
-                      state.textAlign == TextAlign.justify,
-                    ],
-                    onPressed: (index) {
-                      final alignments = [
-                        TextAlign.left,
-                        TextAlign.center,
-                        TextAlign.right,
-                        TextAlign.justify,
-                      ];
-                      context
-                          .read<ReadingSettingsCubit>()
-                          .setTextAlign(alignments[index]);
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    children: const [
-                      Icon(Icons.format_align_left),
-                      Icon(Icons.format_align_center),
-                      Icon(Icons.format_align_right),
-                      Icon(Icons.format_align_justify),
+                      const Gap(8),
+                      FilterChip(
+                        label: const Text('Texto Contínuo'),
+                        selected: state.isContinuous,
+                        onSelected: (_) => context
+                            .read<ReadingSettingsCubit>()
+                            .toggleContinuous(),
+                      ),
                     ],
                   );
                 },
@@ -260,8 +267,7 @@ class ReadingSettingsModal extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         title,
-        style: const TextStyle(
-            fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
     );
   }

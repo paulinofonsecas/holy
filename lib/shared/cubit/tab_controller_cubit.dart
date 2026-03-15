@@ -12,14 +12,10 @@ class TabControllerCubit extends Cubit<int> {
   }
 
   void goToSearch() {
-    emit(1);
-  }
-
-  void goToDeepUnderstanding() {
     emit(2);
   }
 
-  void goToProfile() {
-    emit(3);
+  void goToDeepUnderstanding() {
+    emit(1);
   }
 }

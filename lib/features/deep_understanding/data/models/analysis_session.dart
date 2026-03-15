@@ -13,10 +13,10 @@ class AnalysisSession {
   String status; // idle, embedding, generating, completed, error, cancelled
   String? error;
   String? result; // The final Markdown summary
-  
+
   @Property(type: PropertyType.date)
   DateTime createdAt;
-  
+
   @Property(type: PropertyType.date)
   DateTime updatedAt;
 

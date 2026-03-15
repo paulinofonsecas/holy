@@ -24,6 +24,10 @@ import 'package:eu_sou/core/services/objectbox_service.dart';
 import 'package:eu_sou/features/deep_understanding/data/repositories/objectbox_vector_store.dart';
 import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
+import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
+import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
+import 'package:eu_sou/features/eu_sou/presentation/bloc/eu_sou_bloc.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
@@ -89,6 +93,15 @@ void main() async {
 
     final sharedPreferences = await SharedPreferences.getInstance();
 
+    final streakService = StreakService(db: db, prefs: sharedPreferences);
+    final euSouRepository = EuSouRepository(
+      db: db,
+      prefs: sharedPreferences,
+      searchProvider: searchProvider,
+      streakService: streakService,
+    );
+    final dailyContentService = DailyContentService(prefs: sharedPreferences);
+
     final verseRepo = VerseOfTheDayRepository(sharedPreferences);
     final verseService = VerseOfTheDayService(
       repository: verseRepo,
@@ -116,6 +129,8 @@ void main() async {
       themeBloc: themeBloc,
       deeplinkService: deeplinkService,
       deepUnderstandingService: deepUnderstandingService,
+      euSouRepository: euSouRepository,
+      dailyContentService: dailyContentService,
     ));
   } catch (e) {
     debugPrint('Erro ao inicializar o aplicativo: $e');
@@ -134,6 +149,8 @@ class EntryPoint extends StatelessWidget {
   final ThemeBloc themeBloc;
   final IDeeplinkService deeplinkService;
   final DeepUnderstandingService deepUnderstandingService;
+  final EuSouRepository euSouRepository;
+  final DailyContentService dailyContentService;
 
   const EntryPoint({
     super.key,
@@ -147,6 +164,8 @@ class EntryPoint extends StatelessWidget {
     required this.themeBloc,
     required this.deeplinkService,
     required this.deepUnderstandingService,
+    required this.euSouRepository,
+    required this.dailyContentService,
   });
 
   @override
@@ -216,9 +235,21 @@ class EntryPoint extends StatelessWidget {
         RepositoryProvider<DeepUnderstandingService>.value(
           value: deepUnderstandingService,
         ),
+        RepositoryProvider<EuSouRepository>.value(
+          value: euSouRepository,
+        ),
+        RepositoryProvider<DailyContentService>.value(
+          value: dailyContentService,
+        ),
         BlocProvider(create: (context) => TabControllerCubit()),
         BlocProvider(
           create: (context) => DeepUnderstandingBloc(deepUnderstandingService),
+        ),
+        BlocProvider(
+          create: (context) => EuSouBloc(
+            repository: context.read<EuSouRepository>(),
+            contentService: context.read<DailyContentService>(), deepUnderstandingBloc: context.read<DeepUnderstandingBloc>(),
+          ),
         ),
       ],
       child: const App(),

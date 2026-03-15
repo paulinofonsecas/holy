@@ -1,20 +1,20 @@
-import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_event.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_state.dart';
+import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
-import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
-import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
-import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
+import 'package:eu_sou/features/eu_sou/presentation/pages/eu_sou_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/features/verse_of_the_day/domain/services/verse_of_the_day_service.dart';
@@ -45,12 +45,10 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   StreamSubscription<Uri?>? _deeplinkSubscription;
   bool _tutorialStarted = false;
 
-  @override
   final GlobalKey keyBibleTab = GlobalKey();
-  @override
   final GlobalKey keySearchTab = GlobalKey();
-  @override
   final GlobalKey keyProfileTab = GlobalKey();
+  final GlobalKey keyStudiesTab = GlobalKey();
 
   @override
   void initState() {
@@ -165,19 +163,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     return [
       const BibliaPage(),
       const TelaBusca(),
-      const DeepUnderstandingHistoryPage(),
-      BlocProvider(
-        create: (context) => MarkedVersesBloc(
-          context.read<IMarkedVersesRepository>(),
-        ),
-        child: ProfilePage(
-          feedbackService: widget.feedbackService,
-          onShowTutorial: () {
-            context.read<TabControllerCubit>().goToBible();
-            showTutorial();
-          },
-        ),
-      ),
+      const EuSouPage(),
     ];
   }
 
@@ -233,12 +219,12 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                         label: Text(l10n.bible),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(CupertinoIcons.search, key: keySearchTab),
-                        label: Text(l10n.search),
+                        icon: Icon(CupertinoIcons.person, key: keyProfileTab),
+                        label: const Text('Eu Sou'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(CupertinoIcons.settings, key: keyProfileTab),
-                        label: const Text('Ajustes'),
+                        icon: Icon(CupertinoIcons.search, key: keySearchTab),
+                        label: Text(l10n.search),
                       ),
                     ],
                   ),
@@ -259,27 +245,35 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
               index: currentIndex,
               children: _buildPages(context),
             ),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: currentIndex,
-              onDestinationSelected: (index) {
+            bottomNavigationBar: ConvexAppBar(
+              style: TabStyle.react,
+              backgroundColor: context.colorScheme.surface,
+              color: context.colorScheme.onSurface.withOpacity(0.6),
+              activeColor: context.colorScheme.primary,
+              initialActiveIndex: currentIndex,
+              onTap: (index) {
+                if (index == 0) {
+                  if (currentIndex == 0) {
+                    SwitchBookModal.show(context);
+                    return;
+                  }
+                }
                 context.read<TabControllerCubit>().changeTo(index);
               },
-              destinations: [
-                NavigationDestination(
-                  icon: Icon(CupertinoIcons.book, key: keyBibleTab),
-                  label: l10n.bible,
+              items: [
+                TabItem(
+                  icon: Icon(CupertinoIcons.book, key: keyBibleTab, size: 20),
+                  title: l10n.bible,
                 ),
-                NavigationDestination(
-                  icon: Icon(CupertinoIcons.search, key: keySearchTab),
-                  label: l10n.search,
+                TabItem(
+                  icon:
+                      Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
+                  title: l10n.search,
                 ),
-                const NavigationDestination(
-                  icon: Icon(Icons.auto_awesome),
-                  label: 'Entendimentos',
-                ),
-                NavigationDestination(
-                  icon: Icon(CupertinoIcons.settings, key: keyProfileTab),
-                  label: 'Ajustes',
+                TabItem(
+                  icon:
+                      Icon(CupertinoIcons.person, key: keyProfileTab, size: 20),
+                  title: 'Eu Sou',
                 ),
               ],
             ),

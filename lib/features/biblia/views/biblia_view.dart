@@ -1,15 +1,15 @@
-import 'package:eu_sou/core/localization/generated/app_localizations.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 // ignore_for_file: library_prefixes
 
 import 'dart:async';
 
+import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/widgets/bible_book_list_item.dart';
 import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
@@ -225,51 +225,48 @@ class _BibliaViewState extends State<BibliaView> {
                 onBookTap: () {
                   SwitchBookModal.show(context);
                 },
-                actions: const [
-                  // BlocBuilder<BibliaBloc, BibliaState>(
-                  //   builder: (context, state) {
-                  //     if (state is BibleChapterLoaded) {
-                  //       return PopupMenuButton<String>(
-                  //         onSelected: (value) async {
-                  //           if (value == 'deepUnderstandingChapter') {
-                  //             final query =
-                  //                 await _showQueryInputDialog(context);
-                  //             if (query != null && context.mounted) {
-                  //               final versionId = context
-                  //                   .read<BibleVersionCubit>()
-                  //                   .state
-                  //                   .version
-                  //                   .id;
-                  //               context.read<DeepUnderstandingBloc>().add(
-                  //                     StartAnalysisForVersesEvent(
-                  //                       query,
-                  //                       state.chapter.verses,
-                  //                       state.chapter.bookId,
-                  //                       state.chapter.number,
-                  //                       versionId,
-                  //                     ),
-                  //                   );
-                  //               Navigator.push(
-                  //                 context,
-                  //                 MaterialPageRoute(
-                  //                     builder: (_) =>
-                  //                         const DeepUnderstandingPage()),
-                  //               );
-                  //             }
-                  //           }
-                  //         },
-                  //         itemBuilder: (context) => [
-                  //           PopupMenuItem(
-                  //             value: 'deepUnderstandingChapter',
-                  //             child: Text(AppLocalizations.of(context)
-                  //                 .deepUnderstandingChapter),
-                  //           ),
-                  //         ],
-                  //       );
-                  //     }
-                  //     return const SizedBox.shrink();
-                  //   },
-                  // ),
+                actions: [
+                  BlocBuilder<BibliaBloc, BibliaState>(
+                    builder: (context, state) {
+                      return IconButton(
+                        tooltip: AppLocalizations.of(context)
+                            .deepUnderstandingChapter,
+                        icon: Icon(
+                          Icons.auto_awesome,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        onPressed: state is! BibleChapterLoaded
+                            ? null
+                            : () async {
+                                var query =
+                                    await _showQueryInputDialog(context);
+                                if (context.mounted) {
+                                  query ??= 'Entendimento geral';
+                                  final versionId = context
+                                      .read<BibleVersionCubit>()
+                                      .state
+                                      .version
+                                      .id;
+                                  context.read<DeepUnderstandingBloc>().add(
+                                        StartAnalysisForVersesEvent(
+                                          query,
+                                          state.chapter.verses,
+                                          state.chapter.bookId,
+                                          state.chapter.number,
+                                          versionId,
+                                        ),
+                                      );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const DeepUnderstandingPage()),
+                                  );
+                                }
+                              },
+                      );
+                    },
+                  ),
                 ],
               ),
               Expanded(
@@ -368,7 +365,7 @@ class _BibliaViewState extends State<BibliaView> {
                             key: const ValueKey('ActionRowActive'),
                             scrollDirection: Axis.horizontal,
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 25),
                               child: ActionRowWidget(
                                 verses: context
                                     .read<VerseSelectionBloc>()
@@ -399,8 +396,9 @@ class _BibliaViewState extends State<BibliaView> {
     return showDialog<String?>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Entendimento Aprofundado'),
+        title: const Text('Eu Sou'),
         content: TextField(
+          autocorrect: false,
           controller: queryController,
           decoration: const InputDecoration(
             hintText: 'Qual o tema da sua análise?',
@@ -413,11 +411,16 @@ class _BibliaViewState extends State<BibliaView> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, queryController.text),
+            onPressed: () => Navigator.pop(context,
+                queryController.text.isEmpty ? null : queryController.text),
             child: const Text('Analisar'),
           ),
         ],
       ),
     );
   }
+
+  // Future<bool> _canYouContinueToGenerateDialog(BuildContext context) {
+
+  // }
 }

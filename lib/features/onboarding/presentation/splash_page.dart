@@ -21,9 +21,9 @@ class SplashPage extends StatelessWidget {
       onModelReady: (model) async {
         final deeplinkService = context.read<IDeeplinkService>();
         final navigator = Navigator.of(context);
-        
+
         final isCached = await model.initialize();
-        
+
         if (!isCached) {
           // If downloading, remove native splash immediately to show progress
           FlutterNativeSplash.remove();
@@ -71,7 +71,7 @@ class SplashPage extends StatelessWidget {
                   const SizedBox(height: 48),
                   if (model.isDownloading) ...[
                     const Text(
-                      'Baixando base de dados da Bíblia...',
+                      'Baixando a versão King James Atualizada',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),

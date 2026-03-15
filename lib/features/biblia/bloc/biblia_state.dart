@@ -32,16 +32,23 @@ final class BibleChapterLoaded extends BibliaState {
   final BibleChapter chapter;
   final String versionId;
   final int? targetVerse;
+  final List<int>? targetVerses;
   final double initialScrollOffset;
 
   const BibleChapterLoaded(
     this.chapter, {
     required this.versionId,
     this.targetVerse,
+    this.targetVerses,
     this.initialScrollOffset = 0.0,
   });
 
   @override
-  List<Object> get props =>
-      [chapter, versionId, targetVerse ?? 1, initialScrollOffset];
+  List<Object> get props => [
+        chapter,
+        versionId,
+        targetVerse ?? 1,
+        targetVerses ?? [],
+        initialScrollOffset
+      ];
 }

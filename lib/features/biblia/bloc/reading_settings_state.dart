@@ -9,6 +9,7 @@ class ReadingSettingsState extends Equatable {
   final bool isBold;
   final bool isItalic;
   final bool isGoogleFont;
+  final bool isContinuous;
   final TextAlign textAlign;
 
   const ReadingSettingsState({
@@ -19,6 +20,7 @@ class ReadingSettingsState extends Equatable {
     this.isBold = false,
     this.isItalic = false,
     this.isGoogleFont = false,
+    this.isContinuous = false,
     this.textAlign = TextAlign.justify,
   });
 
@@ -30,6 +32,7 @@ class ReadingSettingsState extends Equatable {
     bool? isBold,
     bool? isItalic,
     bool? isGoogleFont,
+    bool? isContinuous,
     TextAlign? textAlign,
   }) {
     return ReadingSettingsState(
@@ -40,6 +43,7 @@ class ReadingSettingsState extends Equatable {
       isBold: isBold ?? this.isBold,
       isItalic: isItalic ?? this.isItalic,
       isGoogleFont: isGoogleFont ?? this.isGoogleFont,
+      isContinuous: isContinuous ?? this.isContinuous,
       textAlign: textAlign ?? this.textAlign,
     );
   }
@@ -53,6 +57,7 @@ class ReadingSettingsState extends Equatable {
         isBold,
         isItalic,
         isGoogleFont,
+        isContinuous,
         textAlign,
       ];
 }

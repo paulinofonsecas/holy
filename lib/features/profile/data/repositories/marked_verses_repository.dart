@@ -9,8 +9,14 @@ class MarkedVersesRepository implements IMarkedVersesRepository {
   MarkedVersesRepository(this.db);
 
   @override
-  Future<List<MarkedVerseModel>> getMarkedVerses() async {
-    const sql = '''
+  Future<List<MarkedVerseModel>> getMarkedVerses({
+    int page = 1,
+    int pageSize = 10,
+    String? query,
+  }) async {
+    final offset = (page - 1) * pageSize;
+
+    String sql = '''
       SELECT 
         mv.version_id, 
         mv.book_id, 
@@ -24,10 +30,23 @@ class MarkedVersesRepository implements IMarkedVersesRepository {
       JOIN books b ON mv.version_id = b.version_id AND mv.book_id = b.id
       JOIN verses_fts v ON mv.version_id = v.version_id AND mv.book_id = v.book_id 
            AND mv.chapter = v.chapter AND mv.verse = v.verse
-      ORDER BY mv.created_at DESC
     ''';
 
-    final results = await db.rawQuery(sql);
+    final List<Object?> sqlArgs = [];
+
+    if (query != null && query.isNotEmpty) {
+      sql += ' WHERE (v.text LIKE ? OR b.name LIKE ?)';
+      sqlArgs.add('%$query%');
+      sqlArgs.add('%$query%');
+    }
+
+    sql += '''
+      ORDER BY mv.created_at DESC
+      LIMIT ? OFFSET ?
+    ''';
+    sqlArgs.addAll([pageSize, offset]);
+
+    final results = await db.rawQuery(sql, sqlArgs);
 
     return results.map((row) {
       return MarkedVerseModel(

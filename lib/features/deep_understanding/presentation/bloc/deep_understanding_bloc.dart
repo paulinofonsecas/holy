@@ -82,7 +82,7 @@ class ViewSessionEvent extends DeepUnderstandingEvent {
 class _UpdateSessionEvent extends DeepUnderstandingEvent {
   final AnalysisSession session;
 
-  _UpdateSessionEvent(this.session);
+  const _UpdateSessionEvent(this.session);
 
   @override
   List<Object?> get props => [session];
@@ -90,10 +90,11 @@ class _UpdateSessionEvent extends DeepUnderstandingEvent {
 
 // States
 abstract class DeepUnderstandingState extends Equatable {
-  const DeepUnderstandingState();
+  final List<AnalysisSession> sessions;
+  const DeepUnderstandingState({this.sessions = const []});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [sessions];
 }
 
 class DeepUnderstandingInitial extends DeepUnderstandingState {
@@ -104,13 +105,13 @@ class DeepUnderstandingInProgress extends DeepUnderstandingState {
   final AnalysisSession session;
   final double progress;
 
-  DeepUnderstandingInProgress(this.session)
+  DeepUnderstandingInProgress(this.session, {super.sessions})
       : progress = session.totalItems > 0
             ? session.processedItems / session.totalItems
             : 0;
 
   @override
-  List<Object?> get props => [session, progress];
+  List<Object?> get props => [session, progress, sessions];
 }
 
 class DeepUnderstandingSuccess extends DeepUnderstandingState {
@@ -130,6 +131,7 @@ class DeepUnderstandingSuccess extends DeepUnderstandingState {
     this.searchDurationMillis,
     this.summaryDurationMillis,
     this.totalDurationMillis,
+    super.sessions,
   });
 
   @override
@@ -141,25 +143,26 @@ class DeepUnderstandingSuccess extends DeepUnderstandingState {
         searchDurationMillis,
         summaryDurationMillis,
         totalDurationMillis,
+        sessions,
       ];
 }
 
 class DeepUnderstandingFailure extends DeepUnderstandingState {
   final String error;
 
-  const DeepUnderstandingFailure(this.error);
+  const DeepUnderstandingFailure(this.error, {super.sessions});
 
   @override
-  List<Object?> get props => [error];
+  List<Object?> get props => [error, sessions];
 }
 
 class DeepUnderstandingCancelled extends DeepUnderstandingState {
-  const DeepUnderstandingCancelled();
+  const DeepUnderstandingCancelled({super.sessions});
 }
 
 class DeepUnderstandingHistoryLoaded extends DeepUnderstandingState {
-  final List<AnalysisSession> sessions;
-  const DeepUnderstandingHistoryLoaded(this.sessions);
+  const DeepUnderstandingHistoryLoaded(List<AnalysisSession> sessions)
+      : super(sessions: sessions);
 
   @override
   List<Object?> get props => [sessions];
@@ -167,10 +170,10 @@ class DeepUnderstandingHistoryLoaded extends DeepUnderstandingState {
 
 class DeepUnderstandingHistoryError extends DeepUnderstandingState {
   final String error;
-  const DeepUnderstandingHistoryError(this.error);
+  const DeepUnderstandingHistoryError(this.error, {super.sessions});
 
   @override
-  List<Object?> get props => [error];
+  List<Object?> get props => [error, sessions];
 }
 
 // Bloc
@@ -178,6 +181,7 @@ class DeepUnderstandingBloc
     extends Bloc<DeepUnderstandingEvent, DeepUnderstandingState> {
   final DeepUnderstandingService _service;
   StreamSubscription? _analysisSubscription;
+  List<AnalysisSession> _history = [];
 
   DeepUnderstandingBloc(this._service)
       : super(const DeepUnderstandingInitial()) {
@@ -189,6 +193,9 @@ class DeepUnderstandingBloc
     on<DeleteHistorySessionEvent>(_onDeleteHistorySession);
     on<ViewSessionEvent>(_onViewSession);
     on<_UpdateSessionEvent>(_onUpdateSession);
+
+    // Carrega o histórico ao iniciar o Bloc
+    add(const LoadHistoryEvent());
   }
 
   void _onViewSession(
@@ -202,6 +209,7 @@ class DeepUnderstandingBloc
       searchDurationMillis: session.searchDurationMillis,
       summaryDurationMillis: session.summaryDurationMillis,
       totalDurationMillis: session.totalDurationMillis,
+      sessions: _history,
     ));
   }
 
@@ -209,9 +217,10 @@ class DeepUnderstandingBloc
       LoadHistoryEvent event, Emitter<DeepUnderstandingState> emit) async {
     try {
       final sessions = await _service.getHistory();
+      _history = sessions;
       emit(DeepUnderstandingHistoryLoaded(sessions));
     } catch (e) {
-      emit(DeepUnderstandingHistoryError(e.toString()));
+      emit(DeepUnderstandingHistoryError(e.toString(), sessions: _history));
     }
   }
 
@@ -219,15 +228,28 @@ class DeepUnderstandingBloc
       Emitter<DeepUnderstandingState> emit) async {
     try {
       await _service.deleteSession(event.sessionId);
-      add(const LoadHistoryEvent());
+      final sessions = await _service.getHistory();
+      _history = sessions;
+      emit(DeepUnderstandingHistoryLoaded(sessions));
     } catch (e) {
-      emit(DeepUnderstandingHistoryError(e.toString()));
+      emit(DeepUnderstandingHistoryError(e.toString(), sessions: _history));
     }
   }
 
   void _onStartAnalysis(
       StartAnalysisEvent event, Emitter<DeepUnderstandingState> emit) {
     _analysisSubscription?.cancel();
+
+    // Emite um estado inicial de progresso para evitar loader vazio
+    final initialSession = AnalysisSession(
+      sessionId: 'pending_${DateTime.now().millisecondsSinceEpoch}',
+      query: event.query,
+      status: 'idle',
+      totalItems: event.results.length,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    emit(DeepUnderstandingInProgress(initialSession, sessions: _history));
 
     _analysisSubscription =
         _service.startAnalysis(event.query, event.results).listen((session) {
@@ -241,6 +263,17 @@ class DeepUnderstandingBloc
       StartAnalysisForVersesEvent event, Emitter<DeepUnderstandingState> emit) {
     _analysisSubscription?.cancel();
 
+    // Emite um estado inicial de progresso para evitar loader vazio
+    final initialSession = AnalysisSession(
+      sessionId: 'pending_${DateTime.now().millisecondsSinceEpoch}',
+      query: event.query,
+      status: 'idle',
+      totalItems: event.verses.length,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    emit(DeepUnderstandingInProgress(initialSession, sessions: _history));
+
     _analysisSubscription = _service
         .startAnalysisForVerses(event.query, event.verses, event.bookId,
             event.chapterNumber, event.versionId)
@@ -253,7 +286,7 @@ class DeepUnderstandingBloc
       onError: (error) {
         final logger = LoggerService();
         logger.error('DeepUnderstandingBloc: Stream error: $error');
-        emit(DeepUnderstandingFailure(error.toString()));
+        emit(DeepUnderstandingFailure(error.toString(), sessions: _history));
       },
     );
   }
@@ -274,14 +307,16 @@ class DeepUnderstandingBloc
       CancelAnalysisEvent event, Emitter<DeepUnderstandingState> emit) async {
     await _analysisSubscription?.cancel();
     await _service.cancelAnalysis(event.sessionId);
-    emit(const DeepUnderstandingCancelled());
+    emit(DeepUnderstandingCancelled(sessions: _history));
   }
 
-  void _onUpdateSession(
-      _UpdateSessionEvent event, Emitter<DeepUnderstandingState> emit) {
+  Future<void> _onUpdateSession(
+      _UpdateSessionEvent event, Emitter<DeepUnderstandingState> emit) async {
     final session = event.session;
 
     if (session.status == 'completed') {
+      // Refresh history when completed to include the new session
+      _history = await _service.getHistory();
       emit(DeepUnderstandingSuccess(
         session.result ?? '',
         session.query,
@@ -290,13 +325,15 @@ class DeepUnderstandingBloc
         searchDurationMillis: session.searchDurationMillis,
         summaryDurationMillis: session.summaryDurationMillis,
         totalDurationMillis: session.totalDurationMillis,
+        sessions: _history,
       ));
     } else if (session.status == 'error') {
-      emit(DeepUnderstandingFailure(session.error ?? 'Erro desconhecido.'));
+      emit(DeepUnderstandingFailure(session.error ?? 'Erro desconhecido.',
+          sessions: _history));
     } else if (session.status == 'cancelled') {
-      emit(const DeepUnderstandingCancelled());
+      emit(DeepUnderstandingCancelled(sessions: _history));
     } else {
-      emit(DeepUnderstandingInProgress(session));
+      emit(DeepUnderstandingInProgress(session, sessions: _history));
     }
   }
 

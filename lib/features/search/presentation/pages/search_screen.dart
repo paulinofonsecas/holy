@@ -1,24 +1,20 @@
-import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
+import 'package:eu_sou/features/search/presentation/widgets/book_search_tile.dart';
 import 'package:eu_sou/features/search/presentation/widgets/multiple_search_header.dart';
-import 'package:eu_sou/features/search/presentation/widgets/search_export_service.dart';
+import 'package:eu_sou/features/search/presentation/widgets/search_actions.dart';
+import 'package:eu_sou/features/search/presentation/widgets/search_empty_states.dart';
+import 'package:eu_sou/features/search/presentation/widgets/search_result_tile.dart';
+import 'package:eu_sou/features/search/presentation/widgets/search_version_filter.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
-import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
-import 'package:flutter/cupertino.dart';
+import "package:eu_sou/features/biblia/views/biblia_view.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
 
 import '../bloc/search_bloc.dart';
 import '../bloc/search_selection_bloc.dart';
-import '../widgets/highlighted_text.dart';
-import 'package:eu_sou/shared/bible_models.dart';
 
 class TelaBusca extends StatefulWidget {
   const TelaBusca({super.key});
@@ -63,92 +59,6 @@ class _TelaBuscaState extends State<TelaBusca> {
     super.dispose();
   }
 
-  Future<String?> _showQueryInputDialog(BuildContext context) {
-    final TextEditingController queryController = TextEditingController();
-    return showDialog<String?>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Entendimento Aprofundado'),
-        content: TextField(
-          controller: queryController,
-          decoration: const InputDecoration(
-            hintText: 'Qual o tema da sua análise?',
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, null),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, queryController.text),
-            child: const Text('Analisar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showExportOptions(BuildContext context, List<SearchResult> results,
-      {String? query}) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'Exportar Resultados',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.copy),
-                title: const Text('Copiar Texto'),
-                onTap: () {
-                  Navigator.pop(context);
-                  SearchExportService.copyToClipboard(results, query: query);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.text_snippet_outlined),
-                title: const Text('Exportar como .TXT'),
-                onTap: () {
-                  Navigator.pop(context);
-                  SearchExportService.exportToTxt(results, query: query);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.description_outlined),
-                title: const Text('Exportar como .MD (Markdown)'),
-                onTap: () {
-                  Navigator.pop(context);
-                  SearchExportService.exportToMd(results, query: query);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.picture_as_pdf_outlined),
-                title: const Text('Exportar como .PDF'),
-                onTap: () {
-                  Navigator.pop(context);
-                  SearchExportService.exportToPdf(results, query: query);
-                },
-              ),
-              const Gap(16),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -170,6 +80,7 @@ class _TelaBuscaState extends State<TelaBusca> {
               child: BlocBuilder<SearchBloc, EstadoBusca>(
                 builder: (context, estado) {
                   return CustomScrollView(
+                    key: const PageStorageKey('search_results_scroll'),
                     controller: _controladorScroll,
                     primary: false,
                     slivers: [
@@ -195,187 +106,10 @@ class _TelaBuscaState extends State<TelaBusca> {
                                 '${selectionState.selectedResults.length} selecionados')
                             : const Text('Pesquisar'),
                         actions: [
-                          BlocBuilder<SearchBloc, EstadoBusca>(
-                            builder: (context, estado) {
-                              if (estado is! BuscaCarregada ||
-                                  (estado.resultados.results.isEmpty &&
-                                      estado.correspondenciasLivros.isEmpty)) {
-                                if (selectionState.isInSelectionMode ||
-                                    (estado is BuscaCarregada)) {
-                                  return Row(
-                                    children: [
-                                      IconButton(
-                                        tooltip: 'Limpar busca',
-                                        icon: const Icon(
-                                            Icons.delete_sweep_outlined),
-                                        onPressed: () {
-                                          context
-                                              .read<SearchBloc>()
-                                              .add(LimparBusca());
-                                        },
-                                      ),
-                                      const SizedBox(width: 2),
-                                    ],
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              }
-
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (selectionState.isInSelectionMode) ...[
-                                    IconButton(
-                                      tooltip: 'Entendimento Aprofundado',
-                                      icon: const Icon(Icons.auto_awesome),
-                                      onPressed: () async {
-                                        final query =
-                                            await _showQueryInputDialog(
-                                                context);
-                                        if (query != null && context.mounted) {
-                                          final versionId = context
-                                              .read<BibleVersionCubit>()
-                                              .state
-                                              .version
-                                              .id;
-                                          final selectedResults = selectionState
-                                              .selectedResults.values
-                                              .toList();
-                                          final verses = selectedResults
-                                              .map((sr) => BibleVerse(
-                                                  number: sr.verse.number,
-                                                  text: sr.verse.text))
-                                              .toList();
-
-                                          // Assuming all selected results are from the same book/chapter for now.
-                                          // This might need more robust handling for multi-chapter/book selections.
-                                          final bookId =
-                                              selectedResults.first.book.id;
-                                          final chapterNumber = selectedResults
-                                              .first.chapter.number;
-
-                                          context
-                                              .read<DeepUnderstandingBloc>()
-                                              .add(
-                                                StartAnalysisForVersesEvent(
-                                                  query,
-                                                  verses,
-                                                  bookId,
-                                                  chapterNumber,
-                                                  versionId,
-                                                ),
-                                              );
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (_) =>
-                                                    const DeepUnderstandingPage()),
-                                          );
-                                          context
-                                              .read<SearchSelectionBloc>()
-                                              .add(ClearSearchSelection());
-                                        }
-                                      },
-                                    ),
-                                    IconButton(
-                                      tooltip: 'Selecionar todos',
-                                      icon: const Icon(Icons.select_all),
-                                      onPressed: () {
-                                        context.read<SearchSelectionBloc>().add(
-                                              SelectAllSearchResults(
-                                                  estado.resultados.results),
-                                            );
-                                      },
-                                    ),
-                                    IconButton(
-                                      tooltip: 'Exportar selecionados',
-                                      icon: const Icon(Icons.ios_share),
-                                      onPressed: () {
-                                        final resultsToExport = selectionState
-                                            .selectedResults.values
-                                            .toList();
-
-                                        final currentQuery = estado.consultas
-                                            .map((q) => q.term)
-                                            .where((t) => t.isNotEmpty)
-                                            .join(' + ');
-
-                                        _showExportOptions(
-                                          context,
-                                          resultsToExport,
-                                          query: currentQuery,
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                  if (!selectionState.isInSelectionMode) ...[
-                                    // IconButton(
-                                    //   tooltip: 'Histórico de Entendimentos',
-                                    //   icon: const Icon(Icons.history_edu),
-                                    //   onPressed: () {
-                                    //     Navigator.push(
-                                    //       context,
-                                    //       MaterialPageRoute(
-                                    //         builder: (_) =>
-                                    //             const DeepUnderstandingHistoryPage(),
-                                    //       ),
-                                    //     );
-                                    //   },
-                                    // ),
-                                    IconButton(
-                                      tooltip: 'Entendimento Aprofundado',
-                                      icon: Icon(Icons.auto_awesome,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary),
-                                      style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all(
-                                                Theme.of(context)
-                                                    .colorScheme
-                                                    .primaryContainer),
-                                      ),
-                                      onPressed: () {
-                                        final currentQuery = estado.consultas
-                                            .map((q) => q.term)
-                                            .where((t) => t.isNotEmpty)
-                                            .join(' + ');
-
-                                        context
-                                            .read<DeepUnderstandingBloc>()
-                                            .add(
-                                              StartAnalysisEvent(
-                                                currentQuery,
-                                                estado.resultados.results,
-                                              ),
-                                            );
-
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                const DeepUnderstandingPage(),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    IconButton(
-                                      tooltip: 'Limpar busca',
-                                      icon: const Icon(
-                                          Icons.delete_sweep_outlined),
-                                      onPressed: () {
-                                        context
-                                            .read<SearchBloc>()
-                                            .add(LimparBusca());
-                                      },
-                                    ),
-                                  ],
-                                ],
-                              );
-                            },
+                          SearchActions(
+                            estado: estado,
+                            selectionState: selectionState,
                           ),
-                          const SizedBox(width: 2),
                         ],
                       ),
                       SliverPadding(
@@ -389,310 +123,15 @@ class _TelaBuscaState extends State<TelaBusca> {
                                       : false,
                             ),
                             if (estado is BuscaCarregada &&
-                                estado.buscarTodasVersoes &&
-                                estado.versoesDisponiveis.isNotEmpty)
-                              Column(
-                                children: [
-                                  const SizedBox(height: 12),
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      'Filtrar por Versão:',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 40,
-                                    child: ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 8.0),
-                                          child: ChoiceChip(
-                                            label: const Text('Todas'),
-                                            selected:
-                                                estado.idVersaoSelecionada ==
-                                                    null,
-                                            onSelected: (selecionado) {
-                                              if (selecionado) {
-                                                context.read<SearchBloc>().add(
-                                                    const FiltrarPorVersao(
-                                                        null));
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                        ...estado.versoesDisponiveis
-                                            .map((versao) {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 8.0),
-                                            child: ChoiceChip(
-                                              label: Text(versao),
-                                              selected:
-                                                  estado.idVersaoSelecionada ==
-                                                      versao,
-                                              onSelected: (selecionado) {
-                                                context.read<SearchBloc>().add(
-                                                      FiltrarPorVersao(
-                                                        selecionado
-                                                            ? versao
-                                                            : null,
-                                                      ),
-                                                    );
-                                              },
-                                            ),
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                estado.buscarTodasVersoes)
+                              SearchVersionFilter(
+                                versoesDisponiveis: estado.versoesDisponiveis,
+                                idVersaoSelecionada: estado.idVersaoSelecionada,
                               ),
                           ]),
                         ),
                       ),
-                      if (estado is BuscaInicial)
-                        const SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Center(
-                            child: NoResultToSingleWorldWidget(),
-                          ),
-                        )
-                      else if (estado is BuscaCarregando)
-                        const SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                      else if (estado is BuscaTermoCurto)
-                        const SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Center(
-                              child: Text(
-                                  'O termo de busca deve ter pelo menos 3 caracteres')),
-                        )
-                      else if (estado is BuscaErro)
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child:
-                              Center(child: Text('Erro: ${estado.mensagem}')),
-                        )
-                      else if (estado is BuscaCarregada) ...[
-                        if (estado.resultados.results.isEmpty &&
-                            estado.correspondenciasLivros.isEmpty)
-                          SliverFillRemaining(
-                            hasScrollBody: false,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    if (estado.consultas.length == 1 &&
-                                        estado.consultas.first.term
-                                            .trim()
-                                            .contains(' ')) ...[
-                                      const SizedBox(height: 16),
-                                      NotFoundSearchWidget(
-                                        term: estado.consultas.first.term,
-                                      ),
-                                    ] else
-                                      NotFoundSearchWidget(
-                                        term: estado.consultas
-                                            .map((q) => q.term)
-                                            .where((t) => t.isNotEmpty)
-                                            .join(' + '),
-                                        isMultiWorldSelected:
-                                            estado.consultas.length > 1,
-                                      )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        else ...[
-                          if (estado.correspondenciasLivros.isNotEmpty &&
-                              !selectionState.isInSelectionMode) ...[
-                            const SliverToBoxAdapter(
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-                                child: Text('Livros',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: Colors.blue)),
-                              ),
-                            ),
-                            SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, indice) {
-                                  final livro =
-                                      estado.correspondenciasLivros[indice];
-                                  return ListTile(
-                                    leading: const Icon(Icons.book),
-                                    title: Text(livro.name),
-                                    subtitle: Text(livro.longName),
-                                    onTap: () {
-                                      if (Navigator.of(context).canPop()) {
-                                        Navigator.of(context).pop(livro);
-                                      } else {
-                                        final idVersao = context
-                                            .read<BibleVersionCubit>()
-                                            .state
-                                            .version
-                                            .id;
-                                        context.read<BibliaBloc>().add(
-                                            GetChapter(
-                                                idVersao, livro.id, '1'));
-                                        context
-                                            .read<TabControllerCubit>()
-                                            .goToBible();
-                                      }
-                                    },
-                                  );
-                                },
-                                childCount:
-                                    estado.correspondenciasLivros.length,
-                              ),
-                            ),
-                          ],
-                          if (estado.resultados.results.isNotEmpty) ...[
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                              sliver: SliverToBoxAdapter(
-                                child: Text(
-                                  'Versículos (${estado.resultados.totalResults})',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, indice) {
-                                  final resultado =
-                                      estado.resultados.results[indice];
-                                  final isSelected = selectionState
-                                      .selectedResults
-                                      .containsKey(
-                                          '${resultado.versionId}-${resultado.book.id}-${resultado.chapter.number}-${resultado.verse.number}');
-
-                                  void aoInteragir() {
-                                    if (selectionState.isInSelectionMode) {
-                                      context.read<SearchSelectionBloc>().add(
-                                          ToggleSearchResultSelection(
-                                              resultado));
-                                      return;
-                                    }
-
-                                    final bibliaBloc =
-                                        context.read<BibliaBloc>();
-                                    context.read<VerseHistoryBloc>().add(
-                                          AddVerseToHistory(
-                                            verseRef:
-                                                '${resultado.book.id} ${resultado.chapter.number}:${resultado.verse.number}',
-                                            versionId: resultado.versionId,
-                                          ),
-                                        );
-                                    context
-                                        .read<BibleVersionCubit>()
-                                        .changeVersionById(resultado.versionId);
-                                    bibliaBloc.add(
-                                      GetChapter(
-                                        resultado.versionId,
-                                        resultado.book.id,
-                                        resultado.chapter.number.toString(),
-                                        verse: resultado.verse.number,
-                                      ),
-                                    );
-                                    if (Navigator.of(context).canPop()) {
-                                      Navigator.of(context).pop(resultado);
-                                    } else {
-                                      context
-                                          .read<TabControllerCubit>()
-                                          .goToBible();
-                                    }
-                                  }
-
-                                  return ListTile(
-                                    onTap: aoInteragir,
-                                    onLongPress: () {
-                                      context.read<SearchSelectionBloc>().add(
-                                          ToggleSearchResultSelection(
-                                              resultado));
-                                    },
-                                    selected: isSelected,
-                                    selectedTileColor: Theme.of(context)
-                                        .primaryColor
-                                        .withOpacity(0.1),
-                                    titleAlignment: ListTileTitleAlignment.top,
-                                    leading: selectionState.isInSelectionMode
-                                        ? Checkbox(
-                                            value: isSelected,
-                                            onChanged: (_) => aoInteragir(),
-                                          )
-                                        : null,
-                                    title: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${resultado.book.name} ${resultado.chapter.number}:${resultado.verse.number}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleSmall
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14,
-                                              ),
-                                        ),
-                                        const Gap(8),
-                                        Text(
-                                          '(${resultado.versionId})',
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary),
-                                        ),
-                                      ],
-                                    ),
-                                    subtitle: HighlightedText(
-                                      text: resultado.verse.text,
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color,
-                                      ),
-                                      highlightedWords: estado.consultas
-                                          .map((q) => q.term)
-                                          .where((t) => t.isNotEmpty)
-                                          .toList(),
-                                      highlightStyle: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
-                                          backgroundColor: Colors.yellow),
-                                    ),
-                                  );
-                                },
-                                childCount: estado.resultados.results.length,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ],
+                      ..._buildSearchContent(context, estado, selectionState),
                     ],
                   );
                 },
@@ -703,131 +142,199 @@ class _TelaBuscaState extends State<TelaBusca> {
       ),
     );
   }
-}
 
-class NoResultToSingleWorldWidget extends StatelessWidget {
-  const NoResultToSingleWorldWidget({
-    super.key,
-  });
+  List<Widget> _buildSearchContent(BuildContext context, EstadoBusca estado,
+      SearchSelectionState selectionState) {
+    if (estado is BuscaInicial) {
+      return [
+        const SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: NoResultToSingleWorldWidget(),
+          ),
+        )
+      ];
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(CupertinoIcons.search,
-                  color: Theme.of(context).primaryColor, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Pesquisa avançada',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold,
+    if (estado is BuscaCarregando) {
+      return [
+        const SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(child: CircularProgressIndicator()),
+        )
+      ];
+    }
+
+    if (estado is BuscaTermoCurto) {
+      return [
+        const SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+              child: Text('O termo de busca deve ter pelo menos 3 caracteres')),
+        )
+      ];
+    }
+
+    if (estado is BuscaErro) {
+      return [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(child: Text('Erro: ${estado.mensagem}')),
+        )
+      ];
+    }
+
+    if (estado is BuscaCarregada) {
+      if (estado.resultados.results.isEmpty &&
+          estado.correspondenciasLivros.isEmpty) {
+        return [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: NotFoundSearchWidget(
+                  term: estado.consultas.length == 1 &&
+                          estado.consultas.first.term.trim().contains(' ')
+                      ? estado.consultas.first.term
+                      : estado.consultas
+                          .map((q) => q.term)
+                          .where((t) => t.isNotEmpty)
+                          .join(' + '),
+                  isMultiWorldSelected: estado.consultas.length > 1,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Faça uma busca usando mais de uma palavra para encontrar versículos que contenham todas elas, mesmo que não estejam juntas.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[700], fontSize: 14),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              context.read<SearchBloc>().add(PesquisaRandomica());
-            },
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
             ),
-            child: const Text('Surpreenda com uma busca aleatória'),
-          ),
-        ],
-      ),
-    );
-  }
-}
+          )
+        ];
+      }
 
-class NotFoundSearchWidget extends StatelessWidget {
-  const NotFoundSearchWidget({
-    super.key,
-    required this.term,
-    this.isMultiWorldSelected = false,
-  });
-
-  final String term;
-  final bool isMultiWorldSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.lightbulb_outline,
-                  color: Theme.of(context).primaryColor, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Dica de Pesquisa',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'A busca por "$term" não retornou resultados exatos.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[700], fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          if (isMultiWorldSelected)
-            Container()
-          else ...[
-            const Text(
-              'Você pode usar a Pesquisa Avançada para encontrar versículos que contenham essas palavras separadamente.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+      return [
+        if (estado.correspondenciasLivros.isNotEmpty &&
+            !selectionState.isInSelectionMode) ...[
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Text('Livros',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.blue)),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                context.read<SearchBloc>().add(TransformarEmBuscaAvancada());
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, indice) {
+                final livro = estado.correspondenciasLivros[indice];
+                return BookSearchTile(
+                  livro: livro,
+                  onTap: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop(livro);
+                    } else {
+                      final idVersao =
+                          context.read<BibleVersionCubit>().state.version.id;
+                      context
+                          .read<BibliaBloc>()
+                          .add(GetChapter(idVersao, livro.id, '1'));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const BibliaPage()),
+                      );
+                    }
+                  },
+                );
               },
-              icon: const Icon(Icons.auto_awesome, size: 18),
-              label: const Text('Ativar Pesquisa Avançada'),
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              childCount: estado.correspondenciasLivros.length,
+            ),
+          ),
+        ],
+        if (estado.resultados.results.isNotEmpty) ...[
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                'Versículos (${estado.resultados.totalResults})',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.blue,
                 ),
               ),
             ),
-          ]
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, indice) {
+                final resultado = estado.resultados.results[indice];
+                final isSelected = selectionState.selectedResults.containsKey(
+                    '${resultado.versionId}-${resultado.book.id}-${resultado.chapter.number}-${resultado.verse.number}');
+
+                return SearchResultTile(
+                  resultado: resultado,
+                  isSelected: isSelected,
+                  isInSelectionMode: selectionState.isInSelectionMode,
+                  highlightedWords: estado.consultas
+                      .map((q) => q.term)
+                      .where((t) => t.isNotEmpty)
+                      .toList(),
+                  onTap: () {
+                    if (selectionState.isInSelectionMode) {
+                      context
+                          .read<SearchSelectionBloc>()
+                          .add(ToggleSearchResultSelection(resultado));
+                      return;
+                    }
+
+                    context.read<VerseHistoryBloc>().add(
+                          AddVerseToHistory(
+                            verseRef:
+                                '${resultado.book.id} ${resultado.chapter.number}:${resultado.verse.number}',
+                            versionId: resultado.versionId,
+                          ),
+                        );
+                    context
+                        .read<BibleVersionCubit>()
+                        .changeVersionById(resultado.versionId);
+                    if (_controladorScroll.hasClients) {
+                      context
+                          .read<SearchBloc>()
+                          .add(AtualizarScrollBusca(_controladorScroll.offset));
+                    }
+
+                    context.read<BibliaBloc>().add(
+                          GetChapter(
+                            resultado.versionId,
+                            resultado.book.id,
+                            resultado.chapter.number.toString(),
+                            verse: resultado.verse.number,
+                          ),
+                        );
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop(resultado);
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const BibliaPage()),
+                      );
+                    }
+                  },
+                  onLongPress: () {
+                    context
+                        .read<SearchSelectionBloc>()
+                        .add(ToggleSearchResultSelection(resultado));
+                  },
+                );
+              },
+              childCount: estado.resultados.results.length,
+            ),
+          ),
         ],
-      ),
-    );
+      ];
+    }
+
+    return [];
   }
 }

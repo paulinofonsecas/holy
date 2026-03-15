@@ -28,14 +28,29 @@ class BibleAppBar extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
+                Center(child: BookSelectorWidget(onBookTap: onBookTap)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    VersaoWidget(key: keyBibleVersionTab),
-                    // Centered content is handled by the Stack's Center widget
-                    const Gap(
-                        48), // Spacer to avoid overlap if needed, but Center is absolute
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!(ModalRoute.of(context)?.isFirst ?? true)) ...[
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const Gap(8),
+                        ] else ...[
+                          VersaoWidget(
+                              key: (ModalRoute.of(context)?.isFirst ?? true)
+                                  ? keyBibleVersionTab
+                                  : null),
+                        ]
+                      ],
+                    ),
+                    const Gap(48),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -61,7 +76,6 @@ class BibleAppBar extends StatelessWidget {
                     ),
                   ],
                 ),
-                Center(child: BookSelectorWidget(onBookTap: onBookTap)),
               ],
             ),
           );
@@ -84,28 +98,43 @@ class BookSelectorWidget extends StatelessWidget {
     return BlocBuilder<BibliaBloc, BibliaState>(
       builder: (context, state) {
         if (state is BibleChapterLoaded) {
-          return InkWell(
-            onTap: onBookTap,
-            borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "${state.chapter.bookName} ${state.chapter.number}",
-                    key: keyBibleContentTab,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+          return Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline,
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: InkWell(
+              onTap: onBookTap,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Gap(2),
+                    Text(
+                      "${state.chapter.bookName} ${state.chapter.number}",
+                      key: (ModalRoute.of(context)?.isFirst ?? true)
+                          ? keyBibleContentTab
+                          : null,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Gap(4),
-                  const Icon(Icons.keyboard_arrow_down_rounded),
-                ],
+                    const Gap(4),
+                    const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 16,
+                    ),
+                  ],
+                ),
               ),
             ),
           );

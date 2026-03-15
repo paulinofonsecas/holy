@@ -23,12 +23,16 @@ REGRAS ESTRITAS DE COMPORTAMENTO:
 3. FORMATAÇÃO OBRIGATÓRIA (Markdown):
    - Comece com um parágrafo de **Resumo Central**.
    - Use **Bullet Points** para destacar temas, padrões ou subdivisões do assunto.
-   - Sempre cite a referência do trecho utilizado em formato de link Markdown (ex: [[João 1:12](bible://João/1/12)]). O formato do link deve ser estritamente `bible://NomeDoLivro/Capitulo/Versiculo`.
+   - Sempre cite a referência do trecho utilizado em formato de link Markdown padrão (ex: [João 1:12](bible://João/1/12)). O formato do link deve ser estritamente `bible://NomeDoLivro/Capitulo/Versiculo`.
    - Conclua com uma **Aplicação Prática** ou lição central extraída da leitura.
 4. LIMITAÇÃO DE DADOS: Se o contexto fornecido não for suficiente para responder à pergunta de forma profunda, avise educadamente que a análise está limitada aos textos recuperados na busca.
+5. Faça poucas referências, não exagere.
+6. Caso o usuário pedir para gerar uma relatorio atrás ves palavras: tudo, geral, ou mesmo campo fazio, você deve gerar um relatório completo atraves dos versiculos que estão no contexto.
+7. Garanta que os links com capitulos com acentos estejam corretos, por exemplo: "João" em vez de "Joao".
+8. Se o usuário pedir para gerar um relatório completo, gere um relatório completo.
 '''),
     );
-
+      
     _embeddingModel = GenerativeModel(
       model: dotenv.env['GEMINI_EMBEDDING_MODEL'] ?? 'text-embedding-004',
       apiKey: _apiKey,
@@ -95,7 +99,6 @@ REGRAS ESTRITAS DE COMPORTAMENTO:
   }
 
   Future<String> generateSummary(String query, List<String> context) async {
-    final logger = LoggerService();
     final prompt = '''
 CONTEXTO FORNECIDO (Resultados da Busca Vetorial Local):
 ${context.join('\n')}
@@ -106,10 +109,45 @@ Com base estritamente no contexto acima, elabore o entendimento aprofundado:''';
 
     try {
       final response = await _model.generateContent([Content.text(prompt)]);
-      return response.text ?? 'Não foi possível gerar um resumo.';
+      var text = response.text ?? 'Não foi possível gerar um resumo.';
+      // Post-process to ensure all [Book Chapter:Verse] are formatted as markdown links
+      final RegExp refPattern =
+          RegExp(r'\[(.*?)\s+(\d+):([0-9\-\,\.\s]+)\](?!\()');
+      text = text.replaceAllMapped(refPattern, (match) {
+        final book = match.group(1)?.trim();
+        final chapter = match.group(2);
+        final verse = match.group(3)?.trim();
+        if (book != null && book.isNotEmpty) {
+          final encodedBook = Uri.encodeComponent(book);
+          final encodedVerse = Uri.encodeComponent(verse ?? '');
+          return '[$book $chapter:$verse](bible://$encodedBook/$chapter/$encodedVerse)';
+        }
+        return match.group(0)!;
+      });
+      return text;
     } catch (e, stack) {
+      final logger = LoggerService();
       logger.error('Failed to generate summary', e, stack);
-      return 'Erro ao gerar entendimento aprofundado: ${e.toString()}';
+      rethrow;
     }
+  }
+
+  String formatErrorMessage(Object e) {
+    final errorStr = e.toString().toLowerCase();
+    if (errorStr.contains('quota') || errorStr.contains('429')) {
+      return 'O limite de uso gratuito foi atingido. Por favor, tente novamente em alguns minutos.';
+    }
+    if (errorStr.contains('safety rating') || errorStr.contains('blocked')) {
+      return 'O conteúdo foi bloqueado pelos filtros de segurança da IA. Tente uma pergunta diferente.';
+    }
+    if (errorStr.contains('model is busy') || errorStr.contains('503')) {
+      return 'O servidor da IA está sobrecarregado no momento. Tente novamente em breve.';
+    }
+    if (errorStr.contains('socketexception') ||
+        errorStr.contains('connection failed') ||
+        errorStr.contains('network_error')) {
+      return 'Erro de conexão. Verifique sua internet e tente novamente.';
+    }
+    return 'Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.';
   }
 }

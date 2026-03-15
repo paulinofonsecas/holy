@@ -16,7 +16,7 @@ void main() {
     repository = ComparisonRepositoryImpl(bibleRepository);
   });
 
-  ComparisonRequest _createRequest({
+  ComparisonRequest createRequest({
     List<String> targets = const ['ACF'],
   }) {
     return ComparisonRequest(
@@ -28,7 +28,7 @@ void main() {
     );
   }
 
-  BibleChapter _buildChapter(String versionId, String verseText) {
+  BibleChapter buildChapter(String versionId, String verseText) {
     return BibleChapter(
       bookId: 'GEN',
       bookName: 'Gênesis',
@@ -41,13 +41,13 @@ void main() {
   test('returns entries for available versions with verse text', () async {
     when(
       () => bibleRepository.getChapter('KJA', 'GEN', '1'),
-    ).thenAnswer((_) async => _buildChapter('KJA', 'No princípio'));
+    ).thenAnswer((_) async => buildChapter('KJA', 'No princípio'));
 
     when(
       () => bibleRepository.getChapter('ACF', 'GEN', '1'),
-    ).thenAnswer((_) async => _buildChapter('ACF', 'No começo'));
+    ).thenAnswer((_) async => buildChapter('ACF', 'No começo'));
 
-    final result = await repository.getComparison(_createRequest());
+    final result = await repository.getComparison(createRequest());
 
     expect(result, hasLength(2));
     expect(
@@ -63,7 +63,7 @@ void main() {
   test('marks entry unavailable when verse not found', () async {
     when(
       () => bibleRepository.getChapter('KJA', 'GEN', '1'),
-    ).thenAnswer((_) async => _buildChapter('KJA', 'No princípio'));
+    ).thenAnswer((_) async => buildChapter('KJA', 'No princípio'));
 
     when(
       () => bibleRepository.getChapter('ACF', 'GEN', '1'),
@@ -75,7 +75,7 @@ void main() {
           verses: const [],
         ));
 
-    final result = await repository.getComparison(_createRequest());
+    final result = await repository.getComparison(createRequest());
 
     final unavailable = result.firstWhere(
       (entry) => entry.versionId == 'ACF',
@@ -91,7 +91,7 @@ void main() {
       () => bibleRepository.getChapter('KJA', 'GEN', '1'),
     ).thenThrow(Exception('offline'));
 
-    final result = await repository.getComparison(_createRequest(targets: []));
+    final result = await repository.getComparison(createRequest(targets: []));
 
     expect(result, hasLength(1));
     final entry = result.single;

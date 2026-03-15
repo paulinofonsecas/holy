@@ -9,6 +9,7 @@ import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/services/feedback_service.dart';
 import '../../../feedback/views/about_view.dart';
 import '../../../theme/presentation/bloc/theme_bloc.dart';
+import '../../../tutorial/presentation/pages/tutorials_list_page.dart';
 import '../../../verse_of_the_day/presentation/pages/verse_of_the_day_settings_page.dart';
 import '../bloc/marked_verses_bloc.dart';
 import '../pages/marked_verses_list_page.dart';
@@ -59,14 +60,16 @@ class ProfileView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajustes'),
+        title: const Text('Eu Sou'),
         centerTitle: true,
       ),
       body: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (context, state) {
           return RefreshIndicator(
             onRefresh: () async {
-              context.read<MarkedVersesBloc>().add(LoadMarkedVerses());
+              context
+                  .read<MarkedVersesBloc>()
+                  .add(const LoadMarkedVerses(page: 1, pageSize: 30));
             },
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -80,7 +83,10 @@ class ProfileView extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const MarkedVersesListPage(),
+                        builder: (context) => BlocProvider(
+                          create: (context) => MarkedVersesBloc(context.read()),
+                          child: const MarkedVersesListPage(),
+                        ),
                       ),
                     );
                   },
@@ -142,9 +148,9 @@ class ProfileView extends StatelessWidget {
                   _buildProfileOption(
                     context,
                     key: keyTutorialField,
-                    icon: Icons.help_outline,
-                    title: 'Tutorial',
-                    subtitle: 'Rever o guia do aplicativo',
+                    icon: Icons.rocket_launch,
+                    title: 'Introdução Rápida',
+                    subtitle: 'Rever a introdução do aplicativo',
                     onTap: () {
                       onShowTutorial!();
                     },
@@ -153,10 +159,17 @@ class ProfileView extends StatelessWidget {
                 ],
                 _buildProfileOption(
                   context,
-                  icon: Icons.bug_report,
-                  title: 'Relatar um Problema',
-                  subtitle: 'Relatar um problema ou enviar feedback',
-                  onTap: () => _showFeedback(context),
+                  icon: Icons.help_outline,
+                  title: 'Ajuda e Tutoriais',
+                  subtitle: 'Guias e ajuda sobre as funcionalidades',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TutorialsListPage(),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 8),
                 _buildProfileOption(
@@ -165,6 +178,14 @@ class ProfileView extends StatelessWidget {
                   title: 'Sobre',
                   subtitle: 'Saiba mais sobre este aplicativo',
                   onTap: () => _navigateToAbout(context),
+                ),
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.bug_report,
+                  title: 'Relatar um Problema',
+                  subtitle: 'Relatar um problema ou enviar feedback',
+                  onTap: () => _showFeedback(context),
                 ),
               ],
             ),

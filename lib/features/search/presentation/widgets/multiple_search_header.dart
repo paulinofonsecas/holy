@@ -43,99 +43,41 @@ class MultipleSearchHeader extends StatelessWidget {
               if (queries.length > 1)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Critério:',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey),
-                      ),
-                      const SizedBox(width: 12),
-                      ToggleButtons(
-                        isSelected: [
-                          operadorGeral == JoinOperator.and,
-                          operadorGeral == JoinOperator.or,
-                        ],
-                        onPressed: (index) {
-                          final newOp =
-                              index == 0 ? JoinOperator.and : JoinOperator.or;
-                          context
-                              .read<SearchBloc>()
-                              .add(AlterarOperadorJoin(1, newOp));
-                        },
-                        borderRadius: BorderRadius.circular(8),
-                        constraints:
-                            const BoxConstraints(minHeight: 32, minWidth: 80),
-                        children: const [
-                          Text('E',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('OU',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const SizedBox(width: 8),
-                      Tooltip(
-                        message: operadorGeral == JoinOperator.and
-                            ? 'Mostrar versículos que contenham TODOS os termos'
-                            : 'Mostrar versículos que contenham QUALQUER um dos termos',
-                        child: const Icon(Icons.info_outline,
-                            size: 16, color: Colors.grey),
-                      ),
+                  child: ToggleButtons(
+                    isSelected: [
+                      operadorGeral == JoinOperator.and,
+                      operadorGeral == JoinOperator.or,
+                    ],
+                    onPressed: (index) {
+                      final newOp =
+                          index == 0 ? JoinOperator.and : JoinOperator.or;
+                      context
+                          .read<SearchBloc>()
+                          .add(AlterarOperadorJoin(1, newOp));
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    constraints:
+                        const BoxConstraints(minHeight: 32, minWidth: 80),
+                    children: const [
+                      Text('E', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('OU', style: TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
-
-              // Search bars with ReorderableListView
-              ReorderableListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: queries.length,
-                onReorder: (oldIndex, newIndex) {
+              SearchInputBar(
+                key: const ValueKey('search-bar'),
+                initialValue: searchState is BuscaCarregada &&
+                        searchState.consultas.isNotEmpty
+                    ? searchState.consultas[0].term
+                    : '',
+                showRemove: queries.length > 1,
+                hintText: 'Ex: O anjo do Senhor',
+                onChanged: (val) {
                   context
                       .read<SearchBloc>()
-                      .add(ReordenarConsultas(oldIndex, newIndex));
-                },
-                proxyDecorator:
-                    (Widget child, int index, Animation<double> animation) {
-                  return Material(
-                    elevation: 4,
-                    color: Colors.transparent,
-                    child: child,
-                  );
-                },
-                itemBuilder: (context, index) {
-                  final query = queries[index];
-                  return SearchInputBar(
-                    key: ValueKey('search-bar-$index'),
-                    initialValue: query.term,
-                    showRemove: queries.length > 1,
-                    hintText:
-                        index == 0 ? 'Ex: O anjo do Senhor' : 'Ex: no deserto',
-                    dragHandle: queries.length > 1
-                        ? ReorderableDragStartListener(
-                            index: index,
-                            child: const Icon(
-                              Icons.drag_handle,
-                              color: Colors.grey,
-                              size: 20,
-                            ),
-                          )
-                        : null,
-                    onChanged: (val) {
-                      context
-                          .read<SearchBloc>()
-                          .add(TermoBuscaAlterado(val, index: index));
-                    },
-                    onRemove: () {
-                      context.read<SearchBloc>().add(RemoverConsulta(index));
-                    },
-                  );
+                      .add(TermoBuscaAlterado(val, index: 0));
                 },
               ),
-
               const SizedBox(height: 8),
               if (searchState is BuscaCarregada)
                 InkWell(
@@ -151,7 +93,7 @@ class MultipleSearchHeader extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Todos as versões',
+                            'Todas as versões',
                             style: TextStyle(
                               fontSize: 16,
                               color: Theme.of(context).colorScheme.onSurface,
