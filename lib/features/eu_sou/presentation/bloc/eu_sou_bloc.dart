@@ -44,7 +44,8 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
         add(_UpdateStudiesEvent(previews));
       }
     });
-    
+
+    _deepUnderstandingBloc.add(const LoadHistoryEvent());
   }
 
   Future<void> _onLoad(LoadEuSou event, Emitter<EuSouState> emit) async {
@@ -157,4 +158,3 @@ class _UpdateEstudosCountEvent extends EuSouEvent {
   final int count;
   const _UpdateEstudosCountEvent(this.count);
 }
-

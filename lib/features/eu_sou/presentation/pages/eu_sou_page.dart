@@ -260,33 +260,69 @@ class _InlineSettings extends StatelessWidget {
     final current = prefs.getString('eu_sou_user_name') ?? '';
     if (!context.mounted) return;
 
-    final controller = TextEditingController(text: current);
-    await showDialog(
+    // Delegate lifecycle of the controller to a StatefulWidget inside the dialog
+    await showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Como posso te chamar?'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'O teu nome'),
-          textCapitalization: TextCapitalization.words,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              await prefs.setString('eu_sou_user_name', controller.text.trim());
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
+      builder: (ctx) => _EditNameDialog(
+        initialValue: current,
+        onSave: (name) async {
+          await prefs.setString('eu_sou_user_name', name);
+        },
       ),
     );
-    controller.dispose();
+  }
+}
+
+/// Dialog isolado com lifecycle correto do TextEditingController.
+class _EditNameDialog extends StatefulWidget {
+  final String initialValue;
+  final Future<void> Function(String) onSave;
+
+  const _EditNameDialog({required this.initialValue, required this.onSave});
+
+  @override
+  State<_EditNameDialog> createState() => _EditNameDialogState();
+}
+
+class _EditNameDialogState extends State<_EditNameDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Como posso te chamar?'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        decoration: const InputDecoration(hintText: 'O teu nome'),
+        textCapitalization: TextCapitalization.words,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () async {
+            await widget.onSave(_controller.text.trim());
+            if (context.mounted) Navigator.pop(context);
+          },
+          child: const Text('Guardar'),
+        ),
+      ],
+    );
   }
 }
 
