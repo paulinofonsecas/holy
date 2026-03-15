@@ -34,7 +34,7 @@ class EstudosPreviewSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'ESTUDOS E REFLEXÕES',
+              'Histórico de Estudos',
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,

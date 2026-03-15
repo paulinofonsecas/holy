@@ -14,6 +14,7 @@ import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:eu_sou/features/eu_sou/presentation/pages/eu_sou_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
@@ -23,6 +24,7 @@ import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScaffold extends StatefulWidget {
@@ -230,9 +232,11 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                   ),
                   const VerticalDivider(thickness: 1, width: 1),
                   Expanded(
-                    child: IndexedStack(
-                      index: currentIndex,
-                      children: _buildPages(context),
+                    child: _AnalysisBannerOverlay(
+                      child: IndexedStack(
+                        index: currentIndex,
+                        children: _buildPages(context),
+                      ),
                     ),
                   ),
                 ],
@@ -241,9 +245,11 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           }
 
           return Scaffold(
-            body: IndexedStack(
-              index: currentIndex,
-              children: _buildPages(context),
+            body: _AnalysisBannerOverlay(
+              child: IndexedStack(
+                index: currentIndex,
+                children: _buildPages(context),
+              ),
             ),
             bottomNavigationBar: ConvexAppBar(
               style: TabStyle.react,
@@ -279,6 +285,89 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Overlay transparente que exibe o banner de progresso de análise
+/// enquanto [DeepUnderstandingInProgress] estiver activo.
+class _AnalysisBannerOverlay extends StatelessWidget {
+  final Widget child;
+
+  const _AnalysisBannerOverlay({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child,
+        BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
+          builder: (context, state) {
+            final inProgress = state is DeepUnderstandingInProgress;
+            return AnimatedSlide(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              offset: inProgress ? Offset.zero : const Offset(0, 1),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: inProgress ? 1.0 : 0.0,
+                child: inProgress
+                    ? _AnalysisBanner(
+                        progress: state.progress,
+                        query: state.session.query,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Banner premium de progresso — aparece na base do ecrã.
+class _AnalysisBanner extends StatelessWidget {
+  final double progress;
+  final String query;
+
+  const _AnalysisBanner({required this.progress, required this.query});
+
+  @override
+  Widget build(BuildContext context) {
+    final pct = (progress * 100).round();
+
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LinearProgressIndicator(
+            value: progress > 0 ? progress : null,
+            minHeight: 3,
+            backgroundColor: const Color(0xFF2D2D4E),
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6C8EFF)),
+          ),
+          Container(
+            width: double.infinity,
+            color: const Color(0xFF1A1A2E).withOpacity(0.93),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Text(
+              'Gerando entendimento: $pct%',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withOpacity(0.90),
+                letterSpacing: 0.3,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }

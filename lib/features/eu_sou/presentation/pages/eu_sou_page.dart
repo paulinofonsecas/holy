@@ -20,13 +20,13 @@ import '../../../verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
 import '../../../verse_of_the_day/presentation/pages/verse_of_the_day_settings_page.dart';
 import '../../data/models/analysis_session_preview.dart';
 import '../bloc/eu_sou_bloc.dart';
+import '../utils/verse_navigation.dart';
 import '../widgets/essencia_section.dart'; // exports EssenciaSection + PraticaSection
 import '../widgets/estudos_preview_section.dart';
 import '../widgets/eu_sou_header.dart';
 import '../widgets/stats_row.dart';
 import '../widgets/verse_section.dart';
 import 'reflexoes_anteriores_page.dart';
-import '../utils/verse_navigation.dart';
 
 class EuSouPage extends StatefulWidget {
   const EuSouPage({super.key});
@@ -322,7 +322,6 @@ class _InlineSettings extends StatelessWidget {
           onTap: () => _editName(context),
         ),
         const SizedBox(height: 8),
-        const Divider(height: 1),
       ],
     );
   }

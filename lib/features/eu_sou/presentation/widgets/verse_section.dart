@@ -25,10 +25,24 @@ class VerseSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Linha decorativa curta
-        Container(
-          width: 32,
-          height: 1.5,
-          color: colorScheme.onSurface.withOpacity(0.25),
+        Row(
+          children: [
+            Container(
+              width: 32,
+              height: 1.5,
+              color: colorScheme.onSurface.withOpacity(0.25),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Reflexão do dia'.toUpperCase(),
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 2.0,
+                color: colorScheme.onSurface.withOpacity(0.45),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 28),
         Text(
@@ -59,8 +73,7 @@ class VerseSection extends StatelessWidget {
                   color: canNavigate
                       ? accentColor
                       : colorScheme.onSurface.withOpacity(0.5),
-                  decoration:
-                      canNavigate ? TextDecoration.underline : null,
+                  decoration: canNavigate ? TextDecoration.underline : null,
                   decorationColor: accentColor,
                 ),
               ),

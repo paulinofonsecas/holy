@@ -114,16 +114,6 @@ class _DeepUnderstandingHistoryPageState
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'ESTUDOS E REFLEXÕES',
-                              style: TextStyle(
-                                fontSize: 11,
-                                letterSpacing: 2.0,
-                                color: secondaryTextColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                           ],
                         ),
                       ),
