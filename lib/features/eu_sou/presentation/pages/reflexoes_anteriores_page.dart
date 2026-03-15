@@ -48,13 +48,7 @@ class _ReflexoesAnterioresPageState extends State<ReflexoesAnterioresPage> {
 
     if (mounted) {
       setState(() {
-        _history = [
-          ...history,
-          ...history,
-          ...history,
-          ...history,
-          ...history,
-        ];
+        _history = history;
         _loading = false;
       });
     }
@@ -159,8 +153,7 @@ class _ReflexaoCard extends StatelessWidget {
                       color: canNavigate
                           ? accentColor
                           : colorScheme.onSurface.withOpacity(0.45),
-                      decoration:
-                          canNavigate ? TextDecoration.underline : null,
+                      decoration: canNavigate ? TextDecoration.underline : null,
                       decorationColor: accentColor,
                     ),
                   ),

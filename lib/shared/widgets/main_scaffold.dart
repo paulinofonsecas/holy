@@ -302,25 +302,30 @@ class _AnalysisBannerOverlay extends StatelessWidget {
     return Stack(
       children: [
         child,
-        BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
-          builder: (context, state) {
-            final inProgress = state is DeepUnderstandingInProgress;
-            return AnimatedSlide(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              offset: inProgress ? Offset.zero : const Offset(0, 1),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 250),
-                opacity: inProgress ? 1.0 : 0.0,
-                child: inProgress
-                    ? _AnalysisBanner(
-                        progress: state.progress,
-                        query: state.session.query,
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            );
-          },
+        // Positioned é filho directo do Stack — obrigatório
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
+            builder: (context, state) {
+              final inProgress = state is DeepUnderstandingInProgress;
+              return AnimatedSlide(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                offset: inProgress ? Offset.zero : const Offset(0, 1),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 250),
+                  opacity: inProgress ? 1.0 : 0.0,
+                  child: inProgress
+                      ? _AnalysisBanner(
+                          progress: state.progress,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              );
+            },
+          ),
         ),
       ],
     );
@@ -330,45 +335,39 @@ class _AnalysisBannerOverlay extends StatelessWidget {
 /// Banner premium de progresso — aparece na base do ecrã.
 class _AnalysisBanner extends StatelessWidget {
   final double progress;
-  final String query;
 
-  const _AnalysisBanner({required this.progress, required this.query});
+  const _AnalysisBanner({required this.progress});
 
   @override
   Widget build(BuildContext context) {
     final pct = (progress * 100).round();
 
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          LinearProgressIndicator(
-            value: progress > 0 ? progress : null,
-            minHeight: 3,
-            backgroundColor: const Color(0xFF2D2D4E),
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6C8EFF)),
-          ),
-          Container(
-            width: double.infinity,
-            color: const Color(0xFF1A1A2E).withOpacity(0.93),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Text(
-              'Gerando entendimento: $pct%',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Colors.white.withOpacity(0.90),
-                letterSpacing: 0.3,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        LinearProgressIndicator(
+          value: progress > 0 ? progress : null,
+          minHeight: 3,
+          backgroundColor: const Color(0xFF2D2D4E),
+          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6C8EFF)),
+        ),
+        Container(
+          width: double.infinity,
+          color: const Color(0xFF1A1A2E).withOpacity(0.93),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Text(
+            'Gerando entendimento: $pct%',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withOpacity(0.90),
+              letterSpacing: 0.3,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
