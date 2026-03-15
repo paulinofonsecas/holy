@@ -160,7 +160,7 @@ class ProfileView extends StatelessWidget {
                 _buildProfileOption(
                   context,
                   icon: Icons.help_outline,
-                  title: 'Tutoriais',
+                  title: 'Ajuda e Tutoriais',
                   subtitle: 'Guias e ajuda sobre as funcionalidades',
                   onTap: () {
                     Navigator.push(
@@ -174,18 +174,18 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
-                  icon: Icons.bug_report,
-                  title: 'Relatar um Problema',
-                  subtitle: 'Relatar um problema ou enviar feedback',
-                  onTap: () => _showFeedback(context),
-                ),
-                const SizedBox(height: 8),
-                _buildProfileOption(
-                  context,
                   icon: Icons.info,
                   title: 'Sobre',
                   subtitle: 'Saiba mais sobre este aplicativo',
                   onTap: () => _navigateToAbout(context),
+                ),
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: Icons.bug_report,
+                  title: 'Relatar um Problema',
+                  subtitle: 'Relatar um problema ou enviar feedback',
+                  onTap: () => _showFeedback(context),
                 ),
               ],
             ),

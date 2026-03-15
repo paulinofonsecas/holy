@@ -23,8 +23,6 @@ class AboutView extends StackedView<AboutViewModel> {
 
     final accentColor = theme.colorScheme.primary;
 
-
-
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
@@ -43,9 +41,6 @@ class AboutView extends StackedView<AboutViewModel> {
                   _buildGrowthSection(context, viewModel),
                   const Gap(32),
                   _buildHeaderCard(context),
-                  const Gap(32),
-                  _buildFeaturesSection(
-                      context, viewModel, surfaceColor, accentColor),
                   const Gap(32),
                   _buildTestimonialsCarousel(
                       context, viewModel, surfaceColor, accentColor),
@@ -208,54 +203,6 @@ class AboutView extends StackedView<AboutViewModel> {
     );
   }
 
-
-  Widget _buildFeaturesSection(
-    BuildContext context,
-    AboutViewModel viewModel,
-    Color surfaceColor,
-    Color accentColor,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 16),
-          child: Text(
-            'FUNCIONALIDADES',
-            style: TextStyle(
-              fontSize: 12,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.6),
-            ),
-          ),
-        ),
-        ...viewModel.features.map((feature) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: surfaceColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outlineVariant
-                        .withValues(alpha: 0.3)),
-              ),
-              child: ListTile(
-                leading: Icon(feature['icon'] as IconData, color: accentColor),
-                title: Text(feature['title'] as String,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(feature['description'] as String,
-                    style: const TextStyle(fontSize: 13)),
-              ),
-            )),
-      ],
-    );
-  }
-
   Widget _buildFAQSection(
     BuildContext context,
     AboutViewModel viewModel,
@@ -351,7 +298,6 @@ class AboutView extends StackedView<AboutViewModel> {
       ],
     );
   }
-
 
   Widget _buildFooter(BuildContext context, AboutViewModel viewModel) {
     return Column(

@@ -14,10 +14,7 @@ import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
-import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
-import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
-import 'package:eu_sou/features/profile/presentation/pages/profile_page.dart';
+import 'package:eu_sou/features/eu_sou/presentation/pages/eu_sou_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/features/verse_of_the_day/domain/services/verse_of_the_day_service.dart';
@@ -166,19 +163,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     return [
       const BibliaPage(),
       const TelaBusca(),
-      const DeepUnderstandingHistoryPage(),
-      BlocProvider(
-        create: (context) => MarkedVersesBloc(
-          context.read<IMarkedVersesRepository>(),
-        ),
-        child: ProfilePage(
-          feedbackService: widget.feedbackService,
-          onShowTutorial: () {
-            context.read<TabControllerCubit>().goToBible();
-            showTutorial();
-          },
-        ),
-      ),
+      const EuSouPage(),
     ];
   }
 
@@ -238,13 +223,8 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                         label: Text(l10n.search),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.auto_awesome, key: keyStudiesTab),
-                        label: const Text('Estudos'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(CupertinoIcons.profile_circled,
-                            key: keyProfileTab),
-                        label: Text(l10n.profile),
+                        icon: Icon(CupertinoIcons.person, key: keyProfileTab),
+                        label: const Text('EU'),
                       ),
                     ],
                   ),
@@ -266,13 +246,12 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
               children: _buildPages(context),
             ),
             bottomNavigationBar: ConvexAppBar(
-              style: TabStyle.reactCircle,
+              style: TabStyle.react,
               backgroundColor: context.colorScheme.surface,
-              color: context.colorScheme.onSurfaceVariant,
-              activeColor: context.colorScheme.primaryContainer,
+              color: context.colorScheme.onSurface.withOpacity(0.6),
+              activeColor: context.colorScheme.primary,
               initialActiveIndex: currentIndex,
               onTap: (index) {
-                // caso ele ja estiver na index 0 e clicar novamente, vamos abrir o SwitchBookModal.show(context);
                 if (index == 0) {
                   if (currentIndex == 0) {
                     SwitchBookModal.show(context);
@@ -287,18 +266,13 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                   title: l10n.bible,
                 ),
                 TabItem(
-                  icon: Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
+                  icon:
+                      Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
                   title: l10n.search,
                 ),
                 TabItem(
-                  icon: Icon(Icons.auto_awesome, key: keyStudiesTab, size: 20),
-                  title: 'Estudos',
-                ),
-                TabItem(
-
-                  icon: Icon(CupertinoIcons.profile_circled,
-                      key: keyProfileTab, size: 20),
-                  title: l10n.profile,
+                  icon: Icon(CupertinoIcons.person, key: keyProfileTab, size: 20),
+                  title: 'EU',
                 ),
               ],
             ),

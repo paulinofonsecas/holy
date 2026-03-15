@@ -19,11 +19,7 @@ class TabControllerCubit extends Cubit<int> {
     emit(2);
   }
 
-  void goToHistory() {
-    emit(3);
-  }
-
   void goToProfile() {
-    emit(4);
+    emit(3);
   }
 }
