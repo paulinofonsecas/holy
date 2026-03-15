@@ -174,7 +174,7 @@ class _EuSouPageState extends State<EuSouPage> {
                         delegate: SliverChildListDelegate([
                           // — ZONA 1: HOJE —
                           BlocBuilder<ChangeMyNameCubit, ChangeMyNameState>(
-                            bloc: context.read<ChangeMyNameCubit>(),
+                            bloc: context.watch<ChangeMyNameCubit>(),
                             builder: (context, nameState) => EuSouHeader(
                               greetingWord: state.reflection?.greetingWord ??
                                   'Bem-vindo/a',
@@ -479,10 +479,10 @@ class _GenerateUnderstandingButton extends StatelessWidget {
         active ? accentColor.withOpacity(0.40) : disabledColor.withOpacity(0.4);
     final iconColor = active ? accentColor : disabledColor;
     final textColor = active ? accentColor : disabledColor;
-    final label = active
-        ? 'GERAR ENTENDIMENTO PROFUNDO'
-        : 'ENTENDIMENTO JÁ GERADO HOJE';
-    final icon = active ? Icons.auto_awesome_outlined : Icons.check_circle_outline;
+    final label =
+        active ? 'GERAR ENTENDIMENTO PROFUNDO' : 'ENTENDIMENTO JÁ GERADO HOJE';
+    final icon =
+        active ? Icons.auto_awesome_outlined : Icons.check_circle_outline;
 
     return GestureDetector(
       onTap: active ? onTap : null,

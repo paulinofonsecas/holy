@@ -221,7 +221,8 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                         label: Text(l10n.bible),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(CupertinoIcons.person, key: keyProfileTab),
+                        icon:
+                            Icon(CupertinoIcons.light_max, key: keyProfileTab),
                         label: const Text('Eu Sou'),
                       ),
                       NavigationRailDestination(
@@ -272,8 +273,8 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                   title: l10n.bible,
                 ),
                 TabItem(
-                  icon:
-                      Icon(CupertinoIcons.person, key: keyProfileTab, size: 20),
+                  icon: Icon(CupertinoIcons.light_max,
+                      key: keyProfileTab, size: 20),
                   title: 'Eu Sou',
                 ),
                 TabItem(
