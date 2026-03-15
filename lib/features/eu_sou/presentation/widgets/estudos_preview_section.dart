@@ -36,10 +36,11 @@ class EstudosPreviewSection extends StatelessWidget {
             Text(
               'Histórico de Estudos',
               style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 2.5,
-                color: colorScheme.onSurface.withOpacity(0.40),
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                fontStyle: FontStyle.italic,
+                color: colorScheme.onSurface.withOpacity(0.80),
+                height: 1.6,
               ),
             ),
             GestureDetector(
