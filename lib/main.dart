@@ -27,6 +27,7 @@ import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understa
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
 import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
+import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
 import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
 import 'package:eu_sou/features/eu_sou/presentation/bloc/eu_sou_bloc.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
@@ -113,6 +114,13 @@ void main() async {
     debugPrint('Main: Initializing verse notifications...');
     await verseService.scheduleNextNotifications();
 
+    // Reschedule daily growth reminders on every app launch
+    final dailyReminderService = DailyReminderService(
+      notificationService: notificationHandler.localNotificationService,
+      prefs: sharedPreferences,
+    );
+    await dailyReminderService.rescheduleAll();
+
     final profileRepo = ProfileRepository();
     final themeBloc = ThemeBloc(profileRepo);
 
@@ -132,6 +140,8 @@ void main() async {
       deepUnderstandingService: deepUnderstandingService,
       euSouRepository: euSouRepository,
       dailyContentService: dailyContentService,
+      streakService: streakService,
+      dailyReminderService: dailyReminderService,
     ));
   } catch (e) {
     debugPrint('Erro ao inicializar o aplicativo: $e');
@@ -152,6 +162,8 @@ class EntryPoint extends StatelessWidget {
   final DeepUnderstandingService deepUnderstandingService;
   final EuSouRepository euSouRepository;
   final DailyContentService dailyContentService;
+  final StreakService streakService;
+  final DailyReminderService dailyReminderService;
 
   const EntryPoint({
     super.key,
@@ -167,6 +179,8 @@ class EntryPoint extends StatelessWidget {
     required this.deepUnderstandingService,
     required this.euSouRepository,
     required this.dailyContentService,
+    required this.streakService,
+    required this.dailyReminderService,
   });
 
   @override
@@ -241,6 +255,15 @@ class EntryPoint extends StatelessWidget {
         ),
         RepositoryProvider<DailyContentService>.value(
           value: dailyContentService,
+        ),
+        RepositoryProvider<StreakService>.value(
+          value: streakService,
+        ),
+        RepositoryProvider<DailyReminderService>.value(
+          value: dailyReminderService,
+        ),
+        RepositoryProvider<SharedPreferences>.value(
+          value: sharedPreferences,
         ),
         BlocProvider(create: (context) => TabControllerCubit()),
         BlocProvider(

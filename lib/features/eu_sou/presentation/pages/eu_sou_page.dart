@@ -1,3 +1,4 @@
+import 'package:eu_sou/features/daily_growth/presentation/pages/daily_growth_page.dart';
 import 'package:eu_sou/features/eu_sou/domain/models/user_stats.dart';
 import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
 import 'package:flutter/material.dart';
@@ -281,6 +282,14 @@ class _InlineSettings extends StatelessWidget {
       children: [
         const Divider(height: 1),
         const SizedBox(height: 8),
+        _SettingsItem(
+          icon: Icons.trending_up_outlined,
+          title: 'Crescimento Diário',
+          onTap: () => Navigator.push(
+            context,
+            DailyGrowthPage.routeFrom(context),
+          ),
+        ),
         _SettingsItem(
           icon: Icons.bookmark_outline,
           title: 'Versículos Marcados',
