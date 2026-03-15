@@ -27,7 +27,7 @@ class ThemeToggleButton extends StatelessWidget {
       case ThemeMode.dark:
         return Icons.dark_mode_outlined;
       case ThemeMode.system:
-        return Icons.auto_mode_outlined;
+        return Icons.settings_display_outlined;
     }
   }
 

@@ -80,6 +80,8 @@ class EuSouRepository implements IEuSouRepository {
 
   @override
   Future<UserStats> getUserStats() async {
+    // Regista hoje como dia de presença (abre a aba Eu Sou = conta como presença)
+    await _streakService.recordPresence();
     final presencaDias = await _streakService.getStreak();
     final escritas = await _countEscritas();
     final estudos = await _countEstudos();

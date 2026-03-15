@@ -1,23 +1,48 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
-/// Calcula a sequência de dias consecutivos de leitura bíblica.
+/// Calcula a sequência de dias consecutivos de presença.
 ///
-/// Fonte de verdade: tabela SQLite `verse_history` (leituras reais de versículos).
-/// Cache em SharedPreferences invalidado diariamente para performance.
+/// Fontes de verdade (mescladas):
+///   1. Tabela SQLite `verse_history` — leituras reais de versículos.
+///   2. `_kPresenceDates` em SharedPreferences — aberturas da aba Eu Sou.
+///
+/// Isto garante que o streak começa no primeiro dia de uso da app,
+/// mesmo que o utilizador ainda não tenha lido um versículo na aba Bíblia.
 class StreakService {
   final Database _db;
   final SharedPreferences _prefs;
 
   static const _kCachedStreakDate = 'streak_cached_date';
   static const _kCachedStreakValue = 'streak_cached_value';
+  static const _kPresenceDates = 'streak_presence_dates';
+  static const _maxPresenceDays = 400;
 
   StreakService({required Database db, required SharedPreferences prefs})
       : _db = db,
         _prefs = prefs;
 
-  /// Retorna o número de dias consecutivos de leitura.
+  /// Regista hoje como dia de presença (chamado na abertura da aba Eu Sou).
+  /// Invalida o cache se for uma data nova.
+  Future<void> recordPresence() async {
+    final today = _dateKey(DateTime.now());
+    final raw = _prefs.getString(_kPresenceDates);
+    final List<String> dates =
+        raw != null ? List<String>.from(jsonDecode(raw) as List) : [];
+
+    if (!dates.contains(today)) {
+      dates.insert(0, today);
+      // Mantém só os últimos _maxPresenceDays para não crescer indefinidamente
+      final trimmed = dates.take(_maxPresenceDays).toList();
+      await _prefs.setString(_kPresenceDates, jsonEncode(trimmed));
+      await invalidateCache();
+    }
+  }
+
+  /// Retorna o número de dias consecutivos de presença.
   /// Usa cache diário para evitar queries repetidas.
   Future<int> getStreak() async {
     final todayKey = _dateKey(DateTime.now());
@@ -40,30 +65,44 @@ class StreakService {
 
   Future<int> _calculateStreak() async {
     try {
-      // Busca datas distintas de leitura (verse_history) em ordem decrescente
+      final Set<DateTime> allDates = {};
+
+      // 1. Datas de verse_history (leituras na aba Bíblia)
       final rows = await _db.rawQuery('''
         SELECT DISTINCT date(timestamp / 1000, 'unixepoch', 'localtime') AS d
         FROM verse_history
         ORDER BY d DESC
       ''');
+      for (final r in rows) {
+        allDates.add(DateTime.parse(r['d'] as String));
+      }
 
-      if (rows.isEmpty) return 0;
+      // 2. Datas de presença (aberturas da aba Eu Sou)
+      final raw = _prefs.getString(_kPresenceDates);
+      if (raw != null) {
+        final List<dynamic> presenceDates = jsonDecode(raw);
+        for (final d in presenceDates) {
+          allDates.add(DateTime.parse(d as String));
+        }
+      }
 
-      final dates = rows
-          .map((r) => DateTime.parse(r['d'] as String))
-          .toList(growable: false);
+      if (allDates.isEmpty) return 0;
+
+      // Ordena decrescentemente (mais recente primeiro)
+      final sorted = allDates.toList()
+        ..sort((a, b) => b.compareTo(a));
 
       final today = DateUtils.dateOnly(DateTime.now());
       final yesterday = today.subtract(const Duration(days: 1));
 
-      // Grace window: streak ainda ativo se hoje ou ontem tiver leitura
-      if (dates.first != today && dates.first != yesterday) return 0;
+      // Grace window: streak activo se hoje ou ontem tiver presença
+      if (sorted.first != today && sorted.first != yesterday) return 0;
 
       // Conta dias consecutivos a partir da data mais recente
       int streak = 0;
-      DateTime expected = dates.first;
+      DateTime expected = sorted.first;
 
-      for (final date in dates) {
+      for (final date in sorted) {
         if (DateUtils.isSameDay(date, expected)) {
           streak++;
           expected = expected.subtract(const Duration(days: 1));

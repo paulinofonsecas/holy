@@ -33,7 +33,6 @@ class EuSouPage extends StatefulWidget {
 }
 
 class _EuSouPageState extends State<EuSouPage> {
-
   @override
   void initState() {
     super.initState();

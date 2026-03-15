@@ -65,14 +65,7 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
         recentStudies: event.studies,
       ));
     }
-
-    if (current is EuSouLoading) {
-      emit(EuSouLoaded(
-        reflection: null,
-        stats: null,
-        recentStudies: event.studies,
-      ));
-    }
+    // Se ainda em EuSouLoading, os estudos serão incluídos quando _loadData completar
   }
 
   Future<void> _onUpdateEstudosCount(
@@ -132,10 +125,17 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
 
       final stats = await _repository.getUserStats();
 
+      // Inclui estudos já carregados pelo DeepUnderstandingBloc (evita flash vazio)
+      final currentStudies = _deepUnderstandingBloc.state.sessions
+          .where((s) => s.status == 'completed')
+          .take(5)
+          .map(AnalysisSessionPreview.fromSession)
+          .toList();
+
       emit(EuSouLoaded(
         reflection: reflection,
         stats: stats,
-        recentStudies: const [],
+        recentStudies: currentStudies,
       ));
     } catch (e) {
       emit(EuSouError('Erro ao carregar reflexão: ${e.toString()}'));

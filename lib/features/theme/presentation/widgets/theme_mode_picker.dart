@@ -76,7 +76,7 @@ class ThemeModePicker extends StatelessWidget {
                   context,
                   title: 'Sistema',
                   subtitle: 'Segue o tema do dispositivo',
-                  icon: Icons.auto_mode_outlined,
+                  icon: Icons.settings_display_outlined,
                   themeMode: ThemeMode.system,
                   currentMode: state.themeMode,
                 ),
