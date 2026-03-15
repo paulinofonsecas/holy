@@ -1,24 +1,23 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../shared/cubit/bible_version_cubit.dart';
 import '../../../deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import '../../../deep_understanding/presentation/pages/deep_understanding_page.dart';
+import '../../../feedback/views/about_view.dart';
+import '../../../profile/domain/repositories/i_marked_verses_repository.dart';
+import '../../../profile/presentation/bloc/marked_verses_bloc.dart';
 import '../../../profile/presentation/pages/marked_verses_list_page.dart';
 import '../../../profile/presentation/pages/theme_settings_page.dart';
 import '../../../profile/presentation/pages/verse_history_page.dart';
-import '../../../profile/presentation/bloc/marked_verses_bloc.dart';
-import '../../../profile/domain/repositories/i_marked_verses_repository.dart';
+import '../../../tutorial/presentation/pages/tutorials_list_page.dart';
 import '../../../verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
 import '../../../verse_of_the_day/presentation/pages/verse_of_the_day_settings_page.dart';
-import '../../../feedback/views/about_view.dart';
-import '../../../tutorial/presentation/pages/tutorials_list_page.dart';
-import '../../../../shared/cubit/bible_version_cubit.dart';
 import '../../data/models/analysis_session_preview.dart';
 import '../bloc/eu_sou_bloc.dart';
-import '../widgets/essencia_section.dart';
+import '../widgets/essencia_section.dart'; // exports EssenciaSection + PraticaSection
 import '../widgets/estudos_preview_section.dart';
 import '../widgets/eu_sou_header.dart';
 import '../widgets/stats_row.dart';
@@ -42,8 +41,7 @@ class _EuSouPageState extends State<EuSouPage> {
   }
 
   void _loadData() {
-    final versionId =
-        context.read<BibleVersionCubit>().state.version.id;
+    final versionId = context.read<BibleVersionCubit>().state.version.id;
     context.read<EuSouBloc>().add(LoadEuSou(versionId: versionId));
     context.read<DeepUnderstandingBloc>().add(const LoadHistoryEvent());
   }
@@ -57,32 +55,24 @@ class _EuSouPageState extends State<EuSouPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor =
-        isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
-    final accentColor =
-        isDark ? colorScheme.primary : const Color(0xFF3B5E53);
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final accentColor = isDark ? colorScheme.primary : const Color(0xFF3B5E53);
 
     return Scaffold(
       backgroundColor: bgColor,
       body: MultiBlocListener(
         listeners: [
-          // Sincroniza estudos recentes do DeepUnderstandingBloc → EuSouBloc
+          // Sincroniza 1 estudo recente do DeepUnderstandingBloc → EuSouBloc
           BlocListener<DeepUnderstandingBloc, DeepUnderstandingState>(
             listener: (context, state) {
               final sessions = state.sessions
                   .where((s) => s.status == 'completed')
-                  .take(3)
+                  .take(1)
                   .map(AnalysisSessionPreview.fromSession)
                   .toList();
-              context
-                  .read<EuSouBloc>()
-                  .updateRecentStudies(sessions);
-              context
-                  .read<EuSouBloc>()
-                  .updateEstudosCount(
-                    state.sessions
-                        .where((s) => s.status == 'completed')
-                        .length,
+              context.read<EuSouBloc>().updateRecentStudies(sessions);
+              context.read<EuSouBloc>().updateEstudosCount(
+                    state.sessions.where((s) => s.status == 'completed').length,
                   );
             },
           ),
@@ -92,22 +82,10 @@ class _EuSouPageState extends State<EuSouPage> {
             return CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
-                // App bar com botão de configurações
-                SliverAppBar(
-                  backgroundColor: bgColor,
-                  elevation: 0,
-                  scrolledUnderElevation: 0,
-                  floating: true,
-                  actions: [
-                    IconButton(
-                      icon: Icon(
-                        CupertinoIcons.settings,
-                        size: 20,
-                        color: colorScheme.onSurface.withOpacity(0.55),
-                      ),
-                      onPressed: () => _showSettings(context),
-                    ),
-                  ],
+                // Espaço seguro no topo sem app bar
+                const SliverSafeArea(
+                  sliver: SliverToBoxAdapter(
+                      child: SizedBox(height: 8)),
                 ),
 
                 if (state is EuSouLoading)
@@ -123,7 +101,7 @@ class _EuSouPageState extends State<EuSouPage> {
                   )
                 else if (state is EuSouLoaded)
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(28, 4, 28, 48),
+                    padding: const EdgeInsets.fromLTRB(28, 8, 28, 48),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         // — ZONA 1: HOJE —
@@ -164,10 +142,12 @@ class _EuSouPageState extends State<EuSouPage> {
                         ),
                         const SizedBox(height: 48),
 
-                        // — ZONA 2: ESTUDOS —
-                        EstudosPreviewSection(
-                          studies: state.recentStudies,
-                        ),
+                        // — ZONA 2: ESTUDOS (1 estudo) —
+                        EstudosPreviewSection(studies: state.recentStudies),
+                        const SizedBox(height: 12),
+
+                        // — ZONA 3: FUNCIONALIDADES —
+                        const _InlineSettings(),
                         const SizedBox(height: 80),
                       ]),
                     ),
@@ -177,9 +157,11 @@ class _EuSouPageState extends State<EuSouPage> {
           },
         ),
       ),
-      // FAB para novo estudo
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _startNewStudy(context),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const DeepUnderstandingPage()),
+        ),
         backgroundColor: accentColor,
         foregroundColor: Colors.white,
         elevation: 2,
@@ -196,13 +178,6 @@ class _EuSouPageState extends State<EuSouPage> {
     );
   }
 
-  void _startNewStudy(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const DeepUnderstandingPage()),
-    );
-  }
-
   void _navigateToReflexoes(BuildContext context) {
     Navigator.push(
       context,
@@ -214,141 +189,89 @@ class _EuSouPageState extends State<EuSouPage> {
       ),
     );
   }
-
-  void _showSettings(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _SettingsSheet(parentContext: context),
-    );
-  }
 }
 
-/// Sheet de configurações que agrega as opções do antigo ProfileView.
-class _SettingsSheet extends StatelessWidget {
-  final BuildContext parentContext;
-  const _SettingsSheet({required this.parentContext});
+/// Seção inline de funcionalidades (substitui o antigo modal de configurações).
+class _InlineSettings extends StatelessWidget {
+  const _InlineSettings();
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return DraggableScrollableSheet(
-      initialChildSize: 0.65,
-      minChildSize: 0.4,
-      maxChildSize: 0.92,
-      expand: false,
-      builder: (_, scrollController) => ListView(
-        controller: scrollController,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: colorScheme.onSurface.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(2),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(height: 1),
+        const SizedBox(height: 8),
+        _SettingsItem(
+          icon: Icons.bookmark_outline,
+          title: 'Versículos Marcados',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider(
+                create: (ctx) =>
+                    MarkedVersesBloc(ctx.read<IMarkedVersesRepository>()),
+                child: const MarkedVersesListPage(),
               ),
             ),
           ),
-          _SettingsItem(
-            icon: Icons.bookmark_outline,
-            title: 'Versículos Marcados',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                parentContext,
-                MaterialPageRoute(
-                  builder: (_) => BlocProvider(
-                    create: (ctx) =>
-                        MarkedVersesBloc(ctx.read<IMarkedVersesRepository>()),
-                    child: const MarkedVersesListPage(),
-                  ),
-                ),
-              );
-            },
+        ),
+        _SettingsItem(
+          icon: Icons.menu_book_outlined,
+          title: 'Histórico de Versículos',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const VerseHistoryPage()),
           ),
-          _SettingsItem(
-            icon: Icons.menu_book_outlined,
-            title: 'Histórico de Versículos',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                parentContext,
-                MaterialPageRoute(
-                    builder: (_) => const VerseHistoryPage()),
-              );
-            },
+        ),
+        _SettingsItem(
+          icon: Icons.notifications_none,
+          title: 'Versículo do Dia',
+          onTap: () {
+            final versionId =
+                context.read<BibleVersionCubit>().state.version.id;
+            context.read<VerseOfTheDayBloc>().add(
+                  LoadVerseOfTheDaySettings(defaultVersionId: versionId),
+                );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const VerseOfTheDaySettingsPage()),
+            );
+          },
+        ),
+        _SettingsItem(
+          icon: Icons.palette_outlined,
+          title: 'Tema e Cores',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ThemeSettingsPage()),
           ),
-          _SettingsItem(
-            icon: Icons.notifications_none,
-            title: 'Versículo do Dia',
-            onTap: () {
-              Navigator.pop(context);
-              final versionId =
-                  parentContext.read<BibleVersionCubit>().state.version.id;
-              parentContext.read<VerseOfTheDayBloc>().add(
-                    LoadVerseOfTheDaySettings(defaultVersionId: versionId),
-                  );
-              Navigator.push(
-                parentContext,
-                MaterialPageRoute(
-                    builder: (_) => const VerseOfTheDaySettingsPage()),
-              );
-            },
+        ),
+        _SettingsItem(
+          icon: Icons.help_outline,
+          title: 'Ajuda e Tutoriais',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TutorialsListPage()),
           ),
-          _SettingsItem(
-            icon: Icons.palette_outlined,
-            title: 'Tema e Cores',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                parentContext,
-                MaterialPageRoute(
-                    builder: (_) => const ThemeSettingsPage()),
-              );
-            },
+        ),
+        _SettingsItem(
+          icon: Icons.info_outline,
+          title: 'Sobre',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AboutView()),
           ),
-          _SettingsItem(
-            icon: Icons.help_outline,
-            title: 'Ajuda e Tutoriais',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                parentContext,
-                MaterialPageRoute(
-                    builder: (_) => const TutorialsListPage()),
-              );
-            },
-          ),
-          _SettingsItem(
-            icon: Icons.info_outline,
-            title: 'Sobre',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                parentContext,
-                MaterialPageRoute(builder: (_) => const AboutView()),
-              );
-            },
-          ),
-          _SettingsItem(
-            icon: Icons.person_outline,
-            title: 'Meu Nome',
-            onTap: () {
-              Navigator.pop(context);
-              _editName(parentContext);
-            },
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
+        ),
+        _SettingsItem(
+          icon: Icons.person_outline,
+          title: 'Meu Nome',
+          onTap: () => _editName(context),
+        ),
+        const SizedBox(height: 8),
+        const Divider(height: 1),
+      ],
     );
   }
 
@@ -375,8 +298,7 @@ class _SettingsSheet extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              await prefs.setString(
-                  'eu_sou_user_name', controller.text.trim());
+              await prefs.setString('eu_sou_user_name', controller.text.trim());
               if (ctx.mounted) Navigator.pop(ctx);
             },
             child: const Text('Guardar'),
@@ -440,7 +362,8 @@ class _ErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+                color:
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
               ),
             ),
             const SizedBox(height: 20),
