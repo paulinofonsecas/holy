@@ -67,18 +67,18 @@ class _DeepUnderstandingHistoryPageState
           final sessions = state.sessions.toList()
             ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-          if (sessions.isEmpty && state is! DeepUnderstandingInProgress) {
-            if (state is DeepUnderstandingHistoryError) {
-              return Center(
-                  child: Text('Erro ao carregar histórico: ${state.error}'));
-            }
-            return Center(
-              child: Text(
-                'Nenhuma reflexão registrada ainda.',
-                style: TextStyle(color: secondaryTextColor, fontSize: 16),
-              ),
-            );
-          }
+          // if (sessions.isEmpty && state is! DeepUnderstandingInProgress) {
+          //   if (state is DeepUnderstandingHistoryError) {
+          //     return Center(
+          //         child: Text('Erro ao carregar histórico: ${state.error}'));
+          //   }
+          //   return Center(
+          //     child: Text(
+          //       'Nenhuma reflexão registrada ainda.',
+          //       style: TextStyle(color: secondaryTextColor, fontSize: 16),
+          //     ),
+          //   );
+          // }
 
           final grouped = <String, List<AnalysisSession>>{};
           for (var s in sessions) {
@@ -128,21 +128,33 @@ class _DeepUnderstandingHistoryPageState
                         ),
                       ),
                     ),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final keys = grouped.keys.toList();
-                            final dateStr = keys[index];
-                            final dateSessions = grouped[dateStr]!;
-                            return _buildDateGroup(
-                                context, dateStr, dateSessions);
-                          },
-                          childCount: grouped.keys.length,
+                    if (grouped.isEmpty)
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Text(
+                            'Nenhuma reflexão registrada ainda.',
+                            style: TextStyle(
+                                color: secondaryTextColor, fontSize: 16),
+                          ),
+                        ),
+                      )
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final keys = grouped.keys.toList();
+                              final dateStr = keys[index];
+                              final dateSessions = grouped[dateStr]!;
+                              return _buildDateGroup(
+                                  context, dateStr, dateSessions);
+                            },
+                            childCount: grouped.keys.length,
+                          ),
                         ),
                       ),
-                    ),
                     const SliverToBoxAdapter(child: SizedBox(height: 40)),
                   ],
                 ),

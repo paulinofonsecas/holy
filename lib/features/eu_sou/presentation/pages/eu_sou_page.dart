@@ -5,8 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../shared/bible_models.dart';
 import '../../../../shared/cubit/bible_version_cubit.dart';
 import '../../../deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import '../../../deep_understanding/presentation/pages/deep_understanding_page.dart';
 import '../../../feedback/views/about_view.dart';
 import '../../../profile/domain/repositories/i_marked_verses_repository.dart';
 import '../../../profile/presentation/bloc/marked_verses_bloc.dart';
@@ -24,6 +26,7 @@ import '../widgets/eu_sou_header.dart';
 import '../widgets/stats_row.dart';
 import '../widgets/verse_section.dart';
 import 'reflexoes_anteriores_page.dart';
+import '../utils/verse_navigation.dart';
 
 class EuSouPage extends StatefulWidget {
   const EuSouPage({super.key});
@@ -43,6 +46,52 @@ class _EuSouPageState extends State<EuSouPage> {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
     context.read<EuSouBloc>().add(LoadEuSou(versionId: versionId));
     context.read<DeepUnderstandingBloc>().add(const LoadHistoryEvent());
+  }
+
+  /// Gera um entendimento profundo a partir do versículo da reflexão diária.
+  void _generateUnderstanding(
+      BuildContext context, String verseText, String verseReference) {
+    if (!VerseNavigation.isNavigable(verseReference)) return;
+    try {
+      final trimmed = verseReference.trim();
+      final lastSpace = trimmed.lastIndexOf(' ');
+      if (lastSpace < 0) return;
+
+      final bookName = trimmed.substring(0, lastSpace).trim();
+      final refPart = trimmed.substring(lastSpace + 1).trim();
+      if (!refPart.contains(':')) return;
+
+      final colonIdx = refPart.indexOf(':');
+      final chapter = int.tryParse(refPart.substring(0, colonIdx));
+      if (chapter == null) return;
+
+      final versePart = refPart.substring(colonIdx + 1);
+      final verseNum =
+          int.tryParse(versePart.split('-').first.split(',').first.trim()) ?? 1;
+
+      final book = BibleBooks.byName(bookName);
+      if (book == null) return;
+
+      final versionId = context.read<BibleVersionCubit>().state.version.id;
+      final bibleVerse = BibleVerse(number: verseNum, text: verseText);
+
+      context.read<DeepUnderstandingBloc>().add(
+            StartAnalysisForVersesEvent(
+              'Entendimento aprofundado: $verseReference',
+              [bibleVerse],
+              book.bookId,
+              chapter,
+              versionId,
+            ),
+          );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const DeepUnderstandingPage()),
+      );
+    } catch (_) {
+      // Referência não reconhecida — ignora silenciosamente
+    }
   }
 
   @override
@@ -128,6 +177,19 @@ class _EuSouPageState extends State<EuSouPage> {
                           PraticaSection(
                               text: state.reflection?.pratica ??
                                   'Carrega para atualizar a prática de hoje'),
+                          const SizedBox(height: 32),
+
+                          // CTA — Gerar entendimento profundo a partir do versículo
+                          if (VerseNavigation.isNavigable(
+                              state.reflection?.verseReference ?? ''))
+                            _GenerateUnderstandingButton(
+                              onTap: () => _generateUnderstanding(
+                                context,
+                                state.reflection!.verseText,
+                                state.reflection!.verseReference,
+                              ),
+                            ),
+
                           const SizedBox(height: 36),
 
                           // CTA reflexões anteriores
@@ -363,6 +425,49 @@ class _SettingsItem extends StatelessWidget {
           size: 18,
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.30)),
       onTap: onTap,
+    );
+  }
+}
+
+/// Botão editorial para gerar entendimento profundo a partir da reflexão diária.
+class _GenerateUnderstandingButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _GenerateUnderstandingButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = isDark
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFF3B5E53);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          border: Border.all(color: accentColor.withOpacity(0.40), width: 1),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.auto_awesome_outlined, size: 16, color: accentColor),
+            const SizedBox(width: 10),
+            Text(
+              'GERAR ENTENDIMENTO PROFUNDO',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.8,
+                color: accentColor,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
