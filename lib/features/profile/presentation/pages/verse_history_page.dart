@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../shared/cubit/bible_version_cubit.dart';
-import '../../../../shared/cubit/tab_controller_cubit.dart';
 import '../../../biblia/bloc/biblia_bloc.dart';
+import '../../../biblia/views/biblia_view.dart';
 import '../bloc/verse_history_bloc.dart';
 
 class VerseHistoryPage extends StatelessWidget {
@@ -144,10 +144,11 @@ class VerseHistoryPage extends StatelessWidget {
                                 verse: verse,
                               ),
                             );
-                        context.read<TabControllerCubit>().goToBible();
-                        if (Navigator.canPop(context)) {
-                          Navigator.pop(context);
-                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const BibliaPage()),
+                        );
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:developer' show log;
 
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
-import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../biblia/bloc/biblia_bloc.dart';
+import '../../../biblia/views/biblia_view.dart';
 import '../bloc/marked_verses_bloc.dart';
 import '../widgets/marked_verse_item.dart';
 
@@ -320,10 +320,10 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
                   verse: verse.verse,
                 ),
               );
-              context.read<TabControllerCubit>().goToBible();
-              if (Navigator.canPop(context)) {
-                Navigator.pop(context);
-              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BibliaPage()),
+              );
             } catch (e) {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);

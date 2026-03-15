@@ -9,7 +9,6 @@ import 'package:eu_sou/features/search/presentation/widgets/search_empty_states.
 import 'package:eu_sou/features/search/presentation/widgets/search_result_tile.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_version_filter.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
-import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import "package:eu_sou/features/biblia/views/biblia_view.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -430,7 +429,10 @@ class _InlineVerseHistory extends StatelessWidget {
       context.read<BibliaBloc>().add(
             GetChapter(item.versionId, bookId, chapter, verse: verse),
           );
-      context.read<TabControllerCubit>().goToBible();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BibliaPage()),
+      );
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Erro ao abrir versículo')),
