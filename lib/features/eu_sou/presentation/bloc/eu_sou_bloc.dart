@@ -44,8 +44,6 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
         add(_UpdateStudiesEvent(previews));
       }
     });
-
-    _deepUnderstandingBloc.add(const LoadHistoryEvent());
   }
 
   Future<void> _onLoad(LoadEuSou event, Emitter<EuSouState> emit) async {
@@ -67,6 +65,14 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
         recentStudies: event.studies,
       ));
     }
+
+    if (current is EuSouLoading) {
+      emit(EuSouLoaded(
+        reflection: null,
+        stats: null,
+        recentStudies: event.studies,
+      ));
+    }
   }
 
   Future<void> _onUpdateEstudosCount(
@@ -76,8 +82,8 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
       emit(EuSouLoaded(
         reflection: current.reflection,
         stats: UserStats(
-          presencaDias: current.stats.presencaDias,
-          escritasNotas: current.stats.escritasNotas,
+          presencaDias: current.stats?.presencaDias ?? 0,
+          escritasNotas: current.stats?.escritasNotas ?? 0,
           estudosCount: event.count,
         ),
         recentStudies: current.recentStudies,

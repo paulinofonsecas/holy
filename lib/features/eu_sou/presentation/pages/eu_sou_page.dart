@@ -1,3 +1,5 @@
+import 'package:eu_sou/features/eu_sou/domain/models/user_stats.dart';
+import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -31,7 +33,6 @@ class EuSouPage extends StatefulWidget {
 }
 
 class _EuSouPageState extends State<EuSouPage> {
-  static const _kUserName = 'eu_sou_user_name';
 
   @override
   void initState() {
@@ -43,11 +44,6 @@ class _EuSouPageState extends State<EuSouPage> {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
     context.read<EuSouBloc>().add(LoadEuSou(versionId: versionId));
     context.read<DeepUnderstandingBloc>().add(const LoadHistoryEvent());
-  }
-
-  Future<String> _getUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_kUserName) ?? 'Amado';
   }
 
   @override
@@ -65,7 +61,7 @@ class _EuSouPageState extends State<EuSouPage> {
             listener: (context, state) {
               final sessions = state.sessions
                   .where((s) => s.status == 'completed')
-                  .take(5)
+                  .take(50)
                   .map(AnalysisSessionPreview.fromSession)
                   .toList();
               context.read<EuSouBloc>().updateRecentStudies(sessions);
@@ -75,84 +71,99 @@ class _EuSouPageState extends State<EuSouPage> {
             },
           ),
         ],
-        child: BlocBuilder<EuSouBloc, EuSouState>(
-          builder: (context, state) {
-            return CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                // Espaço seguro no topo sem app bar
-                const SliverSafeArea(
-                  sliver: SliverToBoxAdapter(child: SizedBox(height: 8)),
-                ),
+        child: SafeArea(
+          child: BlocBuilder<EuSouBloc, EuSouState>(
+            builder: (context, state) {
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Espaço seguro no topo sem app bar
+                  const SliverSafeArea(
+                    sliver: SliverToBoxAdapter(child: SizedBox(height: 8)),
+                  ),
 
-                if (state is EuSouLoading)
-                  const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (state is EuSouError)
-                  SliverFillRemaining(
-                    child: _ErrorView(
-                      message: state.message,
-                      onRetry: _loadData,
-                    ),
-                  )
-                else if (state is EuSouLoaded)
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(28, 8, 28, 48),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        // — ZONA 1: HOJE —
-                        FutureBuilder<String>(
-                          future: _getUserName(),
-                          builder: (context, snap) => EuSouHeader(
-                            greetingWord: state.reflection.greetingWord,
-                            userName: snap.data ?? 'Amado',
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        VerseSection(
-                          verseText: state.reflection.verseText,
-                          verseReference: state.reflection.verseReference,
-                        ),
-                        const SizedBox(height: 40),
-                        EssenciaSection(text: state.reflection.essencia),
-                        const SizedBox(height: 36),
-                        StatsRow(stats: state.stats),
-                        const SizedBox(height: 36),
-                        PraticaSection(text: state.reflection.pratica),
-                        const SizedBox(height: 36),
-
-                        // CTA reflexões anteriores
-                        GestureDetector(
-                          onTap: () => _navigateToReflexoes(context),
-                          child: Text(
-                            'VER REFLEXÕES ANTERIORES',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 2.0,
-                              color: colorScheme.onSurface,
-                              decoration: TextDecoration.underline,
-                              decorationColor: colorScheme.onSurface,
+                  if (state is EuSouLoading)
+                    const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (state is EuSouError)
+                    SliverFillRemaining(
+                      child: _ErrorView(
+                        message: state.message,
+                        onRetry: _loadData,
+                      ),
+                    )
+                  else if (state is EuSouLoaded)
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(28, 8, 28, 48),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          // — ZONA 1: HOJE —
+                          BlocBuilder<ChangeMyNameCubit, ChangeMyNameState>(
+                            bloc: context.read<ChangeMyNameCubit>(),
+                            builder: (context, nameState) => EuSouHeader(
+                              greetingWord: state.reflection?.greetingWord ??
+                                  'Bem-vindo/a',
+                              userName: nameState.name,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 48),
+                          const SizedBox(height: 32),
+                          VerseSection(
+                            verseText: state.reflection?.verseText ??
+                                'Carrega para atualizar o versículo de hoje',
+                            verseReference:
+                                state.reflection?.verseReference ?? '',
+                          ),
+                          const SizedBox(height: 40),
+                          EssenciaSection(
+                              text: state.reflection?.essencia ??
+                                  'Carrega para atualizar a essência de hoje'),
+                          const SizedBox(height: 36),
+                          StatsRow(
+                              stats: state.stats ??
+                                  const UserStats(
+                                      presencaDias: 0,
+                                      escritasNotas: 0,
+                                      estudosCount: 0)),
+                          const SizedBox(height: 36),
+                          PraticaSection(
+                              text: state.reflection?.pratica ??
+                                  'Carrega para atualizar a prática de hoje'),
+                          const SizedBox(height: 36),
 
-                        // — ZONA 2: ESTUDOS (1 estudo) —
-                        EstudosPreviewSection(studies: state.recentStudies),
+                          // CTA reflexões anteriores
+                          GestureDetector(
+                            onTap: () => _navigateToReflexoes(context),
+                            child: Text(
+                              'VER REFLEXÕES ANTERIORES',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 2.0,
+                                color: colorScheme.onSurface,
+                                decoration: TextDecoration.underline,
+                                decorationColor: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 48),
 
-                        const SizedBox(height: 12),
+                          // — ZONA 2: ESTUDOS (1 estudo) —
+                          EstudosPreviewSection(
+                              studies: state.recentStudies ?? []),
 
-                        // — ZONA 3: FUNCIONALIDADES —
-                        const _InlineSettings(),
-                        const SizedBox(height: 80),
-                      ]),
+                          const SizedBox(height: 32),
+
+                          // — ZONA 3: FUNCIONALIDADES —
+                          const _InlineSettings(),
+                          const SizedBox(height: 80),
+                        ]),
+                      ),
                     ),
-                  ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -267,6 +278,9 @@ class _InlineSettings extends StatelessWidget {
         initialValue: current,
         onSave: (name) async {
           await prefs.setString('eu_sou_user_name', name);
+          if (ctx.mounted) {
+            context.read<ChangeMyNameCubit>().changeName(name);
+          }
         },
       ),
     );

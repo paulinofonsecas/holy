@@ -1,3 +1,4 @@
+import 'theme_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,28 +19,34 @@ class EuSouHeader extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final date = DateTime.now();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(
-          _formatDateFullPT(date).toUpperCase(),
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 2.5,
-            color: colorScheme.onSurface.withOpacity(0.45),
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _formatDateFullPT(date).toUpperCase(),
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 2.5,
+                color: colorScheme.onSurface.withOpacity(0.45),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '$greetingWord, $userName.',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                color: colorScheme.onSurface,
+                height: 1.2,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 6),
-        Text(
-          '$greetingWord, $userName.',
-          style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.w400,
-            color: colorScheme.onSurface,
-            height: 1.2,
-          ),
-        ),
+        const Spacer(),
+        const ThemeToggleButton(),
       ],
     );
   }
@@ -104,3 +111,5 @@ class EuSouHeader extends StatelessWidget {
     return '$dayStr de $month';
   }
 }
+
+

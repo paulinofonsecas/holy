@@ -19,14 +19,14 @@ class EuSouLoading extends EuSouState {
 }
 
 class EuSouLoaded extends EuSouState {
-  final DailyReflection reflection;
-  final UserStats stats;
-  final List<AnalysisSessionPreview> recentStudies;
+  final DailyReflection? reflection;
+  final UserStats? stats;
+  final List<AnalysisSessionPreview>? recentStudies;
 
   const EuSouLoaded({
-    required this.reflection,
-    required this.stats,
-    required this.recentStudies,
+    this.reflection,
+    this.stats,
+    this.recentStudies,
   });
 
   @override

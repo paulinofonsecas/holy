@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/models/analysis_session.dart';
@@ -98,7 +97,13 @@ class _DeepUnderstandingHistoryPageState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Gap(24),
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: BackButton(),
+                              ),
+                            ),
                             Text(
                               'Eu Sou',
                               style: TextStyle(

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../domain/models/daily_reflection.dart';
 import '../bloc/eu_sou_bloc.dart';
+import '../utils/verse_navigation.dart';
 
 class ReflexoesAnterioresPage extends StatefulWidget {
   const ReflexoesAnterioresPage({super.key});
@@ -33,12 +34,27 @@ class _ReflexoesAnterioresPageState extends State<ReflexoesAnterioresPage> {
     final List<DailyReflection> history = [];
 
     if (euSouState is EuSouLoaded) {
-      history.add(euSouState.reflection);
+      history.add(euSouState.reflection ??
+          DailyReflection(
+            date: DateTime.now().toIso8601String(),
+            verseText: 'Nenhuma reflexão disponível',
+            verseReference: '',
+            essencia:
+                'Faça suas primeiras reflexões para que elas apareçam aqui!',
+            greetingWord: '',
+            pratica: '',
+          ));
     }
 
     if (mounted) {
       setState(() {
-        _history = history;
+        _history = [
+          ...history,
+          ...history,
+          ...history,
+          ...history,
+          ...history,
+        ];
         _loading = false;
       });
     }
@@ -117,14 +133,45 @@ class _ReflexaoCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          reflection.verseReference.toUpperCase(),
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 2.0,
-            color: colorScheme.onSurface.withOpacity(0.45),
-          ),
+        Builder(
+          builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            final accentColor = isDark
+                ? Theme.of(context).colorScheme.primary
+                : const Color(0xFF3B5E53);
+            final canNavigate =
+                VerseNavigation.isNavigable(reflection.verseReference);
+
+            return GestureDetector(
+              onTap: canNavigate
+                  ? () => VerseNavigation.openInBible(
+                      context, reflection.verseReference)
+                  : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    reflection.verseReference.toUpperCase(),
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2.0,
+                      color: canNavigate
+                          ? accentColor
+                          : colorScheme.onSurface.withOpacity(0.45),
+                      decoration:
+                          canNavigate ? TextDecoration.underline : null,
+                      decorationColor: accentColor,
+                    ),
+                  ),
+                  if (canNavigate) ...[
+                    const SizedBox(width: 4),
+                    Icon(Icons.open_in_new, size: 10, color: accentColor),
+                  ],
+                ],
+              ),
+            );
+          },
         ),
         const SizedBox(height: 16),
         Text(

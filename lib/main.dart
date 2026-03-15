@@ -11,6 +11,7 @@ import 'package:eu_sou/core/notifications/services/local_notification_service.da
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
+import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
 import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/profile_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/search_history_repository.dart';
@@ -244,6 +245,9 @@ class EntryPoint extends StatelessWidget {
         BlocProvider(create: (context) => TabControllerCubit()),
         BlocProvider(
           create: (context) => DeepUnderstandingBloc(deepUnderstandingService),
+        ),
+        BlocProvider(
+          create:(context) => ChangeMyNameCubit(),
         ),
         BlocProvider(
           create: (context) => EuSouBloc(

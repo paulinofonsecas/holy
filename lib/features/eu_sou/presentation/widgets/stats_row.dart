@@ -32,19 +32,19 @@ class StatsRow extends StatelessWidget {
               height: 40,
               color: dividerColor,
             ),
-            Expanded(
-              child: _StatItem(
-                label: 'ESCRITAS',
-                value: stats.escritasNotas.toString(),
-                suffix: stats.escritasNotas == 1 ? 'nota' : 'notas',
-                align: TextAlign.center,
-              ),
-            ),
-            Container(
-              width: 1,
-              height: 40,
-              color: dividerColor,
-            ),
+            // Expanded(
+            //   child: _StatItem(
+            //     label: 'ESCRITAS',
+            //     value: stats.escritasNotas.toString(),
+            //     suffix: stats.escritasNotas == 1 ? 'nota' : 'notas',
+            //     align: TextAlign.center,
+            //   ),
+            // ),
+            // Container(
+            //   width: 1,
+            //   height: 40,
+            //   color: dividerColor,
+            // ),
             Expanded(
               child: _StatItem(
                 label: 'ESTUDOS',

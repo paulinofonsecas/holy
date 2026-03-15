@@ -162,8 +162,8 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   List<Widget> _buildPages(BuildContext context) {
     return [
       const BibliaPage(),
-      const TelaBusca(),
       const EuSouPage(),
+      const TelaBusca(),
     ];
   }
 
@@ -267,13 +267,13 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                 ),
                 TabItem(
                   icon:
-                      Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
-                  title: l10n.search,
+                      Icon(CupertinoIcons.person, key: keyProfileTab, size: 20),
+                  title: 'Eu Sou',
                 ),
                 TabItem(
                   icon:
-                      Icon(CupertinoIcons.person, key: keyProfileTab, size: 20),
-                  title: 'Eu Sou',
+                      Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
+                  title: l10n.search,
                 ),
               ],
             ),
