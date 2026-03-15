@@ -9,9 +9,12 @@ import 'package:eu_sou/features/search/presentation/widgets/search_empty_states.
 import 'package:eu_sou/features/search/presentation/widgets/search_result_tile.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_version_filter.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import "package:eu_sou/features/biblia/views/biblia_view.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../bloc/search_bloc.dart';
 import '../bloc/search_selection_bloc.dart';
@@ -32,6 +35,9 @@ class _TelaBuscaState extends State<TelaBusca> {
     super.initState();
     _registrador.info('🎬 TelaBusca inicializada');
     final searchBloc = context.read<SearchBloc>();
+
+    // Carrega o histórico de versículos ao iniciar
+    context.read<VerseHistoryBloc>().add(LoadVerseHistory());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_controladorScroll.hasClients && searchBloc.scrollOffset > 0) {
@@ -147,12 +153,20 @@ class _TelaBuscaState extends State<TelaBusca> {
       SearchSelectionState selectionState) {
     if (estado is BuscaInicial) {
       return [
-        const SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: NoResultToSingleWorldWidget(),
+        SliverToBoxAdapter(
+          child: BlocBuilder<VerseHistoryBloc, VerseHistoryState>(
+            builder: (context, histState) {
+              if (histState is VerseHistoryLoaded &&
+                  histState.history.isNotEmpty) {
+                return _InlineVerseHistory(history: histState.history);
+              }
+              return const Padding(
+                padding: EdgeInsets.only(top: 80),
+                child: Center(child: NoResultToSingleWorldWidget()),
+              );
+            },
           ),
-        )
+        ),
       ];
     }
 
@@ -336,5 +350,116 @@ class _TelaBuscaState extends State<TelaBusca> {
     }
 
     return [];
+  }
+}
+
+/// Lista inline do histórico de versículos exibida na search em estado inicial.
+class _InlineVerseHistory extends StatelessWidget {
+  final List<dynamic> history;
+
+  const _InlineVerseHistory({required this.history});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
+          child: Row(
+            children: [
+              Text(
+                'HISTÓRICO DE VERSÍCULOS',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.6,
+                  color: colorScheme.onSurface.withOpacity(0.45),
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: Icon(Icons.delete_outline,
+                    size: 18, color: colorScheme.onSurface.withOpacity(0.45)),
+                tooltip: 'Limpar histórico',
+                onPressed: () => _confirmClear(context),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        // Items
+        ...history.map((item) {
+          final dateStr =
+              DateFormat('dd/MM/yyyy HH:mm').format(item.timestamp);
+          return ListTile(
+            leading: Icon(Icons.menu_book_outlined,
+                size: 20, color: colorScheme.onSurface.withOpacity(0.55)),
+            title: Text(
+              item.verseRef,
+              style: GoogleFonts.inter(
+                  fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+            subtitle: Text(
+              'Versão: ${item.versionId} · $dateStr',
+              style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: colorScheme.onSurface.withOpacity(0.55)),
+            ),
+            trailing: Icon(Icons.arrow_forward_ios,
+                size: 13, color: colorScheme.onSurface.withOpacity(0.30)),
+            onTap: () => _openVerse(context, item),
+          );
+        }),
+      ],
+    );
+  }
+
+  void _openVerse(BuildContext context, dynamic item) {
+    try {
+      final parts = item.verseRef.split(' ');
+      final bookId = parts[0];
+      final refParts = parts[1].split(':');
+      final chapter = refParts[0];
+      final verse = int.parse(refParts[1]);
+
+      context.read<BibleVersionCubit>().changeVersionById(item.versionId);
+      context.read<BibliaBloc>().add(
+            GetChapter(item.versionId, bookId, chapter, verse: verse),
+          );
+      context.read<TabControllerCubit>().goToBible();
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao abrir versículo')),
+      );
+    }
+  }
+
+  void _confirmClear(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Limpar histórico?'),
+        content: const Text(
+            'Todos os versículos visitados serão removidos do histórico.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<VerseHistoryBloc>().add(ClearVerseHistory());
+              Navigator.pop(ctx);
+            },
+            child:
+                const Text('Limpar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 }
