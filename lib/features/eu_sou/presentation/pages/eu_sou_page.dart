@@ -141,6 +141,7 @@ class _EuSouPageState extends State<EuSouPage> {
 
                         // — ZONA 2: ESTUDOS (1 estudo) —
                         EstudosPreviewSection(studies: state.recentStudies),
+
                         const SizedBox(height: 12),
 
                         // — ZONA 3: FUNCIONALIDADES —

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../deep_understanding/data/models/analysis_session.dart';
 import '../../../deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
@@ -19,8 +20,7 @@ class EstudosPreviewSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor =
-        isDark ? colorScheme.primary : const Color(0xFF3B5E53);
+    final accentColor = isDark ? colorScheme.primary : const Color(0xFF3B5E53);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,32 +83,101 @@ class EstudosPreviewSection extends StatelessWidget {
   }
 }
 
-/// Carrossel horizontal de cards de estudo.
-class _HorizontalCarousel extends StatelessWidget {
+/// Carrossel premium com PageView + SmoothPageIndicator dinâmico.
+class _HorizontalCarousel extends StatefulWidget {
   final List<AnalysisSessionPreview> studies;
   final Color accentColor;
 
-  const _HorizontalCarousel(
-      {required this.studies, required this.accentColor});
+  const _HorizontalCarousel({required this.studies, required this.accentColor});
+
+  @override
+  State<_HorizontalCarousel> createState() => _HorizontalCarouselState();
+}
+
+class _HorizontalCarouselState extends State<_HorizontalCarousel> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.88);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Offset negativo para o carrossel "sangrar" para além do padding da página
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dotColor = colorScheme.onSurface.withOpacity(0.18);
+    final activeDotColor =
+        isDark ? colorScheme.primary : const Color(0xFF3B5E53);
+
+    // Sangra além do padding da página (28px de cada lado)
     return Transform.translate(
       offset: const Offset(-28, 0),
-      child: SizedBox(
-        height: 172,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          itemCount: studies.length,
-          itemBuilder: (context, index) => _StudyCard(
-            study: studies[index],
-            accentColor: accentColor,
-            isLast: index == studies.length - 1,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 176,
+            child: PageView.builder(
+              controller: _pageController,
+              physics: const BouncingScrollPhysics(),
+              itemCount: widget.studies.length,
+              itemBuilder: (context, index) {
+                return AnimatedBuilder(
+                  animation: _pageController,
+                  builder: (context, child) {
+                    double scale = 1.0;
+                    if (_pageController.position.haveDimensions) {
+                      final page = _pageController.page ?? 0;
+                      scale =
+                          (1.0 - (page - index).abs() * 0.04).clamp(0.95, 1.0);
+                    }
+                    return Transform.scale(scale: scale, child: child);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: _StudyCard(
+                      study: widget.studies[index],
+                      accentColor: widget.accentColor,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
+          const SizedBox(height: 14),
+          // Indicador dinâmico: ExpandingDots ≤5 itens, ScrollingDots >5
+          SmoothPageIndicator(
+            controller: _pageController,
+            count: widget.studies.length,
+            effect: widget.studies.length <= 5
+                ? ExpandingDotsEffect(
+                    dotWidth: 6,
+                    dotHeight: 6,
+                    expansionFactor: 3,
+                    spacing: 5,
+                    activeDotColor: activeDotColor,
+                    dotColor: dotColor,
+                    strokeWidth: 0,
+                  )
+                : ScrollingDotsEffect(
+                    dotWidth: 6,
+                    dotHeight: 6,
+                    spacing: 5,
+                    maxVisibleDots: 7,
+                    activeDotColor: activeDotColor,
+                    dotColor: dotColor,
+                    activeDotScale: 1.5,
+                    strokeWidth: 0,
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -117,28 +186,20 @@ class _HorizontalCarousel extends StatelessWidget {
 class _StudyCard extends StatelessWidget {
   final AnalysisSessionPreview study;
   final Color accentColor;
-  final bool isLast;
 
-  const _StudyCard({
-    required this.study,
-    required this.accentColor,
-    this.isLast = false,
-  });
+  const _StudyCard({required this.study, required this.accentColor});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? colorScheme.surfaceContainer : Colors.white;
-    final borderColor = isDark
-        ? colorScheme.outlineVariant
-        : const Color(0xFFE6E0D4);
+    final borderColor =
+        isDark ? colorScheme.outlineVariant : const Color(0xFFE6E0D4);
 
     return GestureDetector(
       onTap: () => _openStudy(context),
       child: Container(
-        width: 252,
-        margin: EdgeInsets.only(right: isLast ? 0 : 12),
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(10),
@@ -234,9 +295,7 @@ class _StudyCard extends StatelessWidget {
 
     if (session == null) return;
 
-    context
-        .read<DeepUnderstandingBloc>()
-        .add(ViewSessionEvent(session));
+    context.read<DeepUnderstandingBloc>().add(ViewSessionEvent(session));
 
     Navigator.push(
       context,
