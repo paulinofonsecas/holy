@@ -231,8 +231,7 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
             RichVerseActionModal.show(
               context: context,
               verses: widget.verses,
-              verseReference:
-                  widget.verseReference.isNotEmpty ? widget.verseReference : ref,
+              verseReference: ref,
               versionId: versionId,
             );
           },

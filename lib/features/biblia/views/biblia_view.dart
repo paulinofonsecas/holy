@@ -373,7 +373,23 @@ class _BibliaViewState extends State<BibliaView> {
                                     .selectedVerses
                                     .values
                                     .toList(),
-                                verseReference: (state).versionId,
+                                verseReference: () {
+                                  final sel = (context
+                                          .read<VerseSelectionBloc>()
+                                          .state
+                                          .selectedVerses
+                                          .values
+                                          .toList()
+                                        ..sort((a, b) =>
+                                            a.number.compareTo(b.number)));
+                                  final book = state.chapter.bookId;
+                                  final chap = state.chapter.number;
+                                  if (sel.isEmpty) return '$book $chap';
+                                  if (sel.length == 1) {
+                                    return '$book $chap:${sel.first.number}';
+                                  }
+                                  return '$book $chap:${sel.first.number}-${sel.last.number}';
+                                }(),
                                 bookId: state.chapter.bookId,
                                 chapterNumber: state.chapter.number,
                               ),
