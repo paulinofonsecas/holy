@@ -16,6 +16,7 @@ class BookSelectionPage extends StatefulWidget {
 }
 
 class _BookSelectionPageState extends State<BookSelectionPage> {
+  late final FocusNode _searchFocusNode;
   final TextEditingController _searchController = TextEditingController();
   final ValueNotifier<List<BibleBooks>> _filteredBooks =
       ValueNotifier(BibleBooks.values.toList());
@@ -23,6 +24,7 @@ class _BookSelectionPageState extends State<BookSelectionPage> {
   @override
   void initState() {
     super.initState();
+    _searchFocusNode = FocusNode();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -92,6 +94,8 @@ class _BookSelectionPageState extends State<BookSelectionPage> {
               child: TextField(
                 controller: _searchController,
                 autocorrect: false,
+                focusNode: _searchFocusNode,
+                autofocus: true,
                 decoration: InputDecoration(
                   hintText: 'Pesquisar livro...',
                   prefixIcon: const Icon(Icons.search),

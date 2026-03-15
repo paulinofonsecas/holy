@@ -12,6 +12,7 @@ import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_history_page.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
@@ -47,13 +48,9 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   StreamSubscription<Uri?>? _deeplinkSubscription;
   bool _tutorialStarted = false;
 
-  @override
   final GlobalKey keyBibleTab = GlobalKey();
-  @override
   final GlobalKey keySearchTab = GlobalKey();
-  @override
   final GlobalKey keyProfileTab = GlobalKey();
-  @override
   final GlobalKey keyStudiesTab = GlobalKey();
 
   @override
@@ -242,7 +239,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                       ),
                       NavigationRailDestination(
                         icon: Icon(Icons.auto_awesome, key: keyStudiesTab),
-                        label: Text('Estudos'),
+                        label: const Text('Estudos'),
                       ),
                       NavigationRailDestination(
                         icon: Icon(CupertinoIcons.profile_circled,
@@ -275,6 +272,13 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
               activeColor: context.colorScheme.primaryContainer,
               initialActiveIndex: currentIndex,
               onTap: (index) {
+                // caso ele ja estiver na index 0 e clicar novamente, vamos abrir o SwitchBookModal.show(context);
+                if (index == 0) {
+                  if (currentIndex == 0) {
+                    SwitchBookModal.show(context);
+                    return;
+                  }
+                }
                 context.read<TabControllerCubit>().changeTo(index);
               },
               items: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:stacked/stacked.dart';
 
 import '../viewmodels/about_viewmodel.dart';
@@ -21,20 +22,13 @@ class AboutView extends StackedView<AboutViewModel> {
         : theme.colorScheme.surfaceContainerHigh;
 
     final accentColor = theme.colorScheme.primary;
-    const whatsappGreen = Color(0xFF22C55E);
 
-    // Community card background - keep brand colors but adjust for light mode
-    final communityCardBg = isDark
-        ? const Color(0xFF312E81)
-        : theme.colorScheme.primaryContainer.withValues(alpha: 0.9);
 
-    final communityTextColor =
-        isDark ? Colors.white : theme.colorScheme.onPrimaryContainer;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('App de Estudo Bíblico'),
+        title: const Text('Sobre o App'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -46,26 +40,21 @@ class AboutView extends StackedView<AboutViewModel> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  _buildGrowthSection(context, viewModel),
+                  const Gap(32),
                   _buildHeaderCard(context),
-                  const SizedBox(height: 24),
-
-                  // 3. Testimonials Carousel
-                  _buildTestimonialsCarousel(
-                      context, viewModel, surfaceColor, accentColor),
-                  const SizedBox(height: 32),
-
-                  // 1. Features Section
+                  const Gap(32),
                   _buildFeaturesSection(
                       context, viewModel, surfaceColor, accentColor),
-                  const SizedBox(height: 32),
-
-                  // 2. FAQ Section
+                  const Gap(32),
+                  _buildTestimonialsCarousel(
+                      context, viewModel, surfaceColor, accentColor),
+                  const Gap(32),
                   _buildFAQSection(
                       context, viewModel, surfaceColor, accentColor),
-                  const SizedBox(height: 32),
-
+                  const Gap(32),
                   _buildFooter(context, viewModel),
-                  const SizedBox(height: 20),
+                  const Gap(32),
                 ],
               ),
             ),
@@ -104,7 +93,7 @@ class AboutView extends StackedView<AboutViewModel> {
                     height: 1.2,
                   ),
             ),
-            const SizedBox(height: 8),
+            const Gap(8),
             Text(
               '”Se somos filhos, então, também somos herdeiros; herdeiros de Deus e co-herdeiros com Cristo..” - Romanos 8:17',
               textAlign: TextAlign.center,
@@ -118,68 +107,107 @@ class AboutView extends StackedView<AboutViewModel> {
     );
   }
 
-  Widget _buildStatsCard(
-    BuildContext context,
-    AboutViewModel viewModel,
-    Color surfaceColor,
-    Color accentColor,
-  ) {
+  Widget _buildGrowthSection(BuildContext context, AboutViewModel viewModel) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-            color: Theme.of(context)
-                .colorScheme
-                .outlineVariant
-                .withValues(alpha: 0.3)),
+          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+        ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.groups_rounded, color: accentColor, size: 32),
-          const SizedBox(height: 12),
-          Text(
-            'IRMÃOS CONECTADOS',
-            style: TextStyle(
-              fontSize: 12,
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.6),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            viewModel.connectedBrothers,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
-                ),
-          ),
-          const SizedBox(height: 4),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.north_east_rounded,
-                  size: 14, color: Color(0xFF10B981)),
-              const SizedBox(width: 4),
-              Text(
-                viewModel.growthThisMonth,
-                style: const TextStyle(
-                  color: Color(0xFF10B981),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
+              Expanded(
+                child: Text(
+                  'Eu Sou - Crescimento com Propósito',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
               ),
             ],
+          ),
+          const Gap(16),
+          Text(
+            viewModel.growthIntro,
+            style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+          ),
+          const Gap(20),
+          _buildGrowthItem(
+            context,
+            Icons.fingerprint,
+            viewModel.growthIdentityTitle,
+            viewModel.growthIdentityBody,
+          ),
+          const Gap(16),
+          _buildGrowthItem(
+            context,
+            Icons.diversity_3,
+            viewModel.growthUnityTitle,
+            viewModel.growthUnityBody,
+          ),
+          const Gap(24),
+          Center(
+            child: Text(
+              viewModel.growthFooter,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.secondary,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildGrowthItem(
+      BuildContext context, IconData icon, String title, String body) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+        ),
+        const Gap(16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const Gap(4),
+              Text(
+                body,
+                style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildFeaturesSection(
     BuildContext context,
@@ -324,6 +352,7 @@ class AboutView extends StackedView<AboutViewModel> {
     );
   }
 
+
   Widget _buildFooter(BuildContext context, AboutViewModel viewModel) {
     return Column(
       children: [
@@ -339,7 +368,7 @@ class AboutView extends StackedView<AboutViewModel> {
             _FooterButton(label: 'SUPORTE', onTap: viewModel.openSupport),
           ],
         ),
-        const SizedBox(height: 16),
+        const Gap(16),
         Text(
           'Versão ${viewModel.version} + © 2026 ${viewModel.appName}',
           style: TextStyle(
@@ -443,7 +472,7 @@ class _CarouselWidgetState extends State<_CarouselWidget> {
                   children: [
                     Icon(Icons.format_quote_rounded,
                         color: widget.accentColor, size: 32),
-                    const SizedBox(height: 8),
+                    const Gap(8),
                     Expanded(
                       child: Text(
                         item['text']!,
@@ -453,7 +482,7 @@ class _CarouselWidgetState extends State<_CarouselWidget> {
                             height: 1.5),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const Gap(16),
                     Row(
                       children: [
                         CircleAvatar(
@@ -466,7 +495,7 @@ class _CarouselWidgetState extends State<_CarouselWidget> {
                                   .colorScheme
                                   .onPrimaryContainer),
                         ),
-                        const SizedBox(width: 12),
+                        const Gap(12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -493,7 +522,7 @@ class _CarouselWidgetState extends State<_CarouselWidget> {
             },
           ),
         ),
-        const SizedBox(height: 12),
+        const Gap(12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(

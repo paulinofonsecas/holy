@@ -23,11 +23,13 @@ class SearchInputBar extends StatefulWidget {
 }
 
 class _SearchInputBarState extends State<SearchInputBar> {
+  late final FocusNode _focusNode;
   late TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
     _controller = TextEditingController(text: widget.initialValue);
   }
 
@@ -52,6 +54,8 @@ class _SearchInputBarState extends State<SearchInputBar> {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: TextField(
         controller: _controller,
+        focusNode: _focusNode,
+        autofocus: true,
         autocorrect: false,
         decoration: InputDecoration(
           hintText: widget.hintText,

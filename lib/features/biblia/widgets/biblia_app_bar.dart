@@ -42,11 +42,12 @@ class BibleAppBar extends StatelessWidget {
                             onPressed: () => Navigator.pop(context),
                           ),
                           const Gap(8),
-                        ],
-                        VersaoWidget(
-                            key: (ModalRoute.of(context)?.isFirst ?? true)
-                                ? keyBibleVersionTab
-                                : null),
+                        ] else ...[
+                          VersaoWidget(
+                              key: (ModalRoute.of(context)?.isFirst ?? true)
+                                  ? keyBibleVersionTab
+                                  : null),
+                        ]
                       ],
                     ),
                     const Gap(48),

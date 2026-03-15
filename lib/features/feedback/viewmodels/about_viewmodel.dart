@@ -56,38 +56,57 @@ class AboutViewModel extends BaseViewModel {
     // },
   ];
 
+  // Growth Mission Text
+  final String growthTitle = 'Cresça com a Bíblia Interativa';
+  final String growthIntro =
+      'Entender seu papel no Reino de Deus exige estudo consistênte e profundo. Nosso aplicativo une o estudo bíblico dinâmico à vida em comunidade para acelerar seu amadurecimento cristão:';
+  final String growthIdentityTitle = 'Identidade na Palavra';
+  final String growthIdentityBody =
+      'Use as marcações e estudos personalizadas para registrar o que Deus fala especificamente ao seu coração.';
+  final String growthUnityTitle = 'Vida em Unidade';
+  final String growthUnityBody =
+      'Transforme seu estudo em ação prática, conectando-se com os planos de leitura que mostram como servir melhor ao Corpo de Cristo.';
+  final String growthFooter =
+      'Sua jornada de autoconhecimento em Jesus começa aqui.';
+
   // FAQ Data
   final List<Map<String, String>> faq = [
     {
       'question': 'O aplicativo é gratuito?',
-      'answer': 'Sim, as funcionalidades principais são e sempre serão gratuitas para todos.',
+      'answer':
+          'Sim, as funcionalidades principais são e sempre serão gratuitas para todos.',
     },
     {
       'question': 'Como participo dos grupos?',
-      'answer': 'Basta clicar no botão "Entrar no Grupo" nesta tela ou na aba Comunidade.',
+      'answer':
+          'Basta clicar no botão "Entrar no Grupo" nesta tela ou na aba Comunidade.',
     },
     {
       'question': 'Posso ler offline?',
-      'answer': 'Sim! Você pode baixar versões da Bíblia para ler sem necessidade de internet.',
+      'answer':
+          'Sim! Você pode baixar versões da Bíblia para ler sem necessidade de internet.',
     },
     {
       'question': 'Como funciona a Inteligência Artificial?',
-      'answer': 'A IA analisa o contexto dos versículos selecionados para oferecer insights teológicos e devocionais profundos.',
+      'answer':
+          'A IA analisa o contexto dos versículos selecionados para oferecer insights teológicos e devocionais profundos.',
     },
     {
       'question': 'Posso mudar o tema do aplicativo?',
-      'answer': 'Sim! Vá para o seu perfil e selecione "Cores e Tema" para personalizar sua experiência com diversas cores e modos.',
+      'answer':
+          'Sim! Vá para o seu perfil e selecione "Cores e Tema" para personalizar sua experiência com diversas cores e modos.',
     },
     {
       'question': 'Onde vejo meu histórico?',
-      'answer': 'Seu histórico de leitura e análises fica disponível na aba "Estudos" e também na seção de histórico do seu Perfil.',
+      'answer':
+          'Seu histórico de leitura e análises fica disponível na aba "Estudos" e também na seção de histórico do seu Perfil.',
     },
     {
       'question': 'Como faço para marcar um versículo?',
-      'answer': 'Basta tocar sobre o versículo que deseja. Um menu de ações aparecerá permitindo marcar, copiar ou analisar com IA.',
+      'answer':
+          'Basta tocar sobre o versículo que deseja. Um menu de ações aparecerá permitindo marcar, copiar ou analisar com IA.',
     },
   ];
-
 
   // Testimonials Carousel Data
   final List<Map<String, String>> testimonials = [

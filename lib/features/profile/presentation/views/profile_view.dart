@@ -9,6 +9,7 @@ import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/services/feedback_service.dart';
 import '../../../feedback/views/about_view.dart';
 import '../../../theme/presentation/bloc/theme_bloc.dart';
+import '../../../tutorial/presentation/pages/tutorials_list_page.dart';
 import '../../../verse_of_the_day/presentation/pages/verse_of_the_day_settings_page.dart';
 import '../bloc/marked_verses_bloc.dart';
 import '../pages/marked_verses_list_page.dart';
@@ -147,15 +148,30 @@ class ProfileView extends StatelessWidget {
                   _buildProfileOption(
                     context,
                     key: keyTutorialField,
-                    icon: Icons.help_outline,
-                    title: 'Tutorial',
-                    subtitle: 'Rever o guia do aplicativo',
+                    icon: Icons.rocket_launch,
+                    title: 'Introdução Rápida',
+                    subtitle: 'Rever a introdução do aplicativo',
                     onTap: () {
                       onShowTutorial!();
                     },
                   ),
                   const SizedBox(height: 8),
                 ],
+                _buildProfileOption(
+                  context,
+                  icon: Icons.help_outline,
+                  title: 'Tutoriais',
+                  subtitle: 'Guias e ajuda sobre as funcionalidades',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TutorialsListPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
                   icon: Icons.bug_report,

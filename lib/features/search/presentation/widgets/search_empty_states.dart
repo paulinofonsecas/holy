@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../bloc/search_bloc.dart';
 
 class NoResultToSingleWorldWidget extends StatelessWidget {
@@ -100,16 +101,21 @@ class NotFoundSearchWidget extends StatelessWidget {
           Text(
             'A busca por "$term" não retornou resultados exatos.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[700], fontSize: 14),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                fontSize: 14),
           ),
           const SizedBox(height: 8),
           if (isMultiWorldSelected)
             Container()
           else ...[
-            const Text(
+            Text(
               'Você pode usar a Pesquisa Avançada para encontrar versículos que contenham essas palavras separadamente.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                fontSize: 12,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
