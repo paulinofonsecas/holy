@@ -31,17 +31,15 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
     on<_UpdateEstudosCountEvent>(_onUpdateEstudosCount);
 
     _deepUnderstandingBloc.stream.listen((state) {
-      if (state is DeepUnderstandingSuccess) {
-        _repository.getUserStats().then((stats) {
-          add(_UpdateEstudosCountEvent(stats.estudosCount));
-        });
-
-        final previews = state.sessions
+      if (state is DeepUnderstandingSuccess ||
+          state is DeepUnderstandingHistoryLoaded) {
+        final completed = state.sessions
             .where((s) => s.status == 'completed')
-            .take(5)
-            .map(AnalysisSessionPreview.fromSession)
             .toList();
-        add(_UpdateStudiesEvent(previews));
+        add(_UpdateEstudosCountEvent(completed.length));
+        add(_UpdateStudiesEvent(
+          completed.take(5).map(AnalysisSessionPreview.fromSession).toList(),
+        ));
       }
     });
   }
@@ -126,15 +124,24 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
       final stats = await _repository.getUserStats();
 
       // Inclui estudos já carregados pelo DeepUnderstandingBloc (evita flash vazio)
-      final currentStudies = _deepUnderstandingBloc.state.sessions
+      final completedSessions = _deepUnderstandingBloc.state.sessions
           .where((s) => s.status == 'completed')
+          .toList();
+      final currentStudies = completedSessions
           .take(5)
           .map(AnalysisSessionPreview.fromSession)
           .toList();
 
+      // estudosCount sincronizado com o histórico real
+      final syncedStats = UserStats(
+        presencaDias: stats.presencaDias,
+        escritasNotas: stats.escritasNotas,
+        estudosCount: completedSessions.length,
+      );
+
       emit(EuSouLoaded(
         reflection: reflection,
-        stats: stats,
+        stats: syncedStats,
         recentStudies: currentStudies,
       ));
     } catch (e) {
