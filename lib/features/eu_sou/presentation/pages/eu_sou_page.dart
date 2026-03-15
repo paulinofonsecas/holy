@@ -36,10 +36,28 @@ class EuSouPage extends StatefulWidget {
 }
 
 class _EuSouPageState extends State<EuSouPage> {
+  static const _kReflectionUnderstandingDate =
+      'eu_sou_reflection_understanding_date';
+
+  bool _hasGeneratedToday = false;
+
   @override
   void initState() {
     super.initState();
     _loadData();
+    _checkDailyLimit();
+  }
+
+  Future<void> _checkDailyLimit() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_kReflectionUnderstandingDate);
+    final today = _todayKey();
+    if (mounted) setState(() => _hasGeneratedToday = saved == today);
+  }
+
+  String _todayKey() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 
   void _loadData() {
@@ -49,8 +67,10 @@ class _EuSouPageState extends State<EuSouPage> {
   }
 
   /// Gera um entendimento profundo a partir do versículo da reflexão diária.
+  /// Limitado a 1 geração por dia.
   void _generateUnderstanding(
       BuildContext context, String verseText, String verseReference) {
+    if (_hasGeneratedToday) return;
     if (!VerseNavigation.isNavigable(verseReference)) return;
     try {
       final trimmed = verseReference.trim();
@@ -74,6 +94,12 @@ class _EuSouPageState extends State<EuSouPage> {
 
       final versionId = context.read<BibleVersionCubit>().state.version.id;
       final bibleVerse = BibleVerse(number: verseNum, text: verseText);
+
+      // Persiste a data antes de navegar
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setString(_kReflectionUnderstandingDate, _todayKey());
+      });
+      setState(() => _hasGeneratedToday = true);
 
       context.read<DeepUnderstandingBloc>().add(
             StartAnalysisForVersesEvent(
@@ -183,6 +209,7 @@ class _EuSouPageState extends State<EuSouPage> {
                           if (VerseNavigation.isNavigable(
                               state.reflection?.verseReference ?? ''))
                             _GenerateUnderstandingButton(
+                              hasGeneratedToday: _hasGeneratedToday,
                               onTap: () => _generateUnderstanding(
                                 context,
                                 state.reflection!.verseText,
@@ -431,8 +458,12 @@ class _SettingsItem extends StatelessWidget {
 /// Botão editorial para gerar entendimento profundo a partir da reflexão diária.
 class _GenerateUnderstandingButton extends StatelessWidget {
   final VoidCallback onTap;
+  final bool hasGeneratedToday;
 
-  const _GenerateUnderstandingButton({required this.onTap});
+  const _GenerateUnderstandingButton({
+    required this.onTap,
+    required this.hasGeneratedToday,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -440,28 +471,40 @@ class _GenerateUnderstandingButton extends StatelessWidget {
     final accentColor = isDark
         ? Theme.of(context).colorScheme.primary
         : const Color(0xFF3B5E53);
+    final disabledColor =
+        Theme.of(context).colorScheme.onSurface.withOpacity(0.28);
+
+    final active = !hasGeneratedToday;
+    final borderColor =
+        active ? accentColor.withOpacity(0.40) : disabledColor.withOpacity(0.4);
+    final iconColor = active ? accentColor : disabledColor;
+    final textColor = active ? accentColor : disabledColor;
+    final label = active
+        ? 'GERAR ENTENDIMENTO PROFUNDO'
+        : 'ENTENDIMENTO JÁ GERADO HOJE';
+    final icon = active ? Icons.auto_awesome_outlined : Icons.check_circle_outline;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: active ? onTap : null,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
-          border: Border.all(color: accentColor.withOpacity(0.40), width: 1),
+          border: Border.all(color: borderColor, width: 1),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.auto_awesome_outlined, size: 16, color: accentColor),
+            Icon(icon, size: 16, color: iconColor),
             const SizedBox(width: 10),
             Text(
-              'GERAR ENTENDIMENTO PROFUNDO',
+              label,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.8,
-                color: accentColor,
+                color: textColor,
               ),
             ),
           ],
