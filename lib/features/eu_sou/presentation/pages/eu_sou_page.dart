@@ -287,7 +287,7 @@ class _InlineSettings extends StatelessWidget {
           title: 'Crescimento Diário',
           onTap: () => Navigator.push(
             context,
-            DailyGrowthPage.routeFrom(context),
+            DailyGrowthPage.route,
           ),
         ),
         _SettingsItem(

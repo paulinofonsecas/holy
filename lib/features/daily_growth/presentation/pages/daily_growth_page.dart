@@ -16,15 +16,16 @@ import '../widgets/verse_focus_section.dart';
 class DailyGrowthPage extends StatelessWidget {
   const DailyGrowthPage({super.key});
 
-  /// Creates a route by reading dependencies from the current [context].
-  static Route<void> routeFrom(BuildContext context) {
+  /// Creates a route. Dependencies are read from the route's own [BuildContext],
+  /// which inherits from the RepositoryProviders registered in EntryPoint.
+  static Route<void> get route {
     return MaterialPageRoute(
-      builder: (_) => BlocProvider(
+      builder: (ctx) => BlocProvider(
         create: (_) => DailyGrowthCubit(
-          reminderService: context.read<DailyReminderService>(),
-          streakService: context.read<StreakService>(),
+          reminderService: ctx.read<DailyReminderService>(),
+          streakService: ctx.read<StreakService>(),
           milestoneService: MilestoneService(),
-          prefs: context.read<SharedPreferences>(),
+          prefs: ctx.read<SharedPreferences>(),
         )..load(),
         child: const DailyGrowthPage(),
       ),
