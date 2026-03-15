@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../shared/cubit/bible_version_cubit.dart';
 import '../../../deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
-import '../../../deep_understanding/presentation/pages/deep_understanding_page.dart';
 import '../../../feedback/views/about_view.dart';
 import '../../../profile/domain/repositories/i_marked_verses_repository.dart';
 import '../../../profile/presentation/bloc/marked_verses_bloc.dart';
@@ -56,7 +55,6 @@ class _EuSouPageState extends State<EuSouPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
-    final accentColor = isDark ? colorScheme.primary : const Color(0xFF3B5E53);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -84,8 +82,7 @@ class _EuSouPageState extends State<EuSouPage> {
               slivers: [
                 // Espaço seguro no topo sem app bar
                 const SliverSafeArea(
-                  sliver: SliverToBoxAdapter(
-                      child: SizedBox(height: 8)),
+                  sliver: SliverToBoxAdapter(child: SizedBox(height: 8)),
                 ),
 
                 if (state is EuSouLoading)
@@ -155,24 +152,6 @@ class _EuSouPageState extends State<EuSouPage> {
               ],
             );
           },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const DeepUnderstandingPage()),
-        ),
-        backgroundColor: accentColor,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        icon: const Icon(Icons.auto_awesome, size: 18),
-        label: Text(
-          'Novo Estudo',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
         ),
       ),
     );

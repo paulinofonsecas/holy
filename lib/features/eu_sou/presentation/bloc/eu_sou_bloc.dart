@@ -1,3 +1,4 @@
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/models/analysis_session_preview.dart';
@@ -14,17 +15,33 @@ export 'eu_sou_state.dart';
 class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
   final EuSouRepository _repository;
   final DailyContentService _contentService;
+  final DeepUnderstandingBloc _deepUnderstandingBloc;
 
   EuSouBloc({
     required EuSouRepository repository,
     required DailyContentService contentService,
+    required DeepUnderstandingBloc deepUnderstandingBloc,
   })  : _repository = repository,
         _contentService = contentService,
+        _deepUnderstandingBloc = deepUnderstandingBloc,
         super(const EuSouInitial()) {
     on<LoadEuSou>(_onLoad);
     on<RefreshEuSou>(_onRefresh);
     on<_UpdateStudiesEvent>(_onUpdateStudies);
     on<_UpdateEstudosCountEvent>(_onUpdateEstudosCount);
+
+    _deepUnderstandingBloc.stream.listen((state) {
+      if (state is DeepUnderstandingSuccess) {
+        // Update estudos count and recent studies list when a new study is completed
+        _repository.getUserStats().then((stats) {
+          add(_UpdateEstudosCountEvent(stats.estudosCount));
+        });
+
+        final newStudy = AnalysisSessionPreview.fromSession(state.sessions.last);
+        add(_UpdateStudiesEvent([newStudy])); // This will replace the list, ideally
+      }
+    });
+    
   }
 
   Future<void> _onLoad(LoadEuSou event, Emitter<EuSouState> emit) async {

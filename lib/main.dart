@@ -248,7 +248,7 @@ class EntryPoint extends StatelessWidget {
         BlocProvider(
           create: (context) => EuSouBloc(
             repository: context.read<EuSouRepository>(),
-            contentService: context.read<DailyContentService>(),
+            contentService: context.read<DailyContentService>(), deepUnderstandingBloc: context.read<DeepUnderstandingBloc>(),
           ),
         ),
       ],
