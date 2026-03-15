@@ -65,7 +65,7 @@ class _EuSouPageState extends State<EuSouPage> {
             listener: (context, state) {
               final sessions = state.sessions
                   .where((s) => s.status == 'completed')
-                  .take(1)
+                  .take(5)
                   .map(AnalysisSessionPreview.fromSession)
                   .toList();
               context.read<EuSouBloc>().updateRecentStudies(sessions);

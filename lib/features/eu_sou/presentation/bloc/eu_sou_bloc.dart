@@ -32,13 +32,16 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
 
     _deepUnderstandingBloc.stream.listen((state) {
       if (state is DeepUnderstandingSuccess) {
-        // Update estudos count and recent studies list when a new study is completed
         _repository.getUserStats().then((stats) {
           add(_UpdateEstudosCountEvent(stats.estudosCount));
         });
 
-        final newStudy = AnalysisSessionPreview.fromSession(state.sessions.last);
-        add(_UpdateStudiesEvent([newStudy])); // This will replace the list, ideally
+        final previews = state.sessions
+            .where((s) => s.status == 'completed')
+            .take(5)
+            .map(AnalysisSessionPreview.fromSession)
+            .toList();
+        add(_UpdateStudiesEvent(previews));
       }
     });
     

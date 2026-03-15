@@ -29,7 +29,7 @@ class EstudosPreviewSection extends StatelessWidget {
         Divider(color: colorScheme.onSurface.withOpacity(0.12), height: 1),
         const SizedBox(height: 28),
 
-        // Label de seção
+        // Label + VER TODOS (com padding lateral alinhado ao resto da página)
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -63,7 +63,7 @@ class EstudosPreviewSection extends StatelessWidget {
         if (studies.isEmpty)
           _EmptyStudiesHint(accentColor: accentColor)
         else
-          ...studies.map((s) => _StudyCard(study: s, accentColor: accentColor)),
+          _HorizontalCarousel(studies: studies, accentColor: accentColor),
 
         const SizedBox(height: 8),
       ],
@@ -83,11 +83,47 @@ class EstudosPreviewSection extends StatelessWidget {
   }
 }
 
+/// Carrossel horizontal de cards de estudo.
+class _HorizontalCarousel extends StatelessWidget {
+  final List<AnalysisSessionPreview> studies;
+  final Color accentColor;
+
+  const _HorizontalCarousel(
+      {required this.studies, required this.accentColor});
+
+  @override
+  Widget build(BuildContext context) {
+    // Offset negativo para o carrossel "sangrar" para além do padding da página
+    return Transform.translate(
+      offset: const Offset(-28, 0),
+      child: SizedBox(
+        height: 172,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          itemCount: studies.length,
+          itemBuilder: (context, index) => _StudyCard(
+            study: studies[index],
+            accentColor: accentColor,
+            isLast: index == studies.length - 1,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StudyCard extends StatelessWidget {
   final AnalysisSessionPreview study;
   final Color accentColor;
+  final bool isLast;
 
-  const _StudyCard({required this.study, required this.accentColor});
+  const _StudyCard({
+    required this.study,
+    required this.accentColor,
+    this.isLast = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +137,8 @@ class _StudyCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _openStudy(context),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        width: 252,
+        margin: EdgeInsets.only(right: isLast ? 0 : 12),
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(10),
@@ -145,16 +182,18 @@ class _StudyCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 6),
-            Text(
-              '"${study.snippet}"',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 13,
-                fontStyle: FontStyle.italic,
-                color: colorScheme.onSurface.withOpacity(0.60),
-                height: 1.4,
+            Expanded(
+              child: Text(
+                '"${study.snippet}"',
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                  color: colorScheme.onSurface.withOpacity(0.60),
+                  height: 1.4,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 10),
             Row(
