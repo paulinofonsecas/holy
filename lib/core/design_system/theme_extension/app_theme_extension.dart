@@ -27,9 +27,9 @@ class AppTheme {
         secondaryContainer: null,
         onSecondaryContainer: null,
       ),
-      scaffoldBackgroundColor: _lightAppColors.surface,
-      appBarTheme: AppBarTheme(
-        backgroundColor: _lightAppColors.surface,
+      scaffoldBackgroundColor: const Color(0xFFFCFBF8),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFFFCFBF8),
       ),
       extensions: [
         _lightAppColors,

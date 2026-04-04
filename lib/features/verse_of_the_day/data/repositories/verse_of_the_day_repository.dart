@@ -6,6 +6,8 @@ import '../models/verse_of_the_day_settings.dart';
 
 class VerseOfTheDayRepository {
   static const String _key = 'verse_of_the_day_settings';
+  static const String _kScheduleValidUntil =
+      'verse_of_the_day_schedule_valid_until';
   final SharedPreferences _prefs;
 
   VerseOfTheDayRepository(this._prefs);
@@ -36,5 +38,24 @@ class VerseOfTheDayRepository {
         bookIds: const [],
       );
     }
+  }
+
+  DateTime? getScheduleValidUntil() {
+    final raw = _prefs.getString(_kScheduleValidUntil);
+    if (raw == null) return null;
+
+    try {
+      return DateTime.parse(raw);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> setScheduleValidUntil(DateTime value) async {
+    await _prefs.setString(_kScheduleValidUntil, value.toIso8601String());
+  }
+
+  Future<void> clearScheduleMetadata() async {
+    await _prefs.remove(_kScheduleValidUntil);
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:eu_sou/app/app.dart';
@@ -8,9 +10,20 @@ import 'package:eu_sou/core/data/repositories/bible_repository.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
+import 'package:eu_sou/core/services/ai_service.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
+import 'package:eu_sou/core/services/objectbox_service.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
+import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
+import 'package:eu_sou/features/deep_understanding/data/repositories/objectbox_vector_store.dart';
+import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
+import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
+import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
+import 'package:eu_sou/features/eu_sou/domain/models/daily_reflection.dart';
+import 'package:eu_sou/features/eu_sou/presentation/bloc/eu_sou_bloc.dart';
 import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
 import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/profile_repository.dart';
@@ -20,16 +33,6 @@ import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repo
 import 'package:eu_sou/features/profile/domain/repositories/i_profile_repository.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_search_history_repository.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repository.dart';
-import 'package:eu_sou/core/services/ai_service.dart';
-import 'package:eu_sou/core/services/objectbox_service.dart';
-import 'package:eu_sou/features/deep_understanding/data/repositories/objectbox_vector_store.dart';
-import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
-import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
-import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
-import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
-import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
-import 'package:eu_sou/features/eu_sou/presentation/bloc/eu_sou_bloc.dart';
 import 'package:eu_sou/features/search/data/repositories/search_repository.dart';
 import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
@@ -43,10 +46,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   try {
@@ -111,15 +114,13 @@ void main() async {
       notificationService: notificationHandler.localNotificationService,
     );
 
-    debugPrint('Main: Initializing verse notifications...');
-    await verseService.scheduleNextNotifications();
-
-    // Reschedule daily growth reminders on every app launch
+    // Daily reminders are restored in background after app start.
     final dailyReminderService = DailyReminderService(
       notificationService: notificationHandler.localNotificationService,
       prefs: sharedPreferences,
+      searchProvider: searchProvider,
+      aiService: aiService,
     );
-    await dailyReminderService.rescheduleAll();
 
     final profileRepo = ProfileRepository();
     final themeBloc = ThemeBloc(profileRepo);
@@ -143,9 +144,79 @@ void main() async {
       streakService: streakService,
       dailyReminderService: dailyReminderService,
     ));
+
+    unawaited(_scheduleNotificationsInBackground(
+      verseService: verseService,
+      dailyReminderService: dailyReminderService,
+    ));
+    unawaited(_warmUpDailyReflectionInBackground(
+      euSouRepository: euSouRepository,
+      dailyContentService: dailyContentService,
+    ));
   } catch (e) {
     debugPrint('Erro ao inicializar o aplicativo: $e');
     runApp(const ErrorScreen());
+  }
+}
+
+Future<void> _scheduleNotificationsInBackground({
+  required VerseOfTheDayService verseService,
+  required DailyReminderService dailyReminderService,
+}) async {
+  try {
+    debugPrint('Main: Scheduling notifications in background...');
+    await verseService.ensureWeeklyNotificationsScheduled();
+    await dailyReminderService.rescheduleAll();
+  } catch (e) {
+    debugPrint('Main: Background scheduling failed: $e');
+  }
+}
+
+Future<void> _warmUpDailyReflectionInBackground({
+  required EuSouRepository euSouRepository,
+  required DailyContentService dailyContentService,
+}) async {
+  try {
+    const versionId = 'KJA';
+    debugPrint('Main: Warming up daily reflection in background...');
+
+    var reflection = await euSouRepository.getTodayReflection();
+    if (reflection != null &&
+        !dailyContentService.isFallbackContent(
+          essencia: reflection.essencia,
+          pratica: reflection.pratica,
+          verseReference: reflection.verseReference,
+        )) {
+      debugPrint('Main: Daily reflection already generated with AI.');
+      return;
+    }
+
+    final verse = reflection == null
+        ? await euSouRepository.getDailyVerse(versionId)
+        : (text: reflection.verseText, reference: reflection.verseReference);
+
+    if (verse == null) {
+      debugPrint('Main: Could not fetch a verse for daily reflection warm-up.');
+      return;
+    }
+
+    final content =
+        await dailyContentService.getOrGenerate(verse.text, verse.reference);
+    final updatedReflection = DailyReflection(
+      date:
+          '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}',
+      greetingWord: euSouRepository.greetingForToday(),
+      verseText: verse.text,
+      verseReference: verse.reference,
+      essencia: content.essencia,
+      pratica: content.pratica,
+    );
+
+    await euSouRepository.saveTodayReflection(updatedReflection);
+    debugPrint(
+        'Main: Daily reflection warm-up finished for ${verse.reference}.');
+  } catch (e) {
+    debugPrint('Main: Daily reflection warm-up failed: $e');
   }
 }
 
@@ -270,12 +341,13 @@ class EntryPoint extends StatelessWidget {
           create: (context) => DeepUnderstandingBloc(deepUnderstandingService),
         ),
         BlocProvider(
-          create:(context) => ChangeMyNameCubit(),
+          create: (context) => ChangeMyNameCubit(),
         ),
         BlocProvider(
           create: (context) => EuSouBloc(
             repository: context.read<EuSouRepository>(),
-            contentService: context.read<DailyContentService>(), deepUnderstandingBloc: context.read<DeepUnderstandingBloc>(),
+            contentService: context.read<DailyContentService>(),
+            deepUnderstandingBloc: context.read<DeepUnderstandingBloc>(),
           ),
         ),
       ],

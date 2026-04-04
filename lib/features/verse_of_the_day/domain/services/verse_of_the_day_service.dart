@@ -20,6 +20,28 @@ class VerseOfTheDayService {
         _searchProvider = searchProvider,
         _notificationService = notificationService;
 
+  Future<void> ensureWeeklyNotificationsScheduled({
+    DateTime? nowOverride,
+  }) async {
+    final settings = _repository.getSettings();
+    final now = nowOverride ?? DateTime.now();
+    final validUntil = _repository.getScheduleValidUntil();
+
+    if (!settings.isEnabled) {
+      await _repository.clearScheduleMetadata();
+      return;
+    }
+
+    if (validUntil != null && validUntil.isAfter(now)) {
+      debugPrint(
+        'Verse notifications already scheduled until $validUntil. Skipping.',
+      );
+      return;
+    }
+
+    await scheduleNextNotifications(nowOverride: now);
+  }
+
   Future<void> scheduleNextNotifications({DateTime? nowOverride}) async {
     final settings = _repository.getSettings();
 
@@ -30,12 +52,15 @@ class VerseOfTheDayService {
 
     if (!settings.isEnabled) {
       debugPrint('Verse of the day notifications are disabled.');
+      await _repository.clearScheduleMetadata();
       return;
     }
 
     debugPrint('Scheduling next 7 verse of the day notifications...');
 
     final now = nowOverride ?? DateTime.now();
+    DateTime? latestScheduledDate;
+    int scheduledCount = 0;
 
     for (int i = 0; i < 7; i++) {
       DateTime scheduledDate = DateTime(
@@ -81,6 +106,19 @@ class VerseOfTheDayService {
         scheduledDate: scheduledDate,
         payload: payload,
       );
+
+      latestScheduledDate = latestScheduledDate == null
+          ? scheduledDate
+          : (scheduledDate.isAfter(latestScheduledDate)
+              ? scheduledDate
+              : latestScheduledDate);
+      scheduledCount++;
+    }
+
+    if (scheduledCount > 0 && latestScheduledDate != null) {
+      await _repository.setScheduleValidUntil(latestScheduledDate);
+    } else {
+      await _repository.clearScheduleMetadata();
     }
   }
 

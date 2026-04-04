@@ -1,5 +1,6 @@
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import "package:eu_sou/features/biblia/views/biblia_view.dart";
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/widgets/book_search_tile.dart';
@@ -9,7 +10,6 @@ import 'package:eu_sou/features/search/presentation/widgets/search_empty_states.
 import 'package:eu_sou/features/search/presentation/widgets/search_result_tile.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_version_filter.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
-import "package:eu_sou/features/biblia/views/biblia_view.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -66,11 +66,16 @@ class _TelaBuscaState extends State<TelaBusca> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+
     return BlocProvider(
       create: (context) => SearchSelectionBloc(),
       child: BlocBuilder<SearchSelectionBloc, SearchSelectionState>(
         builder: (context, selectionState) {
           return Scaffold(
+            backgroundColor: bgColor,
             body: BlocListener<SearchBloc, EstadoBusca>(
               listener: (context, estado) {
                 if (estado is BuscaCarregada &&
@@ -93,6 +98,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                         pinned: true,
                         floating: true,
                         centerTitle: true,
+                        backgroundColor: bgColor,
                         leading: selectionState.isInSelectionMode
                             ? IconButton(
                                 icon: const Icon(Icons.close),
@@ -392,21 +398,19 @@ class _InlineVerseHistory extends StatelessWidget {
         const Divider(height: 1),
         // Items
         ...history.map((item) {
-          final dateStr =
-              DateFormat('dd/MM/yyyy HH:mm').format(item.timestamp);
+          final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(item.timestamp);
           return ListTile(
             leading: Icon(Icons.menu_book_outlined,
                 size: 20, color: colorScheme.onSurface.withOpacity(0.55)),
             title: Text(
               item.verseRef,
-              style: GoogleFonts.inter(
-                  fontSize: 14, fontWeight: FontWeight.w500),
+              style:
+                  GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
             ),
             subtitle: Text(
               'Versão: ${item.versionId} · $dateStr',
               style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: colorScheme.onSurface.withOpacity(0.55)),
+                  fontSize: 12, color: colorScheme.onSurface.withOpacity(0.55)),
             ),
             trailing: Icon(Icons.arrow_forward_ios,
                 size: 13, color: colorScheme.onSurface.withOpacity(0.30)),
@@ -457,8 +461,7 @@ class _InlineVerseHistory extends StatelessWidget {
               context.read<VerseHistoryBloc>().add(ClearVerseHistory());
               Navigator.pop(ctx);
             },
-            child:
-                const Text('Limpar', style: TextStyle(color: Colors.red)),
+            child: const Text('Limpar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

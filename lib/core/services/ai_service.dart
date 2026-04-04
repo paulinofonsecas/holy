@@ -1,7 +1,9 @@
 import 'dart:async';
-import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
+
 import 'package:eu_sou/core/services/logger_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiAIService {
   late final GenerativeModel _model;
@@ -32,7 +34,7 @@ REGRAS ESTRITAS DE COMPORTAMENTO:
 8. Se o usuário pedir para gerar um relatório completo, gere um relatório completo.
 '''),
     );
-      
+
     _embeddingModel = GenerativeModel(
       model: dotenv.env['GEMINI_EMBEDDING_MODEL'] ?? 'text-embedding-004',
       apiKey: _apiKey,
@@ -130,6 +132,192 @@ Com base estritamente no contexto acima, elabore o entendimento aprofundado:''';
       logger.error('Failed to generate summary', e, stack);
       rethrow;
     }
+  }
+
+  /// Generates a weekly plan of short reminder bodies (one per provided verse).
+  /// Returns an empty list when generation/parsing fails.
+  Future<List<String>> generateWeeklyReminderMessages({
+    required String reminderLabel,
+    required String reminderSubtitle,
+    required String moodHint,
+    required List<Map<String, String>> verses,
+  }) async {
+    if (verses.isEmpty) return const [];
+
+    final logger = LoggerService();
+    final verseLines = verses.asMap().entries.map((entry) {
+      final i = entry.key + 1;
+      final v = entry.value;
+      return '$i. ${v['reference']} | ${v['text']}';
+    }).join('\n');
+
+    final prompt = '''
+Cria um plano semanal de mensagens curtas para notificações cristãs.
+
+Contexto:
+- Lembrete: $reminderLabel
+- Subtítulo: $reminderSubtitle
+- Direção emocional: $moodHint
+
+Versículos (7 dias):
+$verseLines
+
+Regras obrigatórias:
+- Responder APENAS com JSON válido.
+- Formato: array de strings com exatamente ${verses.length} itens.
+- Cada item deve ter no máximo 160 caracteres.
+- Português natural e acolhedor.
+- Incluir referência bíblica no fim, entre parênteses.
+- Não usar aspas duplas dentro das mensagens.
+- Não usar markdown.
+- Não incluir texto adicional fora do JSON.
+''';
+
+    try {
+      final response = await _model.generateContent([Content.text(prompt)]);
+      final raw = (response.text ?? '').trim();
+      if (raw.isEmpty) return const [];
+
+      final messages = _parseWeeklyReminderMessages(
+        raw,
+        expectedCount: verses.length,
+      );
+
+      if (messages.length != verses.length) return const [];
+      return messages;
+    } catch (e, stack) {
+      logger.error('Failed to generate weekly reminder messages', e, stack);
+      return const [];
+    }
+  }
+
+  String _extractJsonArray(String raw) {
+    final start = raw.indexOf('[');
+    final end = raw.lastIndexOf(']');
+    if (start >= 0 && end > start) {
+      return raw.substring(start, end + 1);
+    }
+    return raw;
+  }
+
+  List<String> _parseWeeklyReminderMessages(
+    String raw, {
+    required int expectedCount,
+  }) {
+    final logger = LoggerService();
+    final cleaned = _stripCodeFences(raw);
+
+    try {
+      final jsonText = _extractJsonArray(cleaned);
+      final decoded = jsonDecode(jsonText);
+      final normalized = _normalizeWeeklyReminderDecoded(decoded);
+      if (normalized.isNotEmpty) {
+        return normalized;
+      }
+    } catch (e) {
+      logger.warning(
+          'Weekly reminder JSON parse failed, trying salvage mode.', e);
+      logger.warning(
+        'Weekly reminder raw response preview: ${_previewRawModelResponse(cleaned)}',
+      );
+    }
+
+    final salvaged = _salvageWeeklyReminderMessages(
+      cleaned,
+      expectedCount: expectedCount,
+    );
+    if (salvaged.isNotEmpty) {
+      logger.info(
+          'Weekly reminder messages salvaged from malformed model response.');
+    } else {
+      logger.warning(
+        'Weekly reminder salvage mode failed. Raw response preview: ${_previewRawModelResponse(cleaned)}',
+      );
+    }
+    return salvaged;
+  }
+
+  String _previewRawModelResponse(String raw, {int maxLength = 280}) {
+    final compact = raw.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (compact.length <= maxLength) return compact;
+    return '${compact.substring(0, maxLength)}...';
+  }
+
+  String _stripCodeFences(String raw) {
+    return raw
+        .trim()
+        .replaceFirst(RegExp(r'^```json\s*', caseSensitive: false), '')
+        .replaceFirst(RegExp(r'^```\s*', caseSensitive: false), '')
+        .replaceFirst(RegExp(r'\s*```$'), '')
+        .trim();
+  }
+
+  List<String> _normalizeWeeklyReminderDecoded(dynamic decoded) {
+    final sourceList = switch (decoded) {
+      List<dynamic> list => list,
+      Map<String, dynamic> map when map['messages'] is List<dynamic> =>
+        map['messages'] as List<dynamic>,
+      _ => const <dynamic>[],
+    };
+
+    return sourceList
+        .map((e) => e.toString().trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
+
+  List<String> _salvageWeeklyReminderMessages(
+    String raw, {
+    required int expectedCount,
+  }) {
+    final body = _extractArrayBody(raw);
+    final lines = body
+        .split(RegExp(r'\r?\n'))
+        .map((line) => _cleanSalvagedReminderLine(line))
+        .where((line) => line.isNotEmpty)
+        .toList();
+
+    if (lines.length >= expectedCount) {
+      return lines.take(expectedCount).toList();
+    }
+
+    final commaSplit = body
+        .split(RegExp(r',(?![^\(]*\))'))
+        .map((part) => _cleanSalvagedReminderLine(part))
+        .where((part) => part.isNotEmpty)
+        .toList();
+
+    if (commaSplit.length >= expectedCount) {
+      return commaSplit.take(expectedCount).toList();
+    }
+
+    return const [];
+  }
+
+  String _extractArrayBody(String raw) {
+    final start = raw.indexOf('[');
+    final end = raw.lastIndexOf(']');
+    if (start >= 0 && end > start) {
+      return raw.substring(start + 1, end);
+    }
+    return raw;
+  }
+
+  String _cleanSalvagedReminderLine(String input) {
+    var value = input.trim();
+    if (value.isEmpty) return '';
+
+    value = value
+        .replaceFirst(RegExp(r'^\d+[\.)-]?\s*'), '')
+        .replaceFirst(RegExp(r'^[\[,]+\s*'), '')
+        .replaceFirst(RegExp(r'\s*[\],]+$'), '')
+        .replaceFirst(RegExp(r'^"+'), '')
+        .replaceFirst(RegExp(r'"+,?$'), '')
+        .replaceAll('"', '')
+        .trim();
+
+    if (value.length < 12) return '';
+    return value;
   }
 
   String formatErrorMessage(Object e) {

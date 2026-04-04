@@ -1,8 +1,8 @@
+import 'package:eu_sou/features/daily_growth/domain/models/verse_focus_mood.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:eu_sou/features/daily_growth/domain/models/verse_focus_mood.dart';
 import '../cubit/daily_growth_cubit.dart';
 
 class VerseFocusSection extends StatelessWidget {
@@ -12,6 +12,10 @@ class VerseFocusSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textColor = Theme.of(context).colorScheme.onSurface;
+    final accentColor = colorScheme.primary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -27,15 +31,14 @@ class VerseFocusSection extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: textColor,
                   ),
                 ),
               ],
             ),
             TextButton(
-              onPressed: () => context
-                  .read<DailyGrowthCubit>()
-                  .setVerseFocus(null),
+              onPressed: () =>
+                  context.read<DailyGrowthCubit>().setVerseFocus(null),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -45,7 +48,7 @@ class VerseFocusSection extends StatelessWidget {
                 'Personalizar',
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: accentColor,
                 ),
               ),
             ),
@@ -89,13 +92,12 @@ class _MoodChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
+    final textColor = Theme.of(context).colorScheme.onSurface;
+    final borderColor = textColor.withOpacity(isDark ? 0.22 : 0.14);
 
-    final selectedBg = isDark
-        ? const Color(0xFF2E2A6A).withOpacity(0.80)
-        : primary.withOpacity(0.08);
-    final unselectedBg = isDark
-        ? Colors.white.withOpacity(0.05)
-        : Colors.black.withOpacity(0.04);
+    final selectedBg = primary.withOpacity(isDark ? 0.22 : 0.08);
+    final unselectedBg =
+        isDark ? Colors.white.withOpacity(0.04) : const Color(0xFFF3F2EE);
 
     return GestureDetector(
       onTap: onTap,
@@ -106,7 +108,7 @@ class _MoodChip extends StatelessWidget {
           color: isSelected ? selectedBg : unselectedBg,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? primary : Colors.transparent,
+            color: isSelected ? primary : borderColor,
             width: 1.5,
           ),
         ),
@@ -116,9 +118,7 @@ class _MoodChip extends StatelessWidget {
             Icon(
               mood.icon,
               size: 24,
-              color: isSelected
-                  ? primary
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+              color: isSelected ? primary : textColor.withOpacity(0.55),
             ),
             const SizedBox(height: 6),
             Text(
@@ -126,12 +126,7 @@ class _MoodChip extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? primary
-                    : Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.65),
+                color: isSelected ? primary : textColor.withOpacity(0.65),
               ),
               textAlign: TextAlign.center,
             ),

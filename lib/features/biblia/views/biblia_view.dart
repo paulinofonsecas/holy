@@ -161,6 +161,10 @@ class _BibliaViewState extends State<BibliaView> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+
     return MultiBlocListener(
       listeners: [
         BlocListener<BibleVersionCubit, BibleVersionState>(
@@ -216,7 +220,7 @@ class _BibliaViewState extends State<BibliaView> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: bgColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -375,13 +379,13 @@ class _BibliaViewState extends State<BibliaView> {
                                     .toList(),
                                 verseReference: () {
                                   final sel = (context
-                                          .read<VerseSelectionBloc>()
-                                          .state
-                                          .selectedVerses
-                                          .values
-                                          .toList()
-                                        ..sort((a, b) =>
-                                            a.number.compareTo(b.number)));
+                                      .read<VerseSelectionBloc>()
+                                      .state
+                                      .selectedVerses
+                                      .values
+                                      .toList()
+                                    ..sort((a, b) =>
+                                        a.number.compareTo(b.number)));
                                   final book = state.chapter.bookId;
                                   final chap = state.chapter.number;
                                   if (sel.isEmpty) return '$book $chap';

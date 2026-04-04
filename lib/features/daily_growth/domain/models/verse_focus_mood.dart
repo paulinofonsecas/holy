@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum VerseFocusMood { happy, anxious, needHope }
+enum VerseFocusMood { anxious, happy, needHope }
 
 extension VerseFocusMoodExt on VerseFocusMood {
   String get label {

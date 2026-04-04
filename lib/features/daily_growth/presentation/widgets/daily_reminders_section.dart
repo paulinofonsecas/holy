@@ -1,8 +1,8 @@
+import 'package:eu_sou/features/daily_growth/domain/models/daily_reminder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:eu_sou/features/daily_growth/domain/models/daily_reminder.dart';
 import '../cubit/daily_growth_cubit.dart';
 import 'reminder_tile.dart';
 
@@ -20,21 +20,21 @@ class DailyRemindersSection extends StatelessWidget {
           children: [
             Icon(
               Icons.notifications_outlined,
-              size: 20,
+              size: 18,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Text(
               'Lembretes Diários',
               style: GoogleFonts.inter(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         ...reminders.map((r) => ReminderTile(
               reminder: r,
               onToggle: (_) =>
@@ -44,7 +44,7 @@ class DailyRemindersSection extends StatelessWidget {
                   ? null
                   : () => context.read<DailyGrowthCubit>().deleteReminder(r.id),
             )),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         _AddReminderButton(onAdd: () => _addCustomReminder(context)),
       ],
     );
@@ -82,35 +82,34 @@ class _AddReminderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderColor = isDark
-        ? Colors.white.withOpacity(0.20)
-        : Colors.black.withOpacity(0.15);
+    final textColor = Theme.of(context).colorScheme.onSurface;
+    final borderColor = textColor.withOpacity(isDark ? 0.22 : 0.14);
 
     return GestureDetector(
       onTap: onAdd,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF3F2EE),
           border: Border.all(
             color: borderColor,
             width: 1.5,
             style: BorderStyle.solid,
           ),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: 18,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55)),
-            const SizedBox(width: 8),
+            Icon(Icons.add, size: 16, color: textColor.withOpacity(0.55)),
+            const SizedBox(width: 6),
             Text(
-              '+ Adicionar Lembrete Personalizado',
+              'Adicionar Lembrete Personalizado',
               style: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.65),
+                color: textColor.withOpacity(0.65),
               ),
             ),
           ],
@@ -154,38 +153,40 @@ class _AddReminderDialogState extends State<_AddReminderDialog> {
             // Emoji selector
             SizedBox(
               height: 44,
-              child: ListView.separated(
+              child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                itemCount: _emojiOptions.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (_, i) {
-                  final e = _emojiOptions[i];
-                  final sel = e == _emoji;
-                  return GestureDetector(
-                    onTap: () => setState(() => _emoji = e),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: sel
-                            ? Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.15)
-                            : Colors.transparent,
-                        border: Border.all(
-                          color: sel
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.transparent,
+                child: Row(
+                  children: [
+                    for (final e in _emojiOptions) ...[
+                      GestureDetector(
+                        onTap: () => setState(() => _emoji = e),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: e == _emoji
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.15)
+                                : Colors.transparent,
+                            border: Border.all(
+                              color: e == _emoji
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.transparent,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child:
+                                Text(e, style: const TextStyle(fontSize: 20)),
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Center(
-                          child: Text(e,
-                              style: const TextStyle(fontSize: 20))),
-                    ),
-                  );
-                },
+                      if (e != _emojiOptions.last) const SizedBox(width: 8),
+                    ],
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),

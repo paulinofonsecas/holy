@@ -112,7 +112,29 @@ class VerseReadWidget extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: "${verse.number} ",
+                                text: "${verse.number}",
+                                style: style.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  decoration: isSelected
+                                      ? TextDecoration.underline
+                                      : null,
+                                  decorationStyle: TextDecorationStyle.dashed,
+                                  decorationColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  color: !isHighlighted
+                                      ? Theme.brightnessOf(context) ==
+                                              Brightness.light
+                                          ? Colors.black
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .onPrimaryContainer
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '- ',
                                 style: style.copyWith(
                                   fontWeight: FontWeight.w500,
                                   decoration: isSelected

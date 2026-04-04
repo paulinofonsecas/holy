@@ -61,8 +61,12 @@ class _BookSelectionPageState extends State<BookSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: bgColor,
       body: SafeArea(
         child: Column(
           children: [

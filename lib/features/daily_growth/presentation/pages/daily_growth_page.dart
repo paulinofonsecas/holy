@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
 import 'package:eu_sou/features/daily_growth/data/services/milestone_service.dart';
+import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
+import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
 import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../cubit/daily_growth_cubit.dart';
 import '../cubit/daily_growth_state.dart';
+import '../widgets/daily_inspiration_section.dart';
 import '../widgets/daily_reminders_section.dart';
 import '../widgets/streak_card.dart';
 import '../widgets/verse_focus_section.dart';
@@ -26,6 +28,8 @@ class DailyGrowthPage extends StatelessWidget {
           streakService: ctx.read<StreakService>(),
           milestoneService: MilestoneService(),
           prefs: ctx.read<SharedPreferences>(),
+          euSouRepository: ctx.read<EuSouRepository>(),
+          dailyContentService: ctx.read<DailyContentService>(),
         )..load(),
         child: const DailyGrowthPage(),
       ),
@@ -34,13 +38,15 @@ class DailyGrowthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F0E1E) : const Color(0xFFF7F6FF);
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
 
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: bgColor,
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
@@ -48,9 +54,10 @@ class DailyGrowthPage extends StatelessWidget {
         ),
         title: Text(
           'Crescimento Diário',
-          style: GoogleFonts.inter(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
           ),
         ),
         actions: [
@@ -60,7 +67,21 @@ class DailyGrowthPage extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<DailyGrowthCubit, DailyGrowthState>(
+      body: BlocConsumer<DailyGrowthCubit, DailyGrowthState>(
+        listenWhen: (prev, curr) =>
+            curr is DailyGrowthLoaded &&
+            curr.regenerateError &&
+            (prev is! DailyGrowthLoaded || !prev.regenerateError),
+        listener: (context, state) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Não foi possível regenerar a mensagem. Tente novamente.',
+              ),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
         builder: (context, state) {
           if (state is DailyGrowthLoading || state is DailyGrowthInitial) {
             return const Center(child: CircularProgressIndicator());
@@ -73,8 +94,7 @@ class DailyGrowthPage extends StatelessWidget {
                   Text(state.message),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: () =>
-                        context.read<DailyGrowthCubit>().load(),
+                    onPressed: () => context.read<DailyGrowthCubit>().load(),
                     child: const Text('Tentar novamente'),
                   ),
                 ],
@@ -102,7 +122,7 @@ class _LoadedBody extends StatelessWidget {
       physics: const BouncingScrollPhysics(),
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 60),
+          padding: const EdgeInsets.fromLTRB(28, 8, 28, 60),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // ── Streak Card ──────────────────────────────────────
@@ -118,13 +138,23 @@ class _LoadedBody extends StatelessWidget {
 
               const SizedBox(height: 28),
 
+              // ── Verses / Messages of the Day ─────────────────────
+              DailyInspirationSection(
+                reflection: state.reflection,
+                isRegenerating: state.isRegeneratingContent,
+                onRegenerate: () =>
+                    context.read<DailyGrowthCubit>().regenerateTodayContent(),
+              ),
+
+              const SizedBox(height: 28),
+
               // ── Divider ──────────────────────────────────────────
               Divider(
                   height: 1,
                   color: Theme.of(context)
                       .colorScheme
                       .onSurface
-                      .withOpacity(0.08)),
+                      .withOpacity(0.12)),
 
               const SizedBox(height: 24),
 

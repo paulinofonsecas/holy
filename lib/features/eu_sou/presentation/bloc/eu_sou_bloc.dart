@@ -33,9 +33,8 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
     _deepUnderstandingBloc.stream.listen((state) {
       if (state is DeepUnderstandingSuccess ||
           state is DeepUnderstandingHistoryLoaded) {
-        final completed = state.sessions
-            .where((s) => s.status == 'completed')
-            .toList();
+        final completed =
+            state.sessions.where((s) => s.status == 'completed').toList();
         add(_UpdateEstudosCountEvent(completed.length));
         add(_UpdateStudiesEvent(
           completed.take(5).map(AnalysisSessionPreview.fromSession).toList(),
@@ -92,6 +91,22 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
 
       if (!forceRefresh) {
         reflection = await _repository.getTodayReflection();
+        if (reflection != null &&
+            _contentService.isFallbackContent(
+              essencia: reflection.essencia,
+              pratica: reflection.pratica,
+              verseReference: reflection.verseReference,
+            )) {
+          final regenerated = await _contentService.getOrGenerate(
+            reflection.verseText,
+            reflection.verseReference,
+          );
+          reflection = reflection.copyWith(
+            essencia: regenerated.essencia,
+            pratica: regenerated.pratica,
+          );
+          await _repository.saveTodayReflection(reflection);
+        }
       }
 
       if (reflection == null) {

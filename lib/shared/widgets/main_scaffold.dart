@@ -18,7 +18,6 @@ import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_unders
 import 'package:eu_sou/features/eu_sou/presentation/pages/eu_sou_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
-import 'package:eu_sou/features/verse_of_the_day/domain/services/verse_of_the_day_service.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/cupertino.dart';
@@ -58,14 +57,6 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     notificationHandler.addOnNotificationTapListener(_handleNotificationTap);
 
     _setupDeeplinks();
-
-    // Ensure verse of the day notifications are scheduled
-    // This handles the case where the app just finished onboarding/downloading the first bible
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<VerseOfTheDayService>().scheduleNextNotifications();
-      }
-    });
   }
 
   void _setupDeeplinks() {
@@ -173,6 +164,9 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isWide = MediaQuery.of(context).size.width > 900;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
 
     return MultiBlocListener(
       listeners: [
@@ -254,7 +248,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
             ),
             bottomNavigationBar: ConvexAppBar(
               style: TabStyle.react,
-              backgroundColor: context.colorScheme.surface,
+              backgroundColor: bgColor,
               color: context.colorScheme.onSurface.withOpacity(0.6),
               activeColor: context.colorScheme.primary,
               initialActiveIndex: currentIndex,

@@ -20,13 +20,16 @@ class VersaoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bibleVersion = context.watch<BibleVersionCubit>().state.version;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
 
     return InkWell(
       onTap: () {
         showModalBottomSheet(
           context: context,
           showDragHandle: true,
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: bgColor,
           useSafeArea: true,
           builder: (context) {
             return SafeArea(
@@ -34,7 +37,7 @@ class VersaoWidget extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: bgColor,
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
