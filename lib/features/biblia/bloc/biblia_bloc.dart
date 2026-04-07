@@ -1,4 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'dart:developer' as developer;
+
 import 'package:equatable/equatable.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
@@ -54,10 +56,11 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
   ) {
     if (state is BibleChapterLoaded) {
       final currentState = state as BibleChapterLoaded;
-      _scrollPersistenceService.saveBibleScrollOffset(
-        currentState.chapter.bookId,
-        currentState.chapter.number,
-        event.offset,
+      _scrollPersistenceService.saveReadingPosition(
+        versionId: currentState.versionId,
+        bookId: currentState.chapter.bookId,
+        chapterNumber: currentState.chapter.number,
+        scrollOffset: event.offset,
       );
     }
   }
@@ -81,7 +84,12 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
     GetChapter event,
     Emitter<BibliaState> emit,
   ) async {
-    if (int.parse(event.chapter) <= 0) {
+    final parsedChapter = int.tryParse(event.chapter);
+    if (parsedChapter == null || parsedChapter <= 0) {
+      developer.log(
+        'Ignoring invalid chapter restore request: ${event.book} ${event.chapter}',
+        name: 'BibliaBloc',
+      );
       return;
     }
 
@@ -112,7 +120,13 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       final result = await _bibleReposity.getChapter(
         event.version,
         event.book,
-        event.chapter,
+        parsedChapter.toString(),
+      );
+
+      await _scrollPersistenceService.saveReadingPosition(
+        versionId: event.version,
+        bookId: result.bookId,
+        chapterNumber: result.number,
       );
 
       final savedOffset = _scrollPersistenceService.getBibleScrollOffset(
@@ -129,7 +143,7 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       ));
 
       // Pre-fetch adjacent chapters for smoother navigation
-      final currentChapterNum = int.tryParse(event.chapter) ?? 0;
+      final currentChapterNum = parsedChapter;
       if (currentChapterNum > 0) {
         // Next chapter
         if (currentChapterNum < result.totalChapters) {

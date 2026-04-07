@@ -1,8 +1,10 @@
 // ignore_for_file: library_prefixes
 
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
@@ -70,6 +72,9 @@ class _BibliaViewState extends State<BibliaView> {
   void initState() {
     super.initState();
     _startHideTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ensureInitialReadingPositionLoaded();
+    });
   }
 
   @override
@@ -87,6 +92,60 @@ class _BibliaViewState extends State<BibliaView> {
         });
       }
     });
+  }
+
+  void _ensureInitialReadingPositionLoaded() {
+    if (!mounted) return;
+
+    final bibleBloc = context.read<BibliaBloc>();
+    if (bibleBloc.state is! BibliaInitial) {
+      return;
+    }
+
+    final bibleVersionCubit = context.read<BibleVersionCubit>();
+    final scrollPersistenceService = context.read<ScrollPersistenceService>();
+    final savedPosition = scrollPersistenceService.getLastReadingPosition();
+
+    var resolvedVersionId = bibleVersionCubit.state.version.id;
+    var resolvedBookId = BibleBooks.genesis.bookId;
+    var resolvedChapter = 1;
+
+    if (savedPosition != null) {
+      if (_isSupportedVersion(savedPosition.versionId)) {
+        if (bibleVersionCubit.state.version.id != savedPosition.versionId) {
+          bibleVersionCubit.changeVersionById(savedPosition.versionId);
+        }
+        resolvedVersionId = savedPosition.versionId;
+      } else {
+        developer.log(
+          'Fallback to active version because ${savedPosition.versionId} is not supported.',
+          name: 'BibliaView',
+        );
+      }
+
+      resolvedBookId = savedPosition.bookId;
+      resolvedChapter = savedPosition.chapterNumber;
+    } else {
+      developer.log(
+        'No valid saved reading position found. Falling back to Genesis 1.',
+        name: 'BibliaView',
+      );
+    }
+
+    context.read<SearchBloc>().add(CarregarVersao(idVersao: resolvedVersionId));
+    bibleBloc.add(
+      GetChapter(
+        resolvedVersionId,
+        resolvedBookId,
+        resolvedChapter.toString(),
+      ),
+    );
+  }
+
+  bool _isSupportedVersion(String versionId) {
+    return BibleVersions.values.any(
+      (version) => version.id.toUpperCase() == versionId.toUpperCase(),
+    );
   }
 
   void _navigateToPreviousChapter() {
@@ -195,10 +254,7 @@ class _BibliaViewState extends State<BibliaView> {
                 ),
               );
             } else {
-              // Caso contrário, vai para o início
-              bibliaBloc.add(
-                GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-              );
+              _ensureInitialReadingPositionLoaded();
             }
 
             context.read<SearchBloc>().add(

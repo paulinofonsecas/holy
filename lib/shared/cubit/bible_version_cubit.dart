@@ -8,7 +8,7 @@ class BibleVersionCubit extends Cubit<BibleVersionState> {
   BibleVersionCubit()
       : super(kIsWeb
             ? const BibleVersionStateARC()
-            : const BibleVersionStateKJA());
+            : const BibleVersionStateJFAA());
 
   void changeVersion(BibleVersions e) {
     switch (e) {

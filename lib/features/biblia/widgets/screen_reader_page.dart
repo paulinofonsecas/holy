@@ -48,10 +48,20 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
 
         context.read<BibliaBloc>().add(ClearTargetVerse());
       } else if (state is BibleChapterLoaded && state.initialScrollOffset > 0) {
-        if (_scrollController.hasClients) {
-          _scrollController.jumpTo(state.initialScrollOffset);
-        }
+        _restoreInitialScroll(state.initialScrollOffset);
       }
+    });
+  }
+
+  void _restoreInitialScroll(double offset) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) {
+        return;
+      }
+
+      final maxExtent = _scrollController.position.maxScrollExtent;
+      final targetOffset = offset.clamp(0.0, maxExtent);
+      _scrollController.jumpTo(targetOffset);
     });
   }
 
@@ -106,11 +116,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
         if ((isNewChapter || isNewVersion) &&
             state.initialScrollOffset > 0 &&
             state.targetVerse == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_scrollController.hasClients) {
-              _scrollController.jumpTo(state.initialScrollOffset);
-            }
-          });
+          _restoreInitialScroll(state.initialScrollOffset);
         }
 
         if ((state.targetVerses != null && state.targetVerses!.isNotEmpty) ||

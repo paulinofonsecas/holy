@@ -12,7 +12,7 @@ class BibleVersionState extends Equatable {
 enum BibleVersions {
   acf(id: 'ACF', name: 'Almeida Corrigida e Fiel'),
   arc(id: 'ARC', name: 'Almeida Revista e Corrigida'),
-  jfaa(id: 'JFAA', name: 'Almeida Atualizada'),
+  jfaa(id: 'JFAA', name: 'John Ferreira de Almeida Atualizada'),
   kja(id: 'KJA', name: 'King James Atualizada'),
   kjf(id: 'KJF', name: 'King James Fiel'),
   // ntlh(id: 'NTLH', name: 'Nova Tradução na Linguagem de Hoje '),

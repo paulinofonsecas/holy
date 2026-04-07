@@ -1,23 +1,22 @@
-import 'package:eu_sou/core/notifications/notification_handler.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
 import 'package:eu_sou/core/design_system/theme/theme_data.dart';
 import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
 import 'package:eu_sou/core/localization/bloc/locale_bloc.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/toast_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
+import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/onboarding/presentation/splash_page.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
-import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:feedback/feedback.dart';
@@ -45,7 +44,7 @@ class _AppState extends State<App> {
         // Since we don't have the original query or results here easily,
         // we might just want to show the results page if it was already in success state.
         // Or the Bloc should handle loading from session ID if we implement a LoadSession event.
-        
+
         // For now, let's just push the page if it's the result of our feature.
         toastService.navigatorKey.currentState?.push(
           MaterialPageRoute(builder: (_) => const DeepUnderstandingPage()),
@@ -66,16 +65,11 @@ class _AppState extends State<App> {
             create: (context) => ReadingSettingsCubit(
                 context.read<ReadingSettingsRepository>())),
         BlocProvider(create: (_) => BookSelectionCubit()),
-        BlocProvider(create: (context) => DeeplinkBloc(context.read<IDeeplinkService>())),
         BlocProvider(
-          create: (context) {
-            final bibleVersion =
-                context.read<BibleVersionCubit>().state.version;
-            return BibliaBloc(context.read(), context.read())
-              ..add(
-                GetChapter(bibleVersion.id, BibleBooks.genesis.bookId, '1'),
-              );
-          },
+            create: (context) =>
+                DeeplinkBloc(context.read<IDeeplinkService>())),
+        BlocProvider(
+          create: (context) => BibliaBloc(context.read(), context.read()),
         ),
         BlocProvider(
           create: (context) => SearchBloc(context.read(), context.read())
