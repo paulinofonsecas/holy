@@ -13,18 +13,20 @@ class ComparisonRepositoryImpl implements ComparisonRepository {
 
   static const Map<String, String> _versionNames = {
     'ACF': 'Almeida Corrigida e Fiel',
-    'JFAA': 'Almeida Atualizada',
+    'ARA': 'Almeida Revisada e Atualizada',
     'KJA': 'King James Atualizada',
     'KJF': 'King James Fiel',
     'NVI': 'Nova Versão Internacional',
+    'JFAA': 'John Ferreira de Almeida Atual.',
   };
 
   static const Map<String, String> _languageById = {
     'ACF': 'Português',
-    'JFAA': 'Português',
+    'ARA': 'Português',
     'KJA': 'Português',
     'KJF': 'Português',
     'NVI': 'Português',
+    'JFAA': 'Português',
   };
 
   @override

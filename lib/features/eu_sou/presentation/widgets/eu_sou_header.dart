@@ -1,17 +1,20 @@
-import 'theme_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'theme_toggle_button.dart';
 
 /// Exibe a data por extenso em PT-BR e a saudação personalizada.
 /// Ex: "VINTE E QUATRO DE MAIO" / "Respire, Gabriel."
 class EuSouHeader extends StatelessWidget {
   final String greetingWord;
   final String userName;
+  final VoidCallback? onEditName;
 
   const EuSouHeader({
     super.key,
     required this.greetingWord,
     required this.userName,
+    this.onEditName,
   });
 
   @override
@@ -34,14 +37,34 @@ class EuSouHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            Text(
-              '$greetingWord, $userName.',
-              style: GoogleFonts.inter(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-                color: colorScheme.onSurface,
-                height: 1.2,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$greetingWord, $userName.',
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w400,
+                    color: colorScheme.onSurface,
+                    height: 1.2,
+                  ),
+                ),
+                if (onEditName != null) ...[
+                  const SizedBox(width: 6),
+                  InkWell(
+                    onTap: onEditName,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: Icon(
+                        Icons.edit_outlined,
+                        size: 14,
+                        color: colorScheme.onSurface.withOpacity(0.45),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
@@ -111,5 +134,3 @@ class EuSouHeader extends StatelessWidget {
     return '$dayStr de $month';
   }
 }
-
-

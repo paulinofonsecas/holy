@@ -17,8 +17,6 @@ import '../../../profile/presentation/pages/marked_verses_list_page.dart';
 import '../../../profile/presentation/pages/theme_settings_page.dart';
 import '../../../profile/presentation/pages/verse_history_page.dart';
 import '../../../tutorial/presentation/pages/tutorials_list_page.dart';
-import '../../../verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
-import '../../../verse_of_the_day/presentation/pages/verse_of_the_day_settings_page.dart';
 import '../../data/models/analysis_session_preview.dart';
 import '../bloc/eu_sou_bloc.dart';
 import '../utils/verse_navigation.dart';
@@ -180,6 +178,8 @@ class _EuSouPageState extends State<EuSouPage> {
                               greetingWord: state.reflection?.greetingWord ??
                                   'Bem-vindo/a',
                               userName: nameState.name,
+                              onEditName: () =>
+                                  _InlineSettings._editName(context),
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -312,22 +312,23 @@ class _InlineSettings extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const VerseHistoryPage()),
           ),
         ),
-        _SettingsItem(
-          icon: Icons.notifications_none,
-          title: 'Versículo do Dia',
-          onTap: () {
-            final versionId =
-                context.read<BibleVersionCubit>().state.version.id;
-            context.read<VerseOfTheDayBloc>().add(
-                  LoadVerseOfTheDaySettings(defaultVersionId: versionId),
-                );
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => const VerseOfTheDaySettingsPage()),
-            );
-          },
-        ),
+        // _SettingsItem(
+        //   icon: Icons.notifications_none,
+        //   title: 'Versículo do Dia',
+        //   onTap: () {
+        //     final versionId =
+        //         context.read<BibleVersionCubit>().state.version.id;
+        //     context.read<VerseOfTheDayBloc>().add(
+        //           LoadVerseOfTheDaySettings(defaultVersionId: versionId),
+        //         );
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //           builder: (_) => const VerseOfTheDaySettingsPage()),
+        //     );
+        //   },
+        // ),
+
         _SettingsItem(
           icon: Icons.palette_outlined,
           title: 'Tema e Cores',

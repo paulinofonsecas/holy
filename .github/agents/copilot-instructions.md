@@ -1,4 +1,4 @@
-﻿# eu_sou Development Guidelines
+# eu_sou Development Guidelines
 
 Auto-generated from all feature plans. Last updated: 2026-01-01
 
@@ -40,6 +40,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-01
 - N/A (Build configuration) (027-app-store-prep)
 - Dart ^3.6.0, Flutter >=3.38.4 + Flutter SDK, BLoC (flutter_bloc), Stacked (MVVM), sqflite, sqlite3, Firebase, bible_handler (internal) (001-onboarding-readme)
 - SQLite, SharedPreferences, Flutter Secure Storage (001-onboarding-readme)
+- Dart ^3.6.0, Flutter >=3.38.4 + flutter_bloc/bloc, shared_preferences, bible_handler (main)
+- SharedPreferences (contexto de leitura) e cache por chave de scroll por capitulo (main)
 
 - Dart ^3.6.0, Flutter >=3.38.4 + `bible_handler` (internal), `sqflite`, `flutter_bloc` or `stacked`, `share_plus` (005-verse-search)
 
@@ -59,9 +61,9 @@ tests/
 Dart ^3.6.0, Flutter >=3.38.4: Follow standard conventions
 
 ## Recent Changes
+- main: Added Dart ^3.6.0, Flutter >=3.38.4 + flutter_bloc/bloc, shared_preferences, bible_handler
 - 001-onboarding-readme: Added Dart ^3.6.0, Flutter >=3.38.4 + Flutter SDK, BLoC (flutter_bloc), Stacked (MVVM), sqflite, sqlite3, Firebase, bible_handler (internal)
 - 001-onboarding-readme: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
-- 027-app-store-prep: Added Flutter 3.x, Dart 3.x + `flutter_launcher_icons`, `flutter_native_splash`, `package_info_plus`
 
 
 <!-- MANUAL ADDITIONS START -->
