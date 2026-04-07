@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "start",
+      "type": "default",
+      "position": {
+        "x": 400,
+        "y": 300
+      },
+      "data": {
+        "label": "Start Here"
+      }
+    }
+  ],
+  "edges": [],
+  "updatedAt": "2026-04-04T14:34:53.821Z"
+}

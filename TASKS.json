@@ -1,0 +1,12 @@
+{
+  "tasks": [
+    {
+      "id": "tpl-task-1",
+      "title": "Your first task — edit or delete me!",
+      "status": "todo",
+      "priority": "medium",
+      "createdAt": "2026-04-04T14:34:53.819Z"
+    }
+  ],
+  "updatedAt": "2026-04-04T14:34:53.819Z"
+}
