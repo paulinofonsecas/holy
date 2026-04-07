@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: Reading Position Persistence API
+  version: 1.0.0
+  description: |
+    Contract for local/edge persistence interactions of Bible reading startup restoration.
+    This contract documents functional actions of the feature and can be used for
+    future sync/back-up expansion.
+    In the current Flutter implementation, this contract is fulfilled by local SharedPreferences-backed services.
+servers:
+  - url: https://local.app
+paths:
+  /v1/reading-position:
+    get:
+      summary: Get last reading position
+      operationId: getReadingPosition
+      responses:
+        '200':
+          description: Last persisted reading position
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingPosition'
+        '404':
+          description: No persisted state found
+    put:
+      summary: Save last reading position
+      operationId: putReadingPosition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadingPositionWrite'
+      responses:
+        '204':
+          description: Saved
+  /v1/reading-position/restore:
+    post:
+      summary: Resolve startup restoration target
+      operationId: restoreReadingPosition
+      responses:
+        '200':
+          description: Resolved startup state with version fallback applied when needed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingStartupState'
+components:
+  schemas:
+    ReadingPosition:
+      type: object
+      required:
+        - versionId
+        - bookId
+        - chapterNumber
+        - scrollOffset
+        - updatedAt
+      properties:
+        versionId:
+          type: string
+        bookId:
+          type: string
+        chapterNumber:
+          type: integer
+          minimum: 1
+        scrollOffset:
+          type: number
+          format: double
+          minimum: 0
+        updatedAt:
+          type: string
+          format: date-time
+    ReadingPositionWrite:
+      type: object
+      required:
+        - versionId
+        - bookId
+        - chapterNumber
+        - scrollOffset
+      properties:
+        versionId:
+          type: string
+        bookId:
+          type: string
+        chapterNumber:
+          type: integer
+          minimum: 1
+        scrollOffset:
+          type: number
+          format: double
+          minimum: 0
+    ReadingStartupState:
+      type: object
+      required:
+        - status
+        - resolvedVersionId
+        - resolvedBookId
+        - resolvedChapterNumber
+        - resolvedScrollOffset
+      properties:
+        status:
+          type: string
+          enum: [restored, fallback]
+        resolvedVersionId:
+          type: string
+          description: Persisted version when supported; otherwise the active app version
+        resolvedBookId:
+          type: string
+        resolvedChapterNumber:
+          type: integer
+          minimum: 1
+        resolvedScrollOffset:
+          type: number
+          format: double
+          minimum: 0
+        reason:
+          type: string
+          description: Diagnostic fallback reason such as missing-state, invalid-reference, or unsupported-version

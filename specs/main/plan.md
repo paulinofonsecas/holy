@@ -1,13 +1,13 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Persistir Ultima Leitura da Biblia no Startup
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `main` | **Date**: 2026-04-07 | **Spec**: `/specs/main/spec.md`
+**Input**: Feature specification from `/specs/main/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Persistir e restaurar automaticamente a ultima posicao de leitura da Biblia entre sessoes do app, incluindo versao, livro, capitulo e scroll. A abordagem usa persistencia local em `SharedPreferences` via `ScrollPersistenceService`, restauracao inicial por `BibliaView`/`BibliaBloc` e reaplicacao de scroll em `ScreenReaderPage`, com fallback seguro para Genesis 1.
 
 ## Technical Context
 
@@ -17,28 +17,36 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Dart ^3.6.0, Flutter >=3.38.4  
+**Primary Dependencies**: flutter_bloc/bloc, shared_preferences, bible_handler  
+**Storage**: SharedPreferences (contexto de leitura) e cache por chave de scroll por capitulo  
+**Testing**: flutter_test, bloc_test, mocktail  
+**Target Platform**: Android/iOS/Web (app Flutter)
+**Project Type**: mobile (Flutter monorepo)  
+**Performance Goals**: restauracao inicial sem bloqueio perceptivel; leitura de estado em <50ms no startup; restauracao de scroll em ate 1 frame apos layout  
+**Constraints**: offline-first, sem regressao de navegacao existente, sem adicionar dependencia nova  
+**Scale/Scope**: 1 fluxo (leitura biblica), 4-6 arquivos principais, sem migracao de banco
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+- O arquivo de constituicao em `.specify/memory/constitution.md` esta em formato template, sem regras normativas concretas.
+- Gate de conformidade: PASS (sem violacoes detectaveis com as informacoes disponiveis).
+- Gate de seguranca e privacidade: PASS (dados locais nao sensiveis; sem sincronizacao externa).
+- Gate de qualidade: PASS condicional a cobertura de testes de restauracao e fallback.
+
+### Post-Design Re-check
+
+- Re-check apos Fase 1: PASS.
+- Nenhuma violacao adicional introduzida por `data-model.md`, `contracts/` ou `quickstart.md`.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/[###-feature]/
+specs/main/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
@@ -48,6 +56,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -56,49 +65,33 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
+lib/
+├── features/
+│   └── biblia/
+│       ├── bloc/
+│       │   ├── biblia_bloc.dart
+│       │   ├── biblia_event.dart
+│       │   └── biblia_state.dart
+│       ├── views/
+│       │   └── biblia_view.dart
+│       └── widgets/
+│           └── screen_reader_page.dart
+├── core/
 │   └── services/
-└── tests/
+│       └── scroll_persistence_service.dart
+└── main.dart
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+test/
+└── features/
+  └── biblia/
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Aproveitar estrutura mobile Flutter ja existente no modulo `lib/features/biblia` e no servico transversal `lib/core/services`, sem criar novos modulos ou camadas.
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| --------- | ---------- | ------------------------------------ |
+| None      | N/A        | N/A                                  |
