@@ -1,98 +1,28 @@
-import 'package:eu_sou/core/services/toast_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-
-import 'models/push_notification_model.dart';
-import 'services/fcm_service.dart';
 import 'services/local_notification_service.dart';
+import 'services/fcm_service.dart';
 
-/// Main class to handle all notification operations
+// Singleton NotificationHandler for app-wide notification management
 class NotificationHandler {
+  static final NotificationHandler _instance = NotificationHandler._internal();
+  factory NotificationHandler() => _instance;
+  NotificationHandler._internal();
+
+  final LocalNotificationService localNotificationService = LocalNotificationService();
   FCMService? _fcmService;
-  LocalNotificationService? _localNotificationService;
 
-  LocalNotificationService get localNotificationService =>
-      _localNotificationService!;
-
-  /// Initialize notification services
-  Future<bool> initialize({
-    FCMService? fcmService,
-    LocalNotificationService? localNotificationService,
-  }) async {
-    try {
-      if (fcmService != null && localNotificationService != null) {
-        _fcmService = fcmService;
-        _localNotificationService = localNotificationService;
-        return true;
-      }
-
-      // Setup local notifications first
-      _localNotificationService = LocalNotificationService();
-      await _localNotificationService!.initialize();
-
-      // Setup FCM service
-      _fcmService = FCMService(_localNotificationService!);
-      await _fcmService!.initialize();
-
-      // Register background message handler
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-      return true;
-    } catch (e) {
-      debugPrint('Error initializing notification services: $e');
-      toastService.showWarning('Serviço de notificações indisponível.');
-      // Continue with app initialization even if notifications fail
-      return false;
-    }
+  Future<void> initialize() async {
+    await localNotificationService.initialize();
+    _fcmService = FCMService(localNotificationService);
+    await _fcmService?.initialize();
   }
 
-  /// Get FCM token with error handling
-  Future<String?> getFCMToken() async {
-    try {
-      return await _fcmService?.getToken();
-    } catch (e) {
-      debugPrint('Error in getFCMToken: $e');
-      return 'Error: $e';
-    }
-  }
-
-  /// Show a local notification
-  Future<void> showLocalNotification(PushNotificationModel notification) async {
-    await _localNotificationService?.showNotification(notification);
-  }
-
-  /// Subscribe to a FCM topic
-  Future<void> subscribeToTopic(String topic) async {
-    await _fcmService?.subscribeToTopic(topic);
-  }
-
-  /// Unsubscribe from a FCM topic
-  Future<void> unsubscribeFromTopic(String topic) async {
-    await _fcmService?.unsubscribeFromTopic(topic);
-  }
-
-  /// Add listener for notification received
-  void addOnNotificationReceivedListener(
-      Function(PushNotificationModel) listener) {
-    _fcmService?.addOnNotificationReceivedListener(listener);
-  }
-
-  /// Remove listener for notification received
-  void removeOnNotificationReceivedListener(
-      Function(PushNotificationModel) listener) {
-    _fcmService?.removeOnNotificationReceivedListener(listener);
-  }
-
-  /// Add listener for notification tap
   void addOnNotificationTapListener(Function(String?) listener) {
-    _localNotificationService?.addOnNotificationTapListener(listener);
+    localNotificationService.addOnNotificationTapListener(listener);
   }
 
-  /// Remove listener for notification tap
   void removeOnNotificationTapListener(Function(String?) listener) {
-    _localNotificationService?.removeOnNotificationTapListener(listener);
+    localNotificationService.removeOnNotificationTapListener(listener);
   }
 }
 
-/// Global notification handler instance
 final notificationHandler = NotificationHandler();

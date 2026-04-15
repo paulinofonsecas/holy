@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -8,7 +9,6 @@ import 'package:eu_sou/core/deeplinks/bloc/deeplink_event.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_state.dart';
 import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
-import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
