@@ -71,7 +71,7 @@ class SplashPage extends StatelessWidget {
                   const SizedBox(height: 48),
                   if (model.isDownloading) ...[
                     const Text(
-                      'Baixando a versão King James Atualizada',
+                      'Baixando a versão JFAA da biblioteca bíblica...',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),

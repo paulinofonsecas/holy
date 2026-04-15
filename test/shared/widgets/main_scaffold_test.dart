@@ -1,7 +1,7 @@
+import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:bible_handler/bible_handler.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
-import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/notifications/services/fcm_service.dart';
 import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
@@ -49,7 +49,6 @@ void main() {
   late BibliaBloc mockBibliaBloc;
   late ThemeBloc mockThemeBloc;
   late IMarkedVersesRepository mockMarkedVersesRepository;
-  late MockFCMService mockFCMService;
   late MockLocalNotificationService mockLocalNotificationService;
   late MockFeedbackService mockFeedbackService;
 
@@ -60,14 +59,11 @@ void main() {
     mockBibliaBloc = MockBibliaBloc();
     mockThemeBloc = MockThemeBloc();
     mockMarkedVersesRepository = MockMarkedVersesRepository();
-    mockFCMService = MockFCMService();
     mockLocalNotificationService = MockLocalNotificationService();
     mockFeedbackService = MockFeedbackService();
 
     // Initialize global notification handler with mocks
     await notificationHandler.initialize(
-      fcmService: mockFCMService,
-      localNotificationService: mockLocalNotificationService,
     );
 
     when(() => mockLocalNotificationService.addOnNotificationTapListener(any()))
