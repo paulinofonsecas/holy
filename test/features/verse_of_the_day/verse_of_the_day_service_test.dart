@@ -20,6 +20,11 @@ void main() {
   late MockBibleSearchProvider mockSearchProvider;
   late MockLocalNotificationService mockNotificationService;
 
+  setUpAll(() {
+    registerFallbackValue(DateTime.now());
+    registerFallbackValue(<String, dynamic>{});
+  });
+
   setUp(() {
     mockRepository = MockVerseOfTheDayRepository();
     mockSearchProvider = MockBibleSearchProvider();
@@ -29,8 +34,6 @@ void main() {
       searchProvider: mockSearchProvider,
       notificationService: mockNotificationService,
     );
-
-    registerFallbackValue(DateTime.now());
   });
 
   test('should cancel notifications if disabled', () async {

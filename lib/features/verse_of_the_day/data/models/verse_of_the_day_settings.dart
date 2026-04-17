@@ -1,10 +1,4 @@
-import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
-
-part 'verse_of_the_day_settings.g.dart';
-
-@JsonSerializable()
-class VerseOfTheDaySettings extends Equatable {
+class VerseOfTheDaySettings {
   final bool isEnabled;
   final int hour;
   final int minute;
@@ -12,20 +6,12 @@ class VerseOfTheDaySettings extends Equatable {
   final List<String> bookIds;
 
   const VerseOfTheDaySettings({
-    required this.isEnabled,
-    required this.hour,
-    required this.minute,
-    required this.versionId,
-    required this.bookIds,
+    this.isEnabled = true,
+    this.hour = 6,
+    this.minute = 0,
+    this.versionId = 'NVI',
+    this.bookIds = const [],
   });
-
-  factory VerseOfTheDaySettings.fromJson(Map<String, dynamic> json) =>
-      _$VerseOfTheDaySettingsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$VerseOfTheDaySettingsToJson(this);
-
-  @override
-  List<Object?> get props => [isEnabled, hour, minute, versionId, bookIds];
 
   VerseOfTheDaySettings copyWith({
     bool? isEnabled,
@@ -40,6 +26,26 @@ class VerseOfTheDaySettings extends Equatable {
       minute: minute ?? this.minute,
       versionId: versionId ?? this.versionId,
       bookIds: bookIds ?? this.bookIds,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isEnabled': isEnabled,
+      'hour': hour,
+      'minute': minute,
+      'versionId': versionId,
+      'bookIds': bookIds,
+    };
+  }
+
+  factory VerseOfTheDaySettings.fromJson(Map<String, dynamic> json) {
+    return VerseOfTheDaySettings(
+      isEnabled: json['isEnabled'] as bool? ?? true,
+      hour: json['hour'] as int? ?? 6,
+      minute: json['minute'] as int? ?? 0,
+      versionId: json['versionId'] as String? ?? 'NVI',
+      bookIds: (json['bookIds'] as List<dynamic>?)?.cast<String>() ?? const [],
     );
   }
 }

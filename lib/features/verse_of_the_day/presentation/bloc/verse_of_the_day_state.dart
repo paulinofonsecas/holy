@@ -1,32 +1,32 @@
-part of 'verse_of_the_day_bloc.dart';
+import 'package:equatable/equatable.dart';
 
-abstract class VerseOfTheDayState extends Equatable {
-  const VerseOfTheDayState();
+import '../../data/models/verse_of_the_day_settings.dart';
 
-  @override
-  List<Object?> get props => [];
-}
+enum VerseOfTheDayStatus { initial, loading, loaded, saving, error }
 
-class VerseOfTheDayInitial extends VerseOfTheDayState {}
-
-class VerseOfTheDayLoading extends VerseOfTheDayState {}
-
-class VerseOfTheDayLoaded extends VerseOfTheDayState {
+class VerseOfTheDayState extends Equatable {
+  final VerseOfTheDayStatus status;
   final VerseOfTheDaySettings settings;
-  final List<Map<String, String>> downloadedVersions;
+  final String? errorMessage;
 
-  const VerseOfTheDayLoaded(this.settings,
-      {this.downloadedVersions = const []});
+  const VerseOfTheDayState({
+    this.status = VerseOfTheDayStatus.initial,
+    this.settings = const VerseOfTheDaySettings(),
+    this.errorMessage,
+  });
+
+  VerseOfTheDayState copyWith({
+    VerseOfTheDayStatus? status,
+    VerseOfTheDaySettings? settings,
+    String? errorMessage,
+  }) {
+    return VerseOfTheDayState(
+      status: status ?? this.status,
+      settings: settings ?? this.settings,
+      errorMessage: errorMessage,
+    );
+  }
 
   @override
-  List<Object?> get props => [settings, downloadedVersions];
-}
-
-class VerseOfTheDayError extends VerseOfTheDayState {
-  final String message;
-
-  const VerseOfTheDayError(this.message);
-
-  @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [status, settings, errorMessage];
 }

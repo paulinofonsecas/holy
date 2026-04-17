@@ -7,25 +7,6 @@ import 'package:timezone/timezone.dart' as tz;
 import '../models/push_notification_model.dart';
 
 class LocalNotificationService {
-    /// Sends a test notification after 5 seconds (for UI testing)
-    Future<void> sendTestNotification() async {
-      try {
-        final now = tz.TZDateTime.now(tz.local);
-        final scheduled = now.add(const Duration(seconds: 5));
-        await _plugin.zonedSchedule(
-          id: 9999, // Use a reserved ID for test notifications
-          title: 'Test Notification',
-          body: 'This is a test notification.',
-          scheduledDate: scheduled,
-          notificationDetails: _notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          payload: '{"type":"test"}',
-          // Remove uiLocalNotificationDateInterpretation for compatibility
-        );
-      } catch (e) {
-        debugPrint('Error sending test notification: $e');
-      }
-    }
   final FlutterLocalNotificationsPlugin _plugin;
   final List<Function(String?)> _onNotificationTapListeners = [];
 
@@ -174,7 +155,6 @@ class LocalNotificationService {
   }
 
   void _onTap(NotificationResponse response) {
-    // Always pass a string payload (may be null)
     final payload = response.payload;
     for (final listener in _onNotificationTapListeners) {
       listener(payload);

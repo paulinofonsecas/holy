@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DailyReminderService {
   static const _kRemindersKey = 'daily_growth_reminders_v2';
   static const _kMoodKey = 'daily_growth_verse_focus_mood';
-  static const _kDefaultVersionId = 'KJA';
+  static const _kDefaultVersionId = 'JFAA';
   static const _kDaysAhead = 7;
 
   final LocalNotificationService _notificationService;

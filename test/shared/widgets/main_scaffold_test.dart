@@ -38,7 +38,13 @@ class MockMarkedVersesRepository extends Mock
 class MockFCMService extends Mock implements FCMService {}
 
 class MockLocalNotificationService extends Mock
-    implements LocalNotificationService {}
+    implements LocalNotificationService {
+  @override
+  void addOnNotificationTapListener(Function(String?) listener) {}
+
+  @override
+  void removeOnNotificationTapListener(Function(String?) listener) {}
+}
 
 class MockFeedbackService extends Mock implements FeedbackService {}
 
@@ -63,8 +69,7 @@ void main() {
     mockFeedbackService = MockFeedbackService();
 
     // Initialize global notification handler with mocks
-    await notificationHandler.initialize(
-    );
+    await notificationHandler.initialize();
 
     when(() => mockLocalNotificationService.addOnNotificationTapListener(any()))
         .thenReturn(null);

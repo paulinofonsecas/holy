@@ -1,5 +1,6 @@
 import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
+import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_event.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';

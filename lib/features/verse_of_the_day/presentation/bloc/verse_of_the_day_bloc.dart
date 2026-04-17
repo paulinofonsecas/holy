@@ -1,11 +1,9 @@
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:eu_sou/features/verse_of_the_day/data/models/verse_of_the_day_settings.dart';
-import 'package:eu_sou/features/verse_of_the_day/data/repositories/verse_of_the_day_repository.dart';
-import 'package:eu_sou/features/verse_of_the_day/domain/services/verse_of_the_day_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'verse_of_the_day_event.dart';
-part 'verse_of_the_day_state.dart';
+import '../../data/repositories/verse_of_the_day_repository.dart';
+import '../../domain/services/verse_of_the_day_service.dart';
+import 'verse_of_the_day_event.dart';
+import 'verse_of_the_day_state.dart';
 
 class VerseOfTheDayBloc extends Bloc<VerseOfTheDayEvent, VerseOfTheDayState> {
   final VerseOfTheDayRepository _repository;
@@ -16,58 +14,96 @@ class VerseOfTheDayBloc extends Bloc<VerseOfTheDayEvent, VerseOfTheDayState> {
     required VerseOfTheDayService service,
   })  : _repository = repository,
         _service = service,
-        super(VerseOfTheDayInitial()) {
+        super(const VerseOfTheDayState()) {
     on<LoadVerseOfTheDaySettings>(_onLoadSettings);
-    on<UpdateVerseOfTheDaySettings>(_onUpdateSettings);
-    on<SendTestNotification>(_onSendTestNotification);
+    on<ToggleVerseOfTheDayEnabled>(_onToggleEnabled);
+    on<UpdateVerseOfTheDayTime>(_onUpdateTime);
+    on<UpdateVerseOfTheDayVersion>(_onUpdateVersion);
+    on<UpdateVerseOfTheDayBooks>(_onUpdateBooks);
+    on<SaveVerseOfTheDaySettings>(_onSaveSettings);
   }
 
-  Future<void> _onLoadSettings(
+  void _onLoadSettings(
     LoadVerseOfTheDaySettings event,
     Emitter<VerseOfTheDayState> emit,
-  ) async {
-    emit(VerseOfTheDayLoading());
+  ) {
+    emit(state.copyWith(status: VerseOfTheDayStatus.loading));
     try {
-      final settings = _repository.getSettings(
-        defaultVersionId: event.defaultVersionId,
+      final settings = _repository.getSettings();
+      final updatedSettings = settings.copyWith(
+        versionId: event.defaultVersionId,
       );
-      final versions = await _service.getDownloadedVersions();
-      emit(VerseOfTheDayLoaded(settings, downloadedVersions: versions));
+      emit(state.copyWith(
+        status: VerseOfTheDayStatus.loaded,
+        settings: updatedSettings,
+      ));
     } catch (e) {
-      emit(VerseOfTheDayError(e.toString()));
+      emit(state.copyWith(
+        status: VerseOfTheDayStatus.error,
+        errorMessage: e.toString(),
+      ));
     }
   }
 
-  Future<void> _onUpdateSettings(
-    UpdateVerseOfTheDaySettings event,
+  void _onToggleEnabled(
+    ToggleVerseOfTheDayEnabled event,
     Emitter<VerseOfTheDayState> emit,
-  ) async {
-    if (state is VerseOfTheDayLoaded) {
-      final currentState = state as VerseOfTheDayLoaded;
-      try {
-        emit(VerseOfTheDayLoaded(
-          event.settings,
-          downloadedVersions: currentState.downloadedVersions,
-        ));
-
-        await _repository.saveSettings(event.settings);
-
-        // Reschedule notifications with new settings
-        await _service.scheduleNextNotifications();
-      } catch (e) {
-        emit(VerseOfTheDayError(e.toString()));
-      }
-    }
+  ) {
+    final newSettings = state.settings.copyWith(
+      isEnabled: !state.settings.isEnabled,
+    );
+    emit(state.copyWith(settings: newSettings));
+    add(const SaveVerseOfTheDaySettings());
   }
 
-  Future<void> _onSendTestNotification(
-    SendTestNotification event,
+  void _onUpdateTime(
+    UpdateVerseOfTheDayTime event,
+    Emitter<VerseOfTheDayState> emit,
+  ) {
+    final newSettings = state.settings.copyWith(
+      hour: event.hour,
+      minute: event.minute,
+    );
+    emit(state.copyWith(settings: newSettings));
+    add(const SaveVerseOfTheDaySettings());
+  }
+
+  void _onUpdateVersion(
+    UpdateVerseOfTheDayVersion event,
+    Emitter<VerseOfTheDayState> emit,
+  ) {
+    final newSettings = state.settings.copyWith(
+      versionId: event.versionId,
+    );
+    emit(state.copyWith(settings: newSettings));
+    add(const SaveVerseOfTheDaySettings());
+  }
+
+  void _onUpdateBooks(
+    UpdateVerseOfTheDayBooks event,
+    Emitter<VerseOfTheDayState> emit,
+  ) {
+    final newSettings = state.settings.copyWith(
+      bookIds: event.bookIds,
+    );
+    emit(state.copyWith(settings: newSettings));
+    add(const SaveVerseOfTheDaySettings());
+  }
+
+  Future<void> _onSaveSettings(
+    SaveVerseOfTheDaySettings event,
     Emitter<VerseOfTheDayState> emit,
   ) async {
+    emit(state.copyWith(status: VerseOfTheDayStatus.saving));
     try {
-      await _service.sendTestNotification();
+      await _repository.saveSettings(state.settings);
+      await _service.scheduleNextNotifications();
+      emit(state.copyWith(status: VerseOfTheDayStatus.loaded));
     } catch (e) {
-      emit(VerseOfTheDayError(e.toString()));
+      emit(state.copyWith(
+        status: VerseOfTheDayStatus.error,
+        errorMessage: e.toString(),
+      ));
     }
   }
 }
