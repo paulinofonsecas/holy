@@ -1,0 +1,18 @@
+{
+  "project": "New Project — Unified Planning Flow",
+  "mode": "auto", 
+  "granularity": "Standard",
+  "commit_docs": true,
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "nyquist_validation": false,
+    "auto_advance": true
+  },
+  "planning": {
+    "sub_repos": [],
+    "questioning_lock": false,
+    "auto_chain_active": true
+  }
+}
