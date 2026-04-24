@@ -28,6 +28,10 @@ Core Value: Ensure a clear, testable, and shippable scope.
 - [ ] OFF-01: Data is persisted for offline use
 - [ ] OFF-02: Changes synchronize when online
 
+### Web
+- [ ] WEB-01: App builds and runs on Flutter Web without runtime errors
+- [ ] WEB-02: Persistence works in browser (IndexedDB/sembast) and data survives reloads
+
 ## Out of Scope
 
 - Real-time collaboration features
@@ -41,6 +45,8 @@ Core Value: Ensure a clear, testable, and shippable scope.
 | READ-01 | Phase 1 | Pending |
 | GROW-01 | Phase 1 | Pending |
 | PROF-01 | Phase 2 | Pending |
+| WEB-01 | Phase 4 | Pending |
+| WEB-02 | Phase 4 | Pending |
 
 ---
 Last updated: [date]

@@ -45,4 +45,9 @@ Phase 3: Reach & Refinement
 - Dependencies and risks
 - Milestones and reviews planned
 
+### Phase 4 — Web Migration & WASM Support
+- Goals: Add first-class Web support including a WASM-capable parsing path (where beneficial), platform abstractions, and CI/web build validation
+- Key Success: App builds and runs on Flutter Web (HTML and CanvasKit) and integrates an optional WASM parser module for heavy parsing tasks; offline/persistence on web functional
+- Mapped Requirements: WEB-01, WEB-02, READ-01, OFF-01
+
 ---
