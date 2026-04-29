@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:equatable/equatable.dart';
-import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/shared/bible_models.dart';
@@ -253,8 +252,6 @@ class DeepUnderstandingBloc
 
     _analysisSubscription =
         _service.startAnalysis(event.query, event.results).listen((session) {
-      final logger = LoggerService();
-      logger.debug('DeepUnderstandingBloc: Session updated: ${session.id}');
       add(_UpdateSessionEvent(session));
     });
   }
@@ -279,13 +276,9 @@ class DeepUnderstandingBloc
             event.chapterNumber, event.versionId)
         .listen(
       (session) {
-        final logger = LoggerService();
-        logger.debug('DeepUnderstandingBloc: Session updated: ${session.id}');
         add(_UpdateSessionEvent(session));
       },
       onError: (error) {
-        final logger = LoggerService();
-        logger.error('DeepUnderstandingBloc: Stream error: $error');
         emit(DeepUnderstandingFailure(error.toString(), sessions: _history));
       },
     );

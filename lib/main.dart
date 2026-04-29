@@ -12,11 +12,10 @@ import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
 import 'package:eu_sou/core/services/ai_service.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
-import 'package:eu_sou/core/services/objectbox_service.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
 import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
-import 'package:eu_sou/features/deep_understanding/data/repositories/objectbox_vector_store.dart';
+import 'package:eu_sou/features/deep_understanding/data/repositories/in_memory_vector_store.dart';
 import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
@@ -54,7 +53,11 @@ import 'package:sqflite/sqflite.dart';
 void main() async {
   try {
     final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+    try {
+      FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+    } catch (e) {
+      debugPrint('Warning: unable to preserve native splash: $e');
+    }
 
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -75,11 +78,11 @@ void main() async {
       debugPrint('Warning: .env file not found or could not be loaded: $e');
     }
 
-    final objectBoxService = await ObjectBoxService.create();
+    late final DeepUnderstandingService deepUnderstandingService;
     final aiService = GeminiAIService();
-    final vectorStore = ObjectBoxVectorStore(objectBoxService.store);
-    final deepUnderstandingService = DeepUnderstandingService(
-      vectorStore,
+
+    deepUnderstandingService = DeepUnderstandingService(
+      InMemoryVectorStore(),
       aiService,
       notificationHandler.localNotificationService,
     );
@@ -114,7 +117,6 @@ void main() async {
       notificationService: notificationHandler.localNotificationService,
     );
 
-    // Daily reminders are restored in background after app start.
     final dailyReminderService = DailyReminderService(
       notificationService: notificationHandler.localNotificationService,
       prefs: sharedPreferences,
@@ -125,7 +127,6 @@ void main() async {
     final profileRepo = ProfileRepository();
     final themeBloc = ThemeBloc(profileRepo);
 
-    // Wait for theme to be initialized from preferences
     await themeBloc.stream.firstWhere((state) => state.isInitialized);
 
     runApp(EntryPoint(

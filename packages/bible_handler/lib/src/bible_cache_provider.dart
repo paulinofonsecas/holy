@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'models.dart';
@@ -7,6 +8,8 @@ class BibleCacheProvider {
   final Database db;
 
   BibleCacheProvider(this.db);
+
+  String get _versesTable => kIsWeb ? 'verses_search' : 'verses_fts';
 
   /// Caches a complete [Bible] version into the database.
   ///
@@ -40,7 +43,7 @@ class BibleCacheProvider {
       for (final book in bible.books) {
         for (final chapter in book.chapters) {
           for (final verse in chapter.verses) {
-            batch.insert('verses_fts', {
+            batch.insert(_versesTable, {
               'version_id': id,
               'book_id': book.id,
               'chapter': chapter.number,
@@ -78,7 +81,7 @@ class BibleCacheProvider {
       final bookId = bookData['id'] as String;
 
       final verseResults = await db.query(
-        'verses_fts',
+        _versesTable,
         where: 'version_id = ? AND book_id = ?',
         whereArgs: [versionId, bookId],
         orderBy: 'chapter, verse',
@@ -145,7 +148,7 @@ class BibleCacheProvider {
     int chapterNumber,
   ) async {
     final verseResults = await db.query(
-      'verses_fts',
+      _versesTable,
       where: 'version_id = ? AND book_id = ? AND chapter = ?',
       whereArgs: [versionId, bookId, chapterNumber],
       orderBy: 'verse',
@@ -180,7 +183,7 @@ class BibleCacheProvider {
         whereArgs: [versionId],
       );
       await txn.delete(
-        'verses_fts',
+        _versesTable,
         where: 'version_id = ?',
         whereArgs: [versionId],
       );

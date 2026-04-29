@@ -160,18 +160,32 @@ class DatabaseHelper {
       )
     ''');
 
-    _logger.info('📑 Creating FTS4 virtual table for full-text search...');
-    await db.execute('''
-      CREATE VIRTUAL TABLE verses_fts USING fts4(
-        version_id,
-        book_id,
-        chapter,
-        verse,
-        text,
-        tokenize=unicode61
-      )
-    ''');
-    _logger.info('✅ FTS4 virtual table created successfully');
+    if (!kIsWeb) {
+      _logger.info('📑 Creating FTS4 virtual table for full-text search...');
+      await db.execute('''
+        CREATE VIRTUAL TABLE verses_fts USING fts4(
+          version_id,
+          book_id,
+          chapter,
+          verse,
+          text,
+          tokenize=unicode61
+        )
+      ''');
+      _logger.info('✅ FTS4 virtual table created successfully');
+    } else {
+      _logger.info('📑 Creating regular index for search (FTS4 not supported on web)...');
+      await db.execute('''
+        CREATE TABLE verses_search (
+          version_id TEXT,
+          book_id TEXT,
+          chapter INTEGER,
+          verse INTEGER,
+          text TEXT
+        )
+      ''');
+      _logger.info('✅ Search index created successfully');
+    }
   }
 
   Future<void> close() async {

@@ -1,30 +1,29 @@
 import 'package:eu_sou/features/deep_understanding/data/models/analysis_session.dart';
 import 'package:eu_sou/features/deep_understanding/data/models/verse_embedding.dart';
 import 'package:eu_sou/features/deep_understanding/domain/repositories/i_vector_store.dart';
-import 'package:eu_sou/objectbox.g.dart';
+import 'package:hive/hive.dart';
 
-class ObjectBoxVectorStore implements IVectorStore {
-  final Store _store;
-  late final Box<VerseEmbedding> _embeddingBox;
-  late final Box<AnalysisSession> _sessionBox;
+class HiveVectorStore implements IVectorStore {
+  final Box<VerseEmbedding> _embeddingBox;
+  final Box<AnalysisSession> _sessionBox;
 
-  ObjectBoxVectorStore(this._store) {
-    _embeddingBox = _store.box<VerseEmbedding>();
-    _sessionBox = _store.box<AnalysisSession>();
-  }
+  HiveVectorStore(this._embeddingBox, this._sessionBox);
 
   @override
   Future<VerseEmbedding?> getEmbeddingByVerseId(String verseId) async {
-    final query =
-        _embeddingBox.query(VerseEmbedding_.verseId.equals(verseId)).build();
-    final result = query.findFirst();
-    query.close();
-    return result;
+    try {
+      return _embeddingBox.values
+          .firstWhere((e) => e.verseId == verseId);
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   Future<void> saveEmbeddings(List<VerseEmbedding> embeddings) async {
-    _embeddingBox.putMany(embeddings);
+    for (final embedding in embeddings) {
+      await _embeddingBox.put(embedding.id, embedding);
+    }
   }
 
   @override
@@ -33,67 +32,57 @@ class ObjectBoxVectorStore implements IVectorStore {
     String sessionId,
     int limit,
   ) async {
-    // Perform vector search using HNSW index (nearest neighbor)
-    // The correct syntax for vector search in ObjectBox Dart is to use the property's nearest method.
-    final builder = _embeddingBox.query(
-      VerseEmbedding_.sessionId.equals(sessionId).and(
-            VerseEmbedding_.vector.nearestNeighborsF32(queryVector, limit),
-          ),
-    );
-    final query = builder.build();
-
-    final results = query.find();
-    query.close();
-    return results;
+    final embeddings =
+        _embeddingBox.values.toList();
+    embeddings.sort((a, b) => a.distanceTo(queryVector)
+        .compareTo(b.distanceTo(queryVector)));
+    return embeddings.take(limit).toList();
   }
 
   @override
   Future<List<VerseEmbedding>> getVerseEmbeddingsBySessionId(
       String sessionId) async {
-    final query = _embeddingBox
-        .query(VerseEmbedding_.sessionId.equals(sessionId))
-        .build();
-    final results = query.find();
-    query.close();
-    return results;
+    final embeddings =
+        _embeddingBox.values.where((e) => e.verseId.contains(sessionId.split('_').first)).toList();
+    return embeddings;
   }
 
   @override
   Future<void> clearSession(String sessionId) async {
-    final query = _embeddingBox
-        .query(VerseEmbedding_.sessionId.equals(sessionId))
-        .build();
-    query.remove();
-    query.close();
-
-    final sessionQuery =
-        _sessionBox.query(AnalysisSession_.sessionId.equals(sessionId)).build();
-    sessionQuery.remove();
-    sessionQuery.close();
+    final keysToDelete = <dynamic>[];
+    for (final entry in _embeddingBox.toMap().entries) {
+      if (entry.value.verseId.contains(sessionId.split('_').first)) {
+        keysToDelete.add(entry.key);
+      }
+    }
+    for (final key in keysToDelete) {
+      await _embeddingBox.delete(key);
+    }
+    final session = _sessionBox.values
+        .where((s) => s.sessionId == sessionId)
+        .toList();
+    for (final s in session) {
+      await _sessionBox.delete(s.sessionId);
+    }
   }
 
   @override
   Future<AnalysisSession?> getSession(String sessionId) async {
-    final query =
-        _sessionBox.query(AnalysisSession_.sessionId.equals(sessionId)).build();
-    final session = query.findFirst();
-    query.close();
-    return session;
+    try {
+      return _sessionBox.values
+          .firstWhere((s) => s.sessionId == sessionId);
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   Future<void> saveSession(AnalysisSession session) async {
-    _sessionBox.put(session);
+    await _sessionBox.put(session.sessionId, session);
   }
 
   @override
   Future<List<AnalysisSession>> getAllSessions() async {
-    final query = _sessionBox
-        .query()
-        .order(AnalysisSession_.updatedAt, flags: Order.descending)
-        .build();
-    final sessions = query.find();
-    query.close();
-    return sessions;
+    return _sessionBox.values.toList();
   }
 }

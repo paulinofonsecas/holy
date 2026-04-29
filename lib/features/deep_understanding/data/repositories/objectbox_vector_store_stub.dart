@@ -1,0 +1,1 @@
+export 'objectbox_vector_store.dart';

@@ -11,12 +11,12 @@ import 'package:bible_handler/bible_handler.dart';
 
 class DeepUnderstandingService {
   final IVectorStore _vectorStore;
-  final GeminiAIService _aiService;
+  final GeminiAIService aiService;
   final LocalNotificationService _notificationService;
   final _uuid = const Uuid();
 
   DeepUnderstandingService(
-      this._vectorStore, this._aiService, this._notificationService);
+      this._vectorStore, this.aiService, this._notificationService);
 
   Stream<AnalysisSession> startAnalysis(
       String query, List<SearchResult> results,
@@ -26,14 +26,10 @@ class DeepUnderstandingService {
 
     if (session == null) {
       final totalItems = results.length > 60 ? 60 : results.length;
-      session = AnalysisSession(
-        sessionId: sessionId,
+      session = AnalysisSession.create(
         query: query,
         totalItems: totalItems,
-        processedItems: 0,
-        status: 'embedding',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        sessionId: sessionId,
       );
       await _vectorStore.saveSession(session);
     } else {
@@ -60,14 +56,10 @@ class DeepUnderstandingService {
 
     if (session == null) {
       final totalItems = verses.length > 60 ? 60 : verses.length;
-      session = AnalysisSession(
-        sessionId: sessionId,
+      session = AnalysisSession.create(
         query: query,
         totalItems: totalItems,
-        processedItems: 0,
-        status: 'embedding',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        sessionId: sessionId,
       );
       await _vectorStore.saveSession(session);
     } else {
@@ -127,8 +119,10 @@ class DeepUnderstandingService {
             verseEmbeddings.add(VerseEmbedding(
               verseId: verseId,
               content: cached.content,
-              vector: cached.vector,
-              sessionId: session.sessionId,
+              book: result.book.name,
+              chapter: result.chapter.number,
+              verse: result.verse.number,
+              embedding: cached.embedding,
             ));
           } else {
             versesToEmbed.add(result);
@@ -137,7 +131,7 @@ class DeepUnderstandingService {
 
         if (versesToEmbed.isNotEmpty) {
           final texts = versesToEmbed.map((r) => r.verse.text).toList();
-          final newVectors = await _aiService.getEmbeddings(texts);
+          final newVectors = await aiService.getEmbeddings(texts);
 
           for (var j = 0; j < versesToEmbed.length; j++) {
             final result = versesToEmbed[j];
@@ -149,12 +143,13 @@ class DeepUnderstandingService {
             verseEmbeddings.add(VerseEmbedding(
               verseId: verseId,
               content: content,
-              vector: newVectors[j],
-              sessionId: session.sessionId,
+              book: result.book.name,
+              chapter: result.chapter.number,
+              verse: result.verse.number,
+              embedding: newVectors[j],
             ));
           }
 
-          // Delay de 3 segundos garante um fluxo constante sem bloquear a API
           await Future.delayed(const Duration(seconds: 3));
         }
 
@@ -166,23 +161,21 @@ class DeepUnderstandingService {
         yield session;
       }
 
-      // 4. Realizar busca vetorial final
       session.status = 'generating';
       session.updatedAt = DateTime.now();
       await _vectorStore.saveSession(session);
       yield session;
 
       final queryEmbeddingResponse =
-          await _aiService.getEmbeddings([session.query]);
+          await aiService.getEmbeddings([session.query]);
       final queryEmbedding = queryEmbeddingResponse.first;
 
       final topVerses = await _vectorStore.searchMostRelevant(
           queryEmbedding, session.sessionId, 50);
 
-      // 5. Gerar o resumo final
-      final contextTexts = topVerses.map((v) => v.content).toSet().toList();
+      final contextTexts = topVerses.map((v) => v.content).toList();
       final summary =
-          await _aiService.generateSummary(session.query, contextTexts);
+          await aiService.generateSummary(session.query, contextTexts);
 
       session.status = 'completed';
       session.result = summary;
@@ -201,7 +194,7 @@ class DeepUnderstandingService {
     } catch (e) {
       LoggerService().error('DeepUnderstandingService Error: ${e.toString()}');
       session.status = 'error';
-      session.error = _aiService.formatErrorMessage(e);
+      session.error = aiService.formatErrorMessage(e);
       session.updatedAt = DateTime.now();
       await _vectorStore.saveSession(session);
       yield session;

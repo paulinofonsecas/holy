@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'models.dart';
@@ -7,6 +8,8 @@ class BibleMemoryLoader {
   final Database db;
 
   BibleMemoryLoader(this.db);
+
+  String get _versesTable => kIsWeb ? 'verses_search' : 'verses_fts';
 
   /// Loads a complete [Bible] version from the database into memory.
   ///
@@ -32,7 +35,7 @@ class BibleMemoryLoader {
 
     // 3. Get all verses for this version
     final verseResults = await db.query(
-      'verses_fts',
+      _versesTable,
       where: 'version_id = ?',
       orderBy: 'rowid', // Maintain insertion order
       whereArgs: [versionId],

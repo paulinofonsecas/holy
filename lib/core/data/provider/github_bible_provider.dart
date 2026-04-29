@@ -20,6 +20,8 @@ class GithubBibleProvider extends IBibleProvider {
   final BibleCacheProvider cacheProvider;
   final BibleUrlLoader urlLoader;
   final Map<String, Bible> _cache = {};
+
+  String get _versesTable => kIsWeb ? 'verses_search' : 'verses_fts';
   final Map<String, List<Book>> _booksCache = {};
   final Map<String, Map<String, Map<int, Chapter>>> _chapterCache = {};
   final List<String> _chapterCacheKeys = [];
@@ -205,7 +207,7 @@ class GithubBibleProvider extends IBibleProvider {
       // Otherwise, we need to fetch the chapters.
       // To avoid loading all verses, we can just get the distinct chapter numbers.
       final chapterResults = await cacheProvider.db.rawQuery(
-        'SELECT DISTINCT chapter FROM verses_fts WHERE version_id = ? AND book_id = ? ORDER BY chapter',
+        'SELECT DISTINCT chapter FROM $_versesTable WHERE version_id = ? AND book_id = ? ORDER BY chapter',
         [versionId, book.id],
       );
 

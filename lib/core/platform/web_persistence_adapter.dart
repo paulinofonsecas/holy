@@ -1,19 +1,25 @@
 import 'package:sembast/sembast.dart';
-import 'package:sembast/sembast_io.dart' show databaseFactoryIo;
 import 'package:sembast_web/sembast_web.dart' show databaseFactoryWeb;
 
-import 'platform_adapter.dart';
+import 'persistence_adapter.dart';
 
-/// A small WebPersistenceAdapter that uses sembast_web (IndexedDB).
+/// A WebPersistenceAdapter that uses sembast_web (IndexedDB).
+/// Falls back to in-memory storage if IndexedDB is unavailable.
 class WebPersistenceAdapter implements PersistenceAdapter {
   Database? _db;
-  final StoreRef<String, String> _store = stringMapStoreFactory.store('app_store');
+  final StoreRef<String, Map<String, Object?>> _store =
+      stringMapStoreFactory.store('app_store');
+  bool _useFallback = false;
+  final Map<String, String> _fallbackStore = {};
 
   @override
   Future<void> open() async {
-    // prefer web database factory when available
-    final dbFactory = databaseFactoryWeb;
-    _db = await dbFactory.openDatabase('eu_sou_web.db');
+    try {
+      final dbFactory = databaseFactoryWeb;
+      _db = await dbFactory.openDatabase('eu_sou_web.db');
+    } catch (_) {
+      _useFallback = true;
+    }
   }
 
   @override
@@ -25,13 +31,18 @@ class WebPersistenceAdapter implements PersistenceAdapter {
   @override
   Future<String?> get(String key) async {
     if (_db == null) await open();
+    if (_useFallback) return _fallbackStore[key];
     final rec = await _store.record(key).get(_db!);
-    return rec;
+    return rec?['value'] as String?;
   }
 
   @override
   Future<void> put(String key, String value) async {
     if (_db == null) await open();
-    await _store.record(key).put(_db!, value);
+    if (_useFallback) {
+      _fallbackStore[key] = value;
+      return;
+    }
+    await _store.record(key).put(_db!, {'value': value});
   }
 }
