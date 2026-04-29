@@ -1,4 +1,3 @@
-import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -9,6 +8,7 @@ import 'package:eu_sou/core/deeplinks/bloc/deeplink_event.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_state.dart';
 import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
@@ -21,6 +21,7 @@ import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -199,6 +200,24 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
       ],
       child: BlocBuilder<TabControllerCubit, int>(
         builder: (context, currentIndex) {
+          if (kIsWeb) {
+            return Scaffold(
+              body: Column(
+                children: [
+                  _buildWebTopBar(context, currentIndex),
+                  Expanded(
+                    child: _AnalysisBannerOverlay(
+                      child: IndexedStack(
+                        index: currentIndex,
+                        children: _buildPages(context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
           if (isWide) {
             return Scaffold(
               body: Row(
@@ -280,6 +299,106 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildWebTopBar(BuildContext context, int currentIndex) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: colorScheme.outline.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      child: Row(
+        children: [
+          Text(
+            l10n.appTitle,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const Spacer(),
+          _buildWebTopBarItem(
+            context,
+            icon: CupertinoIcons.book,
+            label: l10n.bible,
+            selected: currentIndex == 0,
+            onTap: () => context.read<TabControllerCubit>().changeTo(0),
+          ),
+          const SizedBox(width: 16),
+          _buildWebTopBarItem(
+            context,
+            icon: CupertinoIcons.light_max,
+            label: 'Eu Sou',
+            selected: currentIndex == 1,
+            onTap: () => context.read<TabControllerCubit>().changeTo(1),
+          ),
+          const SizedBox(width: 16),
+          _buildWebTopBarItem(
+            context,
+            icon: CupertinoIcons.search,
+            label: l10n.search,
+            selected: currentIndex == 2,
+            onTap: () => context.read<TabControllerCubit>().changeTo(2),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWebTopBarItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected
+              ? colorScheme.primary.withOpacity(0.12)
+              : colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected
+                ? colorScheme.primary
+                : colorScheme.outline.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: selected ? colorScheme.primary : colorScheme.onSurface,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: selected ? colorScheme.primary : colorScheme.onSurface,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

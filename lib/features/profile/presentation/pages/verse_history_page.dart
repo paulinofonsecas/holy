@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -16,10 +17,12 @@ class VerseHistoryPage extends StatelessWidget {
     AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Histórico de Versículos'),
-        centerTitle: true,
-        actions: [
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              title: const Text('Histórico de Versículos'),
+              centerTitle: true,
+              actions: [
           BlocBuilder<VerseHistoryBloc, VerseHistoryState>(
             builder: (context, state) {
               if (state is VerseHistoryLoaded && state.history.isNotEmpty) {

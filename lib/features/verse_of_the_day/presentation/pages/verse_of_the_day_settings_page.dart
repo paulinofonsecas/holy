@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,10 +12,12 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Versículo do Dia'),
-        centerTitle: true,
-      ),
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              title: const Text('Versículo do Dia'),
+              centerTitle: true,
+            ),
       body: BlocBuilder<VerseOfTheDayBloc, VerseOfTheDayState>(
         builder: (context, state) {
           return ListView(

@@ -1,6 +1,8 @@
+import 'package:eu_sou/features/daily_growth/presentation/cubit/daily_growth_cubit.dart';
 import 'package:eu_sou/features/daily_growth/presentation/pages/daily_growth_page.dart';
 import 'package:eu_sou/features/eu_sou/domain/models/user_stats.dart';
 import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,8 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../shared/bible_models.dart';
 import '../../../../shared/cubit/bible_version_cubit.dart';
+import '../../../daily_growth/data/services/daily_reminder_service.dart';
+import '../../../daily_growth/data/services/milestone_service.dart';
 import '../../../deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import '../../../deep_understanding/presentation/pages/deep_understanding_page.dart';
+import '../../../eu_sou/data/repositories/eu_sou_repository.dart';
+import '../../../eu_sou/data/services/daily_content_service.dart';
+import '../../../eu_sou/data/services/streak_service.dart';
 import '../../../feedback/views/about_view.dart';
 import '../../../profile/domain/repositories/i_marked_verses_repository.dart';
 import '../../../profile/presentation/bloc/marked_verses_bloc.dart';
@@ -27,6 +34,61 @@ import '../widgets/stats_row.dart';
 import '../widgets/verse_section.dart';
 import 'reflexoes_anteriores_page.dart';
 
+enum _EuSouPanel {
+  overview,
+  dailyGrowth,
+  markedVerses,
+  verseHistory,
+  theme,
+  tutorials,
+  about,
+  name,
+}
+
+extension _EuSouPanelExtension on _EuSouPanel {
+  String get label {
+    switch (this) {
+      case _EuSouPanel.overview:
+        return 'Hoje';
+      case _EuSouPanel.dailyGrowth:
+        return 'Crescimento Diário';
+      case _EuSouPanel.markedVerses:
+        return 'Versículos Marcados';
+      case _EuSouPanel.verseHistory:
+        return 'Histórico de Versículos';
+      case _EuSouPanel.theme:
+        return 'Tema e Cores';
+      case _EuSouPanel.tutorials:
+        return 'Ajuda e Tutoriais';
+      case _EuSouPanel.about:
+        return 'Sobre';
+      case _EuSouPanel.name:
+        return 'Meu Nome';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case _EuSouPanel.overview:
+        return Icons.home_outlined;
+      case _EuSouPanel.dailyGrowth:
+        return Icons.trending_up_outlined;
+      case _EuSouPanel.markedVerses:
+        return Icons.bookmark_outline;
+      case _EuSouPanel.verseHistory:
+        return Icons.history;
+      case _EuSouPanel.theme:
+        return Icons.palette_outlined;
+      case _EuSouPanel.tutorials:
+        return Icons.help_outline;
+      case _EuSouPanel.about:
+        return Icons.info_outline;
+      case _EuSouPanel.name:
+        return Icons.person_outline;
+    }
+  }
+}
+
 class EuSouPage extends StatefulWidget {
   const EuSouPage({super.key});
 
@@ -38,6 +100,7 @@ class _EuSouPageState extends State<EuSouPage> {
   static const _kReflectionUnderstandingDate =
       'eu_sou_reflection_understanding_date';
 
+  _EuSouPanel _selectedPanel = _EuSouPanel.overview;
   bool _hasGeneratedToday = false;
 
   @override
@@ -63,6 +126,108 @@ class _EuSouPageState extends State<EuSouPage> {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
     context.read<EuSouBloc>().add(LoadEuSou(versionId: versionId));
     context.read<DeepUnderstandingBloc>().add(const LoadHistoryEvent());
+  }
+
+  void _navigateToPanel(_EuSouPanel panel) {
+    if (_selectedPanel == panel) {
+      return;
+    }
+
+    setState(() => _selectedPanel = panel);
+  }
+
+  Widget _buildSelectedPanel(BuildContext context) {
+    switch (_selectedPanel) {
+      case _EuSouPanel.dailyGrowth:
+        return BlocProvider(
+          create: (_) => DailyGrowthCubit(
+            reminderService: context.read<DailyReminderService>(),
+            streakService: context.read<StreakService>(),
+            milestoneService: MilestoneService(),
+            prefs: context.read<SharedPreferences>(),
+            euSouRepository: context.read<EuSouRepository>(),
+            dailyContentService: context.read<DailyContentService>(),
+          )..load(),
+          child: const DailyGrowthPage(),
+        );
+      case _EuSouPanel.markedVerses:
+        return BlocProvider(
+          create: (ctx) =>
+              MarkedVersesBloc(ctx.read<IMarkedVersesRepository>()),
+          child: const MarkedVersesListPage(),
+        );
+      case _EuSouPanel.verseHistory:
+        return const VerseHistoryPage();
+      case _EuSouPanel.theme:
+        return const ThemeSettingsPage();
+      case _EuSouPanel.tutorials:
+        return const TutorialsListPage();
+      case _EuSouPanel.about:
+        return const AboutView();
+      case _EuSouPanel.name:
+        return const _PersonalNamePanel();
+      case _EuSouPanel.overview:
+        return _EuSouOverviewPanel(
+          hasGeneratedToday: _hasGeneratedToday,
+          onRetry: _loadData,
+          onGenerateUnderstanding: (verseText, verseReference) =>
+              _generateUnderstanding(context, verseText, verseReference),
+          onNavigateToReflexoes: () => _navigateToReflexoes(context),
+        );
+    }
+  }
+
+  Widget _buildSideMenu(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: 280,
+      color: colorScheme.surface,
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Eu Sou',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Escolha um painel para visualizar ao lado.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: ListView.separated(
+              itemCount: _EuSouPanel.values.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final panel = _EuSouPanel.values[index];
+                return ListTile(
+                  minLeadingWidth: 0,
+                  dense: true,
+                  selected: panel == _selectedPanel,
+                  selectedTileColor: colorScheme.primary.withOpacity(0.08),
+                  selectedColor: colorScheme.primary,
+                  leading: Icon(panel.icon),
+                  title: Text(panel.label),
+                  onTap: () => _navigateToPanel(panel),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRightPane(BuildContext context) {
+    return Expanded(
+      child: _buildSelectedPanel(context),
+    );
   }
 
   /// Gera um entendimento profundo a partir do versículo da reflexão diária.
@@ -147,26 +312,68 @@ class _EuSouPageState extends State<EuSouPage> {
         child: SafeArea(
           child: BlocBuilder<EuSouBloc, EuSouState>(
             builder: (context, state) {
-              return CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  // Espaço seguro no topo sem app bar
-                  const SliverSafeArea(
-                    sliver: SliverToBoxAdapter(child: SizedBox(height: 8)),
-                  ),
+              final isWide = MediaQuery.of(context).size.width > 900;
 
-                  if (state is EuSouLoading)
-                    const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else if (state is EuSouError)
-                    SliverFillRemaining(
-                      child: _ErrorView(
-                        message: state.message,
-                        onRetry: _loadData,
+              if (state is EuSouLoading) {
+                if (isWide) {
+                  return Row(
+                    children: [
+                      _buildSideMenu(context),
+                      const VerticalDivider(width: 1),
+                      const Expanded(
+                        child: Center(child: CircularProgressIndicator()),
                       ),
-                    )
-                  else if (state is EuSouLoaded)
+                    ],
+                  );
+                }
+
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state is EuSouError) {
+                if (isWide) {
+                  return Row(
+                    children: [
+                      _buildSideMenu(context),
+                      const VerticalDivider(width: 1),
+                      Expanded(
+                        child: Center(
+                          child: _ErrorView(
+                            message: state.message,
+                            onRetry: _loadData,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return Center(
+                  child: _ErrorView(
+                    message: state.message,
+                    onRetry: _loadData,
+                  ),
+                );
+              }
+
+              if (state is EuSouLoaded) {
+                if (isWide) {
+                  return Row(
+                    children: [
+                      _buildSideMenu(context),
+                      const VerticalDivider(width: 1),
+                      _buildRightPane(context),
+                    ],
+                  );
+                }
+
+                return CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    // Espaço seguro no topo sem app bar
+                    const SliverSafeArea(
+                      sliver: SliverToBoxAdapter(child: SizedBox(height: 8)),
+                    ),
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(28, 8, 28, 48),
                       sliver: SliverList(
@@ -249,8 +456,11 @@ class _EuSouPageState extends State<EuSouPage> {
                         ]),
                       ),
                     ),
-                ],
-              );
+                  ],
+                );
+              }
+
+              return const SizedBox.shrink();
             },
           ),
         ),
@@ -265,6 +475,228 @@ class _EuSouPageState extends State<EuSouPage> {
         builder: (_) => BlocProvider.value(
           value: context.read<EuSouBloc>(),
           child: const ReflexoesAnterioresPage(),
+        ),
+      ),
+    );
+  }
+}
+
+class _EuSouOverviewPanel extends StatelessWidget {
+  final bool hasGeneratedToday;
+  final VoidCallback onRetry;
+  final void Function(String verseText, String verseReference)
+      onGenerateUnderstanding;
+  final VoidCallback onNavigateToReflexoes;
+
+  const _EuSouOverviewPanel({
+    required this.hasGeneratedToday,
+    required this.onRetry,
+    required this.onGenerateUnderstanding,
+    required this.onNavigateToReflexoes,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      body: SafeArea(
+        child: BlocBuilder<EuSouBloc, EuSouState>(
+          builder: (context, state) {
+            if (state is EuSouLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is EuSouError) {
+              return Center(
+                child: _ErrorView(
+                  message: state.message,
+                  onRetry: onRetry,
+                ),
+              );
+            }
+            if (state is EuSouLoaded) {
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  const SliverSafeArea(
+                    sliver: SliverToBoxAdapter(child: SizedBox(height: 8)),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(28, 8, 28, 48),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        BlocBuilder<ChangeMyNameCubit, ChangeMyNameState>(
+                          bloc: context.watch<ChangeMyNameCubit>(),
+                          builder: (context, nameState) => EuSouHeader(
+                            greetingWord:
+                                state.reflection?.greetingWord ?? 'Bem-vindo/a',
+                            userName: nameState.name,
+                            onEditName: () =>
+                                _InlineSettings._editName(context),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        VerseSection(
+                          verseText: state.reflection?.verseText ??
+                              'Carrega para atualizar o versículo de hoje',
+                          verseReference:
+                              state.reflection?.verseReference ?? '',
+                        ),
+                        const SizedBox(height: 40),
+                        EssenciaSection(
+                          text: state.reflection?.essencia ??
+                              'Carrega para atualizar a essência de hoje',
+                        ),
+                        const SizedBox(height: 36),
+                        StatsRow(
+                          stats: state.stats ??
+                              const UserStats(
+                                presencaDias: 0,
+                                escritasNotas: 0,
+                                estudosCount: 0,
+                              ),
+                        ),
+                        const SizedBox(height: 36),
+                        PraticaSection(
+                          text: state.reflection?.pratica ??
+                              'Carrega para atualizar a prática de hoje',
+                        ),
+                        const SizedBox(height: 32),
+                        if (VerseNavigation.isNavigable(
+                            state.reflection?.verseReference ?? ''))
+                          _GenerateUnderstandingButton(
+                            hasGeneratedToday: hasGeneratedToday,
+                            onTap: () => onGenerateUnderstanding(
+                              state.reflection!.verseText,
+                              state.reflection!.verseReference,
+                            ),
+                          ),
+                        const SizedBox(height: 36),
+                        GestureDetector(
+                          onTap: onNavigateToReflexoes,
+                          child: Text(
+                            'VER REFLEXÕES ANTERIORES',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 2.0,
+                              color: colorScheme.onSurface,
+                              decoration: TextDecoration.underline,
+                              decorationColor: colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                        EstudosPreviewSection(
+                          studies: state.recentStudies ?? [],
+                        ),
+                        const SizedBox(height: 32),
+                        if (!kIsWeb) const _InlineSettings(),
+                        const SizedBox(height: 80),
+                      ]),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _PersonalNamePanel extends StatefulWidget {
+  const _PersonalNamePanel({Key? key}) : super(key: key);
+
+  @override
+  State<_PersonalNamePanel> createState() => _PersonalNamePanelState();
+}
+
+class _PersonalNamePanelState extends State<_PersonalNamePanel> {
+  late final TextEditingController _controller;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+    _loadCurrentName();
+  }
+
+  Future<void> _loadCurrentName() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      _controller.text = prefs.getString('eu_sou_user_name') ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveName() async {
+    setState(() => _saving = true);
+    final name = _controller.text.trim();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('eu_sou_user_name', name);
+    if (mounted) {
+      context.read<ChangeMyNameCubit>().changeName(name);
+      setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              title: const Text('Meu Nome'),
+            ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Como posso te chamar?',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                labelText: 'Nome',
+                hintText: 'Digite o seu nome',
+              ),
+              textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _saving ? null : _saveName,
+                  child: _saving
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Salvar'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

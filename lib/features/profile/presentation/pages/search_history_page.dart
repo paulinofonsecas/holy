@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,10 +16,12 @@ class SearchHistoryPage extends StatelessWidget {
       create: (context) =>
           SearchHistoryBloc(context.read())..add(LoadSearchHistory()),
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.searchHistoryTitle),
-          centerTitle: true,
-          actions: [
+        appBar: kIsWeb
+            ? null
+            : AppBar(
+                title: Text(l10n.searchHistoryTitle),
+                centerTitle: true,
+                actions: [
             BlocBuilder<SearchHistoryBloc, SearchHistoryState>(
               builder: (context, state) {
                 if (state is SearchHistoryLoaded && state.history.isNotEmpty) {

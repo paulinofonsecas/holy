@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 
 import '../../data/repositories/category_repository.dart';
@@ -73,9 +74,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categories'),
-      ),
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              title: const Text('Categories'),
+            ),
       body: FutureBuilder<List<Category>>(
         future: _categoriesFuture,
         builder: (context, snapshot) {

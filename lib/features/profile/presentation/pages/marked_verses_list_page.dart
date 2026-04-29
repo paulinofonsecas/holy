@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer' show log;
 
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -100,7 +101,7 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
         body: SafeArea(
           child: Column(
             children: [
-              _buildAppBar(context, l10n),
+              if (!kIsWeb) _buildAppBar(context, l10n),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {

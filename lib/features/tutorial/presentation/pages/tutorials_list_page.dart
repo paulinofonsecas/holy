@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -190,10 +191,12 @@ Deixe o aplicativo com a sua cara e confortável para sua visão.
     final tutorials = _getTutorials(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Central de Ajuda'),
-        centerTitle: true,
-      ),
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              title: const Text('Central de Ajuda'),
+              centerTitle: true,
+            ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: tutorials.length,

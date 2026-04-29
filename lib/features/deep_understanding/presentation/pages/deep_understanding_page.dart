@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,10 +25,12 @@ class DeepUnderstandingPage extends StatelessWidget {
         backgroundColor: Theme.of(context).brightness == Brightness.dark
             ? Theme.of(context).colorScheme.surface
             : const Color(0xFFF9F6F0),
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
-              ? Theme.of(context).colorScheme.surface
-              : const Color(0xFFF9F6F0),
+        appBar: kIsWeb
+            ? null
+            : AppBar(
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surface
+                    : const Color(0xFFF9F6F0),
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(

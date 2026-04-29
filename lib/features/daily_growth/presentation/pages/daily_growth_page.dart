@@ -3,6 +3,7 @@ import 'package:eu_sou/features/daily_growth/data/services/milestone_service.dar
 import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
 import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
 import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,16 +40,16 @@ class DailyGrowthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
 
     return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: bgColor,
-        foregroundColor: colorScheme.onSurface,
-        elevation: 0,
-        leading: IconButton(
+      backgroundColor: colorScheme.surface,
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              backgroundColor: colorScheme.surface,
+              foregroundColor: colorScheme.onSurface,
+              elevation: 0,
+              leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
@@ -61,10 +62,10 @@ class DailyGrowthPage extends StatelessWidget {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share_outlined, size: 20),
-            onPressed: () {/* TODO: share streak */},
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.share_outlined, size: 20),
+          //   onPressed: () {/* TODO: share streak */},
+          // ),
         ],
       ),
       body: BlocConsumer<DailyGrowthCubit, DailyGrowthState>(
