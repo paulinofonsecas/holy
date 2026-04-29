@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -17,10 +18,12 @@ class TutorialDetailPage extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        centerTitle: true,
-      ),
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              title: Text(title),
+              centerTitle: true,
+            ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(

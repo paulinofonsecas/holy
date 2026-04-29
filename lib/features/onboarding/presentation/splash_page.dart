@@ -12,6 +12,15 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
+  void _safeRemoveNativeSplash() {
+    try {
+      FlutterNativeSplash.remove();
+    } catch (e, stackTrace) {
+      debugPrint('Warning: native splash removal failed: $e');
+      debugPrint(stackTrace.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<SplashViewModel>.reactive(
@@ -26,11 +35,11 @@ class SplashPage extends StatelessWidget {
 
         if (!isCached) {
           // If downloading, remove native splash immediately to show progress
-          FlutterNativeSplash.remove();
+          _safeRemoveNativeSplash();
           await model.startDownload();
         } else {
           // If cached, we can remove it now or just before navigation
-          FlutterNativeSplash.remove();
+          _safeRemoveNativeSplash();
         }
 
         Uri? initialLink;

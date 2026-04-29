@@ -62,7 +62,7 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                 children: widget.chapter.verses.map((verse) {
                   return VerseReadWidget(
                     key: widget.verseKeys[verse.number] ??
-                        Key("${verse.number}"),
+                        Key("verse_${verse.number}"),
                     verse: verse,
                     chapter: widget.chapter,
                   );

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:flutter/foundation.dart';
 
 part 'bible_version_state.dart';
@@ -40,10 +41,12 @@ class BibleVersionCubit extends Cubit<BibleVersionState> {
     try {
       final version = BibleVersions.values.firstWhere(
         (v) => v.id.toUpperCase() == id.toUpperCase(),
+        orElse: () => BibleVersions.jfaa,
       );
       changeVersion(version);
     } catch (_) {
-      // Version not found, ignore or handle as needed
+      LoggerService().debug('Failed to change Bible version by id: $id');
+      changeVersion(BibleVersions.jfaa);
     }
   }
 }

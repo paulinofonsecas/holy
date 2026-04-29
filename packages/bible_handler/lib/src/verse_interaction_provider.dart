@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'interfaces.dart';
@@ -8,6 +9,8 @@ class SqlVerseInteractionProvider implements VerseInteractionProvider {
   final Database db;
 
   SqlVerseInteractionProvider(this.db);
+
+  String get _versesTable => kIsWeb ? 'verses_search' : 'verses_fts';
 
   @override
   Future<void> markVerse({
@@ -59,7 +62,7 @@ class SqlVerseInteractionProvider implements VerseInteractionProvider {
       SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation
       FROM marked_verses mv_meta
       JOIN books b ON mv_meta.version_id = b.version_id AND mv_meta.book_id = b.id
-      JOIN verses_fts v ON mv_meta.version_id = v.version_id AND mv_meta.book_id = v.book_id 
+      JOIN $_versesTable v ON mv_meta.version_id = v.version_id AND mv_meta.book_id = v.book_id 
            AND mv_meta.chapter = v.chapter AND mv_meta.verse = v.verse
     ''';
 

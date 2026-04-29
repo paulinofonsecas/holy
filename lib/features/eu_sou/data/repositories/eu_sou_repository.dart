@@ -97,17 +97,33 @@ class EuSouRepository implements IEuSouRepository {
   Future<({String text, String reference})?> getDailyVerse(
       String versionId) async {
     try {
-      final verse = await _searchProvider.getRandomVerse(versionId: versionId);
-      if (verse == null) return null;
+      final normalizedVersionId = versionId.toUpperCase();
+      final verse = await _searchProvider.getRandomVerse(
+        versionId: normalizedVersionId,
+      );
+      if (verse != null) {
+        final bookName = verse.book.name;
+        final chapter = verse.chapter.number;
+        final verseNum = verse.verse.number;
+        final text = verse.verse.text;
 
-      final bookName = verse.book.name;
-      final chapter = verse.chapter.number;
-      final verseNum = verse.verse.number;
-      final text = verse.verse.text;
+        return (
+          text: text,
+          reference: '$bookName $chapter:$verseNum',
+        );
+      }
+
+      final fallbackVerse = await _searchProvider.getRandomVerse();
+      if (fallbackVerse == null) return null;
+
+      final fallbackBook = fallbackVerse.book.name;
+      final fallbackChapter = fallbackVerse.chapter.number;
+      final fallbackVerseNum = fallbackVerse.verse.number;
+      final fallbackText = fallbackVerse.verse.text;
 
       return (
-        text: text,
-        reference: '$bookName $chapter:$verseNum',
+        text: fallbackText,
+        reference: '$fallbackBook $fallbackChapter:$fallbackVerseNum',
       );
     } catch (_) {
       return null;

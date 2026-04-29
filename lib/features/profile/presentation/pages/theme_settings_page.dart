@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,10 +15,12 @@ class ThemeSettingsPage extends StatelessWidget {
     AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Personalização'),
-        centerTitle: true,
-      ),
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              title: const Text('Personalização'),
+              centerTitle: true,
+            ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../domain/repositories/i_marked_verses_repository.dart';
@@ -7,6 +8,8 @@ class MarkedVersesRepository implements IMarkedVersesRepository {
   final Database db;
 
   MarkedVersesRepository(this.db);
+
+  String get _versesTable => kIsWeb ? 'verses_search' : 'verses_fts';
 
   @override
   Future<List<MarkedVerseModel>> getMarkedVerses({
@@ -28,7 +31,7 @@ class MarkedVersesRepository implements IMarkedVersesRepository {
         v.text
       FROM marked_verses mv
       JOIN books b ON mv.version_id = b.version_id AND mv.book_id = b.id
-      JOIN verses_fts v ON mv.version_id = v.version_id AND mv.book_id = v.book_id 
+      JOIN $_versesTable v ON mv.version_id = v.version_id AND mv.book_id = v.book_id 
            AND mv.chapter = v.chapter AND mv.verse = v.verse
     ''';
 

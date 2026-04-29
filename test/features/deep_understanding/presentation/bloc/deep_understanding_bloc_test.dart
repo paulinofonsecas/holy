@@ -38,7 +38,7 @@ void main() {
         when(() => mockDeepUnderstandingService.startAnalysisForVerses(
                 any(), any(), any(), any(), any()))
             .thenAnswer((_) => Stream.fromIterable([mockSession]));
-        when(() => mockSession.id).thenReturn(1);
+        when(() => mockSession.sessionId).thenReturn('1');
         when(() => mockSession.sessionId).thenReturn('test-session');
         when(() => mockSession.status).thenReturn('embedding');
         when(() => mockSession.totalItems).thenReturn(1);
@@ -56,7 +56,7 @@ void main() {
         when(() => mockDeepUnderstandingService.startAnalysisForVerses(
                 any(), any(), any(), any(), any()))
             .thenAnswer((_) => Stream.fromIterable([mockSession]));
-        when(() => mockSession.id).thenReturn(1);
+        when(() => mockSession.sessionId).thenReturn('1');
         when(() => mockSession.sessionId).thenReturn('test-session');
         when(() => mockSession.status).thenReturn('completed');
         when(() => mockSession.result).thenReturn('result');

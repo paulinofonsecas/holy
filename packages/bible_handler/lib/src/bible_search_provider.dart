@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
@@ -20,6 +21,8 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
   final Database db;
 
   SqlBibleSearchProvider(this.db);
+
+  String get _versesTable => kIsWeb ? 'verses_search' : 'verses_fts';
 
   @override
   Future<SearchResults> search({
@@ -201,7 +204,7 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
       String sql = '''
         SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation,
                ver.id as version_abbreviation
-        FROM verses_fts v
+        FROM $_versesTable v
         JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
         JOIN versions ver ON v.version_id = ver.id
         WHERE 1=1
@@ -273,23 +276,28 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
                   AND mv.book_id = v.book_id 
                   AND mv.chapter = v.chapter 
                   AND mv.verse = v.verse LIMIT 1) as is_highlighted
-        FROM verses_fts v
+        FROM $_versesTable v
         JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
         JOIN versions ver ON v.version_id = ver.id
-        WHERE v.text MATCH ?
       ''';
     } else {
       sql = '''
         SELECT v.*, b.name as book_name, b.long_name as book_long_name, b.abbreviation as book_abbreviation,
                ver.id as version_abbreviation
-        FROM verses_fts v
+        FROM $_versesTable v
         JOIN books b ON v.version_id = b.version_id AND v.book_id = b.id
         JOIN versions ver ON v.version_id = ver.id
-        WHERE v.text MATCH ?
       ''';
     }
 
-    final args = <dynamic>['"$term"'];
+    final useLikeSearch = kIsWeb;
+    final whereClause = useLikeSearch
+        ? 'LOWER(v.text) LIKE LOWER(?) ESCAPE \'\\\''
+        : 'v.text MATCH ?';
+    sql += ' WHERE $whereClause';
+    final args = <dynamic>[
+      useLikeSearch ? '%${_escapeLike(term)}%' : '"$term"',
+    ];
     if (versionId != null) {
       sql += ' AND v.version_id = ?';
       args.add(versionId);
@@ -351,6 +359,13 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
     if (chapterCompare != 0) return chapterCompare;
 
     return a.verse.number.compareTo(b.verse.number);
+  }
+
+  String _escapeLike(String term) {
+    return term
+        .replaceAll('\\', '\\\\')
+        .replaceAll('%', '\\%')
+        .replaceAll('_', '\\_');
   }
 
   String _removeDiacritics(String str) {

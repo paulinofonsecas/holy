@@ -1,7 +1,7 @@
-import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:bible_handler/bible_handler.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
+import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/notifications/services/fcm_service.dart';
 import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
