@@ -61,8 +61,9 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: widget.chapter.verses.map((verse) {
                   return VerseReadWidget(
-                    key: widget.verseKeys[verse.number] ??
-                        Key("verse_${verse.number}"),
+                    key: widget.verseKeys.containsKey(verse.number)
+                        ? widget.verseKeys[verse.number]
+                        : Key("verse_${verse.number}"),
                     verse: verse,
                     chapter: widget.chapter,
                   );

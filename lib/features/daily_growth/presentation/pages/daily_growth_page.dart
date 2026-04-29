@@ -50,24 +50,24 @@ class DailyGrowthPage extends StatelessWidget {
               foregroundColor: colorScheme.onSurface,
               elevation: 0,
               leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Crescimento Diário',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.share_outlined, size: 20),
-          //   onPressed: () {/* TODO: share streak */},
-          // ),
-        ],
-      ),
+                icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                onPressed: () => Navigator.pop(context),
+              ),
+              title: Text(
+                'Crescimento Diário',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              actions: [
+                // IconButton(
+                //   icon: const Icon(Icons.share_outlined, size: 20),
+                //   onPressed: () {/* TODO: share streak */},
+                // ),
+              ],
+            ),
       body: BlocConsumer<DailyGrowthCubit, DailyGrowthState>(
         listenWhen: (prev, curr) =>
             curr is DailyGrowthLoaded &&

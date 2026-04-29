@@ -29,7 +29,8 @@ class TutorialsListPage extends StatelessWidget {
     return [
       TutorialItem(
         title: 'Bíblia',
-        description: 'Aprenda a navegar, trocar versões e usar o modo de leitura.',
+        description:
+            'Aprenda a navegar, trocar versões e usar o modo de leitura.',
         icon: CupertinoIcons.book,
         markdownContent: '''
 # Guia de Leitura da Bíblia
@@ -216,7 +217,10 @@ Deixe o aplicativo com a sua cara e confortável para sua visão.
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+          color: Theme.of(context)
+              .colorScheme
+              .outlineVariant
+              .withValues(alpha: 0.5),
         ),
       ),
       child: InkWell(
@@ -270,7 +274,8 @@ Deixe o aplicativo com a sua cara e confortável para sua visão.
                     Text(
                       item.description,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                   ],
