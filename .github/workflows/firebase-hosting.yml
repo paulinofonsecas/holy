@@ -22,7 +22,7 @@ jobs:
         run: flutter pub get
 
       - name: Build web app
-        run: flutter build web --release --no-tree-shake-icons
+        run: flutter build web --release --no-tree-shake-icons --no-wasm-dry-run
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools

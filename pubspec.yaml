@@ -122,7 +122,6 @@ flutter:
     - assets/images/backgrounds/
     - assets/icons/
     - assets/icon/
-    - .env
 
   fonts:
     - family: TASAOrbiter
