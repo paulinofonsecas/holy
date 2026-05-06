@@ -68,13 +68,9 @@ class $AssetsImagesBackgroundsGen {
 class Assets {
   const Assets._();
 
-  static const String aEnv = '.env';
   static const $AssetsIconGen icon = $AssetsIconGen();
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
-
-  /// List of all assets
-  static List<String> get values => [aEnv];
 }
 
 class AssetGenImage {

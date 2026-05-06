@@ -27,7 +27,7 @@ jobs:
           ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
 
       - name: Build web app
-        run: flutter build web --release --no-tree-shake-icons --no-wasm-dry-run
+        run: flutter build web --release --no-tree-shake-icons --no-wasm-dry-run --dart-define-from-file=.env
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools

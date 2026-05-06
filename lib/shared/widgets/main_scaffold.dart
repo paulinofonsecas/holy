@@ -204,7 +204,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
             return Scaffold(
               body: Column(
                 children: [
-                  _buildWebTopBar(context, currentIndex),
+                  if (isWide) _buildWebTopBar(context, currentIndex),
                   Expanded(
                     child: _AnalysisBannerOverlay(
                       child: IndexedStack(
@@ -215,6 +215,41 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                   ),
                 ],
               ),
+              bottomNavigationBar: isWide
+                  ? null
+                  : ConvexAppBar(
+                      style: TabStyle.react,
+                      backgroundColor: bgColor,
+                      color: context.colorScheme.onSurface.withOpacity(0.6),
+                      activeColor: context.colorScheme.primary,
+                      initialActiveIndex: currentIndex,
+                      onTap: (index) {
+                        if (index == 0) {
+                          if (currentIndex == 0) {
+                            SwitchBookModal.show(context);
+                            return;
+                          }
+                        }
+                        context.read<TabControllerCubit>().changeTo(index);
+                      },
+                      items: [
+                        TabItem(
+                          icon: Icon(CupertinoIcons.book,
+                              key: keyBibleTab, size: 20),
+                          title: l10n.bible,
+                        ),
+                        TabItem(
+                          icon: Icon(CupertinoIcons.light_max,
+                              key: keyProfileTab, size: 20),
+                          title: 'Eu Sou',
+                        ),
+                        TabItem(
+                          icon: Icon(CupertinoIcons.search,
+                              key: keySearchTab, size: 20),
+                          title: l10n.search,
+                        ),
+                      ],
+                    ),
             );
           }
 

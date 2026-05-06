@@ -1,15 +1,7 @@
-import 'package:eu_sou/objectbox.g.dart'; // This will be generated
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+/// Importação condicional - resolve automaticamente qual implementação usar
+/// - Web: objectbox_service_web.dart (stub com localStorage)
+/// - Mobile/Desktop: objectbox_service_mobile.dart (ObjectBox nativo)
+library;
 
-class ObjectBoxService {
-  late final Store store;
-
-  ObjectBoxService._create(this.store);
-
-  static Future<ObjectBoxService> create() async {
-    final docsDir = await getApplicationDocumentsDirectory();
-    final store = await openStore(directory: p.join(docsDir.path, "objectbox"));
-    return ObjectBoxService._create(store);
-  }
-}
+export 'objectbox_service_mobile.dart'
+    if (dart.library.html) 'objectbox_service_web.dart';

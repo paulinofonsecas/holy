@@ -1,9 +1,11 @@
-import 'package:eu_sou/features/deep_understanding/data/models/verse_embedding.dart';
 import 'package:eu_sou/features/deep_understanding/data/models/analysis_session.dart';
+import 'package:eu_sou/features/deep_understanding/data/models/verse_embedding.dart';
 import 'package:eu_sou/features/deep_understanding/domain/repositories/i_vector_store.dart';
 
-class ObjectBoxVectorStore implements IVectorStore {
-  ObjectBoxVectorStore(Store store);
+/// Implementação web do VectorStore
+/// Em Web, usamos localStorage ou IndexedDB (via Hive Web)
+class HiveVectorStore implements IVectorStore {
+  HiveVectorStore();
 
   @override
   Future<VerseEmbedding?> getEmbeddingByVerseId(String verseId) async => null;
@@ -33,5 +35,3 @@ class ObjectBoxVectorStore implements IVectorStore {
   @override
   Future<List<AnalysisSession>> getAllSessions() async => [];
 }
-
-class Store {}

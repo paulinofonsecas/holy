@@ -12,8 +12,7 @@ class HiveVectorStore implements IVectorStore {
   @override
   Future<VerseEmbedding?> getEmbeddingByVerseId(String verseId) async {
     try {
-      return _embeddingBox.values
-          .firstWhere((e) => e.verseId == verseId);
+      return _embeddingBox.values.firstWhere((e) => e.verseId == verseId);
     } catch (_) {
       return null;
     }
@@ -32,18 +31,18 @@ class HiveVectorStore implements IVectorStore {
     String sessionId,
     int limit,
   ) async {
-    final embeddings =
-        _embeddingBox.values.toList();
-    embeddings.sort((a, b) => a.distanceTo(queryVector)
-        .compareTo(b.distanceTo(queryVector)));
+    final embeddings = _embeddingBox.values.toList();
+    embeddings.sort((a, b) =>
+        a.distanceTo(queryVector).compareTo(b.distanceTo(queryVector)));
     return embeddings.take(limit).toList();
   }
 
   @override
   Future<List<VerseEmbedding>> getVerseEmbeddingsBySessionId(
       String sessionId) async {
-    final embeddings =
-        _embeddingBox.values.where((e) => e.verseId.contains(sessionId.split('_').first)).toList();
+    final embeddings = _embeddingBox.values
+        .where((e) => e.verseId.contains(sessionId.split('_').first))
+        .toList();
     return embeddings;
   }
 
@@ -58,9 +57,8 @@ class HiveVectorStore implements IVectorStore {
     for (final key in keysToDelete) {
       await _embeddingBox.delete(key);
     }
-    final session = _sessionBox.values
-        .where((s) => s.sessionId == sessionId)
-        .toList();
+    final session =
+        _sessionBox.values.where((s) => s.sessionId == sessionId).toList();
     for (final s in session) {
       await _sessionBox.delete(s.sessionId);
     }
@@ -69,8 +67,7 @@ class HiveVectorStore implements IVectorStore {
   @override
   Future<AnalysisSession?> getSession(String sessionId) async {
     try {
-      return _sessionBox.values
-          .firstWhere((s) => s.sessionId == sessionId);
+      return _sessionBox.values.firstWhere((s) => s.sessionId == sessionId);
     } catch (_) {
       return null;
     }
