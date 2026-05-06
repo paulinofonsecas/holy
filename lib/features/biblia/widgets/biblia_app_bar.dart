@@ -24,7 +24,7 @@ class BibleAppBar extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Stack(
               alignment: Alignment.center,
               children: [
