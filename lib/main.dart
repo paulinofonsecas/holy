@@ -70,13 +70,14 @@ void main() async {
       };
     }
 
-    await notificationHandler.initialize();
 
     try {
       await dotenv.load(fileName: ".env");
     } catch (e) {
       debugPrint('Warning: .env file not found or could not be loaded: $e');
     }
+
+    await notificationHandler.initialize();
 
     late final DeepUnderstandingService deepUnderstandingService;
     final aiService = GeminiAIService();
