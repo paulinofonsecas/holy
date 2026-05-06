@@ -8,7 +8,7 @@ O projeto agora segue o padrão de **importação condicional em tempo de compil
 
 ## 📁 Estrutura Implementada
 
-### 1️⃣ **ObjectBox Service** 
+### 1️⃣ **ObjectBox Service**
 
 **Localização:** `lib/core/services/`
 
@@ -27,6 +27,7 @@ export 'objectbox_service_mobile.dart'
 ```
 
 👉 **Regra:**
+
 - Se `dart.library.html` for **true** (Web) → usa `objectbox_service_web.dart`
 - Caso contrário (Mobile/Desktop) → usa `objectbox_service_mobile.dart`
 
@@ -94,6 +95,7 @@ final vectorStore = HiveVectorStore();
 ## ⚠️ Erros Comuns EVITADOS
 
 ### ❌ Antes (Errado)
+
 ```dart
 import 'dart:html';  // ❌ Quebra em mobile
 
@@ -103,6 +105,7 @@ if (kIsWeb) {
 ```
 
 ### ✅ Agora (Correto)
+
 ```dart
 // Compilação automática resolve qual arquivo usar
 export 'service_mobile.dart'
@@ -129,13 +132,13 @@ Compilado para web   Compilado para mobile
 
 ## ✅ Benefícios
 
-| Benefício | Descrição |
-|-----------|-----------|
-| **Type-Safe** | Erros de compilação ao invés de runtime |
-| **Zero Runtime** | Sem `if (kIsWeb)` checks em todo o código |
-| **Clean API** | Interface única para diferentes plataformas |
-| **Otimizado** | Código não usado é eliminado na compilação |
-| **Escalável** | Fácil adicionar novas plataformas |
+| Benefício        | Descrição                                   |
+| ---------------- | ------------------------------------------- |
+| **Type-Safe**    | Erros de compilação ao invés de runtime     |
+| **Zero Runtime** | Sem `if (kIsWeb)` checks em todo o código   |
+| **Clean API**    | Interface única para diferentes plataformas |
+| **Otimizado**    | Código não usado é eliminado na compilação  |
+| **Escalável**    | Fácil adicionar novas plataformas           |
 
 ---
 
@@ -154,4 +157,3 @@ Compilado para web   Compilado para mobile
 
 - [Dart Conditional Imports](https://dart.dev/guides/libraries/create-library-packages#conditional-imports)
 - [Flutter Web Platform Detection](https://flutter.dev/docs/development/data-and-backend/json/json)
-

@@ -19,7 +19,8 @@ class ObjectBoxService implements ObjectBoxServiceBase {
   final Store store = Store();
 
   static Future<ObjectBoxService> create() async {
-    throw UnsupportedError('ObjectBox is not supported on web. Use localStorage or Firebase instead.');
+    throw UnsupportedError(
+        'ObjectBox is not supported on web. Use localStorage or Firebase instead.');
   }
 
   ObjectBoxService._create();

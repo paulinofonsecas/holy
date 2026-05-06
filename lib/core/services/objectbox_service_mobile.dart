@@ -15,11 +15,10 @@ class ObjectBoxService implements ObjectBoxServiceBase {
     // TODO: Implementar inicialização do ObjectBox
     // final docsDir = await getApplicationDocumentsDirectory();
     // final storeDir = p.join(docsDir.path, "objectbox");
-    
+
     // Placeholder até que objectbox.g.dart seja gerado com modelos
     dynamic store;
-    
+
     return ObjectBoxService._create(store);
   }
 }
-
