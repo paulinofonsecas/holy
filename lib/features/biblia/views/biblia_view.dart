@@ -111,16 +111,18 @@ class _BibliaViewState extends State<BibliaView> {
     var resolvedChapter = 1;
 
     if (savedPosition != null) {
-      if (_isSupportedVersion(savedPosition.versionId)) {
-        if (bibleVersionCubit.state.version.id != savedPosition.versionId) {
-          bibleVersionCubit.changeVersionById(savedPosition.versionId);
-        }
-        resolvedVersionId = savedPosition.versionId;
-      } else {
+      if (!_isSupportedVersion(savedPosition.versionId)) {
         developer.log(
-          'Fallback to active version because ${savedPosition.versionId} is not supported.',
+          'Ignoring unsupported saved version ${savedPosition.versionId}. Using active version $resolvedVersionId.',
           name: 'BibliaView',
         );
+      } else if (savedPosition.versionId != resolvedVersionId) {
+        developer.log(
+          'Ignoring saved version ${savedPosition.versionId} during startup. Keeping default version $resolvedVersionId.',
+          name: 'BibliaView',
+        );
+      } else {
+        resolvedVersionId = savedPosition.versionId;
       }
 
       resolvedBookId = savedPosition.bookId;

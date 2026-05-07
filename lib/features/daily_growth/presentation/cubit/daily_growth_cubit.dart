@@ -20,7 +20,7 @@ class DailyGrowthCubit extends Cubit<DailyGrowthState> {
   final EuSouRepository _euSouRepository;
   final DailyContentService _dailyContentService;
 
-  static const _defaultVersionId = 'KJA';
+  static const _defaultVersionId = 'JFAA';
 
   static const _kMoodKey = 'daily_growth_verse_focus_mood';
 

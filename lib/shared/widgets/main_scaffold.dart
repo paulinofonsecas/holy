@@ -1,3 +1,4 @@
+import 'analysis_banner_overlay.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -206,7 +207,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                 children: [
                   if (isWide) _buildWebTopBar(context, currentIndex),
                   Expanded(
-                    child: _AnalysisBannerOverlay(
+                    child: AnalysisBannerOverlay(
                       child: IndexedStack(
                         index: currentIndex,
                         children: _buildPages(context),
@@ -281,7 +282,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                   ),
                   const VerticalDivider(thickness: 1, width: 1),
                   Expanded(
-                    child: _AnalysisBannerOverlay(
+                    child: AnalysisBannerOverlay(
                       child: IndexedStack(
                         index: currentIndex,
                         children: _buildPages(context),
@@ -294,7 +295,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           }
 
           return Scaffold(
-            body: _AnalysisBannerOverlay(
+            body: AnalysisBannerOverlay(
               child: IndexedStack(
                 index: currentIndex,
                 children: _buildPages(context),
@@ -441,51 +442,13 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
 
 /// Overlay transparente que exibe o banner de progresso de análise
 /// enquanto [DeepUnderstandingInProgress] estiver activo.
-class _AnalysisBannerOverlay extends StatelessWidget {
-  final Widget child;
 
-  const _AnalysisBannerOverlay({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        child,
-        // Positioned é filho directo do Stack — obrigatório
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
-            builder: (context, state) {
-              final inProgress = state is DeepUnderstandingInProgress;
-              return AnimatedSlide(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                offset: inProgress ? Offset.zero : const Offset(0, -1),
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 250),
-                  opacity: inProgress ? 1.0 : 0.0,
-                  child: inProgress
-                      ? _AnalysisBanner(
-                          progress: state.progress,
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 /// Banner premium de progresso — aparece na base do ecrã.
-class _AnalysisBanner extends StatelessWidget {
+class AnalysisBanner extends StatelessWidget {
   final double progress;
 
-  const _AnalysisBanner({required this.progress});
+  const AnalysisBanner({required this.progress});
 
   @override
   Widget build(BuildContext context) {

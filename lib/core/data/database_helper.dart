@@ -32,15 +32,30 @@ class DatabaseHelper {
 
     if (kIsWeb) {
       _logger.info('🌐 Opening Web SQLite database...');
-      await databaseFactoryFfiWeb.setDatabasesPath('/databases');
-      return await databaseFactoryFfiWeb.openDatabase(
-        dbName,
-        options: OpenDatabaseOptions(
-          version: 6,
-          onCreate: _onCreate,
-          onUpgrade: _onUpgrade,
-        ),
-      );
+      try {
+        // For web, sqflite_ffi_web uses IndexedDB which persists data
+        // Set a clear database path to ensure proper storage location
+        await databaseFactoryFfiWeb.setDatabasesPath('/');
+        
+        // Check if database already exists to determine if it's a fresh initialization
+        final exists = await databaseFactoryFfiWeb.databaseExists(dbName);
+        _logger.info('🌐 Web database exists: $exists');
+        
+        final db = await databaseFactoryFfiWeb.openDatabase(
+          dbName,
+          options: OpenDatabaseOptions(
+            version: 6,
+            onCreate: _onCreate,
+            onUpgrade: _onUpgrade,
+          ),
+        );
+        
+        _logger.info('✅ Web database opened successfully');
+        return db;
+      } catch (e) {
+        _logger.error('❌ Error initializing web database: $e');
+        rethrow;
+      }
     }
 
     // On desktop platforms (Windows/Linux/macOS), use FFI with the bundled sqlite3.

@@ -55,6 +55,23 @@ class BibleCacheProvider {
       }
       await batch.commit(noResult: true);
     });
+
+    // On web, ensure data is synced to IndexedDB
+    if (kIsWeb) {
+      await _ensureWebPersistence();
+    }
+  }
+
+  /// Ensures web database persistence by executing a verification query.
+  /// This helps flush pending writes to IndexedDB.
+  Future<void> _ensureWebPersistence() async {
+    try {
+      // Execute a simple query to ensure the transaction is complete
+      // and data is flushed to the underlying storage
+      await db.query('versions', limit: 1);
+    } catch (_) {
+      // Silently ignore errors - this is just a persistence verification
+    }
   }
 
   /// Retrieves a cached [Bible] version from the database.
@@ -164,13 +181,38 @@ class BibleCacheProvider {
   }
 
   /// Checks if a version is already cached.
+  /// On web, this also verifies that the version exists by checking books table.
   Future<bool> isVersionCached(String versionId) async {
-    final results = await db.query(
-      'versions',
-      where: 'id = ?',
-      whereArgs: [versionId],
-    );
-    return results.isNotEmpty;
+    try {
+      final results = await db.query(
+        'versions',
+        where: 'id = ?',
+        whereArgs: [versionId],
+      );
+
+      if (results.isNotEmpty) {
+        return true;
+      }
+
+      // On web, also check if there are books for this version
+      // This helps detect pre-cached data from the initial database
+      if (kIsWeb) {
+        final bookResults = await db.query(
+          'books',
+          where: 'version_id = ?',
+          whereArgs: [versionId],
+          limit: 1,
+        );
+        if (bookResults.isNotEmpty) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e) {
+      // If there's an error, assume not cached to trigger download
+      return false;
+    }
   }
 
   /// Removes a cached version from the database.

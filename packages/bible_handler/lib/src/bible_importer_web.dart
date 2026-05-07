@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:archive/archive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'bible_cache_provider.dart';
@@ -105,7 +106,18 @@ class UrlBibleLoader implements BibleLoader {
             message: 'Caching into SQLite...',
           ),
         );
-        await cacheProvider!.cacheVersion(bible);
+        await cacheProvider!.cacheVersion(bible, versionId: version);
+
+        // On web, verify the cache was saved
+        if (kIsWeb) {
+          await Future.delayed(const Duration(milliseconds: 100));
+          final isCached = await cacheProvider!.isVersionCached(version);
+          if (!isCached) {
+            throw Exception(
+              'Failed to verify cached version on web after saving',
+            );
+          }
+        }
       }
 
       onProgress?.call(DownloadProgress.completed());

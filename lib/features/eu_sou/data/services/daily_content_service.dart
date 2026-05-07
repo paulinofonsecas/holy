@@ -26,6 +26,14 @@ class DailyContentService {
 
   DailyContentService({required SharedPreferences prefs}) : _prefs = prefs;
 
+  String? _readEnv(String key) {
+    try {
+      return dotenv.env[key];
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Retorna o conteúdo do dia, gerando via Gemini se necessário.
   Future<DailyContent> getOrGenerate(
     String verseText,
@@ -130,7 +138,7 @@ class DailyContentService {
 
   Future<DailyContent> _generate(
       String verseText, String verseReference) async {
-    final apiKey = dotenv.env['GEMINI_API_KEY'] ??
+    final apiKey = _readEnv('GEMINI_API_KEY') ??
         const String.fromEnvironment('GEMINI_API_KEY');
 
     if (apiKey.isEmpty) {
@@ -139,7 +147,9 @@ class DailyContentService {
     }
 
     final model = GenerativeModel(
-      model: dotenv.env['GEMINI_TEXT_MODEL'] ?? 'gemini-2.5-flash',
+      model: _readEnv('GEMINI_TEXT_MODEL') ??
+          const String.fromEnvironment('GEMINI_TEXT_MODEL',
+              defaultValue: 'gemini-2.5-flash'),
       apiKey: apiKey,
       generationConfig: GenerationConfig(
         maxOutputTokens: 200,

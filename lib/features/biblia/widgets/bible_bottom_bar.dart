@@ -54,6 +54,7 @@ class BibleBottomBar extends StatelessWidget {
           );
         }
         final chapter = state.chapter;
+        final currentVersionId = state.versionId;
 
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -63,7 +64,7 @@ class BibleBottomBar extends StatelessWidget {
               onTap: () {
                 bibleBloc.add(
                   GetChapter(
-                    'KJA',
+                    currentVersionId,
                     chapter.bookId,
                     (chapter.number - 1).toString(),
                   ),
@@ -96,7 +97,7 @@ class BibleBottomBar extends StatelessWidget {
               onTap: () {
                 bibleBloc.add(
                   GetChapter(
-                    'KJA',
+                    currentVersionId,
                     chapter.bookId,
                     (chapter.number + 1).toString(),
                   ),

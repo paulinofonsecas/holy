@@ -1,18 +1,24 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
+import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../download/presentation/widgets/download_progress_bar.dart';
 import 'splash_viewmodel.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
   void _safeRemoveNativeSplash() {
+    if (kIsWeb) {
+      return;
+    }
+
     try {
       FlutterNativeSplash.remove();
     } catch (e, stackTrace) {
@@ -26,6 +32,7 @@ class SplashPage extends StatelessWidget {
     return ViewModelBuilder<SplashViewModel>.reactive(
       viewModelBuilder: () => SplashViewModel(
         context.read<BibleCacheProvider>(),
+        context.read<WebCachePersistenceService>(),
       ),
       onModelReady: (model) async {
         final deeplinkService = context.read<IDeeplinkService>();

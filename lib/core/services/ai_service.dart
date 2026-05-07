@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:eu_sou/core/services/logger_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiAIService {
@@ -10,11 +9,10 @@ class GeminiAIService {
   late final GenerativeModel _embeddingModel;
   final String _apiKey;
 
-  GeminiAIService()
-      : _apiKey = dotenv.env['GEMINI_API_KEY'] ??
-            const String.fromEnvironment('GEMINI_API_KEY') {
+  GeminiAIService() : _apiKey = const String.fromEnvironment('GEMINI_API_KEY') {
     _model = GenerativeModel(
-      model: dotenv.env['GEMINI_TEXT_MODEL'] ?? 'gemini-2.5-flash',
+      model: const String.fromEnvironment('GEMINI_TEXT_MODEL',
+          defaultValue: 'gemini-2.5-flash'),
       apiKey: _apiKey,
       systemInstruction: Content.system('''
 Você é um assistente analítico e teológico de nível acadêmico, integrado a um aplicativo de estudos avançados. Sua missão é fornecer um "Entendimento Aprofundado" sobre a busca do usuário.
@@ -36,7 +34,8 @@ REGRAS ESTRITAS DE COMPORTAMENTO:
     );
 
     _embeddingModel = GenerativeModel(
-      model: dotenv.env['GEMINI_EMBEDDING_MODEL'] ?? 'gemini-embedding-001',
+      model: const String.fromEnvironment('GEMINI_EMBEDDING_MODEL',
+          defaultValue: 'gemini-embedding-001'),
       apiKey: _apiKey,
     );
   }

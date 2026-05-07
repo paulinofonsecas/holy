@@ -8,7 +8,7 @@ part 'bible_version_state.dart';
 class BibleVersionCubit extends Cubit<BibleVersionState> {
   BibleVersionCubit()
       : super(kIsWeb
-            ? const BibleVersionStateARC()
+            ? const BibleVersionStateJFAA()
             : const BibleVersionStateJFAA());
 
   void changeVersion(BibleVersions e) {
