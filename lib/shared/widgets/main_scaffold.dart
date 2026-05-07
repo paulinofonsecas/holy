@@ -1,4 +1,3 @@
-import 'analysis_banner_overlay.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -15,7 +14,6 @@ import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
-import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:eu_sou/features/eu_sou/presentation/pages/eu_sou_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
@@ -25,8 +23,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'analysis_banner_overlay.dart';
 
 class MainScaffold extends StatefulWidget {
   final FeedbackService? feedbackService;
@@ -202,55 +201,57 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
       child: BlocBuilder<TabControllerCubit, int>(
         builder: (context, currentIndex) {
           if (kIsWeb) {
-            return Scaffold(
-              body: Column(
-                children: [
-                  if (isWide) _buildWebTopBar(context, currentIndex),
-                  Expanded(
-                    child: AnalysisBannerOverlay(
-                      child: IndexedStack(
-                        index: currentIndex,
-                        children: _buildPages(context),
+            return SafeArea(
+              child: Scaffold(
+                body: Column(
+                  children: [
+                    if (isWide) _buildWebTopBar(context, currentIndex),
+                    Expanded(
+                      child: AnalysisBannerOverlay(
+                        child: IndexedStack(
+                          index: currentIndex,
+                          children: _buildPages(context),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              bottomNavigationBar: isWide
-                  ? null
-                  : ConvexAppBar(
-                      style: TabStyle.react,
-                      backgroundColor: bgColor,
-                      color: context.colorScheme.onSurface.withOpacity(0.6),
-                      activeColor: context.colorScheme.primary,
-                      initialActiveIndex: currentIndex,
-                      onTap: (index) {
-                        if (index == 0) {
-                          if (currentIndex == 0) {
-                            SwitchBookModal.show(context);
-                            return;
+                  ],
+                ),
+                bottomNavigationBar: isWide
+                    ? null
+                    : ConvexAppBar(
+                        style: TabStyle.react,
+                        backgroundColor: bgColor,
+                        color: context.colorScheme.onSurface.withOpacity(0.6),
+                        activeColor: context.colorScheme.primary,
+                        initialActiveIndex: currentIndex,
+                        onTap: (index) {
+                          if (index == 0) {
+                            if (currentIndex == 0) {
+                              SwitchBookModal.show(context);
+                              return;
+                            }
                           }
-                        }
-                        context.read<TabControllerCubit>().changeTo(index);
-                      },
-                      items: [
-                        TabItem(
-                          icon: Icon(CupertinoIcons.book,
-                              key: keyBibleTab, size: 20),
-                          title: l10n.bible,
-                        ),
-                        TabItem(
-                          icon: Icon(CupertinoIcons.light_max,
-                              key: keyProfileTab, size: 20),
-                          title: 'Eu Sou',
-                        ),
-                        TabItem(
-                          icon: Icon(CupertinoIcons.search,
-                              key: keySearchTab, size: 20),
-                          title: l10n.search,
-                        ),
-                      ],
-                    ),
+                          context.read<TabControllerCubit>().changeTo(index);
+                        },
+                        items: [
+                          TabItem(
+                            icon: Icon(CupertinoIcons.book,
+                                key: keyBibleTab, size: 20),
+                            title: l10n.bible,
+                          ),
+                          TabItem(
+                            icon: Icon(CupertinoIcons.light_max,
+                                key: keyProfileTab, size: 20),
+                            title: 'Eu Sou',
+                          ),
+                          TabItem(
+                            icon: Icon(CupertinoIcons.search,
+                                key: keySearchTab, size: 20),
+                            title: l10n.search,
+                          ),
+                        ],
+                      ),
+              ),
             );
           }
 
@@ -436,50 +437,6 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Overlay transparente que exibe o banner de progresso de análise
-/// enquanto [DeepUnderstandingInProgress] estiver activo.
-
-
-/// Banner premium de progresso — aparece na base do ecrã.
-class AnalysisBanner extends StatelessWidget {
-  final double progress;
-
-  const AnalysisBanner({required this.progress});
-
-  @override
-  Widget build(BuildContext context) {
-    final pct = (progress * 100).round();
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: double.infinity,
-          color: const Color(0xFF1A1A2E).withOpacity(0.93),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Text(
-            'Gerando entendimento: $pct%',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withOpacity(0.90),
-              letterSpacing: 0.3,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        LinearProgressIndicator(
-          value: progress > 0 ? progress : null,
-          minHeight: 3,
-          backgroundColor: const Color(0xFF2D2D4E),
-          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6C8EFF)),
-        ),
-      ],
     );
   }
 }
