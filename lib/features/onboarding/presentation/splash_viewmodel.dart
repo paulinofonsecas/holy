@@ -10,7 +10,7 @@ class SplashViewModel extends BaseViewModel {
   final BibleCacheProvider _cacheProvider;
   final WebCachePersistenceService _webCachePersistenceService;
   final _logger = LoggerService();
-  
+
   static const String _cacheVersionMetadataKey = 'bible_cache_version_JFAA';
 
   DownloadProgress? _progress;
@@ -37,24 +37,27 @@ class SplashViewModel extends BaseViewModel {
     try {
       // 1. Use web-specific cache persistence service if on web
       if (kIsWeb) {
-        final isValid = await _webCachePersistenceService.isVersionCachedAndValid(versionId);
+        final isValid = await _webCachePersistenceService
+            .isVersionCachedAndValid(versionId);
         if (isValid) {
           _logger.info('✅ Bible version $versionId found in web cache');
           return true;
         }
-        _logger.info('📥 Bible version $versionId not found in web cache, download required');
+        _logger.info(
+            '📥 Bible version $versionId not found in web cache, download required');
         return false;
       }
 
       // 2. On non-web platforms, use standard cache check
       final isCached = await _cacheProvider.isVersionCached(versionId);
-      
+
       if (isCached) {
         _logger.info('✅ Bible version $versionId found in cache');
         return true;
       }
-      
-      _logger.info('📥 Bible version $versionId not found in cache, download required');
+
+      _logger.info(
+          '📥 Bible version $versionId not found in cache, download required');
       return false;
     } catch (e) {
       _logger.error('❌ Error checking cache: $e');
@@ -73,7 +76,7 @@ class SplashViewModel extends BaseViewModel {
 
     try {
       _logger.info('📥 Starting download for Bible version: $versionId');
-      
+
       await loadBibleFromUrl(
         versionId,
         onProgress: (progress) {
@@ -84,7 +87,7 @@ class SplashViewModel extends BaseViewModel {
       );
 
       _logger.info('✅ Download completed successfully for version: $versionId');
-      
+
       // Mark as cached in web persistence service
       if (kIsWeb) {
         await _webCachePersistenceService.markVersionCached(versionId);

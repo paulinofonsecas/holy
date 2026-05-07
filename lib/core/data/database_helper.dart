@@ -36,11 +36,11 @@ class DatabaseHelper {
         // For web, sqflite_ffi_web uses IndexedDB which persists data
         // Set a clear database path to ensure proper storage location
         await databaseFactoryFfiWeb.setDatabasesPath('/');
-        
+
         // Check if database already exists to determine if it's a fresh initialization
         final exists = await databaseFactoryFfiWeb.databaseExists(dbName);
         _logger.info('🌐 Web database exists: $exists');
-        
+
         final db = await databaseFactoryFfiWeb.openDatabase(
           dbName,
           options: OpenDatabaseOptions(
@@ -49,7 +49,7 @@ class DatabaseHelper {
             onUpgrade: _onUpgrade,
           ),
         );
-        
+
         _logger.info('✅ Web database opened successfully');
         return db;
       } catch (e) {
@@ -189,7 +189,8 @@ class DatabaseHelper {
       ''');
       _logger.info('✅ FTS4 virtual table created successfully');
     } else {
-      _logger.info('📑 Creating regular index for search (FTS4 not supported on web)...');
+      _logger.info(
+          '📑 Creating regular index for search (FTS4 not supported on web)...');
       await db.execute('''
         CREATE TABLE verses_search (
           version_id TEXT,

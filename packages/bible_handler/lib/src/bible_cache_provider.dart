@@ -19,22 +19,28 @@ class BibleCacheProvider {
     final id = versionId ?? bible.abbreviation;
     await db.transaction((txn) async {
       // 1. Insert version metadata
-      await txn.insert('versions', {
-        'id': id,
-        'name': bible.name,
-        'lng': bible.languageIso,
-        'last_cached': DateTime.now().millisecondsSinceEpoch,
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+      await txn.insert(
+          'versions',
+          {
+            'id': id,
+            'name': bible.name,
+            'lng': bible.languageIso,
+            'last_cached': DateTime.now().millisecondsSinceEpoch,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
 
       // 2. Insert books metadata
       for (final book in bible.books) {
-        await txn.insert('books', {
-          'version_id': id,
-          'id': book.id,
-          'name': book.name,
-          'long_name': book.longName,
-          'abbreviation': book.abbreviation,
-        }, conflictAlgorithm: ConflictAlgorithm.replace);
+        await txn.insert(
+            'books',
+            {
+              'version_id': id,
+              'id': book.id,
+              'name': book.name,
+              'long_name': book.longName,
+              'abbreviation': book.abbreviation,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace);
       }
 
       // 3. Insert verses into FTS table
