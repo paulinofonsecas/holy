@@ -28,6 +28,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'entry_point.dart';
+import 'error_screen.dart';
 
 void main() async {
   try {
@@ -146,7 +147,9 @@ void main() async {
   } catch (e, stackTrace) {
     debugPrint(
         'Erro ao inicializar o aplicativo: $e, stack trace: $stackTrace');
-    runApp(const ErrorScreen());
+    runApp(ErrorScreen(
+      error: '$e\n$stackTrace',
+    ));
   }
 }
 
@@ -208,20 +211,5 @@ Future<void> _warmUpDailyReflectionInBackground({
         'Main: Daily reflection warm-up finished for ${verse.reference}.');
   } catch (e) {
     debugPrint('Main: Daily reflection warm-up failed: $e');
-  }
-}
-
-class ErrorScreen extends StatelessWidget {
-  const ErrorScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Erro ao inicializar o aplicativo'),
-        ),
-      ),
-    );
   }
 }
