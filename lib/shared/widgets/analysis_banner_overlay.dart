@@ -1,4 +1,5 @@
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
+import 'package:eu_sou/shared/widgets/analysis_banner.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
