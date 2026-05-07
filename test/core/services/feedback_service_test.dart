@@ -1,24 +1,24 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class MockFirebaseStorage extends Mock implements FirebaseStorage {}
 
-class MockFirebaseCrashlytics extends Mock implements FirebaseCrashlytics {}
+class MockHub extends Mock implements Hub {}
 
 void main() {
   late MockFirebaseStorage mockStorage;
-  late MockFirebaseCrashlytics mockCrashlytics;
+  late MockHub mockHub;
   late FeedbackService service;
 
   setUp(() {
     mockStorage = MockFirebaseStorage();
-    mockCrashlytics = MockFirebaseCrashlytics();
+    mockHub = MockHub();
     service = FeedbackService(
       storage: mockStorage,
-      crashlytics: mockCrashlytics,
+      hub: mockHub,
     );
   });
 

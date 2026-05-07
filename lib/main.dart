@@ -19,18 +19,30 @@ import 'package:eu_sou/features/verse_of_the_day/data/repositories/verse_of_the_
 import 'package:eu_sou/features/verse_of_the_day/domain/services/verse_of_the_day_service.dart';
 import 'package:eu_sou/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/config/sentry_config.dart';
 import 'entry_point.dart';
 import 'error_screen.dart';
 
-void main() async {
+Future<void> main() async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = SentryConfig.dsn.isEmpty ? null : SentryConfig.dsn;
+      options.environment = SentryConfig.environment;
+      options.tracesSampleRate = SentryConfig.tracesSampleRate;
+    },
+    appRunner: _bootstrapApp,
+  );
+}
+
+Future<void> _bootstrapApp() async {
   try {
     final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
     if (!kIsWeb) {
@@ -44,13 +56,6 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-
-    if (!kIsWeb) {
-      PlatformDispatcher.instance.onError = (error, stack) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        return true;
-      };
-    }
 
     // try {
     //   await dotenv.load(fileName: ".env");
@@ -117,23 +122,27 @@ void main() async {
 
     await themeBloc.stream.firstWhere((state) => state.isInitialized);
 
-    runApp(EntryPoint(
-      db: db,
-      searchProvider: searchProvider,
-      cacheProvider: cacheProvider,
-      sharedPreferences: sharedPreferences,
-      verseRepo: verseRepo,
-      verseService: verseService,
-      profileRepo: profileRepo,
-      themeBloc: themeBloc,
-      deeplinkService: deeplinkService,
-      deepUnderstandingService: deepUnderstandingService,
-      euSouRepository: euSouRepository,
-      dailyContentService: dailyContentService,
-      streakService: streakService,
-      dailyReminderService: dailyReminderService,
-      webCachePersistenceService: webCachePersistenceService,
-    ));
+    runApp(
+      SentryWidget(
+        child: EntryPoint(
+          db: db,
+          searchProvider: searchProvider,
+          cacheProvider: cacheProvider,
+          sharedPreferences: sharedPreferences,
+          verseRepo: verseRepo,
+          verseService: verseService,
+          profileRepo: profileRepo,
+          themeBloc: themeBloc,
+          deeplinkService: deeplinkService,
+          deepUnderstandingService: deepUnderstandingService,
+          euSouRepository: euSouRepository,
+          dailyContentService: dailyContentService,
+          streakService: streakService,
+          dailyReminderService: dailyReminderService,
+          webCachePersistenceService: webCachePersistenceService,
+        ),
+      ),
+    );
 
     unawaited(_scheduleNotificationsInBackground(
       verseService: verseService,
@@ -147,9 +156,14 @@ void main() async {
   } catch (e, stackTrace) {
     debugPrint(
         'Erro ao inicializar o aplicativo: $e, stack trace: $stackTrace');
-    runApp(ErrorScreen(
-      error: '$e\n$stackTrace',
-    ));
+    await Sentry.captureException(e, stackTrace: stackTrace);
+    runApp(
+      SentryWidget(
+        child: ErrorScreen(
+          error: '$e\n$stackTrace',
+        ),
+      ),
+    );
   }
 }
 

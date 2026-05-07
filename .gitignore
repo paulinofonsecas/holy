@@ -79,3 +79,6 @@ key.properties
 
 UTF8
 .env
+
+sentry.properties
+sentry-wizard.exe
