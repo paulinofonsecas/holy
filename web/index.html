@@ -1,8 +1,7 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
-  <!--
+  <head>
+    <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
 
@@ -15,48 +14,261 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="$FLUTTER_BASE_HREF">
+    <base href="$FLUTTER_BASE_HREF" />
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+    <meta charset="UTF-8" />
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A new Flutter project." />
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="eu_sou">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <!-- iOS meta tags & icons -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="eu_sou" />
+    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png" />
 
-  <title>eu_sou</title>
-  <link rel="manifest" href="manifest.json">
-</head>
+    <title>eu_sou</title>
+    <link rel="manifest" href="manifest.json" />
 
-<body>
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
+    <style>
+      /* Simple background - no gradients */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #ffffff;
+      }
 
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBO66r4gWMoYcJEjYwpMsVrkxyyQIzV36M",
-      authDomain: "caiaia01.firebaseapp.com",
-      projectId: "caiaia01",
-      storageBucket: "caiaia01.firebasestorage.app",
-      messagingSenderId: "802718084241",
-      appId: "1:802718084241:web:660f28e8371cb06e2de330"
-    };
+      /* Loading screen with simple background */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
-  <script src="flutter_bootstrap.js" async></script>
-</body>
+      #loading-screen.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
 
+      .loader-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+        padding: 20px;
+        max-width: 90%;
+      }
+
+      .app-icon {
+        width: 120px;
+        height: 120px;
+        background: #f5f5f5;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        animation: pulse 2s ease-in-out infinite;
+        overflow: hidden;
+      }
+
+      .app-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #e0e0e0;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        color: #333333;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        margin-top: 16px;
+      }
+
+      .bible-verse {
+        color: #555555;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        text-align: center;
+        max-width: 400px;
+        line-height: 1.6;
+        font-style: italic;
+      }
+
+      .verse-reference {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #777777;
+        font-style: normal;
+        font-weight: 500;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        html,
+        body,
+        #loading-screen {
+          background: #121212;
+        }
+
+        .app-icon {
+          background: #1e1e1e;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes pulse {
+          0%,
+          100% {
+            transform: scale(1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+          }
+        }
+
+        .spinner {
+          border: 4px solid #333333;
+          border-top: 4px solid #667eea;
+        }
+
+        .loading-text {
+          color: #ececec;
+        }
+
+        .bible-verse {
+          color: #b0b0b0;
+        }
+
+        .verse-reference {
+          color: #888888;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 
+    Native Splash Screen for Web
+    Simple background with app content
+  -->
+    <div id="loading-screen">
+      <div class="loader-container">
+        <div class="app-icon">
+          <img src="assets/images/app_icon.png" alt="App Icon" />
+        </div>
+        <div class="spinner"></div>
+        <div class="loading-text">Carregando...</div>
+        <div class="bible-verse">
+          "Porque Deus amou o mundo de tal maneira que deu o seu Filho
+          unigênito, para que todo aquele que nele crê não pereça, mas tenha a
+          vida eterna."
+          <div class="verse-reference">— João 3:16</div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
+      import { getAnalytics } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js';
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: 'AIzaSyBO66r4gWMoYcJEjYwpMsVrkxyyQIzV36M',
+        authDomain: 'caiaia01.firebaseapp.com',
+        projectId: 'caiaia01',
+        storageBucket: 'caiaia01.firebasestorage.app',
+        messagingSenderId: '802718084241',
+        appId: '1:802718084241:web:660f28e8371cb06e2de330',
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
+
+    <script>
+      // Remove loading screen when Flutter is ready
+      window.addEventListener('flutter-first-frame', function () {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.classList.add('fade-out');
+          setTimeout(() => {
+            loadingScreen.remove();
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+          }, 500);
+        }
+      });
+
+      // Fallback: remove after 10 seconds if flutter-first-frame doesn't fire
+      setTimeout(function () {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen && !loadingScreen.classList.contains('fade-out')) {
+          loadingScreen.classList.add('fade-out');
+          setTimeout(() => {
+            loadingScreen.remove();
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+          }, 500);
+        }
+      }, 10000);
+    </script>
+
+    <script src="flutter_bootstrap.js" async></script>
+  </body>
 </html>

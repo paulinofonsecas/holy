@@ -27,6 +27,13 @@ class SplashViewModel extends BaseViewModel {
     this._webCachePersistenceService,
   );
 
+  /// Static method to check if tutorial should be shown
+  /// Used by SplashPage for quick initialization
+  static Future<bool> checkShouldShowTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    return !(prefs.getBool(tutorialShownKey) ?? false);
+  }
+
   Future<bool> initialize() async {
     const versionId = 'JFAA';
 

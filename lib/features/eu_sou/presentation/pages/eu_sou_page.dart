@@ -92,18 +92,28 @@ extension _EuSouPanelExtension on _EuSouPanel {
 }
 
 class EuSouPage extends StatefulWidget {
-  const EuSouPage({super.key});
+  final bool hideMarkedVersesFromMenu;
+
+  const EuSouPage({super.key, this.hideMarkedVersesFromMenu = false});
 
   @override
   State<EuSouPage> createState() => _EuSouPageState();
 }
 
-class _EuSouPageState extends State<EuSouPage> {
+class _EuSouPageState extends State<EuSouPage>
+    with AutomaticKeepAliveClientMixin {
   static const _kReflectionUnderstandingDate =
       'eu_sou_reflection_understanding_date';
 
   _EuSouPanel _selectedPanel = _EuSouPanel.overview;
   bool _hasGeneratedToday = false;
+
+  // Blocs criados uma vez e reutilizados
+  DailyGrowthCubit? _dailyGrowthCubit;
+  MarkedVersesBloc? _markedVersesBloc;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -141,21 +151,23 @@ class _EuSouPageState extends State<EuSouPage> {
   Widget _buildSelectedPanel(BuildContext context) {
     switch (_selectedPanel) {
       case _EuSouPanel.dailyGrowth:
-        return BlocProvider(
-          create: (_) => DailyGrowthCubit(
-            reminderService: context.read<DailyReminderService>(),
-            streakService: context.read<StreakService>(),
-            milestoneService: MilestoneService(),
-            prefs: context.read<SharedPreferences>(),
-            euSouRepository: context.read<EuSouRepository>(),
-            dailyContentService: context.read<DailyContentService>(),
-          )..load(),
+        _dailyGrowthCubit ??= DailyGrowthCubit(
+          reminderService: context.read<DailyReminderService>(),
+          streakService: context.read<StreakService>(),
+          milestoneService: MilestoneService(),
+          prefs: context.read<SharedPreferences>(),
+          euSouRepository: context.read<EuSouRepository>(),
+          dailyContentService: context.read<DailyContentService>(),
+        )..load();
+        return BlocProvider.value(
+          value: _dailyGrowthCubit!,
           child: const DailyGrowthPage(),
         );
       case _EuSouPanel.markedVerses:
-        return BlocProvider(
-          create: (ctx) =>
-              MarkedVersesBloc(ctx.read<IMarkedVersesRepository>()),
+        _markedVersesBloc ??=
+            MarkedVersesBloc(context.read<IMarkedVersesRepository>());
+        return BlocProvider.value(
+          value: _markedVersesBloc!,
           child: const MarkedVersesListPage(),
         );
       case _EuSouPanel.verseHistory:
@@ -181,6 +193,12 @@ class _EuSouPageState extends State<EuSouPage> {
 
   Widget _buildSideMenu(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final panels = widget.hideMarkedVersesFromMenu
+        ? _EuSouPanel.values
+            .where((p) => p != _EuSouPanel.markedVerses)
+            .toList()
+        : _EuSouPanel.values;
+
     return Container(
       width: 280,
       color: colorScheme.surface,
@@ -188,26 +206,12 @@ class _EuSouPageState extends State<EuSouPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Eu Sou',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Escolha um painel para visualizar ao lado.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-          ),
-          const SizedBox(height: 24),
           Expanded(
             child: ListView.separated(
-              itemCount: _EuSouPanel.values.length,
+              itemCount: panels.length,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                final panel = _EuSouPanel.values[index];
+                final panel = panels[index];
                 return ListTile(
                   minLeadingWidth: 0,
                   dense: true,
@@ -287,7 +291,16 @@ class _EuSouPageState extends State<EuSouPage> {
   }
 
   @override
+  void dispose() {
+    _dailyGrowthCubit?.close();
+    _markedVersesBloc?.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
@@ -298,6 +311,15 @@ class _EuSouPageState extends State<EuSouPage> {
         listeners: [
           // Sincroniza 1 estudo recente do DeepUnderstandingBloc → EuSouBloc
           BlocListener<DeepUnderstandingBloc, DeepUnderstandingState>(
+            listenWhen: (previous, current) {
+              // Só atualiza se o número de sessões completas mudou
+              final prevCompleted = previous.sessions
+                  .where((s) => s.status == 'completed')
+                  .length;
+              final currCompleted =
+                  current.sessions.where((s) => s.status == 'completed').length;
+              return prevCompleted != currCompleted;
+            },
             listener: (context, state) {
               final sessions = state.sessions
                   .where((s) => s.status == 'completed')
@@ -313,6 +335,15 @@ class _EuSouPageState extends State<EuSouPage> {
         ],
         child: SafeArea(
           child: BlocBuilder<EuSouBloc, EuSouState>(
+            buildWhen: (previous, current) {
+              // Só rebuilda quando mudar entre estados diferentes (Loading <-> Loaded <-> Error)
+              return previous.runtimeType != current.runtimeType ||
+                  (current is EuSouLoaded &&
+                      previous is EuSouLoaded &&
+                      (current.reflection != previous.reflection ||
+                          current.stats != previous.stats ||
+                          current.recentStudies != previous.recentStudies));
+            },
             builder: (context, state) {
               final isWide = MediaQuery.of(context).size.width > 900;
 
@@ -382,7 +413,8 @@ class _EuSouPageState extends State<EuSouPage> {
                         delegate: SliverChildListDelegate([
                           // — ZONA 1: HOJE —
                           BlocBuilder<ChangeMyNameCubit, ChangeMyNameState>(
-                            bloc: context.watch<ChangeMyNameCubit>(),
+                            buildWhen: (previous, current) =>
+                                previous.name != current.name,
                             builder: (context, nameState) => EuSouHeader(
                               greetingWord: state.reflection?.greetingWord ??
                                   'Bem-vindo/a',
@@ -501,10 +533,13 @@ class _EuSouOverviewPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    // Usar diretamente os dados passados via parâmetro ao invés de BlocBuilder duplicado
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: BlocBuilder<EuSouBloc, EuSouState>(
+          buildWhen: (previous, current) =>
+              previous.runtimeType != current.runtimeType,
           builder: (context, state) {
             if (state is EuSouLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -529,7 +564,8 @@ class _EuSouOverviewPanel extends StatelessWidget {
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         BlocBuilder<ChangeMyNameCubit, ChangeMyNameState>(
-                          bloc: context.watch<ChangeMyNameCubit>(),
+                          buildWhen: (previous, current) =>
+                              previous.name != current.name,
                           builder: (context, nameState) => EuSouHeader(
                             greetingWord:
                                 state.reflection?.greetingWord ?? 'Bem-vindo/a',
@@ -887,13 +923,13 @@ class _SettingsItem extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: AppHugeIcon(
-        icon: icon,
+          icon: icon,
           size: 22,
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.65)),
       title: Text(title,
           style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w400)),
       trailing: AppHugeIcon(
-        icon: HugeIcons.strokeRoundedArrowRight01,
+          icon: HugeIcons.strokeRoundedArrowRight01,
           size: 18,
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.30)),
       onTap: onTap,
@@ -927,8 +963,7 @@ class _GenerateUnderstandingButton extends StatelessWidget {
     final textColor = active ? accentColor : disabledColor;
     final label =
         active ? 'GERAR ENTENDIMENTO PROFUNDO' : 'ENTENDIMENTO JÁ GERADO HOJE';
-    final icon =
-      active
+    final icon = active
         ? HugeIcons.strokeRoundedSparkles
         : HugeIcons.strokeRoundedCheckmarkCircle02;
 
