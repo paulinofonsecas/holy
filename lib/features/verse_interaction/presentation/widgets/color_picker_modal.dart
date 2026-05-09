@@ -1,4 +1,6 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class ColorPickerModal extends StatelessWidget {
   final String verseRef;
@@ -79,7 +81,7 @@ class ColorPickerModal extends StatelessWidget {
             const SizedBox(height: 20),
             if (onShare != null) ...[
               ListTile(
-                leading: const Icon(Icons.share),
+                leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedShare01),
                 title: const Text('Compartilhar'),
                 onTap: () {
                   Navigator.pop(context);
@@ -89,7 +91,7 @@ class ColorPickerModal extends StatelessWidget {
               const Divider(),
             ],
             ListTile(
-              leading: const Icon(Icons.remove_circle_outline),
+              leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedMinusSignCircle),
               title: const Text('Remover Destaque'),
               onTap: () {
                 onRemoveHighlight();

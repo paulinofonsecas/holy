@@ -1,5 +1,7 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class SplashLoader extends StatefulWidget {
   final IDatabaseLoader loader;
@@ -56,7 +58,7 @@ class _SplashLoaderState extends State<SplashLoader> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                const AppHugeIcon(icon: HugeIcons.strokeRoundedAlert01, color: Colors.red, size: 64),
                 const SizedBox(height: 16),
                 Text(
                   'Erro ao carregar a Bíblia',
@@ -76,7 +78,7 @@ class _SplashLoaderState extends State<SplashLoader> {
                     });
                     _init();
                   },
-                  icon: const Icon(Icons.refresh),
+                  icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedRefresh),
                   label: const Text('Tentar novamente'),
                 ),
               ],
@@ -119,8 +121,8 @@ class _SplashLoaderState extends State<SplashLoader> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.auto_stories,
+                  const AppHugeIcon(
+                    icon: HugeIcons.strokeRoundedBook01,
                     size: 80,
                     color: Colors.blueAccent,
                   ),

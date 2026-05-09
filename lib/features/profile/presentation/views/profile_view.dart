@@ -2,9 +2,11 @@ import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_event.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/services/feedback_service.dart';
@@ -77,7 +79,7 @@ class ProfileView extends StatelessWidget {
               children: [
                 _buildProfileOption(
                   context,
-                  icon: Icons.bookmark,
+                  icon: HugeIcons.strokeRoundedBookmark02,
                   title: l10n.markedVersesTitle,
                   subtitle: 'Ver todos os versículos marcados',
                   onTap: () {
@@ -95,7 +97,7 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
-                  icon: Icons.menu_book,
+                  icon: HugeIcons.strokeRoundedBook01,
                   title: 'Histórico de Versículos',
                   subtitle: 'Ver versículos visualizados recentemente',
                   onTap: () {
@@ -110,7 +112,7 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
-                  icon: Icons.notifications_active,
+                  icon: HugeIcons.strokeRoundedNotification01,
                   title: 'Versículo do Dia',
                   subtitle: 'Configurar notificações diárias',
                   onTap: () {
@@ -132,7 +134,7 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
-                  icon: Icons.palette,
+                  icon: HugeIcons.strokeRoundedPaintBucket,
                   title: l10n.themeColorTitle,
                   subtitle: 'Personalizar cores e tema',
                   onTap: () {
@@ -149,7 +151,7 @@ class ProfileView extends StatelessWidget {
                   _buildProfileOption(
                     context,
                     key: keyTutorialField,
-                    icon: Icons.rocket_launch,
+                    icon: HugeIcons.strokeRoundedRocket01,
                     title: 'Introdução Rápida',
                     subtitle: 'Rever a introdução do aplicativo',
                     onTap: () {
@@ -160,7 +162,7 @@ class ProfileView extends StatelessWidget {
                 ],
                 _buildProfileOption(
                   context,
-                  icon: Icons.help_outline,
+                  icon: HugeIcons.strokeRoundedHelpCircle,
                   title: 'Ajuda e Tutoriais',
                   subtitle: 'Guias e ajuda sobre as funcionalidades',
                   onTap: () {
@@ -175,7 +177,7 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
-                  icon: Icons.info,
+                  icon: HugeIcons.strokeRoundedInformationCircle,
                   title: 'Sobre',
                   subtitle: 'Saiba mais sobre este aplicativo',
                   onTap: () => _navigateToAbout(context),
@@ -183,7 +185,7 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildProfileOption(
                   context,
-                  icon: Icons.bug_report,
+                  icon: HugeIcons.strokeRoundedBug01,
                   title: 'Relatar um Problema',
                   subtitle: 'Relatar um problema ou enviar feedback',
                   onTap: () => _showFeedback(context),
@@ -198,7 +200,7 @@ class ProfileView extends StatelessWidget {
 
   Widget _buildProfileOption(
     BuildContext context, {
-    required IconData icon,
+    required AppIconAsset icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
@@ -233,8 +235,8 @@ class ProfileView extends StatelessWidget {
                 Theme.of(context).colorScheme.onSurface.withValues(alpha: .9),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
+          child: AppHugeIcon(
+            icon: icon,
             color: Theme.of(context).colorScheme.surface,
           ),
         ),
@@ -250,7 +252,7 @@ class ProfileView extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        trailing: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 16),
         onTap: onTap,
       ),
     );

@@ -1,7 +1,9 @@
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../bloc/highlight_bloc.dart';
 import '../bloc/selection_bloc.dart';
@@ -44,20 +46,20 @@ class SelectionToolbar extends StatelessWidget {
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.border_color),
+                    icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedPencilEdit02),
                     onPressed: () {
                       _showHighlightOptions(context, state);
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.more_horiz),
+                    icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedMoreHorizontal),
                     onPressed: () {
                       _showRichModal(context, state);
                     },
                     tooltip: 'Mais opções',
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
                     onPressed: () {
                       context.read<VerseSelectionBloc>().add(ClearSelection());
                     },

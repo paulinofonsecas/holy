@@ -10,9 +10,11 @@ import 'package:eu_sou/features/search/presentation/widgets/search_empty_states.
 import 'package:eu_sou/features/search/presentation/widgets/search_result_tile.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_version_filter.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 import '../bloc/search_bloc.dart';
@@ -101,7 +103,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                         backgroundColor: bgColor,
                         leading: selectionState.isInSelectionMode
                             ? IconButton(
-                                icon: const Icon(Icons.close),
+                                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
                                 onPressed: () {
                                   context
                                       .read<SearchSelectionBloc>()
@@ -387,7 +389,8 @@ class _InlineVerseHistory extends StatelessWidget {
               ),
               const Spacer(),
               IconButton(
-                icon: Icon(Icons.delete_outline,
+                icon: AppHugeIcon(
+                    icon: HugeIcons.strokeRoundedDelete01,
                     size: 18, color: colorScheme.onSurface.withOpacity(0.45)),
                 tooltip: 'Limpar histórico',
                 onPressed: () => _confirmClear(context),
@@ -400,7 +403,7 @@ class _InlineVerseHistory extends StatelessWidget {
         ...history.map((item) {
           final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(item.timestamp);
           return ListTile(
-            leading: Icon(Icons.menu_book_outlined,
+            leading: AppHugeIcon(icon: HugeIcons.strokeRoundedBook01,
                 size: 20, color: colorScheme.onSurface.withOpacity(0.55)),
             title: Text(
               item.verseRef,
@@ -412,7 +415,7 @@ class _InlineVerseHistory extends StatelessWidget {
               style: GoogleFonts.inter(
                   fontSize: 12, color: colorScheme.onSurface.withOpacity(0.55)),
             ),
-            trailing: Icon(Icons.arrow_forward_ios,
+            trailing: AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01,
                 size: 13, color: colorScheme.onSurface.withOpacity(0.30)),
             onTap: () => _openVerse(context, item),
           );

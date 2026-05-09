@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../../shared/widgets/app_huge_icon.dart';
 import '../bloc/theme_bloc.dart';
 import '../widgets/theme_color_picker.dart';
 import '../widgets/theme_mode_picker.dart';
@@ -80,8 +82,8 @@ class ThemeSettingsPage extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.preview_outlined,
+                AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedView,
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
@@ -109,7 +111,7 @@ class ThemeSettingsPage extends StatelessWidget {
             Expanded(
               child: FilledButton.icon(
                 onPressed: null,
-                icon: const Icon(Icons.star),
+                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedStar),
                 label: const Text('Botão Preenchido'),
               ),
             ),
@@ -117,7 +119,7 @@ class ThemeSettingsPage extends StatelessWidget {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: null,
-                icon: const Icon(Icons.favorite_border),
+                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedFavourite),
                 label: const Text('Botão Contorno'),
               ),
             ),
@@ -127,15 +129,15 @@ class ThemeSettingsPage extends StatelessWidget {
         ListTile(
           leading: CircleAvatar(
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            child: Icon(
-              Icons.menu_book,
+            child: AppHugeIcon(
+              icon: HugeIcons.strokeRoundedBook01,
               color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
           ),
           title: const Text('Item de Lista'),
           subtitle: const Text('Subtítulo do item'),
-          trailing: Icon(
-            Icons.arrow_forward_ios,
+          trailing: AppHugeIcon(
+            icon: HugeIcons.strokeRoundedArrowRight01,
             size: 16,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -174,8 +176,8 @@ class ThemeSettingsPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.info_outline,
+              AppHugeIcon(
+                icon: HugeIcons.strokeRoundedInformationCircle,
                 color: Theme.of(context).colorScheme.primary,
                 size: 20,
               ),

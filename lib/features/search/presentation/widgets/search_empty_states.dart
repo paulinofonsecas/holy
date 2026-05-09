@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,7 +25,7 @@ class NoResultToSingleWorldWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(CupertinoIcons.search,
+                AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01,
                   color: Theme.of(context).primaryColor, size: 20),
               const SizedBox(width: 8),
               Text(
@@ -85,7 +87,7 @@ class NotFoundSearchWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lightbulb_outline,
+                AppHugeIcon(icon: HugeIcons.strokeRoundedBulb,
                   color: Theme.of(context).primaryColor, size: 20),
               const SizedBox(width: 8),
               Text(
@@ -122,7 +124,7 @@ class NotFoundSearchWidget extends StatelessWidget {
               onPressed: () {
                 context.read<SearchBloc>().add(TransformarEmBuscaAvancada());
               },
-              icon: const Icon(Icons.auto_awesome, size: 18),
+              icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedSparkles, size: 18),
               label: const Text('Ativar Pesquisa Avançada'),
               style: ElevatedButton.styleFrom(
                 elevation: 0,

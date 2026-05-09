@@ -1,6 +1,8 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../bloc/search_history_bloc.dart';
@@ -27,7 +29,7 @@ class SearchHistoryPage extends StatelessWidget {
                 if (state is SearchHistoryLoaded && state.history.isNotEmpty) {
                   return IconButton(
                     onPressed: () => _showClearHistoryDialog(context),
-                    icon: const Icon(Icons.clear_all),
+                    icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
                     tooltip: 'Limpar histórico',
                   );
                 }
@@ -53,8 +55,8 @@ class SearchHistoryPage extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.error_outline,
+                        AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedAlert01,
                           size: 64,
                           color: Theme.of(context).colorScheme.error,
                         ),
@@ -88,8 +90,8 @@ class SearchHistoryPage extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.history,
+                          AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedClock03,
                             size: 64,
                             color: Theme.of(context).colorScheme.outline,
                           ),
@@ -127,8 +129,8 @@ class SearchHistoryPage extends StatelessWidget {
                       leading: CircleAvatar(
                         backgroundColor:
                             Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.history,
+                        child: AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedClock03,
                           color:
                               Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
@@ -146,8 +148,8 @@ class SearchHistoryPage extends StatelessWidget {
                             ),
                       ),
                       trailing: IconButton(
-                        icon: Icon(
-                          Icons.close,
+                        icon: AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedCancel01,
                           size: 20,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),

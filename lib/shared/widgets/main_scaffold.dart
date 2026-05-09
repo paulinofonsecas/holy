@@ -21,7 +21,9 @@ import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -235,17 +237,17 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                         },
                         items: [
                           TabItem(
-                            icon: Icon(CupertinoIcons.book,
+                            icon: AppHugeIcon(icon: HugeIcons.strokeRoundedBook01,
                                 key: keyBibleTab, size: 20),
                             title: l10n.bible,
                           ),
                           TabItem(
-                            icon: Icon(CupertinoIcons.light_max,
+                            icon: AppHugeIcon(icon: HugeIcons.strokeRoundedSun01,
                                 key: keyProfileTab, size: 20),
                             title: 'Eu Sou',
                           ),
                           TabItem(
-                            icon: Icon(CupertinoIcons.search,
+                            icon: AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01,
                                 key: keySearchTab, size: 20),
                             title: l10n.search,
                           ),
@@ -267,16 +269,16 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                     labelType: NavigationRailLabelType.all,
                     destinations: [
                       NavigationRailDestination(
-                        icon: Icon(CupertinoIcons.book, key: keyBibleTab),
+                        icon: AppHugeIcon(icon: HugeIcons.strokeRoundedBook01, key: keyBibleTab),
                         label: Text(l10n.bible),
                       ),
                       NavigationRailDestination(
                         icon:
-                            Icon(CupertinoIcons.light_max, key: keyProfileTab),
+                            AppHugeIcon(icon: HugeIcons.strokeRoundedSun01, key: keyProfileTab),
                         label: const Text('Eu Sou'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(CupertinoIcons.search, key: keySearchTab),
+                        icon: AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01, key: keySearchTab),
                         label: Text(l10n.search),
                       ),
                     ],
@@ -319,17 +321,17 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
               },
               items: [
                 TabItem(
-                  icon: Icon(CupertinoIcons.book, key: keyBibleTab, size: 20),
+                  icon: AppHugeIcon(icon: HugeIcons.strokeRoundedBook01, key: keyBibleTab, size: 20),
                   title: l10n.bible,
                 ),
                 TabItem(
-                  icon: Icon(CupertinoIcons.light_max,
+                  icon: AppHugeIcon(icon: HugeIcons.strokeRoundedSun01,
                       key: keyProfileTab, size: 20),
                   title: 'Eu Sou',
                 ),
                 TabItem(
                   icon:
-                      Icon(CupertinoIcons.search, key: keySearchTab, size: 20),
+                      AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01, key: keySearchTab, size: 20),
                   title: l10n.search,
                 ),
               ],
@@ -367,7 +369,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           const Spacer(),
           _buildWebTopBarItem(
             context,
-            icon: CupertinoIcons.book,
+            icon: HugeIcons.strokeRoundedBook01,
             label: l10n.bible,
             selected: currentIndex == 0,
             onTap: () => context.read<TabControllerCubit>().changeTo(0),
@@ -375,7 +377,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           const SizedBox(width: 16),
           _buildWebTopBarItem(
             context,
-            icon: CupertinoIcons.light_max,
+            icon: HugeIcons.strokeRoundedSun01,
             label: 'Eu Sou',
             selected: currentIndex == 1,
             onTap: () => context.read<TabControllerCubit>().changeTo(1),
@@ -383,7 +385,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           const SizedBox(width: 16),
           _buildWebTopBarItem(
             context,
-            icon: CupertinoIcons.search,
+            icon: HugeIcons.strokeRoundedSearch01,
             label: l10n.search,
             selected: currentIndex == 2,
             onTap: () => context.read<TabControllerCubit>().changeTo(2),
@@ -395,7 +397,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
 
   Widget _buildWebTopBarItem(
     BuildContext context, {
-    required IconData icon,
+    required AppIconAsset icon,
     required String label,
     required bool selected,
     required VoidCallback onTap,
@@ -421,8 +423,8 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
+            AppHugeIcon(
+              icon: icon,
               size: 18,
               color: selected ? colorScheme.primary : colorScheme.onSurface,
             ),

@@ -1,4 +1,6 @@
 import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
@@ -94,7 +96,7 @@ class MarkedVerseItem extends StatelessWidget {
                   ),
                   if (onDelete != null)
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, size: 20),
+                      icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedDelete01, size: 20),
                       onPressed: onDelete,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),

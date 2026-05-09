@@ -1,5 +1,6 @@
 import 'package:eu_sou/features/daily_growth/domain/models/verse_focus_mood.dart';
 import 'package:flutter/material.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -115,8 +116,8 @@ class _MoodChip extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              mood.icon,
+            AppHugeIcon(
+              icon: mood.icon,
               size: 24,
               color: isSelected ? primary : textColor.withOpacity(0.55),
             ),

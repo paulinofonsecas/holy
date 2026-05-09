@@ -1,6 +1,8 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
@@ -28,7 +30,7 @@ class VerseHistoryPage extends StatelessWidget {
               if (state is VerseHistoryLoaded && state.history.isNotEmpty) {
                 return IconButton(
                   onPressed: () => _showClearHistoryDialog(context),
-                  icon: const Icon(Icons.delete),
+                  icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedDelete01),
                   tooltip: 'Limpar histórico',
                 );
               }
@@ -54,8 +56,8 @@ class VerseHistoryPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.error_outline,
+                      AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedAlert01,
                         size: 64,
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -90,8 +92,8 @@ class VerseHistoryPage extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.history,
+                          AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedClock03,
                           size: 64,
                           color: Theme.of(context).colorScheme.outline,
                         ),
@@ -120,10 +122,10 @@ class VerseHistoryPage extends StatelessWidget {
                       DateFormat('dd/MM/yyyy HH:mm').format(item.timestamp);
 
                   return ListTile(
-                    leading: const Icon(Icons.menu_book),
+                    leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedBook01),
                     title: Text(item.verseRef),
                     subtitle: Text('Versão: ${item.versionId} • $dateStr'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                    trailing: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 14),
                     onTap: () {
                       // Parse verseRef to get bookId, chapter, verse
                       // Format: "bookId chapter:verse"

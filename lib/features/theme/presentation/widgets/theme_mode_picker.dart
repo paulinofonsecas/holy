@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../../shared/widgets/app_huge_icon.dart';
 import '../bloc/theme_bloc.dart';
 
 /// Widget para seleção do modo do tema (claro/escuro/sistema)
@@ -42,8 +44,8 @@ class ThemeModePicker extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      _getThemeModeIcon(state.themeMode),
+                    AppHugeIcon(
+                      icon: _getThemeModeIcon(state.themeMode),
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
@@ -60,7 +62,7 @@ class ThemeModePicker extends StatelessWidget {
                   context,
                   title: 'Claro',
                   subtitle: 'Tema sempre claro',
-                  icon: Icons.light_mode_outlined,
+                  icon: HugeIcons.strokeRoundedSun01,
                   themeMode: ThemeMode.light,
                   currentMode: state.themeMode,
                 ),
@@ -68,7 +70,7 @@ class ThemeModePicker extends StatelessWidget {
                   context,
                   title: 'Escuro',
                   subtitle: 'Tema sempre escuro',
-                  icon: Icons.dark_mode_outlined,
+                  icon: HugeIcons.strokeRoundedMoon02,
                   themeMode: ThemeMode.dark,
                   currentMode: state.themeMode,
                 ),
@@ -76,7 +78,7 @@ class ThemeModePicker extends StatelessWidget {
                   context,
                   title: 'Sistema',
                   subtitle: 'Segue o tema do dispositivo',
-                  icon: Icons.settings_display_outlined,
+                  icon: HugeIcons.strokeRoundedMonitorDot,
                   themeMode: ThemeMode.system,
                   currentMode: state.themeMode,
                 ),
@@ -92,7 +94,7 @@ class ThemeModePicker extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String subtitle,
-    required IconData icon,
+    required AppIconAsset icon,
     required ThemeMode themeMode,
     required ThemeMode currentMode,
   }) {
@@ -119,8 +121,8 @@ class ThemeModePicker extends StatelessWidget {
                 },
               ),
               const SizedBox(width: 8),
-              Icon(
-                icon,
+              AppHugeIcon(
+                icon: icon,
                 color: isSelected
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -158,14 +160,14 @@ class ThemeModePicker extends StatelessWidget {
     );
   }
 
-  IconData _getThemeModeIcon(ThemeMode themeMode) {
+  AppIconAsset _getThemeModeIcon(ThemeMode themeMode) {
     switch (themeMode) {
       case ThemeMode.light:
-        return Icons.light_mode_outlined;
+        return HugeIcons.strokeRoundedSun01;
       case ThemeMode.dark:
-        return Icons.dark_mode_outlined;
+        return HugeIcons.strokeRoundedMoon02;
       case ThemeMode.system:
-        return Icons.auto_mode_outlined;
+        return HugeIcons.strokeRoundedMonitorDot;
     }
   }
 }

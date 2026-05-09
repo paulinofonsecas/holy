@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../shared/widgets/app_huge_icon.dart';
 import '../utils/verse_navigation.dart';
 
 /// Exibe o versículo do dia em tipografia serif editorial grande.
@@ -79,7 +81,11 @@ class VerseSection extends StatelessWidget {
               ),
               if (canNavigate) ...[
                 const SizedBox(width: 4),
-                Icon(Icons.open_in_new, size: 11, color: accentColor),
+                AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedLinkSquare02,
+                  size: 11,
+                  color: accentColor,
+                ),
               ],
             ],
           ),

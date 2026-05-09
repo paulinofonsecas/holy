@@ -2,6 +2,8 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,8 +80,8 @@ class SplashPage extends StatelessWidget {
                     child: Image.asset(
                       'assets/images/app_icon.png',
                       width: 150,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                          Icons.menu_book,
+                        errorBuilder: (context, error, stackTrace) => const AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedBook01,
                           size: 80,
                           color: Colors.blue),
                     ),

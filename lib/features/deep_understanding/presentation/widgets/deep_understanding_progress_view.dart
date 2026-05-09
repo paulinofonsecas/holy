@@ -1,3 +1,5 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import '../bloc/deep_understanding_bloc.dart';
 
@@ -48,7 +50,7 @@ class DeepUnderstandingProgressView extends StatelessWidget {
                 color: primaryColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.auto_awesome, size: 40, color: primaryColor),
+              child: AppHugeIcon(icon: HugeIcons.strokeRoundedSparkles, size: 40, color: primaryColor),
             ),
             const SizedBox(height: 32),
             Text(

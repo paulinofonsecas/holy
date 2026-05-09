@@ -1,4 +1,6 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class VerseOptionsSheet extends StatefulWidget {
   final String verseRef;
@@ -34,7 +36,7 @@ class _VerseOptionsSheetState extends State<VerseOptionsSheet> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.highlight),
+            leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedSparkles),
             title: const Text('Highlight'),
             onTap: () {
               widget.onHighlight();
@@ -42,7 +44,7 @@ class _VerseOptionsSheetState extends State<VerseOptionsSheet> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.share),
+            leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedShare01),
             title: const Text('Share'),
             onTap: () {
               widget.onShare();
@@ -50,7 +52,7 @@ class _VerseOptionsSheetState extends State<VerseOptionsSheet> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.category),
+            leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedDashboardSquare01),
             title: const Text('Add to Category'),
             onTap: () {
               widget.onAddToCategory();

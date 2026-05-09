@@ -2,9 +2,11 @@ import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_unders
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../bloc/search_bloc.dart';
 import '../bloc/search_selection_bloc.dart';
@@ -31,7 +33,7 @@ class SearchActions extends StatelessWidget {
           children: [
             IconButton(
               tooltip: 'Limpar busca',
-              icon: const Icon(CupertinoIcons.trash),
+              icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedDelete01),
               onPressed: () {
                 context.read<SearchBloc>().add(LimparBusca());
               },
@@ -52,7 +54,7 @@ class SearchActions extends StatelessWidget {
         if (selectionState.isInSelectionMode) ...[
           IconButton(
             tooltip: 'Entendimento Aprofundado',
-            icon: const Icon(Icons.auto_awesome),
+            icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedSparkles),
             onPressed: () async {
               final query = await DeepUnderstandingDialog.show(context);
               if (query != null && context.mounted) {
@@ -88,7 +90,7 @@ class SearchActions extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Selecionar todos',
-            icon: const Icon(Icons.select_all),
+            icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedTaskEdit01),
             onPressed: () {
               context.read<SearchSelectionBloc>().add(
                     SelectAllSearchResults(buscaCarregada.resultados.results),
@@ -97,7 +99,7 @@ class SearchActions extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Exportar selecionados',
-            icon: const Icon(Icons.ios_share),
+            icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedShare01),
             onPressed: () {
               final resultsToExport =
                   selectionState.selectedResults.values.toList();
@@ -117,7 +119,8 @@ class SearchActions extends StatelessWidget {
         if (!selectionState.isInSelectionMode) ...[
           IconButton(
             tooltip: 'Entendimento Aprofundado',
-            icon: Icon(Icons.auto_awesome,
+            icon: AppHugeIcon(
+                icon: HugeIcons.strokeRoundedSparkles,
                 color: Theme.of(context).colorScheme.primary),
             onPressed: () {
               final currentQuery = buscaCarregada.consultas
@@ -142,7 +145,7 @@ class SearchActions extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Limpar busca',
-            icon: const Icon(CupertinoIcons.trash),
+            icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedDelete01),
             onPressed: () {
               context.read<SearchBloc>().add(LimparBusca());
             },

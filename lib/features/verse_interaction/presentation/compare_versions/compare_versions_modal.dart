@@ -3,8 +3,10 @@ import 'package:eu_sou/features/verse_interaction/application/comparison_control
 import 'package:eu_sou/features/verse_interaction/data/comparison_repository_impl.dart';
 import 'package:eu_sou/features/verse_interaction/domain/models/comparison_request.dart';
 import 'package:eu_sou/features/verse_interaction/domain/models/version_comparison_entry.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:stacked/stacked.dart';
 
 class CompareVersionsModal {
@@ -65,12 +67,12 @@ class _CompareVersionsBody extends StatelessWidget {
       content = const Center(child: CircularProgressIndicator());
     } else if (controller.hasError) {
       content = const _ComparisonMessage(
-        icon: Icons.error_outline,
+        icon: HugeIcons.strokeRoundedAlert01,
         message: 'Não foi possível carregar as versões. Tente novamente.',
       );
     } else if (!controller.hasContent) {
       content = const _ComparisonMessage(
-        icon: Icons.info_outline,
+        icon: HugeIcons.strokeRoundedInformationCircle,
         message: 'Nenhuma versão disponível para comparação.',
       );
     } else {
@@ -101,7 +103,7 @@ class _CompareVersionsBody extends StatelessWidget {
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -152,7 +154,7 @@ class _VersionEntryTile extends StatelessWidget {
 class _ComparisonMessage extends StatelessWidget {
   const _ComparisonMessage({required this.icon, required this.message});
 
-  final IconData icon;
+  final AppIconAsset icon;
   final String message;
 
   @override
@@ -164,7 +166,7 @@ class _ComparisonMessage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 32, color: theme.colorScheme.primary),
+            AppHugeIcon(icon: icon, size: 32, color: theme.colorScheme.primary),
             const SizedBox(height: 12),
             Text(
               message,

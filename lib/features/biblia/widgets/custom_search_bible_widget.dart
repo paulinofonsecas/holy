@@ -3,6 +3,8 @@ import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -57,8 +59,8 @@ class CustomSearchBibleWidget extends StatelessWidget {
           },
           icon: Stack(
             children: [
-              Icon(
-                Icons.search,
+              AppHugeIcon(
+                icon: HugeIcons.strokeRoundedSearch01,
                 color: hasSearch ? Theme.of(context).colorScheme.primary : null,
               ),
               if (hasSearch)

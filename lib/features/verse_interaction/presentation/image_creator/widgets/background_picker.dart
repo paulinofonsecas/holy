@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../data/repositories/background_repository.dart';
@@ -28,7 +30,7 @@ class BackgroundPicker extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () => _pickImageFromGallery(context),
-              icon: const Icon(Icons.photo_library, size: 16),
+              icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedImage01, size: 16),
               label: const Text('Galeria'),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -158,8 +160,8 @@ class BackgroundPicker extends StatelessWidget {
                       color: Colors.black54,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.photo,
+                    child: const AppHugeIcon(
+                      icon: HugeIcons.strokeRoundedImage01,
                       color: Colors.white,
                       size: 10,
                     ),

@@ -8,6 +8,8 @@ import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class BibleBookListItem extends StatelessWidget {
   const BibleBookListItem({
@@ -73,8 +75,8 @@ class BibleBookListItem extends StatelessWidget {
                 AnimatedRotation(
                   turns: isExpanded ? 0.5 : 0.0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    CupertinoIcons.chevron_down,
+                  child: AppHugeIcon(
+                    icon: HugeIcons.strokeRoundedArrowDown01,
                     color: textColor.withOpacity(0.45),
                     size: 18,
                   ),

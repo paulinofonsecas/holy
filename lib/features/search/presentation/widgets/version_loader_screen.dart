@@ -1,3 +1,5 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 
 /// A beautiful loading screen displayed while a Bible version is being loaded.
@@ -98,8 +100,8 @@ class _VersionLoaderScreenState extends State<VersionLoaderScreen>
                       ],
                     ),
                     child: const Center(
-                      child: Icon(
-                        Icons.auto_awesome_rounded,
+                      child: AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedSparkles,
                         color: Colors.white,
                         size: 40,
                       ),

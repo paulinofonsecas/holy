@@ -1,5 +1,7 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../bloc/search_history_bloc.dart';
@@ -46,14 +48,14 @@ class SearchHistoryList extends StatelessWidget {
                   margin:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   child: ListTile(
-                    leading: const Icon(Icons.history),
+                    leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedClock03),
                     title: Text(historyItem.query),
                     subtitle: Text(
                       _formatTimestamp(historyItem.timestamp),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.close, size: 16),
+                      icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 16),
                       onPressed: () {
                         // TODO: Remove specific search history item
                       },
@@ -73,7 +75,7 @@ class SearchHistoryList extends StatelessWidget {
                           .read<SearchHistoryBloc>()
                           .add(ClearSearchHistory());
                     },
-                    icon: const Icon(Icons.clear_all),
+                    icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
                     label: Text(l10n.clearHistory),
                   ),
                 ),

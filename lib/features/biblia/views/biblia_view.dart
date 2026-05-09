@@ -18,6 +18,8 @@ import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bl
 import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widgets/verse_actions_page.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -293,8 +295,8 @@ class _BibliaViewState extends State<BibliaView> {
                       return IconButton(
                         tooltip: AppLocalizations.of(context)
                             .deepUnderstandingChapter,
-                        icon: Icon(
-                          Icons.auto_awesome,
+                        icon: AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedSparkles,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                         onPressed: state is! BibleChapterLoaded

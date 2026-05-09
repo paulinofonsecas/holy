@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:eu_sou/shared/bible_models.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
@@ -26,7 +28,7 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
             onPressed: () {
               Navigator.of(modalSheetContext).pop();
             },
-            icon: const Icon(Icons.close),
+            icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
           ),
           Text(
             'Lista de Livros',

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/models/verse_image_composition.dart';
@@ -231,8 +233,8 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
                 ),
               ],
             ),
-            child: const Icon(Icons.open_in_full_rounded,
-                size: 8, color: Colors.black54),
+            child: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowExpand01,
+              size: 8, color: Colors.black54),
           ),
         ),
       ],

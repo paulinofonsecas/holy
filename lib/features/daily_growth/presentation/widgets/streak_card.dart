@@ -1,4 +1,6 @@
 import 'package:eu_sou/features/daily_growth/domain/models/streak_milestone.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -87,7 +89,7 @@ class StreakCard extends StatelessWidget {
                   border: Border.all(color: borderColor),
                 ),
                 child: const Center(
-                  child: Icon(Icons.local_fire_department_outlined, size: 24),
+                  child: AppHugeIcon(icon: HugeIcons.strokeRoundedFire, size: 24),
                 ),
               ),
             ],

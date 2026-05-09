@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
+
+import '../../../../../shared/widgets/app_huge_icon.dart';
 
 import '../bloc/verse_of_the_day_bloc.dart';
 import '../bloc/verse_of_the_day_event.dart';
@@ -55,10 +58,10 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
   Widget _buildTimeSection(BuildContext context, VerseOfTheDayState state) {
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.access_time),
+        leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedClock01),
         title: const Text('Horário'),
         subtitle: Text(_formatTime(state.settings.hour, state.settings.minute)),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01),
         onTap: state.settings.isEnabled
             ? () => _showTimePicker(context, state)
             : null,
@@ -70,10 +73,10 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
   Widget _buildVersionSection(BuildContext context, VerseOfTheDayState state) {
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.translate),
+        leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedLanguageCircle),
         title: const Text('Tradução'),
         subtitle: Text(state.settings.versionId),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01),
         onTap: state.settings.isEnabled
             ? () => _showVersionPicker(context, state)
             : null,
@@ -89,8 +92,8 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(
-              Icons.info_outline,
+            AppHugeIcon(
+              icon: HugeIcons.strokeRoundedInformationCircle,
               color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
             const SizedBox(width: 12),
@@ -160,7 +163,7 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
                 (version) => ListTile(
                   title: Text(version),
                   trailing: state.settings.versionId == version
-                      ? const Icon(Icons.check, color: Colors.green)
+                      ? const AppHugeIcon(icon: HugeIcons.strokeRoundedTick01, color: Colors.green)
                       : null,
                   onTap: () {
                     context.read<VerseOfTheDayBloc>().add(

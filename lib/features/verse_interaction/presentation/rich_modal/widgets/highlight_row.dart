@@ -1,4 +1,6 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class HighlightRow extends StatefulWidget {
   final Function(String colorHex) onColorSelected;
@@ -55,7 +57,8 @@ class _HighlightRowState extends State<HighlightRow> {
         : Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.format_color_reset_outlined),
+                icon:
+                    const AppHugeIcon(icon: HugeIcons.strokeRoundedPaintBucket),
                 onPressed: () {
                   widget.onRemoveHighlight.call();
                 },
@@ -87,7 +90,10 @@ class _HighlightRowState extends State<HighlightRow> {
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Icon(!isOpen ? Icons.chevron_right : Icons.chevron_left),
+        child: AppHugeIcon(
+            icon: !isOpen
+                ? HugeIcons.strokeRoundedArrowRight01
+                : HugeIcons.strokeRoundedArrowLeft01),
       ),
     );
   }

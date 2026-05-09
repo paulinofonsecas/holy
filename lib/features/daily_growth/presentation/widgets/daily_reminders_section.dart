@@ -1,5 +1,7 @@
 import 'package:eu_sou/features/daily_growth/domain/models/daily_reminder.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,8 +20,8 @@ class DailyRemindersSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(
-              Icons.notifications_outlined,
+            AppHugeIcon(
+              icon: HugeIcons.strokeRoundedNotification01,
               size: 18,
               color: Theme.of(context).colorScheme.onSurface,
             ),
@@ -102,7 +104,7 @@ class _AddReminderButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: 16, color: textColor.withOpacity(0.55)),
+            AppHugeIcon(icon: HugeIcons.strokeRoundedAdd01, size: 16, color: textColor.withOpacity(0.55)),
             const SizedBox(width: 6),
             Text(
               'Adicionar Lembrete Personalizado',

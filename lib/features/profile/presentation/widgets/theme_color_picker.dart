@@ -1,5 +1,7 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../theme/presentation/bloc/theme_bloc.dart';
 
@@ -70,8 +72,8 @@ class ThemeColorPicker extends StatelessWidget {
                           ],
                         ),
                         child: isSelected
-                            ? const Icon(
-                                Icons.check,
+                            ? const AppHugeIcon(
+                                icon: HugeIcons.strokeRoundedTick01,
                                 color: Colors.white,
                                 size: 20,
                               )

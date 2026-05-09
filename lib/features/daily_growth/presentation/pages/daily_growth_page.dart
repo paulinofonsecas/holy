@@ -3,8 +3,10 @@ import 'package:eu_sou/features/daily_growth/data/services/milestone_service.dar
 import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
 import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
 import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,7 +52,7 @@ class DailyGrowthPage extends StatelessWidget {
               foregroundColor: colorScheme.onSurface,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowLeft01, size: 18),
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(

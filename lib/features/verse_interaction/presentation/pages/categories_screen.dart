@@ -1,5 +1,7 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../data/repositories/category_repository.dart';
 import '../../domain/models/category.dart';
@@ -97,7 +99,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.category_outlined,
+                  const AppHugeIcon(icon: HugeIcons.strokeRoundedDashboardSquare01,
                       size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
                   const Text(
@@ -121,7 +123,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               return ListTile(
                 title: Text(category.name),
                 trailing: IconButton(
-                  icon: const Icon(Icons.delete),
+                  icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedDelete01),
                   onPressed: () async {
                     await widget.categoryRepository
                         .deleteCategory(category.id!);
@@ -138,7 +140,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddCategoryDialog,
-        child: const Icon(Icons.add),
+        child: const AppHugeIcon(icon: HugeIcons.strokeRoundedAdd01),
       ),
     );
   }

@@ -1,4 +1,6 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class SearchInputBar extends StatefulWidget {
   final String initialValue;
@@ -63,8 +65,8 @@ class _SearchInputBarState extends State<SearchInputBar> {
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             fontSize: 14,
           ),
-          prefixIcon: Icon(
-            Icons.search,
+          prefixIcon: AppHugeIcon(
+            icon: HugeIcons.strokeRoundedSearch01,
             size: 22,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           ),
@@ -90,7 +92,7 @@ class _SearchInputBarState extends State<SearchInputBar> {
           ),
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.close, size: 18),
+                  icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 18),
                   onPressed: () {
                     _controller.clear();
                     widget.onChanged('');

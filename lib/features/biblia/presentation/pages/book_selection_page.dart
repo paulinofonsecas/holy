@@ -1,7 +1,9 @@
 import 'package:eu_sou/features/biblia/widgets/bible_book_list_item.dart';
 import 'package:eu_sou/shared/bible_models.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class BookSelectionPage extends StatefulWidget {
   final ScrollController scrollController;
@@ -80,7 +82,7 @@ class _BookSelectionPageState extends State<BookSelectionPage> {
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
+                      icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
                     ),
                   ),
                   Text(
@@ -102,10 +104,10 @@ class _BookSelectionPageState extends State<BookSelectionPage> {
                 autofocus: true,
                 decoration: InputDecoration(
                   hintText: 'Pesquisar livro...',
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear),
+                          icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
                           onPressed: () => _searchController.clear(),
                         )
                       : null,

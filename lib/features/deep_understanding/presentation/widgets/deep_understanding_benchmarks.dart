@@ -1,3 +1,5 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import '../bloc/deep_understanding_bloc.dart';
 
@@ -14,7 +16,7 @@ class DeepUnderstandingBenchmarks extends StatelessWidget {
     if (state.totalDurationMillis == null) return const SizedBox.shrink();
 
     return ExpansionTile(
-      leading: const Icon(Icons.timer_outlined, size: 20),
+      leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedClock01, size: 20),
       title: const Text(
         'Benchmarks de Performance',
         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),

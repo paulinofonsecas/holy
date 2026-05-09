@@ -1,5 +1,7 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/design_system/theme/theme_colors.dart';
 import '../bloc/theme_bloc.dart';
@@ -43,8 +45,8 @@ class ThemeColorPicker extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.palette_outlined,
+                    AppHugeIcon(
+                      icon: HugeIcons.strokeRoundedPaintBucket,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
@@ -231,8 +233,8 @@ class ThemeColorPicker extends StatelessWidget {
             duration: const Duration(milliseconds: 150),
             scale: isSelected ? 1.0 : 0.9,
             child: isSelected
-                ? const Icon(
-                    Icons.check,
+                ? const AppHugeIcon(
+                    icon: HugeIcons.strokeRoundedTick01,
                     color: Colors.white,
                     size: 20,
                   )

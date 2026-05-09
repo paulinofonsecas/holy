@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:developer' show log;
 
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../biblia/bloc/biblia_bloc.dart';
@@ -163,7 +165,7 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowLeft01),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               Expanded(
@@ -187,10 +189,10 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
               onChanged: _onSearchChanged,
               decoration: InputDecoration(
                 hintText: 'Pesquisar em versículos marcados...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
                         onPressed: () {
                           _searchController.clear();
                           _onSearchChanged('');
@@ -223,8 +225,8 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
+            AppHugeIcon(
+              icon: HugeIcons.strokeRoundedAlert01,
               size: 64,
               color: Theme.of(context).colorScheme.error,
             ),
@@ -265,8 +267,8 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isSearching ? Icons.search_off : Icons.bookmark_outline,
+            AppHugeIcon(
+              icon: isSearching ? HugeIcons.strokeRoundedSearchRemove : HugeIcons.strokeRoundedBookmark02,
               size: 64,
               color: Theme.of(context).colorScheme.outline,
             ),

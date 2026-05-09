@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:eu_sou/core/services/toast_service.dart';
 import 'package:eu_sou/shared/bible_models.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stacked/stacked.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
@@ -55,7 +57,7 @@ class ImageCreatorPage extends StatefulWidget {
         ],
       ),
       trailingNavBarWidget: IconButton(
-        icon: const Icon(Icons.close),
+        icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
         onPressed: () => Navigator.of(context).pop(),
       ),
       child: ImageCreatorPage(
@@ -138,7 +140,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.touch_app_rounded,
+                      AppHugeIcon(icon: HugeIcons.strokeRoundedTouch01,
                           size: 14,
                           color: Theme.of(context)
                               .colorScheme
@@ -246,7 +248,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                         child:
                             CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.share),
+                    : const AppHugeIcon(icon: HugeIcons.strokeRoundedShare01),
                 label: Text(
                   viewModel.isGenerating
                       ? 'Gerando...'
@@ -276,7 +278,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                     : () async {
                         await _saveImagesToGallery(viewModel);
                       },
-                icon: const Icon(Icons.download),
+                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedDownload01),
                 label: Text(
                   viewModel.isGenerating
                       ? 'Gerando...'

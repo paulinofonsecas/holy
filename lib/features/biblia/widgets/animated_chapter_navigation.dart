@@ -1,3 +1,5 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedChapterNavigation extends StatefulWidget {
@@ -68,8 +70,8 @@ class _AnimatedChapterNavigationState extends State<AnimatedChapterNavigation>
               builder: (context, child) {
                 return Transform.translate(
                   offset: Offset(widget.isNext ? _animation.value : -_animation.value, 0),
-                  child: Icon(
-                    widget.isNext ? Icons.chevron_right : Icons.chevron_left,
+                  child: AppHugeIcon(
+                    icon: widget.isNext ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
                     size: 32,
                   ),

@@ -1,9 +1,11 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class VersaoWidget extends StatelessWidget {
   const VersaoWidget({
@@ -70,7 +72,7 @@ class VersaoWidget extends StatelessWidget {
                               style: const TextStyle(),
                             ),
                             trailing: isSelected
-                                ? Icon(Icons.check_circle,
+                                ? AppHugeIcon(icon: HugeIcons.strokeRoundedCheckmarkCircle01,
                                     color:
                                         Theme.of(context).colorScheme.primary)
                                 : FutureBuilder<bool>(
@@ -79,11 +81,11 @@ class VersaoWidget extends StatelessWidget {
                                         .isVersionCached(e.id),
                                     builder: (context, snapshot) {
                                       if (snapshot.data == true) {
-                                        return const Icon(
-                                            Icons.offline_pin_outlined,
+                                        return const AppHugeIcon(
+                                            icon: HugeIcons.strokeRoundedCheckmarkCircle01,
                                             size: 20);
                                       }
-                                      return const Icon(Icons.download_outlined,
+                                      return const AppHugeIcon(icon: HugeIcons.strokeRoundedDownload01,
                                           size: 20);
                                     },
                                   ),
@@ -121,8 +123,8 @@ class VersaoWidget extends StatelessWidget {
               ),
             ),
             if (!isMini) ...[
-              Icon(
-                CupertinoIcons.chevron_down,
+              AppHugeIcon(
+                icon: HugeIcons.strokeRoundedArrowDown01,
                 size: 14,
                 color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),

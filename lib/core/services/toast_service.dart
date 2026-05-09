@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 enum ToastType { success, info, warning, error }
 
@@ -56,28 +58,28 @@ class _ToastWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color backgroundColor;
     final Color contentColor;
-    final IconData icon;
+    final AppIconAsset icon;
 
     switch (type) {
       case ToastType.success:
         backgroundColor = const Color(0xFFF0F9F4);
         contentColor = const Color(0xFF287D3C);
-        icon = Icons.check_circle;
+        icon = HugeIcons.strokeRoundedCheckmarkCircle01;
         break;
       case ToastType.info:
         backgroundColor = const Color(0xFFF0F7FF);
         contentColor = const Color(0xFF006ADC);
-        icon = Icons.info;
+        icon = HugeIcons.strokeRoundedInformationCircle;
         break;
       case ToastType.warning:
         backgroundColor = const Color(0xFFFFF9F2);
         contentColor = const Color(0xFFDC7B00);
-        icon = Icons.warning;
+        icon = HugeIcons.strokeRoundedAlert02;
         break;
       case ToastType.error:
         backgroundColor = const Color(0xFFFFF4F2);
         contentColor = const Color(0xFFDC3811);
-        icon = Icons.error;
+        icon = HugeIcons.strokeRoundedAlert01;
         break;
     }
 
@@ -103,7 +105,7 @@ class _ToastWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, color: contentColor),
+              AppHugeIcon(icon: icon, color: contentColor),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -117,7 +119,7 @@ class _ToastWidget extends StatelessWidget {
               const SizedBox(width: 8),
               GestureDetector(
                 onTap: onClose,
-                child: Icon(Icons.close, size: 20, color: contentColor.withValues(alpha: 0.5)),
+                child: AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 20, color: contentColor.withValues(alpha: 0.5)),
               ),
             ],
           ),

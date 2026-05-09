@@ -1,7 +1,9 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../feedback/views/about_view.dart';
 import 'tutorial_detail_page.dart';
@@ -9,7 +11,7 @@ import 'tutorial_detail_page.dart';
 class TutorialItem {
   final String title;
   final String description;
-  final IconData icon;
+  final AppIconAsset icon;
   final String? markdownContent;
   final WidgetBuilder? routeBuilder;
 
@@ -31,7 +33,7 @@ class TutorialsListPage extends StatelessWidget {
         title: 'Bíblia',
         description:
             'Aprenda a navegar, trocar versões e usar o modo de leitura.',
-        icon: CupertinoIcons.book,
+        icon: HugeIcons.strokeRoundedBook01,
         markdownContent: '''
 # Guia de Leitura da Bíblia
 
@@ -59,7 +61,7 @@ Toque no ícone de "Aa" para ajustar o tamanho da fonte, brilho e modo de leitur
       TutorialItem(
         title: 'Pesquisa',
         description: 'Como encontrar versículos e temas específicos.',
-        icon: CupertinoIcons.search,
+        icon: HugeIcons.strokeRoundedSearch01,
         markdownContent: '''
 # Pesquisa Avançada
 
@@ -81,7 +83,7 @@ Suas últimas pesquisas ficam salvas para acesso rápido. Basta tocar em um term
       TutorialItem(
         title: 'Estudos',
         description: 'Entenda profundamente a palavra com auxílio de IA.',
-        icon: Icons.auto_awesome,
+        icon: HugeIcons.strokeRoundedSparkles,
         markdownContent: '''
 # Estudos e Deep Understanding
 
@@ -103,7 +105,7 @@ Todos os seus estudos ficam salvos na aba **Estudos** (terceira aba na barra de 
       TutorialItem(
         title: 'Versículos Marcados',
         description: 'Gerencie seus destaques e versículos favoritos.',
-        icon: Icons.bookmark,
+        icon: HugeIcons.strokeRoundedBookmark02,
         markdownContent: '''
 # Versículos Marcados
 
@@ -123,7 +125,7 @@ Mantenha seus versículos favoritos organizados.
       TutorialItem(
         title: 'Histórico de Versículos',
         description: 'Revisite versículos lidos recentemente.',
-        icon: Icons.history,
+        icon: HugeIcons.strokeRoundedClock03,
         markdownContent: '''
 # Histórico de Leitura
 
@@ -140,7 +142,7 @@ Isso é útil para continuar um estudo de onde parou ou relembrar uma passagem q
       TutorialItem(
         title: 'Versículo do Dia',
         description: 'Inspiração diária e configurações de notificação.',
-        icon: Icons.notifications_active,
+        icon: HugeIcons.strokeRoundedNotification01,
         markdownContent: '''
 # Versículo do Dia
 
@@ -162,7 +164,7 @@ Comece o seu dia com uma palavra de inspiração.
       TutorialItem(
         title: 'Customização',
         description: 'Personalize o tema e aparência do aplicativo.',
-        icon: Icons.palette,
+        icon: HugeIcons.strokeRoundedPaintBucket,
         markdownContent: '''
 # Personalização e Temas
 
@@ -181,7 +183,7 @@ Deixe o aplicativo com a sua cara e confortável para sua visão.
       TutorialItem(
         title: 'Sobre o App',
         description: 'Conheça nossa missão, equipe e comunidade.',
-        icon: Icons.info_outline,
+        icon: HugeIcons.strokeRoundedInformationCircle,
         routeBuilder: (context) => const AboutView(),
       ),
     ];
@@ -253,8 +255,8 @@ Deixe o aplicativo com a sua cara e confortável para sua visão.
                   color: Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  item.icon,
+                child: AppHugeIcon(
+                  icon: item.icon,
                   color: Theme.of(context).colorScheme.onPrimaryContainer,
                   size: 24,
                 ),
@@ -281,8 +283,8 @@ Deixe o aplicativo com a sua cara e confortável para sua visão.
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
+              AppHugeIcon(
+                icon: HugeIcons.strokeRoundedArrowRight01,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ],

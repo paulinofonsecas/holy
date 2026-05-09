@@ -1,5 +1,7 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:stacked/stacked.dart';
 
 import '../viewmodels/about_viewmodel.dart';
@@ -139,14 +141,14 @@ class AboutView extends StackedView<AboutViewModel> {
           const Gap(20),
           _buildGrowthItem(
             context,
-            Icons.fingerprint,
+            HugeIcons.strokeRoundedFingerPrint,
             viewModel.growthIdentityTitle,
             viewModel.growthIdentityBody,
           ),
           const Gap(16),
           _buildGrowthItem(
             context,
-            Icons.diversity_3,
+            HugeIcons.strokeRoundedUserGroup,
             viewModel.growthUnityTitle,
             viewModel.growthUnityBody,
           ),
@@ -168,7 +170,7 @@ class AboutView extends StackedView<AboutViewModel> {
   }
 
   Widget _buildGrowthItem(
-      BuildContext context, IconData icon, String title, String body) {
+      BuildContext context, AppIconAsset icon, String title, String body) {
     final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +181,7 @@ class AboutView extends StackedView<AboutViewModel> {
             color: theme.colorScheme.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+          child: AppHugeIcon(icon: icon, size: 20, color: theme.colorScheme.primary),
         ),
         const Gap(16),
         Expanded(
@@ -416,8 +418,10 @@ class _CarouselWidgetState extends State<_CarouselWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.format_quote_rounded,
-                        color: widget.accentColor, size: 32),
+                    AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedQuoteDown,
+                        color: widget.accentColor,
+                        size: 32),
                     const Gap(8),
                     Expanded(
                       child: Text(
@@ -435,7 +439,8 @@ class _CarouselWidgetState extends State<_CarouselWidget> {
                           radius: 18,
                           backgroundColor:
                               Theme.of(context).colorScheme.primaryContainer,
-                          child: Icon(Icons.person,
+                          child: AppHugeIcon(
+                              icon: HugeIcons.strokeRoundedUser,
                               size: 20,
                               color: Theme.of(context)
                                   .colorScheme

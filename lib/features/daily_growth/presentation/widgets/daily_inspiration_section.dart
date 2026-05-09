@@ -1,4 +1,6 @@
 import 'package:eu_sou/features/eu_sou/domain/models/daily_reflection.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -64,7 +66,7 @@ class _DailyInspirationSectionState extends State<DailyInspirationSection> {
                         color: accentColor,
                       ),
                     )
-                  : Icon(Icons.refresh, size: 15, color: accentColor),
+                  : AppHugeIcon(icon: HugeIcons.strokeRoundedRefresh, size: 15, color: accentColor),
               label: Text(
                 widget.isRegenerating ? 'Gerando...' : 'Regenerar',
                 style: GoogleFonts.inter(

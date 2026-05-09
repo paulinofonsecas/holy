@@ -1,4 +1,6 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:gap/gap.dart';
 import 'package:bible_handler/bible_handler.dart';
 import 'search_export_service.dart';
@@ -27,7 +29,7 @@ class SearchExportBottomSheet extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.copy),
+            leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedCopy01),
             title: const Text('Copiar Texto'),
             onTap: () {
               Navigator.pop(context);
@@ -35,7 +37,7 @@ class SearchExportBottomSheet extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.text_snippet_outlined),
+            leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedFile01),
             title: const Text('Exportar como .TXT'),
             onTap: () {
               Navigator.pop(context);
@@ -43,7 +45,7 @@ class SearchExportBottomSheet extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.description_outlined),
+            leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedFile02),
             title: const Text('Exportar como .MD (Markdown)'),
             onTap: () {
               Navigator.pop(context);
@@ -51,7 +53,7 @@ class SearchExportBottomSheet extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.picture_as_pdf_outlined),
+            leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedPdf01),
             title: const Text('Exportar como .PDF'),
             onTap: () {
               Navigator.pop(context);

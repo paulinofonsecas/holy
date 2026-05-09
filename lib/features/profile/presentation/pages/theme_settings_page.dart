@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../features/theme/presentation/bloc/theme_bloc.dart';
 import '../../../../features/theme/presentation/widgets/theme_color_picker.dart';
 import '../../../../features/theme/presentation/widgets/theme_mode_picker.dart';
+import '../../../../shared/widgets/app_huge_icon.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
   const ThemeSettingsPage({super.key});
@@ -72,8 +74,8 @@ class ThemeSettingsPage extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.auto_fix_high,
+                    AppHugeIcon(
+                      icon: HugeIcons.strokeRoundedMagicWand01,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 8),

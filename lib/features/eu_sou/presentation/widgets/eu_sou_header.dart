@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../shared/widgets/app_huge_icon.dart';
 import 'theme_toggle_button.dart';
 
 /// Exibe a data por extenso em PT-BR e a saudação personalizada.
@@ -56,8 +58,8 @@ class EuSouHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     child: Padding(
                       padding: const EdgeInsets.all(2),
-                      child: Icon(
-                        Icons.edit_outlined,
+                      child: AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedPencilEdit02,
                         size: 14,
                         color: colorScheme.onSurface.withOpacity(0.45),
                       ),

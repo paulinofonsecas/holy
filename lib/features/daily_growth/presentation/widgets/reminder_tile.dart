@@ -1,4 +1,6 @@
 import 'package:eu_sou/features/daily_growth/domain/models/daily_reminder.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -114,8 +116,8 @@ class ReminderTile extends StatelessWidget {
             const SizedBox(width: 2),
             GestureDetector(
               onTap: onDelete,
-              child: Icon(Icons.close,
-                  size: 14, color: subtitleColor.withOpacity(0.7)),
+              child: AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01,
+                size: 14, color: subtitleColor.withOpacity(0.7)),
             ),
           ],
         ],

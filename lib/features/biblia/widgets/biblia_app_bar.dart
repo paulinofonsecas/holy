@@ -2,10 +2,12 @@ import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class BibleAppBar extends StatelessWidget {
   const BibleAppBar({
@@ -38,7 +40,7 @@ class BibleAppBar extends StatelessWidget {
                       children: [
                         if (!(ModalRoute.of(context)?.isFirst ?? true)) ...[
                           IconButton(
-                            icon: const Icon(Icons.arrow_back),
+                            icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowLeft01),
                             onPressed: () => Navigator.pop(context),
                           ),
                           const Gap(8),
@@ -63,8 +65,8 @@ class BibleAppBar extends StatelessWidget {
                             backgroundColor:
                                 Theme.of(context).colorScheme.primaryContainer,
                           ),
-                          icon: Icon(
-                            CupertinoIcons.textformat_alt,
+                          icon: AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedTextFont,
                             size: 18,
                             color: Theme.of(context)
                                 .colorScheme
@@ -129,8 +131,8 @@ class BookSelectorWidget extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const Gap(4),
-                    const Icon(
-                      Icons.keyboard_arrow_down_rounded,
+                    const AppHugeIcon(
+                      icon: HugeIcons.strokeRoundedArrowDown01,
                       size: 16,
                     ),
                   ],

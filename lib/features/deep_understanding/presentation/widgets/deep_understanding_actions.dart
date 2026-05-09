@@ -1,3 +1,4 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eu_sou/shared/bible_models.dart';
@@ -8,6 +9,7 @@ import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understa
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/widgets/deep_understanding_export_service.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class DeepUnderstandingActions {
   static void handleBibleLink(BuildContext context, String href) {
@@ -122,7 +124,7 @@ class DeepUnderstandingActions {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.copy,
+                leading: AppHugeIcon(icon: HugeIcons.strokeRoundedCopy01,
                     color: isDark ? null : const Color(0xFF2D1B13)),
                 title: Text('Copiar Texto',
                     style: TextStyle(color: primaryTextColor)),
@@ -133,7 +135,7 @@ class DeepUnderstandingActions {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.text_snippet_outlined,
+                leading: AppHugeIcon(icon: HugeIcons.strokeRoundedFile01,
                     color: isDark ? null : const Color(0xFF2D1B13)),
                 title: Text('Exportar como .TXT',
                     style: TextStyle(color: primaryTextColor)),
@@ -144,7 +146,7 @@ class DeepUnderstandingActions {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.description_outlined,
+                leading: AppHugeIcon(icon: HugeIcons.strokeRoundedFile02,
                     color: isDark ? null : const Color(0xFF2D1B13)),
                 title: Text('Exportar como .MD (Markdown)',
                     style: TextStyle(color: primaryTextColor)),
@@ -155,7 +157,7 @@ class DeepUnderstandingActions {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.picture_as_pdf_outlined,
+                leading: AppHugeIcon(icon: HugeIcons.strokeRoundedPdf01,
                     color: isDark ? null : const Color(0xFF2D1B13)),
                 title: Text('Exportar como .PDF',
                     style: TextStyle(color: primaryTextColor)),

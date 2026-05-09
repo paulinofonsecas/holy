@@ -1,3 +1,5 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../localization.dart';
@@ -34,8 +36,8 @@ class LanguageSelector extends StatelessWidget {
             ),
             title: Text(Localization.getLanguageName(locale.languageCode)),
             trailing: isSelected
-                ? const Icon(Icons.check, color: Colors.green)
-                : null,
+              ? const AppHugeIcon(icon: HugeIcons.strokeRoundedTick01, color: Colors.green)
+              : null,
             onTap: () {
               if (!isSelected) {
                 onChanged(locale);

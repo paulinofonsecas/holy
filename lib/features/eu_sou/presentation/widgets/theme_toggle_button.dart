@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../features/theme/presentation/bloc/theme_bloc.dart';
+import '../../../../shared/widgets/app_huge_icon.dart';
 
 /// Botão compacto que cicla entre os modos de tema: claro → escuro → sistema.
 /// Usa [ThemeBloc] + [ThemeModeChanged] — mesma abordagem de ThemeModePicker.
@@ -20,14 +22,14 @@ class ThemeToggleButton extends StatelessWidget {
     }
   }
 
-  IconData _icon(ThemeMode mode) {
+  AppIconAsset _icon(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.light:
-        return Icons.light_mode_outlined;
+        return HugeIcons.strokeRoundedSun01;
       case ThemeMode.dark:
-        return Icons.dark_mode_outlined;
+        return HugeIcons.strokeRoundedMoon02;
       case ThemeMode.system:
-        return Icons.settings_display_outlined;
+        return HugeIcons.strokeRoundedMonitorDot;
     }
   }
 
@@ -58,8 +60,8 @@ class ThemeToggleButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: Icon(
-                _icon(current),
+              child: AppHugeIcon(
+                icon: _icon(current),
                 size: 22,
                 color: colorScheme.onSurface.withOpacity(0.65),
               ),

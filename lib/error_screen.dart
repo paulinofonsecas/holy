@@ -1,5 +1,7 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class ErrorScreen extends StatelessWidget {
   const ErrorScreen({
@@ -71,8 +73,8 @@ class ErrorScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0x55F59E0B)),
                         ),
-                        child: const Icon(
-                          Icons.auto_awesome_motion_rounded,
+                        child: const AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedSparkles,
                           size: 32,
                           color: Color(0xFFFCD34D),
                         ),
@@ -102,11 +104,11 @@ class ErrorScreen extends StatelessWidget {
                         runSpacing: 12,
                         children: [
                           const _StatusChip(
-                            icon: Icons.warning_amber_rounded,
+                            icon: HugeIcons.strokeRoundedAlert02,
                             label: 'Falha na inicializacao',
                           ),
                           _StatusChip(
-                            icon: Icons.bug_report_outlined,
+                            icon: HugeIcons.strokeRoundedBug01,
                             label: hasDetails
                                 ? 'Detalhes capturados'
                                 : 'Sem stack trace disponivel',
@@ -171,7 +173,7 @@ class ErrorScreen extends StatelessWidget {
                                   ClipboardData(text: details),
                                 );
                               },
-                              icon: const Icon(Icons.content_copy_rounded),
+                              icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCopy01),
                               label: const Text('Copiar erro'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: const Color(0xFFFDE68A),
@@ -222,7 +224,7 @@ class _StatusChip extends StatelessWidget {
     required this.label,
   });
 
-  final IconData icon;
+  final AppIconAsset icon;
   final String label;
 
   @override
@@ -237,7 +239,7 @@ class _StatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: const Color(0xFFFDE68A)),
+          AppHugeIcon(icon: icon, size: 18, color: const Color(0xFFFDE68A)),
           const SizedBox(width: 8),
           Text(
             label,

@@ -1,5 +1,7 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../bloc/deep_understanding_bloc.dart';
 import '../widgets/deep_understanding_actions.dart';
@@ -31,8 +33,8 @@ class DeepUnderstandingPage extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
+            icon: AppHugeIcon(
+              icon: HugeIcons.strokeRoundedArrowLeft01,
               color: Theme.of(context).brightness == Brightness.dark
                   ? Theme.of(context).colorScheme.onSurface
                   : const Color(0xFF2D1B13),
@@ -70,8 +72,8 @@ class DeepUnderstandingPage extends StatelessWidget {
               builder: (context, state) {
                 if (state is DeepUnderstandingSuccess) {
                   return IconButton(
-                    icon: Icon(
-                      Icons.ios_share,
+                    icon: AppHugeIcon(
+                      icon: HugeIcons.strokeRoundedShare01,
                       color: Theme.of(context).brightness == Brightness.dark
                           ? Theme.of(context).colorScheme.onSurface
                           : const Color(0xFF2D1B13),

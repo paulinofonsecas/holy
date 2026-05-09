@@ -1,5 +1,7 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/models/analysis_session.dart';
@@ -350,8 +352,8 @@ class _DeepUnderstandingHistoryPageState
                   ),
                   GestureDetector(
                     onTap: () => _confirmDelete(context, session.sessionId),
-                    child: Icon(
-                      Icons.delete_outline,
+                    child: AppHugeIcon(
+                      icon: HugeIcons.strokeRoundedDelete01,
                       size: 20,
                       color: iconColor,
                     ),
@@ -410,10 +412,10 @@ class _DeepUnderstandingHistoryPageState
                         ),
                       if (session.status == 'completed')
                         const SizedBox(width: 4),
-                      Icon(
-                        session.status == 'completed'
-                            ? Icons.arrow_forward
-                            : Icons.chevron_right,
+                      AppHugeIcon(
+                        icon: session.status == 'completed'
+                            ? HugeIcons.strokeRoundedArrowRight01
+                            : HugeIcons.strokeRoundedArrowRight01,
                         size: 16,
                         color: session.status == 'completed'
                             ? accentColor

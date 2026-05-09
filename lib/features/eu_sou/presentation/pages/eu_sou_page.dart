@@ -6,10 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../shared/bible_models.dart';
 import '../../../../shared/cubit/bible_version_cubit.dart';
+import '../../../../shared/widgets/app_huge_icon.dart';
 import '../../../daily_growth/data/services/daily_reminder_service.dart';
 import '../../../daily_growth/data/services/milestone_service.dart';
 import '../../../deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
@@ -67,24 +69,24 @@ extension _EuSouPanelExtension on _EuSouPanel {
     }
   }
 
-  IconData get icon {
+  AppIconAsset get icon {
     switch (this) {
       case _EuSouPanel.overview:
-        return Icons.home_outlined;
+        return HugeIcons.strokeRoundedHome01;
       case _EuSouPanel.dailyGrowth:
-        return Icons.trending_up_outlined;
+        return HugeIcons.strokeRoundedChartUp;
       case _EuSouPanel.markedVerses:
-        return Icons.bookmark_outline;
+        return HugeIcons.strokeRoundedBookmark02;
       case _EuSouPanel.verseHistory:
-        return Icons.history;
+        return HugeIcons.strokeRoundedClock03;
       case _EuSouPanel.theme:
-        return Icons.palette_outlined;
+        return HugeIcons.strokeRoundedPaintBucket;
       case _EuSouPanel.tutorials:
-        return Icons.help_outline;
+        return HugeIcons.strokeRoundedHelpCircle;
       case _EuSouPanel.about:
-        return Icons.info_outline;
+        return HugeIcons.strokeRoundedInformationCircle;
       case _EuSouPanel.name:
-        return Icons.person_outline;
+        return HugeIcons.strokeRoundedUser;
     }
   }
 }
@@ -212,7 +214,7 @@ class _EuSouPageState extends State<EuSouPage> {
                   selected: panel == _selectedPanel,
                   selectedTileColor: colorScheme.primary.withOpacity(0.08),
                   selectedColor: colorScheme.primary,
-                  leading: Icon(panel.icon),
+                  leading: AppHugeIcon(icon: panel.icon),
                   title: Text(panel.label),
                   onTap: () => _navigateToPanel(panel),
                 );
@@ -715,7 +717,7 @@ class _InlineSettings extends StatelessWidget {
         const Divider(height: 1),
         const SizedBox(height: 8),
         _SettingsItem(
-          icon: Icons.trending_up_outlined,
+          icon: HugeIcons.strokeRoundedChartUp,
           title: 'Crescimento Diário',
           onTap: () => Navigator.push(
             context,
@@ -723,7 +725,7 @@ class _InlineSettings extends StatelessWidget {
           ),
         ),
         _SettingsItem(
-          icon: Icons.bookmark_outline,
+          icon: HugeIcons.strokeRoundedBookmark02,
           title: 'Versículos Marcados',
           onTap: () => Navigator.push(
             context,
@@ -737,7 +739,7 @@ class _InlineSettings extends StatelessWidget {
           ),
         ),
         _SettingsItem(
-          icon: Icons.menu_book_outlined,
+          icon: HugeIcons.strokeRoundedClock03,
           title: 'Histórico de Versículos',
           onTap: () => Navigator.push(
             context,
@@ -745,7 +747,7 @@ class _InlineSettings extends StatelessWidget {
           ),
         ),
         // _SettingsItem(
-        //   icon: Icons.notifications_none,
+        //   icon: HugeIcons.strokeRoundedNotification01,
         //   title: 'Versículo do Dia',
         //   onTap: () {
         //     final versionId =
@@ -762,7 +764,7 @@ class _InlineSettings extends StatelessWidget {
         // ),
 
         _SettingsItem(
-          icon: Icons.palette_outlined,
+          icon: HugeIcons.strokeRoundedPaintBucket,
           title: 'Tema e Cores',
           onTap: () => Navigator.push(
             context,
@@ -770,7 +772,7 @@ class _InlineSettings extends StatelessWidget {
           ),
         ),
         _SettingsItem(
-          icon: Icons.help_outline,
+          icon: HugeIcons.strokeRoundedHelpCircle,
           title: 'Ajuda e Tutoriais',
           onTap: () => Navigator.push(
             context,
@@ -778,7 +780,7 @@ class _InlineSettings extends StatelessWidget {
           ),
         ),
         _SettingsItem(
-          icon: Icons.info_outline,
+          icon: HugeIcons.strokeRoundedInformationCircle,
           title: 'Sobre',
           onTap: () => Navigator.push(
             context,
@@ -786,7 +788,7 @@ class _InlineSettings extends StatelessWidget {
           ),
         ),
         _SettingsItem(
-          icon: Icons.person_outline,
+          icon: HugeIcons.strokeRoundedUser,
           title: 'Meu Nome',
           onTap: () => _editName(context),
         ),
@@ -870,7 +872,7 @@ class _EditNameDialogState extends State<_EditNameDialog> {
 }
 
 class _SettingsItem extends StatelessWidget {
-  final IconData icon;
+  final AppIconAsset icon;
   final String title;
   final VoidCallback onTap;
 
@@ -884,12 +886,14 @@ class _SettingsItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon,
+      leading: AppHugeIcon(
+        icon: icon,
           size: 22,
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.65)),
       title: Text(title,
           style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w400)),
-      trailing: Icon(Icons.chevron_right,
+      trailing: AppHugeIcon(
+        icon: HugeIcons.strokeRoundedArrowRight01,
           size: 18,
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.30)),
       onTap: onTap,
@@ -924,7 +928,9 @@ class _GenerateUnderstandingButton extends StatelessWidget {
     final label =
         active ? 'GERAR ENTENDIMENTO PROFUNDO' : 'ENTENDIMENTO JÁ GERADO HOJE';
     final icon =
-        active ? Icons.auto_awesome_outlined : Icons.check_circle_outline;
+      active
+        ? HugeIcons.strokeRoundedSparkles
+        : HugeIcons.strokeRoundedCheckmarkCircle02;
 
     return GestureDetector(
       onTap: active ? onTap : null,
@@ -938,7 +944,7 @@ class _GenerateUnderstandingButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: iconColor),
+            AppHugeIcon(icon: icon, size: 16, color: iconColor),
             const SizedBox(width: 10),
             Text(
               label,
@@ -970,7 +976,8 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_outlined,
+            AppHugeIcon(
+                icon: HugeIcons.strokeRoundedCloudOff,
                 size: 48,
                 color:
                     Theme.of(context).colorScheme.onSurface.withOpacity(0.35)),

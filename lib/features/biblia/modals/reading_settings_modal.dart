@@ -1,7 +1,9 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../shared/cubit/bible_version_cubit.dart';
 import '../bloc/reading_settings_cubit.dart';
@@ -99,10 +101,10 @@ class ReadingSettingsModal extends StatelessWidget {
                     },
                     borderRadius: BorderRadius.circular(8),
                     children: const [
-                      Icon(Icons.format_align_left),
-                      Icon(Icons.format_align_center),
-                      Icon(Icons.format_align_right),
-                      Icon(Icons.format_align_justify),
+                      AppHugeIcon(icon: HugeIcons.strokeRoundedTextAlignLeft),
+                      AppHugeIcon(icon: HugeIcons.strokeRoundedTextAlignCenter),
+                      AppHugeIcon(icon: HugeIcons.strokeRoundedTextAlignRight),
+                      AppHugeIcon(icon: HugeIcons.strokeRoundedTextAlignJustifyCenter),
                     ],
                   );
                 },
@@ -306,16 +308,16 @@ class ReadingSettingsModal extends StatelessWidget {
               )),
           subtitle: Text(v.id),
           trailing: isSelected
-              ? Icon(Icons.check_circle,
+              ? AppHugeIcon(icon: HugeIcons.strokeRoundedCheckmarkCircle01,
                   color: Theme.of(context).colorScheme.primary)
               : FutureBuilder<bool>(
                   future:
                       context.read<BibleCacheProvider>().isVersionCached(v.id),
                   builder: (context, snapshot) {
                     if (snapshot.data == true) {
-                      return const Icon(Icons.offline_pin_outlined, size: 20);
+                      return const AppHugeIcon(icon: HugeIcons.strokeRoundedCheckmarkCircle01, size: 20);
                     }
-                    return const Icon(Icons.download_outlined, size: 20);
+                    return const AppHugeIcon(icon: HugeIcons.strokeRoundedDownload01, size: 20);
                   },
                 ),
           onTap: () => context.read<BibleVersionCubit>().changeVersion(v),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 
 class CircularChapterChangeWidget extends StatelessWidget {
   const CircularChapterChangeWidget({
@@ -31,8 +33,8 @@ class CircularChapterChangeWidget extends StatelessWidget {
           ],
         ),
         child: isNext
-            ? const Icon(Icons.chevron_right)
-            : const Icon(Icons.chevron_left),
+            ? const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01)
+            : const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowLeft01),
       ),
     );
   }

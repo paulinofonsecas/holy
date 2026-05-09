@@ -1,4 +1,6 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class BookSearchModal extends StatefulWidget {
   final ValueChanged<String>? onSearch;
@@ -33,7 +35,7 @@ class _BookSearchModalState extends State<BookSearchModal> {
             autocorrect: false,
             decoration: const InputDecoration(
               hintText: 'Search for a book...',
-              prefixIcon: Icon(Icons.book),
+              prefixIcon: AppHugeIcon(icon: HugeIcons.strokeRoundedBook01),
             ),
           ),
           const SizedBox(height: 16),
@@ -49,7 +51,7 @@ class _BookSearchModalState extends State<BookSearchModal> {
                 widget.onSearch?.call(_textController.text);
               }
             },
-            icon: const Icon(Icons.search),
+            icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
           ),
         ],
       ),

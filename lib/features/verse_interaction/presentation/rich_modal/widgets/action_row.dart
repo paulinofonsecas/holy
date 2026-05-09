@@ -1,5 +1,7 @@
 import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class ActionRow extends StatelessWidget {
   final VoidCallback onShare;
@@ -28,35 +30,35 @@ class ActionRow extends StatelessWidget {
       children: [
         const SizedBox(width: 8),
         _ActionButton(
-          icon: Icons.share_outlined,
+          icon: HugeIcons.strokeRoundedShare01,
           label: 'Partilhar',
           onTap: onShare,
         ),
         _ActionButton(
-          icon: Icons.image_outlined,
+          icon: HugeIcons.strokeRoundedImage01,
           label: 'Criar Imagem',
           onTap: onCreateImage,
         ),
         _ActionButton(
-          icon: Icons.close,
+          icon: HugeIcons.strokeRoundedCancel01,
           label: 'Fechar',
           onTap: onClose,
         ),
         if (onDeepUnderstanding != null)
           _ActionButton(
-            icon: Icons.auto_awesome,
+            icon: HugeIcons.strokeRoundedSparkles,
             color: context.colorScheme.primary,
             label: 'Entendimento',
             onTap: onDeepUnderstanding,
           ),
         if (onCompare != null)
           _ActionButton(
-            icon: Icons.compare_arrows_outlined,
+            icon: HugeIcons.strokeRoundedArrowDataTransferHorizontal,
             label: 'Comparar Versão',
             onTap: onCompare,
           ),
         _ActionButton(
-          icon: Icons.copy_outlined,
+          icon: HugeIcons.strokeRoundedCopy01,
           label: 'Copiar',
           onTap: onCopy,
         ),
@@ -74,7 +76,7 @@ class _ActionButton extends StatelessWidget {
     this.color,
   });
 
-  final IconData icon;
+  final AppIconAsset icon;
   final Color? color;
   final String label;
   final VoidCallback? onTap;
@@ -89,7 +91,7 @@ class _ActionButton extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 28, color: color),
+            AppHugeIcon(icon: icon, size: 28, color: color),
             const SizedBox(height: 4),
             Text(
               label,

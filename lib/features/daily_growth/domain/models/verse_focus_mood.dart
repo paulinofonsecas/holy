@@ -1,4 +1,6 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 enum VerseFocusMood { anxious, happy, needHope }
 
@@ -25,14 +27,14 @@ extension VerseFocusMoodExt on VerseFocusMood {
     }
   }
 
-  IconData get icon {
+  AppIconAsset get icon {
     switch (this) {
       case VerseFocusMood.happy:
-        return Icons.sentiment_satisfied_alt_outlined;
+        return HugeIcons.strokeRoundedSmile;
       case VerseFocusMood.anxious:
-        return Icons.help_outline;
+        return HugeIcons.strokeRoundedHelpCircle;
       case VerseFocusMood.needHope:
-        return Icons.volunteer_activism_outlined;
+        return HugeIcons.strokeRoundedHeartCheck;
     }
   }
 

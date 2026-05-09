@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../../../../shared/widgets/app_huge_icon.dart';
 import '../../../deep_understanding/data/models/analysis_session.dart';
 import '../../../deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import '../../../deep_understanding/presentation/pages/deep_understanding_history_page.dart';
@@ -273,7 +275,8 @@ class _StudyCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                 ],
-                Icon(Icons.arrow_forward,
+                AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowRight01,
                     size: 14,
                     color: study.status == 'completed'
                         ? accentColor

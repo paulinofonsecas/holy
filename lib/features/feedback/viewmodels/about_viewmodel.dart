@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:stacked/stacked.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,29 +26,29 @@ class AboutViewModel extends BaseViewModel {
       'title': 'Biblia Interativa',
       'description':
           'Explore a Bíblia de forma dinâmica com notas, marcações e planos de leitura personalizados.',
-      'icon': Icons.menu_book_rounded,
+      'icon': HugeIcons.strokeRoundedBook01,
     },
     {
       'title': 'Multiplas Versões',
       'description':
           'Acesse diversas traduções da Bíblia para enriquecer seu estudo e compreensão.',
-      'icon': Icons.compare_arrows_rounded,
+      'icon': HugeIcons.strokeRoundedArrowDataTransferHorizontal,
     },
     {
       'title': 'Estudo Profundo',
       'description':
           'Ferramentas avançadas de análise e comparação de versículos.',
-      'icon': Icons.analytics_outlined,
+      'icon': HugeIcons.strokeRoundedAnalytics01,
     },
     {
       'title': 'Comunidade Ativa',
       'description': 'Compartilhe reflexões e cresça junto com outros irmãos.',
-      'icon': Icons.people_outline_rounded,
+      'icon': HugeIcons.strokeRoundedUserGroup,
     },
     {
       'title': 'Versículos Diários',
       'description': 'Receba inspiração diária diretamente no seu dispositivo.',
-      'icon': Icons.wb_sunny_outlined,
+      'icon': HugeIcons.strokeRoundedSun01,
     },
     // {
     //   'title': 'Sincronização Cloud',

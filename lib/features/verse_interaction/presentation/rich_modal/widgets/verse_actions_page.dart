@@ -14,6 +14,8 @@ import 'package:eu_sou/features/verse_interaction/presentation/compare_versions/
 import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/rich_verse_action_modal.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
@@ -37,7 +39,7 @@ class VerseActionsPage {
       ),
       isTopBarLayerAlwaysVisible: true,
       trailingNavBarWidget: IconButton(
-        icon: const Icon(Icons.close),
+        icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
         onPressed: () {
           viewModel.clearSelection();
           Navigator.of(context).pop();

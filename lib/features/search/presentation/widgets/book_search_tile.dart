@@ -1,4 +1,6 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 
 class BookSearchTile extends StatelessWidget {
@@ -14,7 +16,7 @@ class BookSearchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const Icon(Icons.book),
+      leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedBook01),
       title: Text(livro.name),
       onTap: onTap,
     );

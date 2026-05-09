@@ -1,3 +1,5 @@
+import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import '../bloc/deep_understanding_bloc.dart';
 
@@ -19,7 +21,7 @@ class DeepUnderstandingErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const AppHugeIcon(icon: HugeIcons.strokeRoundedAlert01, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             const Text(
               'Ops! Algo deu errado.',
