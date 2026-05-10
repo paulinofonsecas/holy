@@ -539,42 +539,49 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           ),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
       child: Row(
         children: [
           InkWell(
             onTap: () => context.read<TabControllerCubit>().changeTo(1),
-            child: Text(
-              l10n.appTitle,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Text(
+                l10n.appTitle,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
             ),
           ),
           const Spacer(),
-          _buildWebTopBarItem(
-            context,
-            icon: HugeIcons.strokeRoundedBook01,
-            label: l10n.bible,
-            selected: currentIndex == 0,
-            onTap: () => context.read<TabControllerCubit>().changeTo(0),
+          Row(
+            children: [
+              _buildWebTopBarItem(
+                context,
+                icon: HugeIcons.strokeRoundedBook01,
+                label: l10n.bible,
+                selected: currentIndex == 0,
+                onTap: () => context.read<TabControllerCubit>().changeTo(0),
+              ),
+              const SizedBox(width: 16),
+              _buildWebTopBarItem(
+                context,
+                icon: HugeIcons.strokeRoundedSun01,
+                label: 'Eu Sou',
+                selected: currentIndex == 1,
+                onTap: () => context.read<TabControllerCubit>().changeTo(1),
+              ),
+              const SizedBox(width: 16),
+              _buildWebTopBarItem(
+                context,
+                icon: HugeIcons.strokeRoundedSearch01,
+                label: l10n.search,
+                selected: currentIndex == 2,
+                onTap: () => context.read<TabControllerCubit>().changeTo(2),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          _buildWebTopBarItem(
-            context,
-            icon: HugeIcons.strokeRoundedSun01,
-            label: 'Eu Sou',
-            selected: currentIndex == 1,
-            onTap: () => context.read<TabControllerCubit>().changeTo(1),
-          ),
-          const SizedBox(width: 16),
-          _buildWebTopBarItem(
-            context,
-            icon: HugeIcons.strokeRoundedSearch01,
-            label: l10n.search,
-            selected: currentIndex == 2,
-            onTap: () => context.read<TabControllerCubit>().changeTo(2),
-          ),
+          const SizedBox(width: 24),
         ],
       ),
     );

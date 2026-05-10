@@ -38,16 +38,7 @@ class VerseReadWidget extends StatelessWidget {
 
                 Color? backgroundColor;
                 if (isSelected) {
-                  backgroundColor =
-                      Theme.brightnessOf(context) == Brightness.light
-                          ? Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withValues(alpha: .2)
-                          : Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withValues(alpha: .2);
+                  backgroundColor = getVerseBackgroudColor(context);
                 } else if (highlightState is HighlightsLoaded) {
                   final highlight = highlightState.highlights[verseRef];
                   if (highlight != null) {
@@ -185,5 +176,46 @@ class VerseReadWidget extends StatelessWidget {
         );
       },
     );
+  }
+
+  bool alreadyHighlighted(BuildContext context) {
+    final versionId = context.read<BibleVersionCubit>().state.version.id;
+    final verseRef =
+        "$versionId:${chapter.bookId}:${chapter.number}:${verse.number}";
+
+    final highlightState = context.watch<HighlightBloc>().state;
+    if (highlightState is HighlightsLoaded) {
+      return highlightState.highlights.containsKey(verseRef);
+    }
+    return false;
+  }
+
+  String getVerseHighlightColor(BuildContext context) {
+    final versionId = context.read<BibleVersionCubit>().state.version.id;
+    final verseRef =
+        "$versionId:${chapter.bookId}:${chapter.number}:${verse.number}";
+
+    final highlightState = context.watch<HighlightBloc>().state;
+    if (highlightState is HighlightsLoaded) {
+      final highlight = highlightState.highlights[verseRef];
+      if (highlight != null) {
+        return highlight.colorHex;
+      }
+    }
+    return 'FFDE64'; // Cor padrão para destaque
+  }
+
+  Color getVerseBackgroudColor(BuildContext context) {
+    if (alreadyHighlighted(context)) {
+      final highlightColorHex = getVerseHighlightColor(context);
+      return Theme.brightnessOf(context) == Brightness.light
+          ? Color(int.parse(highlightColorHex, radix: 16)).withValues(alpha: .2)
+          : Color(int.parse(highlightColorHex, radix: 16))
+              .withValues(alpha: .2);
+    }
+
+    return Theme.brightnessOf(context) == Brightness.light
+        ? Theme.of(context).colorScheme.primary.withValues(alpha: .2)
+        : Theme.of(context).colorScheme.primary.withValues(alpha: .2);
   }
 }
