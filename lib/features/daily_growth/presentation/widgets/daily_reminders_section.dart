@@ -1,9 +1,9 @@
 import 'package:eu_sou/features/daily_growth/domain/models/daily_reminder.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../cubit/daily_growth_cubit.dart';
 import 'reminder_tile.dart';
@@ -84,8 +84,11 @@ class _AddReminderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final base = Theme.of(context).colorScheme.surface;
     final textColor = Theme.of(context).colorScheme.onSurface;
     final borderColor = textColor.withOpacity(isDark ? 0.22 : 0.14);
+
+    final bgColor = isDark ? base : const Color(0xFFFCFBF8);
 
     return GestureDetector(
       onTap: onAdd,
@@ -93,7 +96,7 @@ class _AddReminderButton extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF3F2EE),
+          color: bgColor,
           border: Border.all(
             color: borderColor,
             width: 1.5,
@@ -104,7 +107,10 @@ class _AddReminderButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AppHugeIcon(icon: HugeIcons.strokeRoundedAdd01, size: 16, color: textColor.withOpacity(0.55)),
+            AppHugeIcon(
+                icon: HugeIcons.strokeRoundedAdd01,
+                size: 16,
+                color: textColor.withOpacity(0.55)),
             const SizedBox(width: 6),
             Text(
               'Adicionar Lembrete Personalizado',

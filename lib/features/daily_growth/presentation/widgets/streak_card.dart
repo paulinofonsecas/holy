@@ -19,8 +19,6 @@ class StreakCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = Theme.of(context).colorScheme.onSurface;
-    final cardColor =
-        isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF3F2EE);
     final borderColor = textColor.withOpacity(isDark ? 0.22 : 0.14);
     final accentColor = colorScheme.primary;
 
@@ -28,7 +26,7 @@ class StreakCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: borderColor),
       ),
