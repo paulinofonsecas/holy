@@ -19,11 +19,11 @@ import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widget
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../bloc/biblia_bloc.dart';
 import '../widgets/animated_chapter_navigation.dart';
@@ -47,8 +47,10 @@ class BibliaPage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              HighlightBloc(context.read())..add(LoadHighlights()),
+          create: (context) => HighlightBloc(
+            context.read(),
+            changedNotifier: context.read(),
+          )..add(LoadHighlights()),
         ),
         BlocProvider(
           create: (context) => VerseSelectionBloc(),

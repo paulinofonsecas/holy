@@ -12,6 +12,7 @@ import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
+import 'package:eu_sou/core/services/highlight_changed_notifier.dart';
 import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
@@ -236,8 +237,10 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
 
   Widget _buildThreeColumnLayout(BuildContext context, int currentIndex) {
     // Criar o bloc uma vez e reutilizar
-    _sidebarMarkedVersesBloc ??=
-        MarkedVersesBloc(context.read<IMarkedVersesRepository>());
+    _sidebarMarkedVersesBloc ??= MarkedVersesBloc(
+      context.read<IMarkedVersesRepository>(),
+      highlightChangedNotifier: context.read<HighlightChangedNotifier>(),
+    );
 
     return Row(
       children: [

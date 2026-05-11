@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../../../../core/services/highlight_changed_notifier.dart';
 import '../../data/repositories/highlight_repository.dart';
 import '../../domain/models/highlight.dart';
 
@@ -9,8 +10,11 @@ part 'highlight_state.dart';
 
 class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
   final HighlightRepository _repository;
+  final HighlightChangedNotifier? _changedNotifier;
 
-  HighlightBloc(this._repository) : super(HighlightInitial()) {
+  HighlightBloc(this._repository, {HighlightChangedNotifier? changedNotifier})
+      : _changedNotifier = changedNotifier,
+        super(HighlightInitial()) {
     on<LoadHighlights>(_onLoadHighlights);
     on<AddHighlight>(_onAddHighlight);
     on<RemoveHighlight>(_onRemoveHighlight);
@@ -51,6 +55,7 @@ class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
       } else {
         add(LoadHighlights());
       }
+      _changedNotifier?.notify();
     } catch (e) {
       emit(HighlightError(message: e.toString()));
     }
@@ -72,6 +77,7 @@ class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
       } else {
         add(LoadHighlights());
       }
+      _changedNotifier?.notify();
     } catch (e) {
       emit(HighlightError(message: e.toString()));
     }

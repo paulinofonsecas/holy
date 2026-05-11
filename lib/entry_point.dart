@@ -8,6 +8,7 @@ import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
+import 'package:eu_sou/core/services/highlight_changed_notifier.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
@@ -123,6 +124,10 @@ class EntryPoint extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => HighlightRepository(db),
+        ),
+        RepositoryProvider<HighlightChangedNotifier>(
+          create: (_) => HighlightChangedNotifier(),
+          dispose: (notifier) => notifier.dispose(),
         ),
         RepositoryProvider<VerseInteractionProvider>(
           create: (context) => SqlVerseInteractionProvider(db),

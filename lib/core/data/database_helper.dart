@@ -44,7 +44,7 @@ class DatabaseHelper {
         final db = await databaseFactoryFfiWeb.openDatabase(
           dbName,
           options: OpenDatabaseOptions(
-            version: 6,
+            version: 7,
             onCreate: _onCreate,
             onUpgrade: _onUpgrade,
           ),
@@ -74,7 +74,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 6,
+      version: 7,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -100,6 +100,40 @@ class DatabaseHelper {
           verse_ref TEXT NOT NULL,
           version_id TEXT NOT NULL,
           timestamp INTEGER NOT NULL
+        )
+      ''');
+    }
+    if (oldVersion < 7) {
+      // Recreate marked_verses with UNIQUE constraint and remove duplicates
+      await db.execute('''
+        CREATE TABLE marked_verses_new (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          version_id TEXT NOT NULL,
+          book_id TEXT NOT NULL,
+          chapter INTEGER NOT NULL,
+          verse INTEGER NOT NULL,
+          color TEXT,
+          created_at INTEGER NOT NULL,
+          UNIQUE (version_id, book_id, chapter, verse)
+        )
+      ''');
+      // Keep only the most recent entry per verse
+      await db.execute('''
+        INSERT INTO marked_verses_new (version_id, book_id, chapter, verse, color, created_at)
+        SELECT version_id, book_id, chapter, verse, color, MAX(created_at)
+        FROM marked_verses
+        GROUP BY version_id, book_id, chapter, verse
+      ''');
+      await db.execute('DROP TABLE IF EXISTS verse_categories');
+      await db.execute('DROP TABLE marked_verses');
+      await db.execute('ALTER TABLE marked_verses_new RENAME TO marked_verses');
+      await db.execute('''
+        CREATE TABLE verse_categories (
+          marked_verse_id INTEGER NOT NULL,
+          category_id INTEGER NOT NULL,
+          PRIMARY KEY (marked_verse_id, category_id),
+          FOREIGN KEY (marked_verse_id) REFERENCES marked_verses (id) ON DELETE CASCADE,
+          FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE
         )
       ''');
     }
@@ -144,7 +178,8 @@ class DatabaseHelper {
         chapter INTEGER NOT NULL,
         verse INTEGER NOT NULL,
         color TEXT,
-        created_at INTEGER NOT NULL
+        created_at INTEGER NOT NULL,
+        UNIQUE (version_id, book_id, chapter, verse)
       )
     ''');
 

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../../../../core/services/highlight_changed_notifier.dart';
 import '../../data/models/marked_verse_model.dart';
 import '../../domain/repositories/i_marked_verses_repository.dart';
 
@@ -9,9 +12,24 @@ part 'marked_verses_state.dart';
 
 class MarkedVersesBloc extends Bloc<MarkedVersesEvent, MarkedVersesState> {
   final IMarkedVersesRepository _repository;
+  StreamSubscription<void>? _highlightChangedSubscription;
 
-  MarkedVersesBloc(this._repository) : super(MarkedVersesInitial()) {
+  MarkedVersesBloc(
+    this._repository, {
+    HighlightChangedNotifier? highlightChangedNotifier,
+  }) : super(MarkedVersesInitial()) {
     on<LoadMarkedVerses>(_onLoadMarkedVerses);
+
+    _highlightChangedSubscription =
+        highlightChangedNotifier?.stream.listen((_) {
+      add(const LoadMarkedVerses(page: 1, pageSize: 15, isRefresh: true));
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _highlightChangedSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoadMarkedVerses(
