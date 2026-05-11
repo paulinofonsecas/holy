@@ -32,6 +32,7 @@ O Holy App é um aplicativo bíblico moderno focado em velocidade, acesso offlin
 ## Primeiros Passos
 
 Para começar a usar o Holy App:
+
 1. **Escolha uma Versão**: Ao abrir o app pela primeira vez, você poderá selecionar sua versão bíblica preferida.
 2. **Navegação**: Use a barra inferior para alternar entre a Leitura, Pesquisa e seu Perfil.
 
@@ -40,6 +41,7 @@ Para começar a usar o Holy App:
 ## Lendo a Bíblia
 
 A tela principal de leitura permite que você mergulhe na Palavra:
+
 - **Seleção de Livro e Capítulo**: Toque no nome do livro no topo para abrir o seletor.
 - **Rolagem Fluida**: Leia os versículos de forma contínua.
 - **Troca de Versão**: Alterne rapidamente entre as versões baixadas usando o seletor de versão.
@@ -50,6 +52,7 @@ A tela principal de leitura permite que você mergulhe na Palavra:
 ## Pesquisando Versículos
 
 Encontre exatamente o que você procura:
+
 - **Palavras-chave**: Digite termos como "amor", "fé" ou "esperança" para ver todos os versículos relacionados.
 - **Filtros**: Refine sua busca por Testamento (Antigo ou Novo) ou por livros específicos.
 - **Histórico**: O app mantém suas buscas recentes para facilitar o acesso. Você pode visualizar e limpar seu histórico na tela de Perfil.
@@ -59,6 +62,7 @@ Encontre exatamente o que você procura:
 ## Gerenciando Downloads
 
 O Holy App funciona offline. Para isso:
+
 - **Baixar Versões**: Vá em configurações e escolha as versões que deseja baixar para uso sem internet.
 - **Gerenciar Espaço**: Você pode remover versões baixadas a qualquer momento para liberar espaço no dispositivo.
 
@@ -67,12 +71,13 @@ O Holy App funciona offline. Para isso:
 ## Perfil e Configurações
 
 Personalize sua experiência na tela "EU":
+
 - **Versículos Marcados**: Acesse rapidamente todos os versículos que você salvou durante a leitura.
 - **Histórico de Pesquisas**: Veja suas buscas recentes e limpe-as se desejar.
 - **Personalização de Cores**: Mude a cor de destaque do aplicativo para combinar com seu estilo.
 - **Temas**: Escolha entre o modo claro ou escuro.
 - **Tamanho da Fonte**: Ajuste o tamanho do texto para uma leitura mais confortável.
-- **Sincronização em Nuvem** *(Em Breve)*: Em futuras atualizações, você poderá sincronizar suas preferências e histórico entre dispositivos.
+- **Sincronização em Nuvem** _(Em Breve)_: Em futuras atualizações, você poderá sincronizar suas preferências e histórico entre dispositivos.
 
 ---
 
@@ -89,7 +94,7 @@ R: Certifique-se de que as palavras estão escritas corretamente ou tente termos
 
 ---
 
-*Última atualização: 02 de Janeiro de 2026*
+_Última atualização: 02 de Janeiro de 2026_
 
 ## Project Overview
 
