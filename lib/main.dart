@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/core/clarity/clarity_wrapper.dart';
 import 'package:eu_sou/core/data/database_helper.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/ai_service.dart';
@@ -122,25 +123,28 @@ Future<void> _bootstrapApp() async {
 
     await themeBloc.stream.firstWhere((state) => state.isInitialized);
 
+    final entryPoint = EntryPoint(
+      db: db,
+      searchProvider: searchProvider,
+      cacheProvider: cacheProvider,
+      sharedPreferences: sharedPreferences,
+      verseRepo: verseRepo,
+      verseService: verseService,
+      profileRepo: profileRepo,
+      themeBloc: themeBloc,
+      deeplinkService: deeplinkService,
+      deepUnderstandingService: deepUnderstandingService,
+      euSouRepository: euSouRepository,
+      dailyContentService: dailyContentService,
+      streakService: streakService,
+      dailyReminderService: dailyReminderService,
+      webCachePersistenceService: webCachePersistenceService,
+    );
+    final appWithClarity = wrapWithClarity(entryPoint);
+
     runApp(
       SentryWidget(
-        child: EntryPoint(
-          db: db,
-          searchProvider: searchProvider,
-          cacheProvider: cacheProvider,
-          sharedPreferences: sharedPreferences,
-          verseRepo: verseRepo,
-          verseService: verseService,
-          profileRepo: profileRepo,
-          themeBloc: themeBloc,
-          deeplinkService: deeplinkService,
-          deepUnderstandingService: deepUnderstandingService,
-          euSouRepository: euSouRepository,
-          dailyContentService: dailyContentService,
-          streakService: streakService,
-          dailyReminderService: dailyReminderService,
-          webCachePersistenceService: webCachePersistenceService,
-        ),
+        child: appWithClarity,
       ),
     );
 

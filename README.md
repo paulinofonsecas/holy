@@ -103,6 +103,7 @@ Holy is a monorepo project that provides a comprehensive Bible reading and study
 - [Feature Index](./specs/README.md): Detailed specifications for all application features.
 - [Specification Guide](./doc/SPECIFICATION_GUIDE.md): How to document new features.
 - [Firebase Distribution Guide](./doc/firebase-distribution-guide.md): How to distribute test versions.
+- [Microsoft Clarity Setup](./doc/CLARITY_SETUP.md): How to configure user behavior analytics.
 
 ## Monorepo Structure
 
