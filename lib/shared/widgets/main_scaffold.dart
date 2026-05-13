@@ -312,7 +312,13 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                   child: Scaffold(
                     body: Column(
                       children: [
-                        if (isWide) _buildWebTopBar(context, currentIndex),
+                        // Always keep this slot so Expanded stays at index 1,
+                        // preventing Flutter from deactivating/recreating the
+                        // IndexedStack element when the top bar appears/disappears.
+                        if (isWide)
+                          _buildWebTopBar(context, currentIndex)
+                        else
+                          const SizedBox.shrink(),
                         Expanded(
                           child: isExtraWide
                               ? _buildThreeColumnLayout(context, currentIndex)

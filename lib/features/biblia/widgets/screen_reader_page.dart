@@ -108,11 +108,6 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
           _currentVersionId = versionId;
         }
 
-        // Garantir que as chaves existam antes de tentar scrollar
-        for (var verse in state.chapter.verses) {
-          _verseKeys.putIfAbsent(verse.number + DateTime.now().millisecondsSinceEpoch, () => GlobalKey());
-        }
-
         if ((isNewChapter || isNewVersion) &&
             state.initialScrollOffset > 0 &&
             state.targetVerse == null) {
@@ -176,8 +171,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
             child: Column(
               children: [
                 ReadSessionWidget(
-                  key: Key(
-                      "$chapterId-$versionId-${DateTime.now().millisecondsSinceEpoch}"),
+                  key: Key("$chapterId-$versionId"),
                   chapter: state.chapter,
                   verseKeys: _verseKeys,
                 ),

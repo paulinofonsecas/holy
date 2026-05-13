@@ -89,6 +89,7 @@ class _SplashLoaderState extends State<SplashLoader> {
     }
 
     return Scaffold(
+      backgroundColor: const Color(0xFF0E0E0E),
       body: StreamBuilder<WebDatabaseStatus>(
         stream: widget.loader.status,
         builder: (context, snapshot) {
@@ -99,7 +100,7 @@ class _SplashLoaderState extends State<SplashLoader> {
           String message = 'Iniciando...';
           switch (type) {
             case WebDatabaseStatusType.downloading:
-              message = 'Baixando biblioteca...';
+              message = 'Baixando pacote da biblioteca bíblica...';
               break;
             case WebDatabaseStatusType.extracting:
               message = 'Preparando banco de dados...';
@@ -115,68 +116,55 @@ class _SplashLoaderState extends State<SplashLoader> {
               break;
           }
 
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 48.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const AppHugeIcon(
-                    icon: HugeIcons.strokeRoundedBook01,
-                    size: 80,
-                    color: Colors.blueAccent,
+          return Stack(
+            children: [
+              // Centered app icon
+              const Center(
+                child: SizedBox(
+                  width: 72,
+                  height: 72,
+                  child: Image(
+                    image: AssetImage('assets/icon/icon.png'),
+                    fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 48),
-                  Text(
-                    message,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Stack(
-                    children: [
-                      Container(
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        height: 12,
-                        width:
-                            MediaQuery.of(context).size.width * 0.8 * progress,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Colors.blue, Colors.blueAccent],
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blue.withOpacity(0.3),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '${(progress * 100).toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              // Bottom progress area
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Text(
+                        message,
+                        style: const TextStyle(
+                          color: Color(0xFF8A8A8A),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    AnimatedFractionallySizedBox(
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeOut,
+                      widthFactor: progress.clamp(0.0, 1.0),
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        height: 3,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF4A9EFF),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           );
         },
       ),

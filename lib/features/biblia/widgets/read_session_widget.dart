@@ -59,15 +59,24 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: widget.chapter.verses.map((verse) {
-                  return VerseReadWidget(
-                    key: widget.verseKeys.containsKey(verse.number)
-                        ? widget.verseKeys[verse.number]
-                        : Key("verse_${verse.number}"),
-                    verse: verse,
-                    chapter: widget.chapter,
-                  );
-                }).toList(),
+                children: () {
+                  final usedNumbers = <int>{};
+                  int dupIndex = 0;
+                  return widget.chapter.verses.map((verse) {
+                    final Key key;
+                    if (usedNumbers.add(verse.number) &&
+                        widget.verseKeys.containsKey(verse.number)) {
+                      key = widget.verseKeys[verse.number]!;
+                    } else {
+                      key = ValueKey("verse_dup_${verse.number}_${dupIndex++}");
+                    }
+                    return VerseReadWidget(
+                      key: key,
+                      verse: verse,
+                      chapter: widget.chapter,
+                    );
+                  }).toList();
+                }(),
               ),
             ),
           ),
