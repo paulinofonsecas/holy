@@ -49,8 +49,7 @@ class BibleAppBar extends StatelessWidget {
           // ── Left: version / back ──────────────────────────────────────
           if (!isFirst)
             IconButton(
-              icon: const AppHugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowLeft01),
+              icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowLeft01),
               onPressed: () => Navigator.pop(context),
             )
           else
@@ -107,7 +106,7 @@ class BibleAppBar extends StatelessWidget {
 
           // ── Individual labeled action chips ───────────────────────────
           if (actions != null)
-            for (final action in actions!) ...[  
+            for (final action in actions!) ...[
               const Gap(6),
               _AppBarChip(
                 label: action.label,
@@ -156,7 +155,7 @@ class _AppBarChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               child,
-              if (label.isNotEmpty) ...[  
+              if (label.isNotEmpty) ...[
                 const Gap(2),
                 Text(label, style: labelStyle),
               ],

@@ -1,7 +1,6 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -62,8 +61,7 @@ class VersaoWidget extends StatelessWidget {
                         title: Text('${e.id} - ${e.name}'),
                         trailing: isSelected
                             ? AppHugeIcon(
-                                icon:
-                                    HugeIcons.strokeRoundedCheckmarkCircle01,
+                                icon: HugeIcons.strokeRoundedCheckmarkCircle01,
                                 color: Theme.of(context).colorScheme.primary)
                             : FutureBuilder<bool>(
                                 future: context
@@ -92,7 +90,6 @@ class VersaoWidget extends StatelessWidget {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
