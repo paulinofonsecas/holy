@@ -1,4 +1,5 @@
 import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/features/biblia/bloc/reading_settings_state.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +8,6 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../../../shared/cubit/bible_version_cubit.dart';
 import '../bloc/reading_settings_cubit.dart';
-import '../bloc/reading_settings_state.dart';
 
 class ReadingSettingsModal extends StatelessWidget {
   const ReadingSettingsModal({super.key});
@@ -33,9 +33,9 @@ class ReadingSettingsModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.5,
+      initialChildSize: 0.6,
       minChildSize: 0.4,
-      maxChildSize: 0.6,
+      maxChildSize: 0.9,
       expand: false,
       builder: (context, scrollController) {
         return SingleChildScrollView(
@@ -104,7 +104,8 @@ class ReadingSettingsModal extends StatelessWidget {
                       AppHugeIcon(icon: HugeIcons.strokeRoundedTextAlignLeft),
                       AppHugeIcon(icon: HugeIcons.strokeRoundedTextAlignCenter),
                       AppHugeIcon(icon: HugeIcons.strokeRoundedTextAlignRight),
-                      AppHugeIcon(icon: HugeIcons.strokeRoundedTextAlignJustifyCenter),
+                      AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedTextAlignJustifyCenter),
                     ],
                   );
                 },
@@ -253,6 +254,97 @@ class ReadingSettingsModal extends StatelessWidget {
               ),
               const Gap(24),
 
+              // Background
+              _buildSectionTitle('Fundo de Leitura'),
+              const Gap(8),
+              BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
+                builder: (context, state) {
+                  return Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: ReadingBackground.values.map((bg) {
+                      final isSelected = state.readingBackground == bg;
+                      final bgColor = bg.backgroundColor ??
+                          Theme.of(context).colorScheme.surface;
+                      final textColor = bg.textColor ??
+                          Theme.of(context).colorScheme.onSurface;
+                      return GestureDetector(
+                        onTap: () => context
+                            .read<ReadingSettingsCubit>()
+                            .setReadingBackground(bg),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          width: 70,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: bgColor,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .outline
+                                      .withValues(alpha: 0.3),
+                              width: isSelected ? 2.5 : 1,
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 6,
+                                    )
+                                  ]
+                                : null,
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Text(
+                                'Aa',
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 4,
+                                left: 0,
+                                right: 0,
+                                child: Text(
+                                  bg.label,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: textColor.withValues(alpha: 0.7),
+                                    fontSize: 9,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    size: 14,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+              const Gap(24),
+
               // Bible Version
               _buildSectionTitle('Versão da Bíblia'),
               const Gap(8),
@@ -308,16 +400,20 @@ class ReadingSettingsModal extends StatelessWidget {
               )),
           subtitle: Text(v.id),
           trailing: isSelected
-              ? AppHugeIcon(icon: HugeIcons.strokeRoundedCheckmarkCircle01,
+              ? AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedCheckmarkCircle01,
                   color: Theme.of(context).colorScheme.primary)
               : FutureBuilder<bool>(
                   future:
                       context.read<BibleCacheProvider>().isVersionCached(v.id),
                   builder: (context, snapshot) {
                     if (snapshot.data == true) {
-                      return const AppHugeIcon(icon: HugeIcons.strokeRoundedCheckmarkCircle01, size: 20);
+                      return const AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedCheckmarkCircle01,
+                          size: 20);
                     }
-                    return const AppHugeIcon(icon: HugeIcons.strokeRoundedDownload01, size: 20);
+                    return const AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedDownload01, size: 20);
                   },
                 ),
           onTap: () => context.read<BibleVersionCubit>().changeVersion(v),

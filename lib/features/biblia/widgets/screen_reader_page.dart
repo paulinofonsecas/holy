@@ -1,6 +1,8 @@
 import 'dart:developer' show log;
 
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
+import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
+import 'package:eu_sou/features/biblia/bloc/reading_settings_state.dart';
 import 'package:eu_sou/features/biblia/widgets/read_session_widget.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
 import 'package:eu_sou/shared/widgets/loading_widget.dart';
@@ -94,6 +96,21 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
+      builder: (context, settingsState) {
+        final bg = settingsState.readingBackground;
+        final bgColor =
+            bg.backgroundColor ?? Theme.of(context).colorScheme.surface;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          color: bgColor,
+          child: _buildContent(context),
+        );
+      },
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     return BlocConsumer<BibliaBloc, BibliaState>(listener: (context, state) {
       if (state is BibleChapterLoaded) {
         final chapterId = "${state.chapter.bookId}-${state.chapter.number}";

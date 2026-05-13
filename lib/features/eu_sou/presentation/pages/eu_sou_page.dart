@@ -14,6 +14,7 @@ import '../../../../shared/cubit/bible_version_cubit.dart';
 import '../../../../shared/widgets/app_huge_icon.dart';
 import '../../../daily_growth/data/services/daily_reminder_service.dart';
 import '../../../daily_growth/data/services/milestone_service.dart';
+import '../../../biblia/modals/reading_settings_modal.dart';
 import '../../../deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import '../../../deep_understanding/presentation/pages/deep_understanding_page.dart';
 import '../../../eu_sou/data/repositories/eu_sou_repository.dart';
@@ -34,6 +35,7 @@ import '../widgets/estudos_preview_section.dart';
 import '../widgets/eu_sou_header.dart';
 import '../widgets/stats_row.dart';
 import '../widgets/verse_section.dart';
+import '../../../../shared/cubit/tab_controller_cubit.dart';
 import 'reflexoes_anteriores_page.dart';
 
 enum _EuSouPanel {
@@ -441,6 +443,8 @@ class _EuSouPageState extends State<EuSouPage>
                                       presencaDias: 0,
                                       escritasNotas: 0,
                                       estudosCount: 0)),
+                            const SizedBox(height: 28),
+                            const _BibleReadingSection(),
                           const SizedBox(height: 36),
                           PraticaSection(
                               text: state.reflection?.pratica ??
@@ -595,6 +599,8 @@ class _EuSouOverviewPanel extends StatelessWidget {
                                 estudosCount: 0,
                               ),
                         ),
+                        const SizedBox(height: 28),
+                        const _BibleReadingSection(),
                         const SizedBox(height: 36),
                         PraticaSection(
                           text: state.reflection?.pratica ??
@@ -933,6 +939,85 @@ class _SettingsItem extends StatelessWidget {
           size: 18,
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.30)),
       onTap: onTap,
+    );
+  }
+}
+
+class _BibleReadingSection extends StatelessWidget {
+  const _BibleReadingSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = isDark ? colorScheme.primary : const Color(0xFF3B5E53);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surfaceContainer : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.onSurface.withOpacity(0.08)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AppHugeIcon(
+                icon: HugeIcons.strokeRoundedBookOpen01,
+                size: 18,
+                color: accentColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Leitura Bíblica',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.0,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Ajuste fonte e fundo da leitura ou volte para a Bíblia com um toque.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: colorScheme.onSurface.withOpacity(0.68),
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () {
+                  context.read<TabControllerCubit>().changeTo(0);
+                },
+                icon: const AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowLeft01,
+                  size: 16,
+                ),
+                label: const Text('Abrir Bíblia'),
+              ),
+              FilledButton.icon(
+                onPressed: () => ReadingSettingsModal.show(context),
+                icon: const AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedTextFont,
+                  size: 16,
+                ),
+                label: const Text('Configurar Leitura'),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

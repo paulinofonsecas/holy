@@ -51,6 +51,7 @@ class VerseReadWidget extends StatelessWidget {
                   }
                 }
 
+                final bgTextColor = settingsState.readingBackground.textColor;
                 final baseStyle = TextStyle(
                   fontSize: settingsState.fontSize,
                   height: settingsState.lineHeight,
@@ -61,7 +62,7 @@ class VerseReadWidget extends StatelessWidget {
                   fontStyle: settingsState.isItalic
                       ? FontStyle.italic
                       : FontStyle.normal,
-                  color: AppColor.textPrimary,
+                  color: bgTextColor ?? AppColor.textPrimary,
                 );
 
                 final style = settingsState.isGoogleFont
@@ -113,10 +114,11 @@ class VerseReadWidget extends StatelessWidget {
                                   decorationColor:
                                       Theme.of(context).colorScheme.primary,
                                   color: !isHighlighted
-                                      ? Theme.brightnessOf(context) ==
-                                              Brightness.light
-                                          ? Colors.black
-                                          : Colors.white
+                                      ? bgTextColor ??
+                                          (Theme.brightnessOf(context) ==
+                                                  Brightness.light
+                                              ? Colors.black
+                                              : Colors.white)
                                       : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
@@ -131,10 +133,11 @@ class VerseReadWidget extends StatelessWidget {
                                   decorationColor:
                                       Theme.of(context).colorScheme.primary,
                                   color: !isHighlighted
-                                      ? Theme.brightnessOf(context) ==
-                                              Brightness.light
-                                          ? Colors.black
-                                          : Colors.white
+                                      ? bgTextColor ??
+                                          (Theme.brightnessOf(context) ==
+                                                  Brightness.light
+                                              ? Colors.black
+                                              : Colors.white)
                                       : Theme.of(context)
                                           .colorScheme
                                           .onPrimaryContainer,
@@ -150,10 +153,11 @@ class VerseReadWidget extends StatelessWidget {
                                   decorationColor:
                                       Theme.of(context).colorScheme.onSurface,
                                   color: !isHighlighted
-                                      ? Theme.brightnessOf(context) ==
-                                              Brightness.light
-                                          ? Colors.black
-                                          : Colors.white
+                                      ? bgTextColor ??
+                                          (Theme.brightnessOf(context) ==
+                                                  Brightness.light
+                                              ? Colors.black
+                                              : Colors.white)
                                       : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),

@@ -1,6 +1,26 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
+/// Preset background options for the Bible reading view.
+enum ReadingBackground {
+  defaultTheme('Padrão', null, null),
+  sepia('Sépia', Color(0xFFF5ECD7), Color(0xFF3E2723)),
+  paper('Papel', Color(0xFFFAF7F0), Color(0xFF2E2E2E)),
+  night('Noite', Color(0xFF1A1A2E), Color(0xFFE0E0E0)),
+  forest('Floresta', Color(0xFF1B2E1B), Color(0xFFCCE8CC)),
+  ocean('Oceano', Color(0xFF0D1B2A), Color(0xFFB3D9F2));
+
+  const ReadingBackground(this.label, this.backgroundColor, this.textColor);
+
+  final String label;
+
+  /// Background colour; null means use the theme's default surface colour.
+  final Color? backgroundColor;
+
+  /// Text colour; null means use the theme's default text colour.
+  final Color? textColor;
+}
+
 class ReadingSettingsState extends Equatable {
   final double fontSize;
   final String fontFamily;
@@ -11,6 +31,7 @@ class ReadingSettingsState extends Equatable {
   final bool isGoogleFont;
   final bool isContinuous;
   final TextAlign textAlign;
+  final ReadingBackground readingBackground;
 
   const ReadingSettingsState({
     this.fontSize = 18.0,
@@ -22,6 +43,7 @@ class ReadingSettingsState extends Equatable {
     this.isGoogleFont = false,
     this.isContinuous = false,
     this.textAlign = TextAlign.start,
+    this.readingBackground = ReadingBackground.defaultTheme,
   });
 
   ReadingSettingsState copyWith({
@@ -34,6 +56,7 @@ class ReadingSettingsState extends Equatable {
     bool? isGoogleFont,
     bool? isContinuous,
     TextAlign? textAlign,
+    ReadingBackground? readingBackground,
   }) {
     return ReadingSettingsState(
       fontSize: fontSize ?? this.fontSize,
@@ -45,6 +68,7 @@ class ReadingSettingsState extends Equatable {
       isGoogleFont: isGoogleFont ?? this.isGoogleFont,
       isContinuous: isContinuous ?? this.isContinuous,
       textAlign: textAlign ?? this.textAlign,
+      readingBackground: readingBackground ?? this.readingBackground,
     );
   }
 
@@ -59,5 +83,6 @@ class ReadingSettingsState extends Equatable {
         isGoogleFont,
         isContinuous,
         textAlign,
+        readingBackground,
       ];
 }

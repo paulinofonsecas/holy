@@ -7,6 +7,7 @@ import 'package:eu_sou/core/design_system/theme/theme_data.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
+import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/biblia/presentation/pages/book_selection_page.dart';
 import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
@@ -511,6 +512,12 @@ class _PanelContentState extends State<_PanelContent> {
     );
   }
 
+  // ── Reading settings (font, background, etc.) ──────────────────────────────
+
+  void _openReadingSettings() {
+    ReadingSettingsModal.show(context);
+  }
+
   // ── Scroll notification helper ──────────────────────────────────────────────
 
   bool _onScrollNotification(ScrollNotification notification) {
@@ -552,6 +559,7 @@ class _PanelContentState extends State<_PanelContent> {
                 onVersionTap: _openVersionPicker,
                 onBookTap: _openBookSelection,
                 onColorTap: _openColorPicker,
+                onSettingsTap: _openReadingSettings,
                 onClose: widget.canClose ? widget.onClose : null,
               ),
               const Divider(height: 1),
@@ -667,6 +675,7 @@ class _PanelHeader extends StatelessWidget {
     required this.onVersionTap,
     required this.onBookTap,
     required this.onColorTap,
+    required this.onSettingsTap,
     this.panelColor,
     this.onClose,
   });
@@ -676,6 +685,9 @@ class _PanelHeader extends StatelessWidget {
 
   /// Opens the panel colour picker.
   final VoidCallback onColorTap;
+
+  /// Opens the reading settings modal (font, background, etc.).
+  final VoidCallback onSettingsTap;
 
   /// Current accent colour shown as a small indicator dot.
   final Color? panelColor;
@@ -710,6 +722,19 @@ class _PanelHeader extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+          const Gap(6),
+
+          // ── Fonte / Fundo ────────────────────────────────────────────────
+          _HeaderChip(
+            label: 'Fonte',
+            onTap: onSettingsTap,
+            tooltip: 'Configurações de leitura',
+            child: AppHugeIcon(
+              icon: HugeIcons.strokeRoundedTextFont,
+              size: 14,
+              color: colorScheme.onSurface,
             ),
           ),
           const Gap(6),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../data/repositories/reading_settings_repository.dart';
 import 'reading_settings_state.dart';
 
@@ -45,6 +46,11 @@ class ReadingSettingsCubit extends Cubit<ReadingSettingsState> {
 
   void toggleContinuous() {
     emit(state.copyWith(isContinuous: !state.isContinuous));
+    _save();
+  }
+
+  void setReadingBackground(ReadingBackground background) {
+    emit(state.copyWith(readingBackground: background));
     _save();
   }
 

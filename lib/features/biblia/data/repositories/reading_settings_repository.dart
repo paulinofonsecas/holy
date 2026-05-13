@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../bloc/reading_settings_state.dart';
 
 class ReadingSettingsRepository {
@@ -16,6 +17,7 @@ class ReadingSettingsRepository {
   static const String _keyIsGoogleFont = 'reading_is_google_font';
   static const String _keyIsContinuous = 'reading_is_continuous';
   static const String _keyTextAlign = 'reading_text_align';
+  static const String _keyReadingBackground = 'reading_background';
 
   ReadingSettingsState loadSettings() {
     return ReadingSettingsState(
@@ -27,8 +29,11 @@ class ReadingSettingsRepository {
       isItalic: _prefs.getBool(_keyIsItalic) ?? false,
       isGoogleFont: _prefs.getBool(_keyIsGoogleFont) ?? false,
       isContinuous: _prefs.getBool(_keyIsContinuous) ?? false,
-      textAlign: TextAlign.values[
-          _prefs.getInt(_keyTextAlign) ?? TextAlign.justify.index],
+      textAlign: TextAlign
+          .values[_prefs.getInt(_keyTextAlign) ?? TextAlign.justify.index],
+      readingBackground: ReadingBackground.values[
+          _prefs.getInt(_keyReadingBackground) ??
+              ReadingBackground.defaultTheme.index],
     );
   }
 
@@ -42,5 +47,7 @@ class ReadingSettingsRepository {
     await _prefs.setBool(_keyIsGoogleFont, settings.isGoogleFont);
     await _prefs.setBool(_keyIsContinuous, settings.isContinuous);
     await _prefs.setInt(_keyTextAlign, settings.textAlign.index);
+    await _prefs.setInt(
+        _keyReadingBackground, settings.readingBackground.index);
   }
 }
