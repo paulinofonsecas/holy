@@ -1,5 +1,4 @@
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 enum VerseFocusMood { anxious, happy, needHope }

@@ -28,17 +28,31 @@ class MarkedVersesRepository implements IMarkedVersesRepository {
         mv.color, 
         mv.created_at,
         b.name as book_name,
-        v.text
+        (SELECT v.text FROM $_versesTable v
+          WHERE v.version_id = mv.version_id
+            AND v.book_id = mv.book_id
+            AND v.chapter = mv.chapter
+            AND v.verse = mv.verse
+          LIMIT 1) as text
       FROM marked_verses mv
       JOIN books b ON mv.version_id = b.version_id AND mv.book_id = b.id
-      JOIN $_versesTable v ON mv.version_id = v.version_id AND mv.book_id = v.book_id 
-           AND mv.chapter = v.chapter AND mv.verse = v.verse
     ''';
 
     final List<Object?> sqlArgs = [];
 
     if (query != null && query.isNotEmpty) {
-      sql += ' WHERE (v.text LIKE ? OR b.name LIKE ?)';
+      sql += '''
+        WHERE (b.name LIKE ?
+          OR EXISTS (
+            SELECT 1 FROM $_versesTable v2
+            WHERE v2.version_id = mv.version_id
+              AND v2.book_id = mv.book_id
+              AND v2.chapter = mv.chapter
+              AND v2.verse = mv.verse
+              AND v2.text LIKE ?
+            LIMIT 1
+          ))
+      ''';
       sqlArgs.add('%$query%');
       sqlArgs.add('%$query%');
     }

@@ -1,6 +1,4 @@
 import 'package:integration_test/integration_test.dart';
-import 'package:integration_test/integration_test_driver.dart';
-import 'package:test/test.dart';
 import 'app_test.dart' as app_test;
 import 'package:flutter/material.dart';
 

@@ -44,9 +44,9 @@ class AboutView extends StackedView<AboutViewModel> {
                   const Gap(32),
                   _buildHeaderCard(context),
                   const Gap(32),
-                  _buildTestimonialsCarousel(
-                      context, viewModel, surfaceColor, accentColor),
-                  const Gap(32),
+                  // _buildTestimonialsCarousel(
+                  //     context, viewModel, surfaceColor, accentColor),
+                  // const Gap(32),
                   _buildFAQSection(
                       context, viewModel, surfaceColor, accentColor),
                   const Gap(32),
@@ -79,7 +79,7 @@ class AboutView extends StackedView<AboutViewModel> {
         padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               'Descubra o poder da Palavra de Deus',
@@ -181,7 +181,8 @@ class AboutView extends StackedView<AboutViewModel> {
             color: theme.colorScheme.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: AppHugeIcon(icon: icon, size: 20, color: theme.colorScheme.primary),
+          child: AppHugeIcon(
+              icon: icon, size: 20, color: theme.colorScheme.primary),
         ),
         const Gap(16),
         Expanded(

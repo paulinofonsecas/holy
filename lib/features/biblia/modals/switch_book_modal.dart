@@ -69,25 +69,48 @@ class SwitchBookModal {
       });
     }
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            BookSelectionPage(scrollController: scrollController),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth > 768;
 
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
+    if (isWideScreen) {
+      final size = MediaQuery.of(context).size;
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return Dialog(
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SizedBox(
+              width: size.width * 0.30,
+              height: size.height * 0.80,
+              child: BookSelectionPage(scrollController: scrollController),
+            ),
           );
         },
-        fullscreenDialog: true,
-      ),
-    );
+      );
+    } else {
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              BookSelectionPage(scrollController: scrollController),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+          fullscreenDialog: true,
+        ),
+      );
+    }
   }
 }

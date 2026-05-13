@@ -6,7 +6,7 @@ import '../../domain/repositories/i_vector_store.dart';
 class InMemoryVectorStore implements IVectorStore {
   final Map<String, VerseEmbedding> _embeddings = {};
   final Map<String, AnalysisSession> _sessions = {};
-  final _uuid = const Uuid();
+  final uuid = const Uuid();
 
   @override
   Future<VerseEmbedding?> getEmbeddingByVerseId(String verseId) async {

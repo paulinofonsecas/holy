@@ -161,8 +161,7 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
               // Verse Text
               spans.add(
                 TextSpan(
-                  text: verse.text +
-                      (i < _uniqueVerses.length - 1 ? " " : ""),
+                  text: verse.text + (i < _uniqueVerses.length - 1 ? " " : ""),
                   style: style.copyWith(
                     decoration: isSelected ? TextDecoration.underline : null,
                     decorationStyle: TextDecorationStyle.dashed,

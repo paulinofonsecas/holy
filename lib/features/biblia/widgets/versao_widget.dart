@@ -19,97 +19,95 @@ class VersaoWidget extends StatelessWidget {
     return VersaoWidget(key: key, isMini: true);
   }
 
+  /// Shows the version picker bottom sheet. Can be called externally.
+  static void showPicker(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final bibleVersion = context.read<BibleVersionCubit>().state.version;
+
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: bgColor,
+      useSafeArea: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(color: bgColor),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Escolha uma versão',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Gap(16),
+                  ...BibleVersions.values.map((e) {
+                    final isSelected = bibleVersion.id == e.id;
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      child: ListTile(
+                        onTap: () {
+                          context.read<BibleVersionCubit>().changeVersion(e);
+                          Navigator.pop(sheetContext);
+                        },
+                        title: Text('${e.id} - ${e.name}'),
+                        trailing: isSelected
+                            ? AppHugeIcon(
+                                icon:
+                                    HugeIcons.strokeRoundedCheckmarkCircle01,
+                                color: Theme.of(context).colorScheme.primary)
+                            : FutureBuilder<bool>(
+                                future: context
+                                    .read<BibleCacheProvider>()
+                                    .isVersionCached(e.id),
+                                builder: (context, snapshot) {
+                                  if (snapshot.data == true) {
+                                    return const AppHugeIcon(
+                                        icon: HugeIcons
+                                            .strokeRoundedCheckmarkCircle01,
+                                        size: 20);
+                                  }
+                                  return const AppHugeIcon(
+                                      icon: HugeIcons.strokeRoundedDownload01,
+                                      size: 20);
+                                },
+                              ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final bibleVersion = context.watch<BibleVersionCubit>().state.version;
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
 
     return InkWell(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          showDragHandle: true,
-          backgroundColor: bgColor,
-          useSafeArea: true,
-          builder: (context) {
-            return SafeArea(
-              child: SingleChildScrollView(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        'Escolha uma versão',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Gap(16),
-                      ...BibleVersions.values.map((e) {
-                        final isSelected = bibleVersion.id == e.id;
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          child: ListTile(
-                            onTap: () {
-                              context
-                                  .read<BibleVersionCubit>()
-                                  .changeVersion(e);
-                              Navigator.pop(context);
-                            },
-                            title: Text(
-                              '${e.id} - ${e.name}',
-                              style: const TextStyle(),
-                            ),
-                            trailing: isSelected
-                                ? AppHugeIcon(icon: HugeIcons.strokeRoundedCheckmarkCircle01,
-                                    color:
-                                        Theme.of(context).colorScheme.primary)
-                                : FutureBuilder<bool>(
-                                    future: context
-                                        .read<BibleCacheProvider>()
-                                        .isVersionCached(e.id),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.data == true) {
-                                        return const AppHugeIcon(
-                                            icon: HugeIcons.strokeRoundedCheckmarkCircle01,
-                                            size: 20);
-                                      }
-                                      return const AppHugeIcon(icon: HugeIcons.strokeRoundedDownload01,
-                                          size: 20);
-                                    },
-                                  ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
+      onTap: () => VersaoWidget.showPicker(context),
       borderRadius: BorderRadius.circular(24),
       child: Container(
         padding: !isMini
-            ? const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              )
+            ? const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
             : const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
+          color: colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
@@ -118,7 +116,7 @@ class VersaoWidget extends StatelessWidget {
             Text(
               bibleVersion.id,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: colorScheme.onPrimaryContainer,
                 fontSize: 12,
               ),
             ),
@@ -126,7 +124,7 @@ class VersaoWidget extends StatelessWidget {
               AppHugeIcon(
                 icon: HugeIcons.strokeRoundedArrowDown01,
                 size: 14,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: colorScheme.onPrimaryContainer,
               ),
             ],
           ],

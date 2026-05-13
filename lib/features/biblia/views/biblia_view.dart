@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 
-import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
@@ -226,6 +225,13 @@ class _BibliaViewState extends State<BibliaView> {
     }
   }
 
+  bool isOnDetailsView(BuildContext context) {
+    // This is a bit of a hack to detect if we're on the details view, which is used as the "multiversion screen" on narrow devices
+    // We want to show the multiversion view instead of the regular one in that case
+    return ModalRoute.of(context)?.settings.arguments ==
+        'bible_reading_details';
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -279,6 +285,13 @@ class _BibliaViewState extends State<BibliaView> {
                     chapterNumber: state.chapter.number,
                     source: SelectionSource.external,
                   );
+              // Sync BibleVersionCubit when a chapter loads with a different version.
+              // This avoids race conditions when navigating from marked/history verses.
+              final versionCubit = context.read<BibleVersionCubit>();
+              if (versionCubit.state.version.id.toUpperCase() !=
+                  state.versionId.toUpperCase()) {
+                versionCubit.changeVersionById(state.versionId);
+              }
             }
           },
         ),
@@ -286,10 +299,10 @@ class _BibliaViewState extends State<BibliaView> {
       child: BlocBuilder<MultiversionCubit, MultiversionState>(
         builder: (context, multiversionState) {
           // ── Multiversion mode ────────────────────────────────────────────
-          if (multiversionState.isEnabled) {
+          if (multiversionState.isEnabled && !isOnDetailsView(context)) {
             return Scaffold(
               backgroundColor: bgColor,
-              body: SafeArea(child: const MultiversionView()),
+              body: const SafeArea(child: MultiversionView()),
             );
           }
 
@@ -306,59 +319,64 @@ class _BibliaViewState extends State<BibliaView> {
                     },
                     actions: [
                       // Multiversion toggle – only on screens wide enough
-                      LayoutBuilder(builder: (context, _) {
-                        final screenWidth = MediaQuery.of(context).size.width;
-                        if (screenWidth < 600) return const SizedBox.shrink();
-                        return IconButton(
-                          tooltip: 'Multiversão',
-                          icon: AppHugeIcon(
+                      if (MediaQuery.of(context).size.width >= 600)
+                        BibleAppBarAction(
+                          label: 'Multiversão',
+                          onTap: () =>
+                              context.read<MultiversionCubit>().enable(),
+                          child: AppHugeIcon(
                             icon: HugeIcons.strokeRoundedLayoutTable01,
                             color: Theme.of(context).colorScheme.primary,
                           ),
-                          onPressed: () =>
-                              context.read<MultiversionCubit>().enable(),
-                        );
-                      }),
-                      BlocBuilder<BibliaBloc, BibliaState>(
-                        builder: (context, state) {
-                          return IconButton(
-                            tooltip: AppLocalizations.of(context)
-                                .deepUnderstandingChapter,
-                            icon: AppHugeIcon(
-                              icon: HugeIcons.strokeRoundedSparkles,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            onPressed: state is! BibleChapterLoaded
-                                ? null
-                                : () async {
-                                    var query =
-                                        await _showQueryInputDialog(context);
-                                    if (context.mounted) {
-                                      query ??= 'Entendimento geral';
-                                      final versionId = context
-                                          .read<BibleVersionCubit>()
-                                          .state
-                                          .version
-                                          .id;
-                                      context.read<DeepUnderstandingBloc>().add(
-                                            StartAnalysisForVersesEvent(
-                                              query,
-                                              state.chapter.verses,
-                                              state.chapter.bookId,
-                                              state.chapter.number,
-                                              versionId,
-                                            ),
-                                          );
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                const DeepUnderstandingPage()),
-                                      );
-                                    }
-                                  },
-                          );
+                        ),
+                      BibleAppBarAction(
+                        label: 'Entendimento',
+                        onTap: () async {
+                          final state = context.read<BibliaBloc>().state;
+
+                          if (state is! BibleChapterLoaded ||
+                              state.chapter.verses.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Carregando capítulo... Tente novamente em alguns segundos.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          var query = await _showQueryInputDialog(context);
+                          if (context.mounted) {
+                            query ??= 'Entendimento geral';
+
+                            if (state is! BibleChapterLoaded) return;
+                            final versionId = context
+                                .read<BibleVersionCubit>()
+                                .state
+                                .version
+                                .id;
+                            context.read<DeepUnderstandingBloc>().add(
+                                  StartAnalysisForVersesEvent(
+                                    query,
+                                    state.chapter.verses,
+                                    state.chapter.bookId,
+                                    state.chapter.number,
+                                    versionId,
+                                  ),
+                                );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const DeepUnderstandingPage()),
+                            );
+                          }
                         },
+                        child: AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedSparkles,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ],
                   ),

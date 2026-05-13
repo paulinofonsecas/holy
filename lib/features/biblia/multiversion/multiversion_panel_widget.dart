@@ -159,10 +159,6 @@ class _PanelContentState extends State<_PanelContent> {
   Timer? _hideTimer;
   bool _showNavButtons = true;
 
-  /// Fraction of the panel width occupied by the resizable right side-panel.
-  /// Clamped between 5 % and 20 % at render time.
-  double _rightPanelFraction = 0.12;
-
   @override
   void initState() {
     super.initState();
@@ -375,31 +371,63 @@ class _PanelContentState extends State<_PanelContent> {
     final highlightBloc = context.read<HighlightBloc>();
     final selectionBloc = context.read<VerseSelectionBloc>();
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (routeContext, animation, secondaryAnimation) =>
-            MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: bibliaBloc),
-            BlocProvider.value(value: versionCubit),
-            BlocProvider.value(value: bookCubit),
-            BlocProvider.value(value: highlightBloc),
-            BlocProvider.value(value: selectionBloc),
-          ],
-          child: BookSelectionPage(scrollController: scrollController),
-        ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-          final tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          return SlideTransition(
-              position: animation.drive(tween), child: child);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth > 768;
+
+    if (isWideScreen) {
+      final size = MediaQuery.of(context).size;
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: bibliaBloc),
+              BlocProvider.value(value: versionCubit),
+              BlocProvider.value(value: bookCubit),
+              BlocProvider.value(value: highlightBloc),
+              BlocProvider.value(value: selectionBloc),
+            ],
+            child: Dialog(
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: SizedBox(
+                width: size.width * 0.30,
+                height: size.height * 0.80,
+                child: BookSelectionPage(scrollController: scrollController),
+              ),
+            ),
+          );
         },
-        fullscreenDialog: true,
-      ),
-    );
+      );
+    } else {
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (routeContext, animation, secondaryAnimation) =>
+              MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: bibliaBloc),
+              BlocProvider.value(value: versionCubit),
+              BlocProvider.value(value: bookCubit),
+              BlocProvider.value(value: highlightBloc),
+              BlocProvider.value(value: selectionBloc),
+            ],
+            child: BookSelectionPage(scrollController: scrollController),
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+            final tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            return SlideTransition(
+                position: animation.drive(tween), child: child);
+          },
+          fullscreenDialog: true,
+        ),
+      );
+    }
   }
 
   // ── Panel colour picker ─────────────────────────────────────────────────────
@@ -516,12 +544,6 @@ class _PanelContentState extends State<_PanelContent> {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final panelWidth = constraints.maxWidth;
-          final minRightWidth = panelWidth * 0.05;
-          final maxRightWidth = panelWidth * 0.20;
-          final rightWidth = (panelWidth * _rightPanelFraction)
-              .clamp(minRightWidth, maxRightWidth);
-
           return Column(
             children: [
               // ── Header ─────────────────────────────────────────────────────
@@ -609,33 +631,6 @@ class _PanelContentState extends State<_PanelContent> {
                                   ),
                                 ),
                               ),
-
-                              // Resizable right panel (shows verse ref)
-                              AnimatedSize(
-                                duration: const Duration(milliseconds: 220),
-                                curve: Curves.easeInOut,
-                                child: selState.isInSelectionMode
-                                    ? _ResizableSidePanel(
-                                        width: rightWidth,
-                                        onDragUpdate: (delta) {
-                                          setState(() {
-                                            final newWidth = (panelWidth *
-                                                        _rightPanelFraction -
-                                                    delta)
-                                                .clamp(minRightWidth,
-                                                    maxRightWidth);
-                                            _rightPanelFraction =
-                                                newWidth / panelWidth;
-                                          });
-                                        },
-                                        child: _PanelSideColumn(
-                                          selectedVerses: selState
-                                              .selectedVerses.values
-                                              .toList(),
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
-                              ),
                             ],
                           ),
                         ),
@@ -694,66 +689,55 @@ class _PanelHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Colour indicator — tap to change the panel's theme colour
-          GestureDetector(
+          // ── Tema (colour dot) ────────────────────────────────────────────
+          _HeaderChip(
+            label: 'Tema',
             onTap: onColorTap,
-            child: Tooltip(
-              message: 'Mudar cor do painel',
-              child: Container(
-                width: 14,
-                height: 14,
-                margin: const EdgeInsets.only(right: 6),
-                decoration: BoxDecoration(
-                  color: panelColor ?? colorScheme.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.35),
-                    width: 1,
+            tooltip: 'Mudar cor do painel',
+            child: Container(
+              width: 14,
+              height: 14,
+              decoration: BoxDecoration(
+                color: panelColor ?? colorScheme.primary,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: (panelColor ?? colorScheme.primary)
+                        .withValues(alpha: 0.4),
+                    blurRadius: 4,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (panelColor ?? colorScheme.primary)
-                          .withValues(alpha: 0.35),
-                      blurRadius: 4,
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
           ),
+          const Gap(6),
 
-          // Version badge
+          // ── Versão ───────────────────────────────────────────────────────
           BlocBuilder<BibleVersionCubit, BibleVersionState>(
             builder: (context, versionState) {
-              return GestureDetector(
+              return _HeaderChip(
+                label: 'Versão',
                 onTap: onVersionTap,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    versionState.version.id,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onPrimaryContainer,
-                    ),
+                child: Text(
+                  versionState.version.id,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               );
             },
           ),
-          const Gap(8),
+          const Gap(6),
 
-          // Book + chapter label
+          // ── Livro / Capítulo ─────────────────────────────────────────────
           Expanded(
             child: BlocBuilder<BibliaBloc, BibliaState>(
               builder: (context, state) {
-                String label = '...';
+                String bookLabel = '...';
                 if (state is BibleChapterLoaded) {
                   final bookName = BibleBooks.values
                       .firstWhere(
@@ -761,12 +745,14 @@ class _PanelHeader extends StatelessWidget {
                         orElse: () => BibleBooks.genesis,
                       )
                       .book;
-                  label = '$bookName ${state.chapter.number}';
+                  bookLabel = '$bookName ${state.chapter.number}';
                 }
-                return GestureDetector(
+                return _HeaderChip(
+                  label: 'Livro / Capítulo',
                   onTap: onBookTap,
+                  expand: true,
                   child: Text(
-                    label,
+                    bookLabel,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 13,
@@ -778,7 +764,7 @@ class _PanelHeader extends StatelessWidget {
             ),
           ),
 
-          // Close button
+          // ── Close ────────────────────────────────────────────────────────
           if (onClose != null) ...[
             const Gap(4),
             IconButton(
@@ -800,90 +786,64 @@ class _PanelHeader extends StatelessWidget {
   }
 }
 
-// ─── Right-column verse reference indicator (wide panels) ────────────────────
+// ─── Header chip ─────────────────────────────────────────────────────────────
 
-class _PanelSideColumn extends StatelessWidget {
-  const _PanelSideColumn({required this.selectedVerses});
-
-  final List<BibleVerse> selectedVerses;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final sortedNumbers = selectedVerses.map((v) => v.number).toList()..sort();
-    final label = sortedNumbers.length == 1
-        ? 'v.\u00a0${sortedNumbers.first}'
-        : 'v.\u00a0${sortedNumbers.first}–${sortedNumbers.last}';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        border: Border(
-          left: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.45),
-          ),
-        ),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface.withValues(alpha: 0.65),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Resizable side-panel wrapper ─────────────────────────────────────────────
-
-/// Wraps [child] with a drag handle on the left edge that lets the user
-/// resize the panel between 5 % and 20 % of the containing panel width.
-class _ResizableSidePanel extends StatelessWidget {
-  const _ResizableSidePanel({
-    required this.width,
-    required this.onDragUpdate,
+class _HeaderChip extends StatelessWidget {
+  const _HeaderChip({
+    required this.label,
     required this.child,
+    required this.onTap,
+    this.tooltip,
+    this.expand = false,
   });
 
-  final double width;
-
-  /// Called with the horizontal delta (dx) during a drag gesture on the handle.
-  final ValueChanged<double> onDragUpdate;
+  final String label;
   final Widget child;
+  final VoidCallback onTap;
+  final String? tooltip;
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: width,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Drag handle — 4 px wide, cursor changes to resize arrow on desktop
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onHorizontalDragUpdate: (d) => onDragUpdate(d.delta.dx),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.resizeLeftRight,
-              child: Container(
-                width: 4,
-                color: colorScheme.outlineVariant.withValues(alpha: 0.45),
-              ),
-            ),
+    final borderColor = colorScheme.outline.withValues(alpha: 0.35);
+    final labelStyle = TextStyle(
+      fontSize: 9,
+      color: colorScheme.onSurface.withValues(alpha: 0.5),
+    );
+
+    Widget chip = Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            border: Border.all(color: borderColor, width: 1),
+            borderRadius: BorderRadius.circular(8),
           ),
-          Expanded(child: child),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              child,
+              const Gap(2),
+              Text(label, style: labelStyle),
+            ],
+          ),
+        ),
       ),
     );
+
+    if (tooltip != null) {
+      chip = Tooltip(message: tooltip!, child: chip);
+    }
+
+    if (expand) {
+      return chip;
+    }
+    return chip;
   }
 }
 

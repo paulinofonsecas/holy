@@ -116,12 +116,8 @@ class VerseReadWidget extends StatelessWidget {
                                       ? Theme.brightnessOf(context) ==
                                               Brightness.light
                                           ? Colors.black
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onPrimaryContainer
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
+                                          : Colors.white
+                                      : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               TextSpan(
@@ -152,15 +148,13 @@ class VerseReadWidget extends StatelessWidget {
                                       : null,
                                   decorationStyle: TextDecorationStyle.dashed,
                                   decorationColor:
-                                      Theme.of(context).colorScheme.primary,
+                                      Theme.of(context).colorScheme.onSurface,
                                   color: !isHighlighted
                                       ? Theme.brightnessOf(context) ==
                                               Brightness.light
                                           ? Colors.black
                                           : Colors.white
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
+                                      : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ],

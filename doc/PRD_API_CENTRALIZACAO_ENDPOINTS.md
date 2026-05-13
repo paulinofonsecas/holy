@@ -31,7 +31,7 @@ Baseado no diagrama enviado:
 
 - BibliaController
   - pull bible versions
-  - [GET] bible version (catalogo de livros da versao)
+  - [GET] bible version (catalogo de livros )
 - IAController
   - endpoint para embeddings
   - endpoint para entendimento aprofundado (Gemini LLM)

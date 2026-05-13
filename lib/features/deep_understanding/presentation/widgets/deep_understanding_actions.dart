@@ -79,7 +79,9 @@ class DeepUnderstandingActions {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const BibliaPage()),
+        MaterialPageRoute(builder: (context) => const BibliaPage(),
+                    settings: const RouteSettings(
+                        arguments: 'bible_reading_details')),
       );
     } catch (e) {
       debugPrint('Error handling bible link: $e');

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:stacked/stacked.dart';
@@ -63,25 +62,29 @@ class AboutViewModel extends BaseViewModel {
       'Entender seu papel no Reino de Deus exige estudo consistênte e profundo. Nosso aplicativo une o estudo bíblico dinâmico à vida em comunidade para acelerar seu amadurecimento cristão:';
   final String growthIdentityTitle = 'Identidade na Palavra';
   final String growthIdentityBody =
-      'Use as marcações e estudos personalizadas para registrar o que Deus fala especificamente ao seu coração.';
-  final String growthUnityTitle = 'Vida em Unidade';
+      'Use as marcações e entendimentos prfundos para descobrir quem você é em Cristo, fortalecendo sua fé e confiança na jornada cristã.';
+  final String growthUnityTitle = 'Busca avançada';
   final String growthUnityBody =
-      'Transforme seu estudo em ação prática, conectando-se com os planos de leitura que mostram como servir melhor ao Corpo de Cristo.';
+      'Encontre versículos relacionados, temas e conexões bíblicas para aprofundar seu entendimento e aplicação prática da Palavra.';
   final String growthFooter =
       'Sua jornada de autoconhecimento em Jesus começa aqui.';
 
   // FAQ Data
   final List<Map<String, String>> faq = [
     {
+      'Siguinificado do nome do aplicativo?':
+          '“Eu Sou” é uma declaração poderosa de identidade e presença, refletindo a essência de quem somos em Cristo e nossa conexão direta com Deus.',
+    },
+    {
       'question': 'O aplicativo é gratuito?',
       'answer':
           'Sim, as funcionalidades principais são e sempre serão gratuitas para todos.',
     },
-    {
-      'question': 'Como participo dos grupos?',
-      'answer':
-          'Basta clicar no botão "Entrar no Grupo" nesta tela ou na aba Comunidade.',
-    },
+    // {
+    //   'question': 'Como participo dos grupos?',
+    //   'answer':
+    //       'Basta clicar no botão "Entrar no Grupo" nesta tela ou na aba Comunidade.',
+    // },
     {
       'question': 'Posso ler offline?',
       'answer':

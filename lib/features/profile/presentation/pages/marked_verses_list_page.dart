@@ -15,7 +15,9 @@ import '../bloc/marked_verses_bloc.dart';
 import '../widgets/marked_verse_item.dart';
 
 class MarkedVersesListPage extends StatefulWidget {
-  const MarkedVersesListPage({super.key});
+  const MarkedVersesListPage({super.key, this.onCollapse});
+
+  final VoidCallback? onCollapse;
 
   @override
   State<MarkedVersesListPage> createState() => _MarkedVersesListPageState();
@@ -104,6 +106,7 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
           child: Column(
             children: [
               if (!kIsWeb) _buildAppBar(context, l10n),
+              if (kIsWeb) _buildWebHeader(context, l10n),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
@@ -146,6 +149,80 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
     });
   }
 
+  Widget _buildWebHeader(BuildContext context, AppLocalizations l10n) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedBookmark02, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.markedVersesTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ),
+              if (widget.onCollapse != null)
+                IconButton(
+                  icon: const AppHugeIcon(
+                    icon: HugeIcons.strokeRoundedSidebarLeft,
+                    size: 20,
+                  ),
+                  tooltip: 'Ocultar painel',
+                  onPressed: widget.onCollapse,
+                ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 4),
+            child: TextField(
+              controller: _searchController,
+              autocorrect: false,
+              onChanged: _onSearchChanged,
+              decoration: InputDecoration(
+                hintText: 'Pesquisar...',
+                prefixIcon:
+                    const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedCancel01),
+                        onPressed: () {
+                          _searchController.clear();
+                          _onSearchChanged('');
+                          setState(() {});
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAppBar(BuildContext context, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
@@ -165,7 +242,8 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
           Row(
             children: [
               IconButton(
-                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowLeft01),
+                icon:
+                    const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowLeft01),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               Expanded(
@@ -189,10 +267,12 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
               onChanged: _onSearchChanged,
               decoration: InputDecoration(
                 hintText: 'Pesquisar em versículos marcados...',
-                prefixIcon: const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
+                prefixIcon:
+                    const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
+                        icon: const AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedCancel01),
                         onPressed: () {
                           _searchController.clear();
                           _onSearchChanged('');
@@ -268,7 +348,9 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AppHugeIcon(
-              icon: isSearching ? HugeIcons.strokeRoundedSearchRemove : HugeIcons.strokeRoundedBookmark02,
+              icon: isSearching
+                  ? HugeIcons.strokeRoundedSearchRemove
+                  : HugeIcons.strokeRoundedBookmark02,
               size: 64,
               color: Theme.of(context).colorScheme.outline,
             ),
@@ -325,7 +407,10 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
               );
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const BibliaPage()),
+                MaterialPageRoute(
+                    builder: (_) => const BibliaPage(),
+                    settings: const RouteSettings(
+                        arguments: 'bible_reading_details')),
               );
             } catch (e) {
               if (Navigator.canPop(context)) {

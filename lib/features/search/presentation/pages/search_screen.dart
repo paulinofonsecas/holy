@@ -261,7 +261,9 @@ class _TelaBuscaState extends State<TelaBusca> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const BibliaPage()),
+                            builder: (context) => const BibliaPage(),
+                    settings: const RouteSettings(
+                        arguments: 'bible_reading_details')),
                       );
                     }
                   },
@@ -338,7 +340,9 @@ class _TelaBuscaState extends State<TelaBusca> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const BibliaPage()),
+                            builder: (context) => const BibliaPage(),
+                    settings: const RouteSettings(
+                        arguments: 'bible_reading_details')),
                       );
                     }
                   },
@@ -438,7 +442,9 @@ class _InlineVerseHistory extends StatelessWidget {
           );
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const BibliaPage()),
+        MaterialPageRoute(builder: (_) => const BibliaPage(),
+                    settings: const RouteSettings(
+                        arguments: 'bible_reading_details')),
       );
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(

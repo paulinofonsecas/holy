@@ -2,12 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bible_handler/bible_handler.dart';
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_event.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_state.dart';
-import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
@@ -60,6 +58,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
 
   // Bloc para a sidebar de versículos marcados (criado uma vez)
   MarkedVersesBloc? _sidebarMarkedVersesBloc;
+  bool _sidebarCollapsed = false;
 
   final GlobalKey keyBibleTab = GlobalKey();
   final GlobalKey keySearchTab = GlobalKey();
@@ -242,22 +241,70 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
       highlightChangedNotifier: context.read<HighlightChangedNotifier>(),
     );
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         Expanded(
           child: AnalysisBannerOverlay(
             child: IndexedStack(
               index: currentIndex,
-              children: _buildPages(context, hideMarkedVersesFromMenu: true),
+              children: _buildPages(context,
+                  hideMarkedVersesFromMenu: !_sidebarCollapsed),
             ),
           ),
         ),
         const VerticalDivider(thickness: 1, width: 1),
-        SizedBox(
-          width: 400,
-          child: BlocProvider.value(
-            value: _sidebarMarkedVersesBloc!,
-            child: const MarkedVersesListPage(),
+        if (_sidebarCollapsed)
+          _buildCollapsedSidebarTab(context, colorScheme)
+        else
+          SizedBox(
+            width: 400,
+            child: BlocProvider.value(
+              value: _sidebarMarkedVersesBloc!,
+              child: MarkedVersesListPage(
+                onCollapse: () => setState(() => _sidebarCollapsed = true),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCollapsedSidebarTab(
+      BuildContext context, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _sidebarCollapsed = false),
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(8),
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(8),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedBookmark02,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+                AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedSidebarLeft,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -334,45 +381,39 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                     ),
                     bottomNavigationBar: isWide
                         ? null
-                        : ConvexAppBar(
-                            style: TabStyle.react,
+                        : NavigationBar(
+                            selectedIndex: currentIndex,
                             backgroundColor: bgColor,
-                            color:
-                                context.colorScheme.onSurface.withOpacity(0.6),
-                            activeColor: context.colorScheme.primary,
-                            initialActiveIndex: currentIndex,
-                            onTap: (index) {
-                              if (index == 0) {
-                                if (currentIndex == 0) {
-                                  SwitchBookModal.show(context);
-                                  return;
-                                }
+                            onDestinationSelected: (index) {
+                              if (index == 0 && currentIndex == 0) {
+                                SwitchBookModal.show(context);
+                                return;
                               }
                               context
                                   .read<TabControllerCubit>()
                                   .changeTo(index);
                             },
-                            items: [
-                              TabItem(
+                            destinations: [
+                              NavigationDestination(
                                 icon: AppHugeIcon(
                                     icon: HugeIcons.strokeRoundedBook01,
                                     key: keyBibleTab,
                                     size: 20),
-                                title: l10n.bible,
+                                label: l10n.bible,
                               ),
-                              TabItem(
+                              NavigationDestination(
                                 icon: AppHugeIcon(
                                     icon: HugeIcons.strokeRoundedSun01,
                                     key: keyProfileTab,
                                     size: 20),
-                                title: 'Eu Sou',
+                                label: 'Eu Sou',
                               ),
-                              TabItem(
+                              NavigationDestination(
                                 icon: AppHugeIcon(
                                     icon: HugeIcons.strokeRoundedSearch01,
                                     key: keySearchTab,
                                     size: 20),
-                                title: l10n.search,
+                                label: l10n.search,
                               ),
                             ],
                           ),
@@ -381,49 +422,24 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
               }
 
               if (isWide) {
-                return Scaffold(
-                  body: Row(
-                    children: [
-                      NavigationRail(
-                        selectedIndex: currentIndex,
-                        onDestinationSelected: (index) {
-                          context.read<TabControllerCubit>().changeTo(index);
-                        },
-                        labelType: NavigationRailLabelType.all,
-                        destinations: [
-                          NavigationRailDestination(
-                            icon: AppHugeIcon(
-                                icon: HugeIcons.strokeRoundedBook01,
-                                key: keyBibleTab),
-                            label: Text(l10n.bible),
-                          ),
-                          NavigationRailDestination(
-                            icon: AppHugeIcon(
-                                icon: HugeIcons.strokeRoundedSun01,
-                                key: keyProfileTab),
-                            label: const Text('Eu Sou'),
-                          ),
-                          NavigationRailDestination(
-                            icon: AppHugeIcon(
-                                icon: HugeIcons.strokeRoundedSearch01,
-                                key: keySearchTab),
-                            label: Text(l10n.search),
-                          ),
-                        ],
-                      ),
-                      const VerticalDivider(thickness: 1, width: 1),
-                      Expanded(
-                        child: isExtraWide
-                            ? _buildThreeColumnLayout(context, currentIndex)
-                            : AnalysisBannerOverlay(
-                                child: IndexedStack(
-                                  index: currentIndex,
-                                  children: _buildPages(context,
-                                      hideMarkedVersesFromMenu: isExtraWide),
+                return SafeArea(
+                  child: Scaffold(
+                    body: Column(
+                      children: [
+                        _buildWebTopBar(context, currentIndex),
+                        Expanded(
+                          child: isExtraWide
+                              ? _buildThreeColumnLayout(context, currentIndex)
+                              : AnalysisBannerOverlay(
+                                  child: IndexedStack(
+                                    index: currentIndex,
+                                    children: _buildPages(context,
+                                        hideMarkedVersesFromMenu: isExtraWide),
+                                  ),
                                 ),
-                              ),
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -435,42 +451,37 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                     children: _buildPages(context),
                   ),
                 ),
-                bottomNavigationBar: ConvexAppBar(
-                  style: TabStyle.react,
+                bottomNavigationBar: NavigationBar(
+                  selectedIndex: currentIndex,
                   backgroundColor: bgColor,
-                  color: context.colorScheme.onSurface.withOpacity(0.6),
-                  activeColor: context.colorScheme.primary,
-                  initialActiveIndex: currentIndex,
-                  onTap: (index) {
-                    if (index == 0) {
-                      if (currentIndex == 0) {
-                        SwitchBookModal.show(context);
-                        return;
-                      }
+                  onDestinationSelected: (index) {
+                    if (index == 0 && currentIndex == 0) {
+                      SwitchBookModal.show(context);
+                      return;
                     }
                     context.read<TabControllerCubit>().changeTo(index);
                   },
-                  items: [
-                    TabItem(
+                  destinations: [
+                    NavigationDestination(
                       icon: AppHugeIcon(
                           icon: HugeIcons.strokeRoundedBook01,
                           key: keyBibleTab,
                           size: 20),
-                      title: l10n.bible,
+                      label: l10n.bible,
                     ),
-                    TabItem(
+                    NavigationDestination(
                       icon: AppHugeIcon(
                           icon: HugeIcons.strokeRoundedSun01,
                           key: keyProfileTab,
                           size: 20),
-                      title: 'Eu Sou',
+                      label: 'Eu Sou',
                     ),
-                    TabItem(
+                    NavigationDestination(
                       icon: AppHugeIcon(
                           icon: HugeIcons.strokeRoundedSearch01,
                           key: keySearchTab,
                           size: 20),
-                      title: l10n.search,
+                      label: l10n.search,
                     ),
                   ],
                 ),

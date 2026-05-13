@@ -152,7 +152,9 @@ class VerseHistoryPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const BibliaPage()),
+                              builder: (_) => const BibliaPage(),
+                    settings: const RouteSettings(
+                        arguments: 'bible_reading_details')),
                         );
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
