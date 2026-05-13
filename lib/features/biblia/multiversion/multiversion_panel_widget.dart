@@ -7,6 +7,8 @@ import 'package:eu_sou/core/design_system/theme/theme_data.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
+import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
+import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
 import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/biblia/presentation/pages/book_selection_page.dart';
@@ -75,6 +77,7 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
   late final BibleVersionCubit _versionCubit;
   late final BookSelectionCubit _bookCubit;
   late final VerseSelectionBloc _selectionBloc;
+  late final ReadingSettingsCubit _readingSettingsCubit;
 
   @override
   void initState() {
@@ -82,6 +85,8 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
     _versionCubit = BibleVersionCubit();
     _bookCubit = BookSelectionCubit();
     _selectionBloc = VerseSelectionBloc();
+    _readingSettingsCubit =
+        ReadingSettingsCubit(context.read<ReadingSettingsRepository>());
     _bibliaBloc = BibliaBloc(
       context.read<IBibleRepository>(),
       context.read<ScrollPersistenceService>(),
@@ -107,6 +112,7 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
     _versionCubit.close();
     _bookCubit.close();
     _selectionBloc.close();
+    _readingSettingsCubit.close();
     super.dispose();
   }
 
@@ -127,6 +133,7 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
           BlocProvider.value(value: _versionCubit),
           BlocProvider.value(value: _bookCubit),
           BlocProvider.value(value: _selectionBloc),
+          BlocProvider.value(value: _readingSettingsCubit),
         ],
         child: _PanelContent(
           panelId: widget.panelId,

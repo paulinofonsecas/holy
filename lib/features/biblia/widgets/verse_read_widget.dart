@@ -52,6 +52,16 @@ class VerseReadWidget extends StatelessWidget {
                 }
 
                 final bgTextColor = settingsState.readingBackground.textColor;
+                final normalTextColor = bgTextColor ??
+                    (Theme.brightnessOf(context) == Brightness.light
+                        ? Colors.black
+                        : Colors.white);
+                final highlightedTextColor = _resolveHighlightedTextColor(
+                  context: context,
+                  settingsState: settingsState,
+                  highlightBackgroundColor: backgroundColor,
+                  fallbackColor: normalTextColor,
+                );
                 final baseStyle = TextStyle(
                   fontSize: settingsState.fontSize,
                   height: settingsState.lineHeight,
@@ -114,12 +124,8 @@ class VerseReadWidget extends StatelessWidget {
                                   decorationColor:
                                       Theme.of(context).colorScheme.primary,
                                   color: !isHighlighted
-                                      ? bgTextColor ??
-                                          (Theme.brightnessOf(context) ==
-                                                  Brightness.light
-                                              ? Colors.black
-                                              : Colors.white)
-                                      : Theme.of(context).colorScheme.onSurface,
+                                      ? normalTextColor
+                                      : highlightedTextColor,
                                 ),
                               ),
                               TextSpan(
@@ -133,14 +139,8 @@ class VerseReadWidget extends StatelessWidget {
                                   decorationColor:
                                       Theme.of(context).colorScheme.primary,
                                   color: !isHighlighted
-                                      ? bgTextColor ??
-                                          (Theme.brightnessOf(context) ==
-                                                  Brightness.light
-                                              ? Colors.black
-                                              : Colors.white)
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
+                                      ? normalTextColor
+                                      : highlightedTextColor,
                                 ),
                               ),
                               TextSpan(
@@ -153,12 +153,8 @@ class VerseReadWidget extends StatelessWidget {
                                   decorationColor:
                                       Theme.of(context).colorScheme.onSurface,
                                   color: !isHighlighted
-                                      ? bgTextColor ??
-                                          (Theme.brightnessOf(context) ==
-                                                  Brightness.light
-                                              ? Colors.black
-                                              : Colors.white)
-                                      : Theme.of(context).colorScheme.onSurface,
+                                      ? normalTextColor
+                                      : highlightedTextColor,
                                 ),
                               ),
                             ],
@@ -215,5 +211,24 @@ class VerseReadWidget extends StatelessWidget {
     return Theme.brightnessOf(context) == Brightness.light
         ? Theme.of(context).colorScheme.primary.withValues(alpha: .2)
         : Theme.of(context).colorScheme.primary.withValues(alpha: .2);
+  }
+
+  Color _resolveHighlightedTextColor({
+    required BuildContext context,
+    required ReadingSettingsState settingsState,
+    required Color? highlightBackgroundColor,
+    required Color fallbackColor,
+  }) {
+    final themedColor = settingsState.readingBackground.highlightTextColor;
+    if (themedColor != null) {
+      return themedColor;
+    }
+
+    if (highlightBackgroundColor == null) {
+      return fallbackColor;
+    }
+
+    final isLightBackground = highlightBackgroundColor.computeLuminance() > 0.5;
+    return isLightBackground ? Colors.black : Colors.white;
   }
 }
