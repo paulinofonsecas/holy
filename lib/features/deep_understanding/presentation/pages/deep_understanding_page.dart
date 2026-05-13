@@ -9,8 +9,75 @@ import '../widgets/deep_understanding_error_view.dart';
 import '../widgets/deep_understanding_progress_view.dart';
 import '../widgets/deep_understanding_success_view.dart';
 
-class DeepUnderstandingPage extends StatelessWidget {
+class DeepUnderstandingPage extends StatefulWidget {
   const DeepUnderstandingPage({super.key});
+
+  @override
+  State<DeepUnderstandingPage> createState() => _DeepUnderstandingPageState();
+}
+
+class _DeepUnderstandingPageState extends State<DeepUnderstandingPage> {
+  double _contentFontScale = 1.0;
+
+  void _showFontSizeSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Tamanho da fonte',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Text('A', style: TextStyle(fontSize: 14)),
+                        Expanded(
+                          child: Slider(
+                            value: _contentFontScale,
+                            min: 0.85,
+                            max: 1.40,
+                            divisions: 11,
+                            onChanged: (value) {
+                              setState(() => _contentFontScale = value);
+                              setSheetState(() {});
+                            },
+                          ),
+                        ),
+                        const Text('A', style: TextStyle(fontSize: 24)),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          setState(() => _contentFontScale = 1.0);
+                          setSheetState(() {});
+                        },
+                        child: const Text('Restaurar padrão'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,15 +138,31 @@ class DeepUnderstandingPage extends StatelessWidget {
             BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
               builder: (context, state) {
                 if (state is DeepUnderstandingSuccess) {
-                  return IconButton(
-                    icon: AppHugeIcon(
-                      icon: HugeIcons.strokeRoundedShare01,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Theme.of(context).colorScheme.onSurface
-                          : const Color(0xFF2D1B13),
-                    ),
-                    onPressed: () => DeepUnderstandingActions.showExportOptions(
-                        context, state),
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedTextFont,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Theme.of(context).colorScheme.onSurface
+                              : const Color(0xFF2D1B13),
+                        ),
+                        tooltip: 'Ajustar fonte',
+                        onPressed: _showFontSizeSheet,
+                      ),
+                      IconButton(
+                        icon: AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedShare01,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Theme.of(context).colorScheme.onSurface
+                              : const Color(0xFF2D1B13),
+                        ),
+                        onPressed: () =>
+                            DeepUnderstandingActions.showExportOptions(
+                                context, state),
+                      ),
+                    ],
                   );
                 }
                 return const SizedBox.shrink();
@@ -119,6 +202,7 @@ class DeepUnderstandingPage extends StatelessWidget {
             if (state is DeepUnderstandingSuccess) {
               return DeepUnderstandingSuccessView(
                 state: state,
+                fontScale: _contentFontScale,
                 onLinkTap: (href) =>
                     DeepUnderstandingActions.handleBibleLink(context, href),
               );

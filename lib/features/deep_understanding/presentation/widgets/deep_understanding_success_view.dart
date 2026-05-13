@@ -9,11 +9,13 @@ import 'deep_understanding_hero_banner.dart';
 class DeepUnderstandingSuccessView extends StatelessWidget {
   final DeepUnderstandingSuccess state;
   final Function(String) onLinkTap;
+  final double fontScale;
 
   const DeepUnderstandingSuccessView({
     super.key,
     required this.state,
     required this.onLinkTap,
+    this.fontScale = 1.0,
   });
 
   @override
@@ -71,19 +73,19 @@ class DeepUnderstandingSuccessView extends StatelessWidget {
                 },
                 styleSheet: MarkdownStyleSheet(
                   p: TextStyle(
-                    fontSize: 15,
+                    fontSize: 15 * fontScale,
                     height: 1.7,
                     color: primaryTextColor,
                   ),
                   h1: TextStyle(
-                    fontSize: 24,
+                    fontSize: 24 * fontScale,
                     fontFamily: 'Georgia',
                     fontWeight: FontWeight.bold,
                     color: primaryTextColor,
                     height: 2.0,
                   ),
                   h2: TextStyle(
-                    fontSize: 20,
+                    fontSize: 20 * fontScale,
                     fontFamily: 'Georgia',
                     fontWeight: FontWeight.bold,
                     color: primaryTextColor,
@@ -91,7 +93,7 @@ class DeepUnderstandingSuccessView extends StatelessWidget {
                     decoration: TextDecoration.none,
                   ),
                   h3: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16 * fontScale,
                     fontWeight: FontWeight.bold,
                     color: accentColor,
                   ),
@@ -108,7 +110,7 @@ class DeepUnderstandingSuccessView extends StatelessWidget {
                     decoration: TextDecoration.underline,
                   ),
                   blockquote: TextStyle(
-                    fontSize: 15,
+                    fontSize: 15 * fontScale,
                     fontFamily: 'Georgia',
                     fontStyle: FontStyle.italic,
                     color: accentTextColor,

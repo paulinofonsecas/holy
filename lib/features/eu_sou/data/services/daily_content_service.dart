@@ -157,12 +157,16 @@ class DailyContentService {
       ),
     );
 
-    const prompt = '''
-Você é um diretor espiritual. Com base no versículo abaixo, responda com exatamente duas linhas.
+    final prompt = '''
+Você é um diretor espiritual cristão.
+Use EXCLUSIVAMENTE o verso fornecido abaixo para criar uma reflexão do dia.
 
-Responda APENAS assim (sem mais texto, sem markdown):
-ESSENCIA: <uma única frase de insight espiritual>
-PRATICA: <uma única frase de desafio concreto para hoje>
+VERSO_REFERENCIA: $verseReference
+VERSO_TEXTO: "$verseText"
+
+Responda APENAS neste formato (sem markdown e sem texto extra):
+ESSENCIA: <uma única frase de insight espiritual conectada ao verso>
+PRATICA: <uma única frase de ação prática para hoje baseada no verso>
 ''';
 
     final response = await model.generateContent([Content.text(prompt)]);

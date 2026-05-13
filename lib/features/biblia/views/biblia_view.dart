@@ -349,8 +349,6 @@ class _BibliaViewState extends State<BibliaView> {
                           var query = await _showQueryInputDialog(context);
                           if (context.mounted) {
                             query ??= 'Entendimento geral';
-
-                            if (state is! BibleChapterLoaded) return;
                             final versionId = context
                                 .read<BibleVersionCubit>()
                                 .state

@@ -267,40 +267,6 @@ class AboutView extends StackedView<AboutViewModel> {
     );
   }
 
-  Widget _buildTestimonialsCarousel(
-    BuildContext context,
-    AboutViewModel viewModel,
-    Color surfaceColor,
-    Color accentColor,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 16),
-          child: Text(
-            'O QUE DIZEM NOSSOS USUÁRIOS',
-            style: TextStyle(
-              fontSize: 12,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.6),
-            ),
-          ),
-        ),
-        _CarouselWidget(
-          testimonials: viewModel.testimonials,
-          currentIndex: viewModel.currentTestimonialIndex,
-          onPageChanged: viewModel.setTestimonialIndex,
-          surfaceColor: surfaceColor,
-          accentColor: accentColor,
-        ),
-      ],
-    );
-  }
 
   Widget _buildFooter(BuildContext context, AboutViewModel viewModel) {
     return Column(
