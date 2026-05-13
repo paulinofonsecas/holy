@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 /// Preset background options for the Bible reading view.
 enum ReadingBackground {
   defaultTheme('Padrão', null, null, null),
-  sepia(
-      'Sépia', Color(0xFFF5ECD7), Color(0xFF3E2723), Color(0xFF2E1E18)),
+  sepia('Sépia', Color(0xFFF5ECD7), Color(0xFF3E2723), Color(0xFF2E1E18)),
   paper('Papel', Color(0xFFFAF7F0), Color(0xFF2E2E2E), Color(0xFF1F1F1F)),
   night('Noite', Color(0xFF1A1A2E), Color(0xFFE0E0E0), Color(0xFFF3F3F3)),
-  forest(
-      'Floresta', Color(0xFF1B2E1B), Color(0xFFCCE8CC), Color(0xFFE8F5E9)),
+  forest('Floresta', Color(0xFF1B2E1B), Color(0xFFCCE8CC), Color(0xFFE8F5E9)),
   ocean('Oceano', Color(0xFF0D1B2A), Color(0xFFB3D9F2), Color(0xFFEAF6FF));
 
   const ReadingBackground(
