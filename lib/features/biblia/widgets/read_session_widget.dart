@@ -60,16 +60,12 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: () {
-                  final usedNumbers = <int>{};
-                  int dupIndex = 0;
-                  return widget.chapter.verses.map((verse) {
-                    final Key key;
-                    if (usedNumbers.add(verse.number) &&
-                        widget.verseKeys.containsKey(verse.number)) {
-                      key = widget.verseKeys[verse.number]!;
-                    } else {
-                      key = ValueKey("verse_dup_${verse.number}_${dupIndex++}");
-                    }
+                  final seenNumbers = <int>{};
+                  return widget.chapter.verses
+                      .where((verse) => seenNumbers.add(verse.number))
+                      .map((verse) {
+                    final key = widget.verseKeys[verse.number] ??
+                        ValueKey(verse.number);
                     return VerseReadWidget(
                       key: key,
                       verse: verse,
@@ -95,8 +91,13 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
           builder: (context, selectionState) {
             final spans = <InlineSpan>[];
 
-            for (var i = 0; i < widget.chapter.verses.length; i++) {
-              final verse = widget.chapter.verses[i];
+            final _seenVerseNumbers = <int>{};
+            final _uniqueVerses = widget.chapter.verses
+                .where((v) => _seenVerseNumbers.add(v.number))
+                .toList();
+
+            for (var i = 0; i < _uniqueVerses.length; i++) {
+              final verse = _uniqueVerses[i];
               final verseRef =
                   "$versionId:${widget.chapter.bookId}:${widget.chapter.number}:${verse.number}";
 
@@ -161,7 +162,7 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
               spans.add(
                 TextSpan(
                   text: verse.text +
-                      (i < widget.chapter.verses.length - 1 ? " " : ""),
+                      (i < _uniqueVerses.length - 1 ? " " : ""),
                   style: style.copyWith(
                     decoration: isSelected ? TextDecoration.underline : null,
                     decorationStyle: TextDecorationStyle.dashed,

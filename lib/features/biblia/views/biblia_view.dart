@@ -26,6 +26,8 @@ import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../bloc/biblia_bloc.dart';
+import '../multiversion/multiversion_cubit.dart';
+import '../multiversion/multiversion_view.dart';
 import '../widgets/animated_chapter_navigation.dart';
 import '../widgets/biblia_app_bar.dart';
 
@@ -281,194 +283,222 @@ class _BibliaViewState extends State<BibliaView> {
           },
         ),
       ],
-      child: Scaffold(
-        backgroundColor: bgColor,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const Gap(2),
-              BibleAppBar(
-                onBookTap: () {
-                  SwitchBookModal.show(context);
-                },
-                actions: [
+      child: BlocBuilder<MultiversionCubit, MultiversionState>(
+        builder: (context, multiversionState) {
+          // ── Multiversion mode ────────────────────────────────────────────
+          if (multiversionState.isEnabled) {
+            return Scaffold(
+              backgroundColor: bgColor,
+              body: SafeArea(child: const MultiversionView()),
+            );
+          }
+
+          // ── Single-version mode ──────────────────────────────────────────
+          return Scaffold(
+            backgroundColor: bgColor,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  const Gap(2),
+                  BibleAppBar(
+                    onBookTap: () {
+                      SwitchBookModal.show(context);
+                    },
+                    actions: [
+                      // Multiversion toggle – only on screens wide enough
+                      LayoutBuilder(builder: (context, _) {
+                        final screenWidth = MediaQuery.of(context).size.width;
+                        if (screenWidth < 600) return const SizedBox.shrink();
+                        return IconButton(
+                          tooltip: 'Multiversão',
+                          icon: AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedLayoutTable01,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: () =>
+                              context.read<MultiversionCubit>().enable(),
+                        );
+                      }),
+                      BlocBuilder<BibliaBloc, BibliaState>(
+                        builder: (context, state) {
+                          return IconButton(
+                            tooltip: AppLocalizations.of(context)
+                                .deepUnderstandingChapter,
+                            icon: AppHugeIcon(
+                              icon: HugeIcons.strokeRoundedSparkles,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            onPressed: state is! BibleChapterLoaded
+                                ? null
+                                : () async {
+                                    var query =
+                                        await _showQueryInputDialog(context);
+                                    if (context.mounted) {
+                                      query ??= 'Entendimento geral';
+                                      final versionId = context
+                                          .read<BibleVersionCubit>()
+                                          .state
+                                          .version
+                                          .id;
+                                      context.read<DeepUnderstandingBloc>().add(
+                                            StartAnalysisForVersesEvent(
+                                              query,
+                                              state.chapter.verses,
+                                              state.chapter.bookId,
+                                              state.chapter.number,
+                                              versionId,
+                                            ),
+                                          );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) =>
+                                                const DeepUnderstandingPage()),
+                                      );
+                                    }
+                                  },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification is ScrollStartNotification) {
+                              _hideTimer?.cancel();
+                              if (_showButtons) {
+                                setState(() {
+                                  _showButtons = false;
+                                });
+                              }
+                            } else if (notification is ScrollEndNotification) {
+                              if (!_showButtons) {
+                                setState(() {
+                                  _showButtons = true;
+                                });
+                              }
+                              _startHideTimer();
+                            }
+                            return false;
+                          },
+                          child: GestureDetector(
+                            onHorizontalDragEnd: (details) {
+                              // Sensitivity adjustment if needed
+                              if (details.primaryVelocity! > 0) {
+                                // Swipe Right -> Previous Chapter
+                                _navigateToPreviousChapter();
+                              } else if (details.primaryVelocity! < 0) {
+                                // Swipe Left -> Next Chapter
+                                _navigateToNextChapter();
+                              }
+                            },
+                            child: const ScreenReaderPage(),
+                          ),
+                        ),
+                        Positioned(
+                          left: 12,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: AnimatedChapterNavigation(
+                              isNext: false,
+                              visible: _showButtons,
+                              onTap: _navigateToPreviousChapter,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 12,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: AnimatedChapterNavigation(
+                              isNext: true,
+                              visible: _showButtons,
+                              onTap: _navigateToNextChapter,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   BlocBuilder<BibliaBloc, BibliaState>(
                     builder: (context, state) {
-                      return IconButton(
-                        tooltip: AppLocalizations.of(context)
-                            .deepUnderstandingChapter,
-                        icon: AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedSparkles,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        onPressed: state is! BibleChapterLoaded
-                            ? null
-                            : () async {
-                                var query =
-                                    await _showQueryInputDialog(context);
-                                if (context.mounted) {
-                                  query ??= 'Entendimento geral';
-                                  final versionId = context
-                                      .read<BibleVersionCubit>()
-                                      .state
-                                      .version
-                                      .id;
-                                  context.read<DeepUnderstandingBloc>().add(
-                                        StartAnalysisForVersesEvent(
-                                          query,
-                                          state.chapter.verses,
-                                          state.chapter.bookId,
-                                          state.chapter.number,
-                                          versionId,
-                                        ),
-                                      );
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) =>
-                                            const DeepUnderstandingPage()),
-                                  );
-                                }
-                              },
+                      final isInSelectionMode = state is BibleChapterLoaded &&
+                          context
+                              .watch<VerseSelectionBloc>()
+                              .state
+                              .isInSelectionMode;
+
+                      return AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 400),
+                        reverseDuration: const Duration(milliseconds: 200),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          final offsetAnimation = Tween<Offset>(
+                            begin: const Offset(0, 0.5),
+                            end: Offset.zero,
+                          ).animate(animation);
+
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SlideTransition(
+                              position: offsetAnimation,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: isInSelectionMode
+                            ? SingleChildScrollView(
+                                key: const ValueKey('ActionRowActive'),
+                                scrollDirection: Axis.horizontal,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(16, 4, 16, 25),
+                                  child: ActionRowWidget(
+                                    verses: context
+                                        .read<VerseSelectionBloc>()
+                                        .state
+                                        .selectedVerses
+                                        .values
+                                        .toList(),
+                                    verseReference: () {
+                                      final sel = (context
+                                          .read<VerseSelectionBloc>()
+                                          .state
+                                          .selectedVerses
+                                          .values
+                                          .toList()
+                                        ..sort((a, b) =>
+                                            a.number.compareTo(b.number)));
+                                      final book = state.chapter.bookId;
+                                      final chap = state.chapter.number;
+                                      if (sel.isEmpty) return '$book $chap';
+                                      if (sel.length == 1) {
+                                        return '$book $chap:${sel.first.number}';
+                                      }
+                                      return '$book $chap:${sel.first.number}-${sel.last.number}';
+                                    }(),
+                                    bookId: state.chapter.bookId,
+                                    chapterNumber: state.chapter.number,
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(
+                                key: ValueKey('ActionRowInactive')),
                       );
                     },
                   ),
                 ],
               ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    NotificationListener<ScrollNotification>(
-                      onNotification: (notification) {
-                        if (notification is ScrollStartNotification) {
-                          _hideTimer?.cancel();
-                          if (_showButtons) {
-                            setState(() {
-                              _showButtons = false;
-                            });
-                          }
-                        } else if (notification is ScrollEndNotification) {
-                          if (!_showButtons) {
-                            setState(() {
-                              _showButtons = true;
-                            });
-                          }
-                          _startHideTimer();
-                        }
-                        return false;
-                      },
-                      child: GestureDetector(
-                        onHorizontalDragEnd: (details) {
-                          // Sensitivity adjustment if needed
-                          if (details.primaryVelocity! > 0) {
-                            // Swipe Right -> Previous Chapter
-                            _navigateToPreviousChapter();
-                          } else if (details.primaryVelocity! < 0) {
-                            // Swipe Left -> Next Chapter
-                            _navigateToNextChapter();
-                          }
-                        },
-                        child: const ScreenReaderPage(),
-                      ),
-                    ),
-                    Positioned(
-                      left: 12,
-                      top: 0,
-                      bottom: 0,
-                      child: Center(
-                        child: AnimatedChapterNavigation(
-                          isNext: false,
-                          visible: _showButtons,
-                          onTap: _navigateToPreviousChapter,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 12,
-                      top: 0,
-                      bottom: 0,
-                      child: Center(
-                        child: AnimatedChapterNavigation(
-                          isNext: true,
-                          visible: _showButtons,
-                          onTap: _navigateToNextChapter,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              BlocBuilder<BibliaBloc, BibliaState>(
-                builder: (context, state) {
-                  final isInSelectionMode = state is BibleChapterLoaded &&
-                      context
-                          .watch<VerseSelectionBloc>()
-                          .state
-                          .isInSelectionMode;
-
-                  return AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    reverseDuration: const Duration(milliseconds: 200),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    transitionBuilder:
-                        (Widget child, Animation<double> animation) {
-                      final offsetAnimation = Tween<Offset>(
-                        begin: const Offset(0, 0.5),
-                        end: Offset.zero,
-                      ).animate(animation);
-
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: offsetAnimation,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: isInSelectionMode
-                        ? SingleChildScrollView(
-                            key: const ValueKey('ActionRowActive'),
-                            scrollDirection: Axis.horizontal,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 25),
-                              child: ActionRowWidget(
-                                verses: context
-                                    .read<VerseSelectionBloc>()
-                                    .state
-                                    .selectedVerses
-                                    .values
-                                    .toList(),
-                                verseReference: () {
-                                  final sel = (context
-                                      .read<VerseSelectionBloc>()
-                                      .state
-                                      .selectedVerses
-                                      .values
-                                      .toList()
-                                    ..sort((a, b) =>
-                                        a.number.compareTo(b.number)));
-                                  final book = state.chapter.bookId;
-                                  final chap = state.chapter.number;
-                                  if (sel.isEmpty) return '$book $chap';
-                                  if (sel.length == 1) {
-                                    return '$book $chap:${sel.first.number}';
-                                  }
-                                  return '$book $chap:${sel.first.number}-${sel.last.number}';
-                                }(),
-                                bookId: state.chapter.bookId,
-                                chapterNumber: state.chapter.number,
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(
-                            key: ValueKey('ActionRowInactive')),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
