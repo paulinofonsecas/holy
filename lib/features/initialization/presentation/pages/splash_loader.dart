@@ -58,7 +58,10 @@ class _SplashLoaderState extends State<SplashLoader> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const AppHugeIcon(icon: HugeIcons.strokeRoundedAlert01, color: Colors.red, size: 64),
+                const AppHugeIcon(
+                    icon: HugeIcons.strokeRoundedAlert01,
+                    color: Colors.red,
+                    size: 64),
                 const SizedBox(height: 16),
                 Text(
                   'Erro ao carregar a Bíblia',
