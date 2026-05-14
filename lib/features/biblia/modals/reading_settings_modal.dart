@@ -52,6 +52,9 @@ class ReadingSettingsModal extends StatelessWidget {
               ),
               const Gap(24),
 
+              // Background
+              _buildSectionTitle('Fundo de Leitura'),
+
               // Font Size
               _buildSectionTitle('Tamanho do Texto'),
               BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
@@ -254,8 +257,6 @@ class ReadingSettingsModal extends StatelessWidget {
               ),
               const Gap(24),
 
-              // Background
-              _buildSectionTitle('Fundo de Leitura'),
               const Gap(8),
               BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
                 builder: (context, state) {

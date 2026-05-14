@@ -166,6 +166,7 @@ class _PanelContent extends StatefulWidget {
 class _PanelContentState extends State<_PanelContent> {
   Timer? _hideTimer;
   bool _showNavButtons = true;
+  final FocusNode _panelFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -176,6 +177,7 @@ class _PanelContentState extends State<_PanelContent> {
   @override
   void dispose() {
     _hideTimer?.cancel();
+    _panelFocusNode.dispose();
     super.dispose();
   }
 
@@ -587,6 +589,7 @@ class _PanelContentState extends State<_PanelContent> {
                                   child: Stack(
                                     children: [
                                       GestureDetector(
+                                        onTap: () => _panelFocusNode.requestFocus(),
                                         onHorizontalDragEnd: (details) {
                                           if (details.primaryVelocity! > 0) {
                                             _navigateToPreviousChapter();
@@ -595,7 +598,12 @@ class _PanelContentState extends State<_PanelContent> {
                                             _navigateToNextChapter();
                                           }
                                         },
-                                        child: const ScreenReaderPage(),
+                                        child: MouseRegion(
+                                          onEnter: (_) => _panelFocusNode.requestFocus(),
+                                          child: ScreenReaderPage(
+                                            focusNode: _panelFocusNode,
+                                          ),
+                                        ),
                                       ),
                                       // ← prev-chapter button
                                       Positioned(

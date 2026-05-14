@@ -15,7 +15,6 @@ import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
-import 'package:eu_sou/features/download/utils/formatters.dart';
 import 'package:eu_sou/features/eu_sou/presentation/pages/eu_sou_page.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
@@ -487,120 +486,78 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
               );
             },
           ),
-          // Download floating card (non-blocking)
+          // Download banner (non-blocking) — top of screen on mobile
           if (_isDownloading)
             Positioned(
-              left: 16,
-              bottom: 16,
+              left: 0,
+              right: 0,
+              top: 0,
               child: SafeArea(
                 child: Material(
-                  elevation: 3,
-                  borderRadius: BorderRadius.circular(12),
+                  elevation: 4,
                   color: Theme.of(context).colorScheme.surface,
-                  child: SizedBox(
-                    width: 200,
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                const AppHugeIcon(
-                                  icon: HugeIcons.strokeRoundedBook01,
-                                  size: 16,
-                                  color: Colors.blue,
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    'Baixando JFAA...',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                  ),
-                                ),
-                              ],
+                            const AppHugeIcon(
+                              icon: HugeIcons.strokeRoundedBook01,
+                              size: 16,
+                              color: Colors.blue,
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Baixando JFAA...',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                            ),
                             if (_downloadProgress != null)
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: LinearProgressIndicator(
-                                        value: _downloadProgress!.percent > 0
-                                            ? _downloadProgress!.percent
-                                            : null,
-                                        minHeight: 8,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          '${(_downloadProgress!.percent * 100).toStringAsFixed(0)}%',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelSmall
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                        ),
-                                        const Spacer(),
-                                        Flexible(
-                                          child: Text(
-                                            DownloadFormatters
-                                                .formatProgressText(
-                                              _downloadProgress!
-                                                  .downloadedBytes,
-                                              _downloadProgress!.totalBytes,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            textAlign: TextAlign.right,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelSmall
-                                                ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface
-                                                      .withValues(alpha: 0.7),
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    if (_downloadError)
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: TextButton(
-                                          onPressed: _checkAndDownloadBible,
-                                          style: TextButton.styleFrom(
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            padding: EdgeInsets.zero,
-                                            minimumSize: const Size(40, 24),
-                                          ),
-                                          child: const Text('Tentar'),
-                                        ),
-                                      ),
-                                  ],
-                                ),
+                              Text(
+                                '${(_downloadProgress!.percent * 100).toStringAsFixed(0)}%',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(fontWeight: FontWeight.w700),
                               ),
                           ],
                         ),
-                      ),
+                        if (_downloadProgress != null) ...[
+                          const SizedBox(height: 6),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: LinearProgressIndicator(
+                              value: _downloadProgress!.percent > 0
+                                  ? _downloadProgress!.percent
+                                  : null,
+                              minHeight: 4,
+                            ),
+                          ),
+                        ],
+                        if (_downloadError)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: _checkAndDownloadBible,
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.zero,
+                                minimumSize: const Size(40, 24),
+                              ),
+                              child: const Text('Tentar'),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),

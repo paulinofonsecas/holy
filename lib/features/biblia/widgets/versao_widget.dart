@@ -76,12 +76,11 @@ class VersaoWidget extends StatelessWidget {
                                     color: colorScheme.primary)
                                 : wasDeleted
                                     ? const AppHugeIcon(
-                                        icon: HugeIcons
-                                            .strokeRoundedDownload01,
+                                        icon: HugeIcons.strokeRoundedDownload01,
                                         size: 20)
                                     : FutureBuilder<bool>(
-                                        future: cacheProvider
-                                            .isVersionCached(e.id),
+                                        future:
+                                            cacheProvider.isVersionCached(e.id),
                                         builder: (context, snapshot) {
                                           if (snapshot.data == true) {
                                             // Cached and not active — show
@@ -93,7 +92,7 @@ class VersaoWidget extends StatelessWidget {
                                                     icon: HugeIcons
                                                         .strokeRoundedCheckmarkCircle01,
                                                     size: 20),
-                                                const SizedBox(width: 4),
+                                                const SizedBox(width: 16),
                                                 GestureDetector(
                                                   onTap: () async {
                                                     await cacheProvider

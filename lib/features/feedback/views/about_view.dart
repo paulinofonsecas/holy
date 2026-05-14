@@ -267,7 +267,6 @@ class AboutView extends StackedView<AboutViewModel> {
     );
   }
 
-
   Widget _buildFooter(BuildContext context, AboutViewModel viewModel) {
     return Column(
       children: [

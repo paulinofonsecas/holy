@@ -1,5 +1,4 @@
 import 'package:bible_handler/bible_handler.dart';
-import 'package:eu_sou/app/tuoring.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,9 +13,7 @@ class MultipleSearchHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      key: keySearchField,
-      child: BlocBuilder<SearchBloc, EstadoBusca>(
+    return BlocBuilder<SearchBloc, EstadoBusca>(
         builder: (context, state) {
           final bloc = context.read<SearchBloc>();
           final searchState = context.read<SearchBloc>().state;
@@ -121,7 +118,6 @@ class MultipleSearchHeader extends StatelessWidget {
             ],
           );
         },
-      ),
-    );
+      );
   }
 }

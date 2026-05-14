@@ -5,8 +5,11 @@ import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_state.dart';
 import 'package:eu_sou/features/biblia/widgets/read_session_widget.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
+import 'package:eu_sou/shared/bible_models.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'show_error_widget.dart';
@@ -14,7 +17,13 @@ import 'show_error_widget.dart';
 class ScreenReaderPage extends StatefulWidget {
   const ScreenReaderPage({
     super.key,
+    this.focusNode,
   });
+
+  /// Optional external [FocusNode]. When provided (e.g. in multiversion
+  /// panels), the caller controls when this panel receives keyboard focus.
+  /// When null, the widget uses its own internal node with autofocus enabled.
+  final FocusNode? focusNode;
 
   @override
   State<ScreenReaderPage> createState() => _ScreenReaderPageState();
@@ -92,6 +101,44 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _navigateToPreviousChapter(BuildContext context) {
+    final state = context.read<BibliaBloc>().state;
+    if (state is! BibleChapterLoaded) return;
+    final chapter = state.chapter;
+    final versionId = context.read<BibleVersionCubit>().state.version.id;
+    if (chapter.number > 1) {
+      context.read<BibliaBloc>().add(
+            GetChapter(versionId, chapter.bookId, (chapter.number - 1).toString()),
+          );
+    } else {
+      final idx = BibleBooks.values.indexWhere((b) => b.bookId == chapter.bookId);
+      if (idx > 0) {
+        final prev = BibleBooks.values[idx - 1];
+        context.read<BibliaBloc>().add(
+              GetChapter(versionId, prev.bookId, prev.chapterCount.toString()),
+            );
+      }
+    }
+  }
+
+  void _navigateToNextChapter(BuildContext context) {
+    final state = context.read<BibliaBloc>().state;
+    if (state is! BibleChapterLoaded) return;
+    final chapter = state.chapter;
+    final versionId = context.read<BibleVersionCubit>().state.version.id;
+    if (chapter.number < chapter.totalChapters) {
+      context.read<BibliaBloc>().add(
+            GetChapter(versionId, chapter.bookId, (chapter.number + 1).toString()),
+          );
+    } else {
+      final idx = BibleBooks.values.indexWhere((b) => b.bookId == chapter.bookId);
+      if (idx < BibleBooks.values.length - 1) {
+        final next = BibleBooks.values[idx + 1];
+        context.read<BibliaBloc>().add(GetChapter(versionId, next.bookId, '1'));
+      }
+    }
   }
 
   @override
@@ -182,17 +229,58 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
           _verseKeys.putIfAbsent(verse.number, () => GlobalKey());
         }
 
-        return GestureDetector(
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                ReadSessionWidget(
-                  key: Key("$chapterId-$versionId"),
-                  chapter: state.chapter,
-                  verseKeys: _verseKeys,
+        return Focus(
+          focusNode: widget.focusNode,
+          autofocus: widget.focusNode == null,
+          onKeyEvent: (node, event) {
+            if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+              return KeyEventResult.ignored;
+            }
+            const scrollStep = 80.0;
+            if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+              _scrollController.animateTo(
+                (_scrollController.offset - scrollStep).clamp(
+                  0.0,
+                  _scrollController.position.maxScrollExtent,
                 ),
-              ],
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.easeOut,
+              );
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+              _scrollController.animateTo(
+                (_scrollController.offset + scrollStep).clamp(
+                  0.0,
+                  _scrollController.position.maxScrollExtent,
+                ),
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.easeOut,
+              );
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+              _navigateToPreviousChapter(context);
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+              _navigateToNextChapter(context);
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: GestureDetector(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  ReadSessionWidget(
+                    key: Key("$chapterId-$versionId"),
+                    chapter: state.chapter,
+                    verseKeys: _verseKeys,
+                  ),
+                ],
+              ),
             ),
           ),
         );

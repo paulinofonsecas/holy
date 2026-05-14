@@ -348,20 +348,18 @@ class _EuSouPageState extends State<EuSouPage>
             builder: (context, state) {
               final isWide = MediaQuery.of(context).size.width > 900;
 
-              if (state is EuSouLoading) {
+              if (state is EuSouLoading || state is EuSouInitial) {
                 if (isWide) {
                   return Row(
                     children: [
                       _buildSideMenu(context),
                       const VerticalDivider(width: 1),
-                      const Expanded(
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
+                      const Expanded(child: _EuSouSkeletonOverview()),
                     ],
                   );
                 }
 
-                return const Center(child: CircularProgressIndicator());
+                return const _EuSouSkeletonOverview();
               }
 
               if (state is EuSouError) {
@@ -545,7 +543,7 @@ class _EuSouOverviewPanel extends StatelessWidget {
               previous.runtimeType != current.runtimeType,
           builder: (context, state) {
             if (state is EuSouLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const _EuSouSkeletonOverview();
             }
             if (state is EuSouError) {
               return Center(
@@ -1118,6 +1116,159 @@ class _ErrorView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ─── Skeleton support ─────────────────────────────────────────────────────────
+
+class _SkeletonBox extends StatefulWidget {
+  final double? width;
+  final double height;
+
+  const _SkeletonBox({
+    required this.height,
+    this.width,
+  });
+
+  @override
+  State<_SkeletonBox> createState() => _SkeletonBoxState();
+}
+
+class _SkeletonBoxState extends State<_SkeletonBox>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, __) {
+        final color = Color.lerp(
+          isDark ? const Color(0xFF2C2C2C) : const Color(0xFFE0E0E0),
+          isDark ? const Color(0xFF3E3E3E) : const Color(0xFFF2F2F2),
+          _ctrl.value,
+        )!;
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(6),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _VerseSectionSkeleton extends StatelessWidget {
+  const _VerseSectionSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const _SkeletonBox(height: 12, width: 32),
+            const SizedBox(width: 8),
+            const _SkeletonBox(height: 12, width: 120),
+          ],
+        ),
+        const SizedBox(height: 20),
+        const _SkeletonBox(height: 20),
+        const SizedBox(height: 8),
+        const _SkeletonBox(height: 20),
+        const SizedBox(height: 8),
+        const _SkeletonBox(height: 20, width: 220),
+        const SizedBox(height: 18),
+        const _SkeletonBox(height: 10, width: 100),
+      ],
+    );
+  }
+}
+
+class _TextSectionSkeleton extends StatelessWidget {
+  final int lines;
+
+  const _TextSectionSkeleton({this.lines = 3});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SkeletonBox(height: 10, width: 80),
+        const SizedBox(height: 10),
+        for (int i = 0; i < lines; i++) ...[
+          _SkeletonBox(
+            height: 14,
+            width: i == lines - 1 ? 200 : null,
+          ),
+          if (i < lines - 1) const SizedBox(height: 6),
+        ],
+      ],
+    );
+  }
+}
+
+class _EuSouSkeletonOverview extends StatelessWidget {
+  const _EuSouSkeletonOverview();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(28, 24, 28, 80),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              BlocBuilder<ChangeMyNameCubit, ChangeMyNameState>(
+                buildWhen: (previous, current) => previous.name != current.name,
+                builder: (context, nameState) => EuSouHeader(
+                  greetingWord: 'Bem-vindo/a',
+                  userName: nameState.name,
+                ),
+              ),
+              const SizedBox(height: 32),
+              const _VerseSectionSkeleton(),
+              const SizedBox(height: 40),
+              const _TextSectionSkeleton(lines: 3),
+              const SizedBox(height: 36),
+              StatsRow(
+                stats: UserStats(
+                  presencaDias: 0,
+                  escritasNotas: 0,
+                  estudosCount: 0,
+                ),
+              ),
+              const SizedBox(height: 28),
+              const _BibleReadingSection(),
+              const SizedBox(height: 36),
+              const _TextSectionSkeleton(lines: 2),
+            ]),
+          ),
+        ),
+      ],
     );
   }
 }
