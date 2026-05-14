@@ -249,7 +249,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                 final livro = estado.correspondenciasLivros[indice];
                 return BookSearchTile(
                   livro: livro,
-                  onTap: () {
+                  onChapterTap: (chapter) {
                     if (Navigator.of(context).canPop()) {
                       Navigator.of(context).pop(livro);
                     } else {
@@ -257,7 +257,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                           context.read<BibleVersionCubit>().state.version.id;
                       context
                           .read<BibliaBloc>()
-                          .add(GetChapter(idVersao, livro.id, '1'));
+                          .add(GetChapter(idVersao, livro.id, chapter));
                       Navigator.push(
                         context,
                         MaterialPageRoute(

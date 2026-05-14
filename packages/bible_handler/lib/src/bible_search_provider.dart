@@ -168,7 +168,7 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
       final normalizedQuery = _removeDiacritics(query).toLowerCase().trim();
       if (normalizedQuery.isEmpty) return [];
 
-      return results
+      final matchedBooks = results
           .map(
             (row) => Book(
               id: row['id'] as String,
@@ -188,6 +188,34 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
                 abbr.contains(normalizedQuery);
           })
           .toList();
+
+      // Fetch chapter counts for each matched book.
+      final booksWithChapters = <Book>[];
+      for (final book in matchedBooks) {
+        String chapterSql =
+            'SELECT MAX(chapter) as max_chapter FROM $_versesTable WHERE book_id = ?';
+        final List<dynamic> chapterArgs = [book.id];
+        if (versionId != null) {
+          chapterSql += ' AND version_id = ?';
+          chapterArgs.add(versionId);
+        }
+        final chapterResult = await db.rawQuery(chapterSql, chapterArgs);
+        final maxChapter =
+            (chapterResult.isNotEmpty ? chapterResult.first['max_chapter'] as int? : null) ?? 0;
+        final chapters = List.generate(
+          maxChapter,
+          (i) => Chapter(number: i + 1, verses: []),
+        );
+        booksWithChapters.add(Book(
+          id: book.id,
+          name: book.name,
+          longName: book.longName,
+          abbreviation: book.abbreviation,
+          chapters: chapters,
+        ));
+      }
+
+      return booksWithChapters;
     } catch (e) {
       // ignore: avoid_print
       print('Match books for "$query" failed: $e');

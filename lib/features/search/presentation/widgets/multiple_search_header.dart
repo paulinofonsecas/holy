@@ -68,7 +68,7 @@ class MultipleSearchHeader extends StatelessWidget {
                   ? searchState.consultas[0].term
                   : '',
               showRemove: queries.length > 1,
-              hintText: 'Ex: O anjo do Senhor',
+              hintText: 'Pesquisar por termo: "amor" ou capítulo: "João 3"',
               onChanged: (val) {
                 context
                     .read<SearchBloc>()
