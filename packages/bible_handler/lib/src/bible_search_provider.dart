@@ -54,9 +54,8 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
   }) async {
     final stopwatch = Stopwatch()..start();
     try {
-      final validQueries = queries
-          .where((q) => q.term.trim().length >= 3)
-          .toList();
+      final validQueries =
+          queries.where((q) => q.term.trim().length >= 3).toList();
       if (validQueries.isEmpty) {
         return SearchResults(query: '', totalResults: 0, results: []);
       }
@@ -121,13 +120,11 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
           return _compareResults(a, b);
         });
 
-      final queryLabel = validQueries
-          .map((q) {
-            if (q.operator == JoinOperator.none) return q.term;
-            final op = q.operator == JoinOperator.or ? 'OR' : 'AND';
-            return '$op ${q.term}';
-          })
-          .join(' ');
+      final queryLabel = validQueries.map((q) {
+        if (q.operator == JoinOperator.none) return q.term;
+        final op = q.operator == JoinOperator.or ? 'OR' : 'AND';
+        return '$op ${q.term}';
+      }).join(' ');
 
       return SearchResults(
         query: queryLabel,
@@ -170,24 +167,23 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
 
       final matchedBooks = results
           .map(
-            (row) => Book(
-              id: row['id'] as String,
-              name: (row['name'] as String).trim(),
-              longName: (row['long_name'] as String).trim(),
-              abbreviation: (row['abbreviation'] as String).trim(),
-              chapters: [],
-            ),
-          )
+        (row) => Book(
+          id: row['id'] as String,
+          name: (row['name'] as String).trim(),
+          longName: (row['long_name'] as String).trim(),
+          abbreviation: (row['abbreviation'] as String).trim(),
+          chapters: [],
+        ),
+      )
           .where((book) {
-            final name = _removeDiacritics(book.name).toLowerCase();
-            final longName = _removeDiacritics(book.longName).toLowerCase();
-            final abbr = _removeDiacritics(book.abbreviation).toLowerCase();
+        final name = _removeDiacritics(book.name).toLowerCase();
+        final longName = _removeDiacritics(book.longName).toLowerCase();
+        final abbr = _removeDiacritics(book.abbreviation).toLowerCase();
 
-            return name.contains(normalizedQuery) ||
-                longName.contains(normalizedQuery) ||
-                abbr.contains(normalizedQuery);
-          })
-          .toList();
+        return name.contains(normalizedQuery) ||
+            longName.contains(normalizedQuery) ||
+            abbr.contains(normalizedQuery);
+      }).toList();
 
       // Fetch chapter counts for each matched book.
       final booksWithChapters = <Book>[];
@@ -200,8 +196,10 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
           chapterArgs.add(versionId);
         }
         final chapterResult = await db.rawQuery(chapterSql, chapterArgs);
-        final maxChapter =
-            (chapterResult.isNotEmpty ? chapterResult.first['max_chapter'] as int? : null) ?? 0;
+        final maxChapter = (chapterResult.isNotEmpty
+                ? chapterResult.first['max_chapter'] as int?
+                : null) ??
+            0;
         final chapters = List.generate(
           maxChapter,
           (i) => Chapter(number: i + 1, verses: []),
