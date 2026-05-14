@@ -487,7 +487,7 @@ class _BibliaViewState extends State<BibliaView> {
                                 scrollDirection: Axis.horizontal,
                                 child: Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(16, 4, 16, 25),
+                                      const EdgeInsets.fromLTRB(16, 4, 16, 2),
                                   child: ActionRowWidget(
                                     verses: context
                                         .read<VerseSelectionBloc>()
