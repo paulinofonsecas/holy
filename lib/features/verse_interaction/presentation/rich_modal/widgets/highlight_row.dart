@@ -23,7 +23,7 @@ class _HighlightRowState extends State<HighlightRow> {
     {'name': 'Yellow', 'color': Color(0xFFFFF176), 'hex': 'FFFFF176'},
     {'name': 'Green', 'color': Color(0xFFAED581), 'hex': 'FFAED581'},
     {'name': 'Blue', 'color': Color(0xFF81D4FA), 'hex': 'FF81D4FA'},
-    {'name': 'Pink', 'color': Color(0xFFF48FB1), 'hex': 'FFF48FB1'},
+    {'name': 'Pink', 'color': Color(0xFFF48FB1), 'hex': 'FFFFF176'},
     {'name': 'Purple', 'color': Color(0xFFCE93D8), 'hex': 'FFCE93D8'},
     {'name': 'Orange', 'color': Color(0xFFFFB74D), 'hex': 'FFFFB74D'},
     {'name': 'Red', 'color': Color(0xFFE57373), 'hex': 'FFE57373'},

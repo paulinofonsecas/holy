@@ -28,7 +28,8 @@ class FCMService {
       // The Web Push API is not available in all browser contexts.
       // On iOS Safari (browser tab, not home-screen PWA) this throws.
       // We continue without push permission rather than crashing.
-      debugPrint('FCM: permission request failed (browser may not support push): $e');
+      debugPrint(
+          'FCM: permission request failed (browser may not support push): $e');
       return;
     }
     try {

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import 'services/local_notification_service.dart';
 import 'services/fcm_service.dart';
+import 'services/local_notification_service.dart';
 
 // Singleton NotificationHandler for app-wide notification management
 class NotificationHandler {
@@ -9,7 +9,8 @@ class NotificationHandler {
   factory NotificationHandler() => _instance;
   NotificationHandler._internal();
 
-  final LocalNotificationService localNotificationService = LocalNotificationService();
+  final LocalNotificationService localNotificationService =
+      LocalNotificationService();
   FCMService? _fcmService;
 
   Future<void> initialize() async {
