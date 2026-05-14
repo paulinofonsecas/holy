@@ -64,7 +64,14 @@ Future<void> _bootstrapApp() async {
     //   debugPrint('Warning: .env file not found or could not be loaded: $e');
     // }
 
-    await notificationHandler.initialize();
+    try {
+      await notificationHandler.initialize();
+    } catch (e) {
+      // Non-fatal: notifications are unavailable in some browser environments
+      // (e.g. iOS Safari without the app added to the home screen).
+      // The app continues to function normally without push notifications.
+      debugPrint('Warning: notification initialization skipped: $e');
+    }
 
     late final DeepUnderstandingService deepUnderstandingService;
     final aiService = GeminiAIService();

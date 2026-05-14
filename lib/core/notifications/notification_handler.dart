@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'services/local_notification_service.dart';
 import 'services/fcm_service.dart';
 
@@ -13,7 +15,14 @@ class NotificationHandler {
   Future<void> initialize() async {
     await localNotificationService.initialize();
     _fcmService = FCMService(localNotificationService);
-    await _fcmService?.initialize();
+    try {
+      await _fcmService?.initialize();
+    } catch (e) {
+      // FCM is an optional capability. Browsers that do not support the
+      // Web Push API (e.g. iOS Safari in browser mode, not as a PWA) will
+      // throw here. We catch and log so the app still boots.
+      debugPrint('Warning: FCM initialization skipped: $e');
+    }
   }
 
   void addOnNotificationTapListener(Function(String?) listener) {

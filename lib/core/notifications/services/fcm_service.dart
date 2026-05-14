@@ -22,10 +22,22 @@ class FCMService {
   /// Initialize FCM service
   /// Initialize FCM service with improved error handling
   Future<void> initialize() async {
-    await _requestPermissions();
-    await _setupForegroundNotifications();
-    await _setupBackgroundAndTerminatedNotifications();
-    await _setupOnMessageOpenedApp();
+    try {
+      await _requestPermissions();
+    } catch (e) {
+      // The Web Push API is not available in all browser contexts.
+      // On iOS Safari (browser tab, not home-screen PWA) this throws.
+      // We continue without push permission rather than crashing.
+      debugPrint('FCM: permission request failed (browser may not support push): $e');
+      return;
+    }
+    try {
+      await _setupForegroundNotifications();
+      await _setupBackgroundAndTerminatedNotifications();
+      await _setupOnMessageOpenedApp();
+    } catch (e) {
+      debugPrint('FCM: message handler setup failed: $e');
+    }
 
     try {
       // Get FCM token with error handling
