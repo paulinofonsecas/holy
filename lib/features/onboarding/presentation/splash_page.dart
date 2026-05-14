@@ -1,6 +1,7 @@
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:eu_sou/shared/widgets/main_scaffold.dart';
+import 'package:eu_sou/shared/widgets/web_splash_overlay.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,6 +50,11 @@ class SplashPage extends StatelessWidget {
       }
 
       if (!context.mounted) return;
+
+      // Dismiss the Flutter-side web splash overlay before navigating
+      if (kIsWeb) {
+        WebSplashOverlay.dismiss();
+      }
 
       navigator.pushReplacement(
         MaterialPageRoute(

@@ -13,6 +13,7 @@ import 'package:eu_sou/features/biblia/data/repositories/reading_settings_reposi
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/onboarding/presentation/splash_page.dart';
+import 'package:eu_sou/shared/widgets/web_splash_overlay.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
@@ -113,6 +114,8 @@ class _AppState extends State<App> {
                 supportedLocales: AppLocalizations.supportedLocales,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
                 locale: context.watch<LocaleBloc>().state.locale,
+                builder: (context, child) =>
+                    WebSplashOverlay(child: child ?? const SizedBox.shrink()),
                 home: const SplashPage(),
               );
             },
