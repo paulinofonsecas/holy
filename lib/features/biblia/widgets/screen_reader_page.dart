@@ -110,10 +110,12 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
     if (chapter.number > 1) {
       context.read<BibliaBloc>().add(
-            GetChapter(versionId, chapter.bookId, (chapter.number - 1).toString()),
+            GetChapter(
+                versionId, chapter.bookId, (chapter.number - 1).toString()),
           );
     } else {
-      final idx = BibleBooks.values.indexWhere((b) => b.bookId == chapter.bookId);
+      final idx =
+          BibleBooks.values.indexWhere((b) => b.bookId == chapter.bookId);
       if (idx > 0) {
         final prev = BibleBooks.values[idx - 1];
         context.read<BibliaBloc>().add(
@@ -130,10 +132,12 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
     if (chapter.number < chapter.totalChapters) {
       context.read<BibliaBloc>().add(
-            GetChapter(versionId, chapter.bookId, (chapter.number + 1).toString()),
+            GetChapter(
+                versionId, chapter.bookId, (chapter.number + 1).toString()),
           );
     } else {
-      final idx = BibleBooks.values.indexWhere((b) => b.bookId == chapter.bookId);
+      final idx =
+          BibleBooks.values.indexWhere((b) => b.bookId == chapter.bookId);
       if (idx < BibleBooks.values.length - 1) {
         final next = BibleBooks.values[idx + 1];
         context.read<BibliaBloc>().add(GetChapter(versionId, next.bookId, '1'));

@@ -589,7 +589,8 @@ class _PanelContentState extends State<_PanelContent> {
                                   child: Stack(
                                     children: [
                                       GestureDetector(
-                                        onTap: () => _panelFocusNode.requestFocus(),
+                                        onTap: () =>
+                                            _panelFocusNode.requestFocus(),
                                         onHorizontalDragEnd: (details) {
                                           if (details.primaryVelocity! > 0) {
                                             _navigateToPreviousChapter();
@@ -599,7 +600,8 @@ class _PanelContentState extends State<_PanelContent> {
                                           }
                                         },
                                         child: MouseRegion(
-                                          onEnter: (_) => _panelFocusNode.requestFocus(),
+                                          onEnter: (_) =>
+                                              _panelFocusNode.requestFocus(),
                                           child: ScreenReaderPage(
                                             focusNode: _panelFocusNode,
                                           ),
