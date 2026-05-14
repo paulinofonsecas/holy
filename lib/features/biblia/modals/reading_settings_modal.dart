@@ -54,6 +54,94 @@ class ReadingSettingsModal extends StatelessWidget {
 
               // Background
               _buildSectionTitle('Fundo de Leitura'),
+              const Gap(8),
+              BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
+                builder: (context, state) {
+                  return Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: ReadingBackground.values.map((bg) {
+                      final isSelected = state.readingBackground == bg;
+                      final bgColor = bg.backgroundColor ??
+                          Theme.of(context).colorScheme.surface;
+                      final textColor = bg.textColor ??
+                          Theme.of(context).colorScheme.onSurface;
+                      return GestureDetector(
+                        onTap: () => context
+                            .read<ReadingSettingsCubit>()
+                            .setReadingBackground(bg),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          width: 70,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: bgColor,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .outline
+                                      .withValues(alpha: 0.3),
+                              width: isSelected ? 2.5 : 1,
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 6,
+                                    )
+                                  ]
+                                : null,
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Text(
+                                'Aa',
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 4,
+                                left: 0,
+                                right: 0,
+                                child: Text(
+                                  bg.label,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: textColor.withValues(alpha: 0.7),
+                                    fontSize: 9,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    size: 14,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+              const Gap(16),
 
               // Font Size
               _buildSectionTitle('Tamanho do Texto'),
@@ -257,93 +345,6 @@ class ReadingSettingsModal extends StatelessWidget {
               ),
               const Gap(24),
 
-              const Gap(8),
-              BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
-                builder: (context, state) {
-                  return Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: ReadingBackground.values.map((bg) {
-                      final isSelected = state.readingBackground == bg;
-                      final bgColor = bg.backgroundColor ??
-                          Theme.of(context).colorScheme.surface;
-                      final textColor = bg.textColor ??
-                          Theme.of(context).colorScheme.onSurface;
-                      return GestureDetector(
-                        onTap: () => context
-                            .read<ReadingSettingsCubit>()
-                            .setReadingBackground(bg),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 150),
-                          width: 70,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: bgColor,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .outline
-                                      .withValues(alpha: 0.3),
-                              width: isSelected ? 2.5 : 1,
-                            ),
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withValues(alpha: 0.3),
-                                      blurRadius: 6,
-                                    )
-                                  ]
-                                : null,
-                          ),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Text(
-                                'Aa',
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 4,
-                                left: 0,
-                                right: 0,
-                                child: Text(
-                                  bg.label,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: textColor.withValues(alpha: 0.7),
-                                    fontSize: 9,
-                                  ),
-                                ),
-                              ),
-                              if (isSelected)
-                                Positioned(
-                                  top: 4,
-                                  right: 4,
-                                  child: Icon(
-                                    Icons.check_circle,
-                                    size: 14,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
               const Gap(24),
 
               // Bible Version
