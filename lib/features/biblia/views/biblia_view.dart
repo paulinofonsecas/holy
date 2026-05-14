@@ -25,6 +25,7 @@ import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../bloc/biblia_bloc.dart';
+import '../bloc/verse_filter_cubit.dart';
 import '../multiversion/multiversion_cubit.dart';
 import '../multiversion/multiversion_view.dart';
 import '../widgets/animated_chapter_navigation.dart';
@@ -55,6 +56,9 @@ class BibliaPage extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => VerseSelectionBloc(),
+        ),
+        BlocProvider(
+          create: (context) => VerseFilterCubit(),
         ),
       ],
       child: const BibliaView(),
@@ -302,7 +306,14 @@ class _BibliaViewState extends State<BibliaView> {
           if (multiversionState.isEnabled && !isOnDetailsView(context)) {
             return Scaffold(
               backgroundColor: bgColor,
-              body: const SafeArea(child: MultiversionView()),
+              body: SafeArea(
+                child: Column(
+                  children: const [
+                    _VerseFilterBar(),
+                    Expanded(child: MultiversionView()),
+                  ],
+                ),
+              ),
             );
           }
 
@@ -378,6 +389,7 @@ class _BibliaViewState extends State<BibliaView> {
                       ),
                     ],
                   ),
+                  const _VerseFilterBar(),
                   Expanded(
                     child: Stack(
                       children: [
@@ -551,4 +563,97 @@ class _BibliaViewState extends State<BibliaView> {
   // Future<bool> _canYouContinueToGenerateDialog(BuildContext context) {
 
   // }
+}
+
+// ── Verse Filter Bar ──────────────────────────────────────────────────────────
+
+/// A persistent search/filter bar shown above reading content in both
+/// single-version and multi-version modes.
+///
+/// Typing one or more comma-separated keywords filters the verse list to
+/// show only matching verses (highlighted) while dimming the rest.
+class _VerseFilterBar extends StatefulWidget {
+  const _VerseFilterBar();
+
+  @override
+  State<_VerseFilterBar> createState() => _VerseFilterBarState();
+}
+
+class _VerseFilterBarState extends State<_VerseFilterBar> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: BlocBuilder<VerseFilterCubit, List<String>>(
+        builder: (context, keywords) {
+          return TextField(
+            controller: _controller,
+            style: const TextStyle(fontSize: 13),
+            decoration: InputDecoration(
+              hintText:
+                  'Filtrar versículos por palavras-chave. Separe os termos com ,',
+              hintStyle: TextStyle(
+                fontSize: 12,
+                color: colorScheme.onSurface.withValues(alpha: 0.45),
+              ),
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 8, right: 4),
+                child: AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedSearch01,
+                  size: 16,
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+              prefixIconConstraints:
+                  const BoxConstraints(minWidth: 36, minHeight: 36),
+              suffixIcon: keywords.isEmpty
+                  ? null
+                  : IconButton(
+                      visualDensity: VisualDensity.compact,
+                      icon: AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedCancel01,
+                        size: 16,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                      onPressed: () {
+                        _controller.clear();
+                        context.read<VerseFilterCubit>().clear();
+                      },
+                    ),
+              isDense: true,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.35),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.35),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: colorScheme.primary),
+              ),
+            ),
+            onChanged: (value) =>
+                context.read<VerseFilterCubit>().updateFilter(value),
+          );
+        },
+      ),
+    );
+  }
 }
