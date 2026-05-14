@@ -285,7 +285,7 @@ class AboutView extends StackedView<AboutViewModel> {
         ),
         const Gap(16),
         Text(
-          'Versão ${viewModel.version} + © 2026 ${viewModel.appName}',
+          'Versão ${viewModel.version} · © 2026 ${viewModel.appName}',
           style: TextStyle(
             fontSize: 11,
             color:

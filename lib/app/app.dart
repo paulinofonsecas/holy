@@ -13,7 +13,6 @@ import 'package:eu_sou/features/biblia/data/repositories/reading_settings_reposi
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/onboarding/presentation/splash_page.dart';
-import 'package:eu_sou/shared/widgets/web_splash_overlay.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_verse_history_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/verse_history_bloc.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
@@ -22,6 +21,7 @@ import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_event.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
+import 'package:eu_sou/shared/widgets/web_splash_overlay.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

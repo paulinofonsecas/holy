@@ -22,7 +22,8 @@ class VersaoWidget extends StatelessWidget {
   static void showPicker(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final bgColor = colorScheme.surface;
-    final bibleVersion = context.read<BibleVersionCubit>().state.version;
+    final cacheProvider = context.read<BibleCacheProvider>();
+    final versionCubit = context.read<BibleVersionCubit>();
 
     showModalBottomSheet(
       context: context,
@@ -30,61 +31,102 @@ class VersaoWidget extends StatelessWidget {
       backgroundColor: bgColor,
       useSafeArea: true,
       builder: (sheetContext) {
-        return SafeArea(
-          child: SingleChildScrollView(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: bgColor),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Escolha uma versão',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Gap(16),
-                  ...BibleVersions.values.map((e) {
-                    final isSelected = bibleVersion.id == e.id;
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: ListTile(
-                        onTap: () {
-                          context.read<BibleVersionCubit>().changeVersion(e);
-                          Navigator.pop(sheetContext);
-                        },
-                        title: Text('${e.id} - ${e.name}'),
-                        trailing: isSelected
-                            ? AppHugeIcon(
-                                icon: HugeIcons.strokeRoundedCheckmarkCircle01,
-                                color: Theme.of(context).colorScheme.primary)
-                            : FutureBuilder<bool>(
-                                future: context
-                                    .read<BibleCacheProvider>()
-                                    .isVersionCached(e.id),
-                                builder: (context, snapshot) {
-                                  if (snapshot.data == true) {
-                                    return const AppHugeIcon(
-                                        icon: HugeIcons
-                                            .strokeRoundedCheckmarkCircle01,
-                                        size: 20);
-                                  }
-                                  return const AppHugeIcon(
-                                      icon: HugeIcons.strokeRoundedDownload01,
-                                      size: 20);
-                                },
-                              ),
+        // deletedIds tracks versions removed in this session so the UI
+        // updates immediately without waiting for a FutureBuilder refresh.
+        final Set<String> deletedIds = {};
+
+        return StatefulBuilder(
+          builder: (builderContext, setModalState) {
+            final bibleVersion = versionCubit.state.version;
+
+            return SafeArea(
+              child: SingleChildScrollView(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(color: bgColor),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Escolha uma versão',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    );
-                  }),
-                ],
+                      const Gap(16),
+                      ...BibleVersions.values.map((e) {
+                        final isSelected = bibleVersion.id == e.id;
+                        final wasDeleted = deletedIds.contains(e.id);
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          child: ListTile(
+                            onTap: () {
+                              versionCubit.changeVersion(e);
+                              Navigator.pop(sheetContext);
+                            },
+                            title: Text('${e.id} - ${e.name}'),
+                            trailing: isSelected
+                                ? AppHugeIcon(
+                                    icon: HugeIcons
+                                        .strokeRoundedCheckmarkCircle01,
+                                    color: colorScheme.primary)
+                                : wasDeleted
+                                    ? const AppHugeIcon(
+                                        icon: HugeIcons
+                                            .strokeRoundedDownload01,
+                                        size: 20)
+                                    : FutureBuilder<bool>(
+                                        future: cacheProvider
+                                            .isVersionCached(e.id),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.data == true) {
+                                            // Cached and not active — show
+                                            // checkmark + delete icon.
+                                            return Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const AppHugeIcon(
+                                                    icon: HugeIcons
+                                                        .strokeRoundedCheckmarkCircle01,
+                                                    size: 20),
+                                                const SizedBox(width: 4),
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    await cacheProvider
+                                                        .removeVersion(e.id);
+                                                    setModalState(() {
+                                                      deletedIds.add(e.id);
+                                                    });
+                                                  },
+                                                  child: AppHugeIcon(
+                                                    icon: HugeIcons
+                                                        .strokeRoundedDelete02,
+                                                    size: 20,
+                                                    color: colorScheme.error,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }
+                                          return const AppHugeIcon(
+                                              icon: HugeIcons
+                                                  .strokeRoundedDownload01,
+                                              size: 20);
+                                        },
+                                      ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );

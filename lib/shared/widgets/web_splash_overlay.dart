@@ -50,8 +50,7 @@ class _WebSplashOverlayState extends State<WebSplashOverlay> {
   Widget build(BuildContext context) {
     if (!kIsWeb || _overlayRemoved) return widget.child;
 
-    final isDark =
-        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF121212) : const Color(0xFFFFFFFF);
 
     return Stack(

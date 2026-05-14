@@ -62,7 +62,7 @@ class AboutViewModel extends BaseViewModel {
       'Entender seu papel no Reino de Deus exige estudo consistênte e profundo. Nosso aplicativo une o estudo bíblico dinâmico à vida em comunidade para acelerar seu amadurecimento cristão:';
   final String growthIdentityTitle = 'Identidade na Palavra';
   final String growthIdentityBody =
-      'Use as marcações e entendimentos prfundos para descobrir quem você é em Cristo, fortalecendo sua fé e confiança na jornada cristã.';
+      'Use as marcações e entendimentos profundos para descobrir quem você é em Cristo, fortalecendo sua fé e confiança na jornada cristã.';
   final String growthUnityTitle = 'Busca avançada';
   final String growthUnityBody =
       'Encontre versículos relacionados, temas e conexões bíblicas para aprofundar seu entendimento e aplicação prática da Palavra.';
@@ -72,7 +72,8 @@ class AboutViewModel extends BaseViewModel {
   // FAQ Data
   final List<Map<String, String>> faq = [
     {
-      'Siguinificado do nome do aplicativo?':
+      'question': 'Qual é o significado do nome do aplicativo?',
+      'answer':
           '“Eu Sou” é uma declaração poderosa de identidade e presença, refletindo a essência de quem somos em Cristo e nossa conexão direta com Deus.',
     },
     {

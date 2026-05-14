@@ -24,6 +24,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import 'package:flutter/services.dart';
+
 import '../bloc/biblia_bloc.dart';
 import '../bloc/verse_filter_cubit.dart';
 import '../multiversion/multiversion_cubit.dart';
@@ -76,6 +78,7 @@ class BibliaView extends StatefulWidget {
 class _BibliaViewState extends State<BibliaView> {
   bool _showButtons = true;
   Timer? _hideTimer;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -83,12 +86,14 @@ class _BibliaViewState extends State<BibliaView> {
     _startHideTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureInitialReadingPositionLoaded();
+      _focusNode.requestFocus();
     });
   }
 
   @override
   void dispose() {
     _hideTimer?.cancel();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -392,7 +397,25 @@ class _BibliaViewState extends State<BibliaView> {
                   ),
                   const _VerseFilterBar(),
                   Expanded(
-                    child: Stack(
+                    child: Focus(
+                      focusNode: _focusNode,
+                      onKeyEvent: (node, event) {
+                        if (event is! KeyDownEvent) {
+                          return KeyEventResult.ignored;
+                        }
+                        if (event.logicalKey ==
+                            LogicalKeyboardKey.arrowUp) {
+                          _navigateToPreviousChapter();
+                          return KeyEventResult.handled;
+                        }
+                        if (event.logicalKey ==
+                            LogicalKeyboardKey.arrowDown) {
+                          _navigateToNextChapter();
+                          return KeyEventResult.handled;
+                        }
+                        return KeyEventResult.ignored;
+                      },
+                      child: Stack(
                       children: [
                         NotificationListener<ScrollNotification>(
                           onNotification: (notification) {
@@ -452,6 +475,7 @@ class _BibliaViewState extends State<BibliaView> {
                           ),
                         ),
                       ],
+                    ),
                     ),
                   ),
                   BlocBuilder<BibliaBloc, BibliaState>(
