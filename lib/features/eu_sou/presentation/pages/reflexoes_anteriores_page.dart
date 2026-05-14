@@ -60,8 +60,7 @@ class _ReflexoesAnterioresPageState extends State<ReflexoesAnterioresPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final bgColor = colorScheme.surface;
 
     return Scaffold(
       backgroundColor: bgColor,

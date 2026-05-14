@@ -245,8 +245,7 @@ class _PanelContentState extends State<_PanelContent> {
   void _openVersionPicker() {
     final bibleVersion = context.read<BibleVersionCubit>().state.version;
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final bgColor = colorScheme.surface;
 
     // Capture the blocs so they are accessible in the sheet
     final versionCubit = context.read<BibleVersionCubit>();
@@ -543,8 +542,7 @@ class _PanelContentState extends State<_PanelContent> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final bgColor = colorScheme.surface;
 
     return Container(
       decoration: BoxDecoration(
@@ -741,7 +739,7 @@ class _PanelHeader extends StatelessWidget {
             child: AppHugeIcon(
               icon: HugeIcons.strokeRoundedTextFont,
               size: 14,
-              color: colorScheme.onSurface,
+              color: Theme.of(context).colorScheme.outline,
             ),
           ),
           const Gap(6),

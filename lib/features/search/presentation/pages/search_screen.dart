@@ -69,8 +69,7 @@ class _TelaBuscaState extends State<TelaBusca> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final bgColor = colorScheme.surface;
 
     return BlocProvider(
       create: (context) => SearchSelectionBloc(),
@@ -103,7 +102,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                         backgroundColor: bgColor,
                         leading: selectionState.isInSelectionMode
                             ? IconButton(
-                                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
+                                icon: const AppHugeIcon(
+                                    icon: HugeIcons.strokeRoundedCancel01),
                                 onPressed: () {
                                   context
                                       .read<SearchSelectionBloc>()
@@ -262,8 +262,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const BibliaPage(),
-                    settings: const RouteSettings(
-                        arguments: 'bible_reading_details')),
+                            settings: const RouteSettings(
+                                arguments: 'bible_reading_details')),
                       );
                     }
                   },
@@ -341,8 +341,8 @@ class _TelaBuscaState extends State<TelaBusca> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const BibliaPage(),
-                    settings: const RouteSettings(
-                        arguments: 'bible_reading_details')),
+                            settings: const RouteSettings(
+                                arguments: 'bible_reading_details')),
                       );
                     }
                   },
@@ -395,7 +395,8 @@ class _InlineVerseHistory extends StatelessWidget {
               IconButton(
                 icon: AppHugeIcon(
                     icon: HugeIcons.strokeRoundedDelete01,
-                    size: 18, color: colorScheme.onSurface.withOpacity(0.45)),
+                    size: 18,
+                    color: colorScheme.onSurface.withOpacity(0.45)),
                 tooltip: 'Limpar histórico',
                 onPressed: () => _confirmClear(context),
               ),
@@ -407,8 +408,10 @@ class _InlineVerseHistory extends StatelessWidget {
         ...history.map((item) {
           final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(item.timestamp);
           return ListTile(
-            leading: AppHugeIcon(icon: HugeIcons.strokeRoundedBook01,
-                size: 20, color: colorScheme.onSurface.withOpacity(0.55)),
+            leading: AppHugeIcon(
+                icon: HugeIcons.strokeRoundedBook01,
+                size: 20,
+                color: colorScheme.onSurface.withOpacity(0.55)),
             title: Text(
               item.verseRef,
               style:
@@ -419,8 +422,10 @@ class _InlineVerseHistory extends StatelessWidget {
               style: GoogleFonts.inter(
                   fontSize: 12, color: colorScheme.onSurface.withOpacity(0.55)),
             ),
-            trailing: AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01,
-                size: 13, color: colorScheme.onSurface.withOpacity(0.30)),
+            trailing: AppHugeIcon(
+                icon: HugeIcons.strokeRoundedArrowRight01,
+                size: 13,
+                color: colorScheme.onSurface.withOpacity(0.30)),
             onTap: () => _openVerse(context, item),
           );
         }),
@@ -442,9 +447,9 @@ class _InlineVerseHistory extends StatelessWidget {
           );
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const BibliaPage(),
-                    settings: const RouteSettings(
-                        arguments: 'bible_reading_details')),
+        MaterialPageRoute(
+            builder: (_) => const BibliaPage(),
+            settings: const RouteSettings(arguments: 'bible_reading_details')),
       );
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(

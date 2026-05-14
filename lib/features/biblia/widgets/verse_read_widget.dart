@@ -26,8 +26,12 @@ class VerseReadWidget extends StatelessWidget {
     final verseRef =
         "$versionId:${chapter.bookId}:${chapter.number}:${verse.number}";
 
-    return BlocBuilder<VerseFilterCubit, List<String>>(
-      builder: (context, filterKeywords) {
+    return BlocBuilder<VerseFilterCubit, VerseFilterState>(
+      builder: (context, filterState) {
+        final versionId = context.read<BibleVersionCubit>().state.version.id;
+        final keywords = filterState.isVersionActive(versionId)
+            ? filterState.keywords
+            : const <String>[];
         return BlocBuilder<ReadingSettingsCubit, ReadingSettingsState>(
           builder: (context, settingsState) {
             return BlocBuilder<HighlightBloc, HighlightState>(
@@ -147,7 +151,7 @@ class VerseReadWidget extends StatelessWidget {
                                   ),
                                   ..._buildFilteredTextSpans(
                                     verse.text,
-                                    filterKeywords,
+                                    keywords,
                                     bodyBaseStyle,
                                   ),
                                 ],

@@ -33,6 +33,10 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
     for (var recognizer in _recognizers.values) {
       recognizer.dispose();
     }
+    try {
+      final versionId = context.read<BibleVersionCubit>().state.version.id;
+      context.read<VerseFilterCubit>().removeVersion(versionId);
+    } catch (_) {}
     super.dispose();
   }
 
@@ -53,13 +57,36 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
           return _buildContinuousLayout(context, settingsState);
         }
 
-        return BlocBuilder<VerseFilterCubit, List<String>>(
-          builder: (context, filterKeywords) {
-            final isFiltering = filterKeywords.isNotEmpty;
+        return BlocBuilder<VerseFilterCubit, VerseFilterState>(
+          builder: (context, filterState) {
+            final versionId =
+                context.read<BibleVersionCubit>().state.version.id;
+            final keywords = filterState.keywords;
+            final isFiltering = filterState.isFiltering;
+            final isVersionActive = filterState.isVersionActive(versionId);
+
             final seenNumbers = <int>{};
             final uniqueVerses = widget.chapter.verses
                 .where((verse) => seenNumbers.add(verse.number))
                 .toList();
+
+            if (isFiltering) {
+              final matchCount = isVersionActive
+                  ? uniqueVerses
+                      .where((v) => keywords
+                          .any((kw) => v.text.toLowerCase().contains(kw)))
+                      .length
+                  : 0;
+              final wordCounts = isVersionActive
+                  ? _countKeywordOccurrences(uniqueVerses, keywords)
+                  : <String, int>{};
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                final cubit = context.read<VerseFilterCubit>();
+                cubit.reportMatchCount(versionId, matchCount);
+                cubit.reportWordCounts(versionId, wordCounts);
+              });
+            }
 
             return Center(
               child: ConstrainedBox(
@@ -72,12 +99,16 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                       final key = widget.verseKeys[verse.number] ??
                           ValueKey(verse.number);
                       final matchesFilter = !isFiltering ||
-                          filterKeywords.any(
+                          !isVersionActive ||
+                          keywords.any(
                               (kw) => verse.text.toLowerCase().contains(kw));
 
                       return AnimatedOpacity(
                         duration: const Duration(milliseconds: 150),
-                        opacity: isFiltering && !matchesFilter ? 0.28 : 1.0,
+                        opacity:
+                            isFiltering && isVersionActive && !matchesFilter
+                                ? 0.28
+                                : 1.0,
                         child: VerseReadWidget(
                           key: key,
                           verse: verse,
@@ -99,9 +130,11 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
       BuildContext context, ReadingSettingsState settings) {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
 
-    return BlocBuilder<VerseFilterCubit, List<String>>(
-      builder: (context, filterKeywords) {
-        final isFiltering = filterKeywords.isNotEmpty;
+    return BlocBuilder<VerseFilterCubit, VerseFilterState>(
+      builder: (context, filterState) {
+        final keywords = filterState.keywords;
+        final isFiltering = filterState.isFiltering;
+        final isVersionActive = filterState.isVersionActive(versionId);
         return BlocBuilder<HighlightBloc, HighlightState>(
           builder: (context, highlightState) {
             return BlocBuilder<VerseSelectionBloc, VerseSelectionState>(
@@ -124,7 +157,8 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                       highlightState.highlights.containsKey(verseRef);
 
                   final matchesFilter = !isFiltering ||
-                      filterKeywords
+                      !isVersionActive ||
+                      keywords
                           .any((kw) => verse.text.toLowerCase().contains(kw));
 
                   Color? backgroundColor;
@@ -145,7 +179,10 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                     }
                   }
 
-                  final dimOpacity = isFiltering && !matchesFilter ? 0.28 : 1.0;
+                  final dimOpacity =
+                      isFiltering && isVersionActive && !matchesFilter
+                          ? 0.28
+                          : 1.0;
 
                   final baseStyle = TextStyle(
                     fontSize: settings.fontSize,
@@ -194,10 +231,10 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                     backgroundColor: backgroundColor,
                   );
 
-                  if (isFiltering && matchesFilter) {
+                  if (isFiltering && isVersionActive && matchesFilter) {
                     for (final span in _buildContinuousFilterSpans(
                       rawText,
-                      filterKeywords,
+                      keywords,
                       bodyBaseStyle,
                       _getRecognizer(verse.number, verse),
                     )) {
@@ -212,6 +249,24 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                       ),
                     );
                   }
+                }
+
+                if (isFiltering) {
+                  final matchCount = isVersionActive
+                      ? _uniqueVerses
+                          .where((v) => keywords
+                              .any((kw) => v.text.toLowerCase().contains(kw)))
+                          .length
+                      : 0;
+                  final wordCounts = isVersionActive
+                      ? _countKeywordOccurrences(_uniqueVerses, keywords)
+                      : <String, int>{};
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    final cubit = context.read<VerseFilterCubit>();
+                    cubit.reportMatchCount(versionId, matchCount);
+                    cubit.reportWordCounts(versionId, wordCounts);
+                  });
                 }
 
                 return Center(
@@ -287,4 +342,22 @@ List<TextSpan> _buildContinuousFilterSpans(
   return spans.isEmpty
       ? [TextSpan(text: text, style: baseStyle, recognizer: recognizer)]
       : spans;
+}
+
+// ── Helper: per-keyword occurrence count across a verse list ─────────────────
+
+Map<String, int> _countKeywordOccurrences(
+  List<BibleVerse> verses,
+  List<String> keywords,
+) {
+  final result = <String, int>{};
+  for (final keyword in keywords) {
+    final regex = RegExp(RegExp.escape(keyword), caseSensitive: false);
+    var total = 0;
+    for (final verse in verses) {
+      total += regex.allMatches(verse.text).length;
+    }
+    result[keyword] = total;
+  }
+  return result;
 }

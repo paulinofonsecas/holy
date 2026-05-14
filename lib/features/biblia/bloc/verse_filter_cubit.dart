@@ -1,21 +1,142 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Holds the active keyword filter for Bible verse reading.
-///
-/// The state is a list of lowercase trimmed keywords.
-/// An empty list means no filter is active.
-class VerseFilterCubit extends Cubit<List<String>> {
-  VerseFilterCubit() : super(const []);
+/// Immutable state for the global verse keyword filter.
+class VerseFilterState {
+  const VerseFilterState({
+    this.keywords = const [],
+    this.excludedVersionIds = const {},
+    this.matchCounts = const {},
+    this.versionWordCounts = const {},
+  });
 
-  /// Parses [input] into keywords split by comma.
+  /// Active lowercase trimmed keywords. Empty = no filter.
+  final List<String> keywords;
+
+  /// Version IDs excluded from the filter. Empty = all versions included.
+  final Set<String> excludedVersionIds;
+
+  /// Map from version ID → count of matching verses, reported by each panel.
+  final Map<String, int> matchCounts;
+
+  /// Per-version per-keyword occurrence totals.
+  /// versionId → { keyword → occurrence count }
+  final Map<String, Map<String, int>> versionWordCounts;
+
+  bool get isFiltering => keywords.isNotEmpty;
+
+  int get totalMatches => matchCounts.values.fold(0, (s, c) => s + c);
+
+  /// How many registered versions have at least one matching verse.
+  int get versionsWithMatches => matchCounts.values.where((c) => c > 0).length;
+
+  /// Aggregated keyword occurrence counts across all active (non-excluded) versions.
+  Map<String, int> get wordCounts {
+    final result = <String, int>{};
+    for (final entry in versionWordCounts.entries) {
+      if (isVersionActive(entry.key)) {
+        for (final wEntry in entry.value.entries) {
+          result[wEntry.key] = (result[wEntry.key] ?? 0) + wEntry.value;
+        }
+      }
+    }
+    return result;
+  }
+
+  /// Whether the filter should be applied to [versionId].
+  bool isVersionActive(String versionId) =>
+      !excludedVersionIds.contains(versionId);
+
+  VerseFilterState copyWith({
+    List<String>? keywords,
+    Set<String>? excludedVersionIds,
+    Map<String, int>? matchCounts,
+    Map<String, Map<String, int>>? versionWordCounts,
+  }) =>
+      VerseFilterState(
+        keywords: keywords ?? this.keywords,
+        excludedVersionIds: excludedVersionIds ?? this.excludedVersionIds,
+        matchCounts: matchCounts ?? this.matchCounts,
+        versionWordCounts: versionWordCounts ?? this.versionWordCounts,
+      );
+}
+
+/// Cubit that manages the active keyword filter and per-version match metrics.
+class VerseFilterCubit extends Cubit<VerseFilterState> {
+  VerseFilterCubit() : super(const VerseFilterState());
+
+  /// Parses [input] into keywords split by comma and resets match counts.
   void updateFilter(String input) {
     final keywords = input
         .split(',')
         .map((e) => e.trim().toLowerCase())
         .where((e) => e.isNotEmpty)
         .toList();
-    emit(keywords);
+    emit(state.copyWith(
+      keywords: keywords,
+      matchCounts: const {},
+      versionWordCounts: const {},
+    ));
   }
 
-  void clear() => emit(const []);
+  void clear() => emit(const VerseFilterState());
+
+  /// Toggles whether [versionId] is excluded from the filter.
+  void toggleVersionExclusion(String versionId) {
+    final updated = Set<String>.from(state.excludedVersionIds);
+    if (updated.contains(versionId)) {
+      updated.remove(versionId);
+    } else {
+      updated.add(versionId);
+    }
+    emit(state.copyWith(excludedVersionIds: updated));
+  }
+
+  /// Called by a reading panel to report how many verses match the current
+  /// keywords. No-op if the count hasn't changed (prevents rebuild loops).
+  void reportMatchCount(String versionId, int count) {
+    if ((state.matchCounts[versionId] ?? -1) == count) return;
+    emit(state.copyWith(
+      matchCounts: {...state.matchCounts, versionId: count},
+    ));
+  }
+
+  /// Called by a reading panel to report per-keyword occurrence counts.
+  /// No-op if counts are unchanged.
+  void reportWordCounts(String versionId, Map<String, int> counts) {
+    final existing = state.versionWordCounts[versionId];
+    if (existing != null && _mapsEqual(existing, counts)) return;
+    emit(state.copyWith(
+      versionWordCounts: {
+        ...state.versionWordCounts,
+        versionId: Map.unmodifiable(counts),
+      },
+    ));
+  }
+
+  /// Called when a reading panel is disposed so stale metrics are removed.
+  void removeVersion(String versionId) {
+    final hasCounts = state.matchCounts.containsKey(versionId);
+    final hasExclusion = state.excludedVersionIds.contains(versionId);
+    final hasWordCounts = state.versionWordCounts.containsKey(versionId);
+    if (!hasCounts && !hasExclusion && !hasWordCounts) return;
+    final counts = Map<String, int>.from(state.matchCounts)..remove(versionId);
+    final excluded = Set<String>.from(state.excludedVersionIds)
+      ..remove(versionId);
+    final wordCounts =
+        Map<String, Map<String, int>>.from(state.versionWordCounts)
+          ..remove(versionId);
+    emit(state.copyWith(
+      matchCounts: counts,
+      excludedVersionIds: excluded,
+      versionWordCounts: wordCounts,
+    ));
+  }
+
+  static bool _mapsEqual(Map<String, int> a, Map<String, int> b) {
+    if (a.length != b.length) return false;
+    for (final key in a.keys) {
+      if (a[key] != b[key]) return false;
+    }
+    return true;
+  }
 }

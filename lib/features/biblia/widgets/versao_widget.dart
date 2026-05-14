@@ -21,8 +21,7 @@ class VersaoWidget extends StatelessWidget {
   /// Shows the version picker bottom sheet. Can be called externally.
   static void showPicker(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final bgColor = colorScheme.surface;
     final bibleVersion = context.read<BibleVersionCubit>().state.version;
 
     showModalBottomSheet(

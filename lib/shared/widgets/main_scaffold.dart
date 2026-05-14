@@ -318,8 +318,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
     final isWide = screenWidth > 900;
     final isExtraWide = screenWidth > 1345;
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final bgColor = colorScheme.surface;
 
     return MultiBlocListener(
       listeners: [

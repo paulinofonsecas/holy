@@ -229,7 +229,7 @@ class _BibliaViewState extends State<BibliaView> {
     }
   }
 
-  bool isOnDetailsView(BuildContext context) {
+  bool isMultiVersionAvailable(BuildContext context) {
     // This is a bit of a hack to detect if we're on the details view, which is used as the "multiversion screen" on narrow devices
     // We want to show the multiversion view instead of the regular one in that case
     return ModalRoute.of(context)?.settings.arguments ==
@@ -239,8 +239,7 @@ class _BibliaViewState extends State<BibliaView> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? colorScheme.surface : const Color(0xFFFCFBF8);
+    final bgColor = colorScheme.surface;
 
     return MultiBlocListener(
       listeners: [
@@ -303,12 +302,13 @@ class _BibliaViewState extends State<BibliaView> {
       child: BlocBuilder<MultiversionCubit, MultiversionState>(
         builder: (context, multiversionState) {
           // ── Multiversion mode ────────────────────────────────────────────
-          if (multiversionState.isEnabled && !isOnDetailsView(context)) {
+          if (multiversionState.isEnabled &&
+              !isMultiVersionAvailable(context)) {
             return Scaffold(
               backgroundColor: bgColor,
-              body: SafeArea(
+              body: const SafeArea(
                 child: Column(
-                  children: const [
+                  children: [
                     _VerseFilterBar(),
                     Expanded(child: MultiversionView()),
                   ],
@@ -333,8 +333,9 @@ class _BibliaViewState extends State<BibliaView> {
                       if (MediaQuery.of(context).size.width >= 600)
                         BibleAppBarAction(
                           label: 'Multiversão',
-                          onTap: () =>
-                              context.read<MultiversionCubit>().enable(),
+                          onTap: !isMultiVersionAvailable(context)
+                              ? () => context.read<MultiversionCubit>().enable()
+                              : null,
                           child: AppHugeIcon(
                             icon: HugeIcons.strokeRoundedLayoutTable01,
                             color: Theme.of(context).colorScheme.primary,
@@ -581,6 +582,7 @@ class _VerseFilterBar extends StatefulWidget {
 
 class _VerseFilterBarState extends State<_VerseFilterBar> {
   final _controller = TextEditingController();
+  bool _isExpanded = false;
 
   @override
   void dispose() {
@@ -591,68 +593,324 @@ class _VerseFilterBarState extends State<_VerseFilterBar> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: BlocBuilder<VerseFilterCubit, List<String>>(
-        builder: (context, keywords) {
-          return TextField(
-            controller: _controller,
-            style: const TextStyle(fontSize: 13),
-            decoration: InputDecoration(
-              hintText:
-                  'Filtrar versículos por palavras-chave. Separe os termos com ,',
-              hintStyle: TextStyle(
-                fontSize: 12,
-                color: colorScheme.onSurface.withValues(alpha: 0.45),
-              ),
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(left: 8, right: 4),
-                child: AppHugeIcon(
-                  icon: HugeIcons.strokeRoundedSearch01,
-                  size: 16,
-                  color: colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-              prefixIconConstraints:
-                  const BoxConstraints(minWidth: 36, minHeight: 36),
-              suffixIcon: keywords.isEmpty
-                  ? null
-                  : IconButton(
-                      visualDensity: VisualDensity.compact,
-                      icon: AppHugeIcon(
-                        icon: HugeIcons.strokeRoundedCancel01,
-                        size: 16,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+    return BlocBuilder<VerseFilterCubit, VerseFilterState>(
+      builder: (context, state) {
+        final isFiltering = state.isFiltering;
+        return AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ── Search field + toggle row ───────────────────────────
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: InputDecoration(
+                          hintText:
+                              'Filtrar versículos por palavras-chave. Separe os termos com ,',
+                          hintStyle: TextStyle(
+                            fontSize: 12,
+                            color:
+                                colorScheme.onSurface.withValues(alpha: 0.45),
+                          ),
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 4),
+                            child: AppHugeIcon(
+                              icon: HugeIcons.strokeRoundedSearch01,
+                              size: 16,
+                              color:
+                                  colorScheme.onSurface.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          prefixIconConstraints:
+                              const BoxConstraints(minWidth: 36, minHeight: 36),
+                          suffixIcon: !isFiltering
+                              ? null
+                              : IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: AppHugeIcon(
+                                    icon: HugeIcons.strokeRoundedCancel01,
+                                    size: 16,
+                                    color: colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                  onPressed: () {
+                                    _controller.clear();
+                                    setState(() => _isExpanded = false);
+                                    context.read<VerseFilterCubit>().clear();
+                                  },
+                                ),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color:
+                                  colorScheme.outline.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color:
+                                  colorScheme.outline.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: colorScheme.primary),
+                          ),
+                        ),
+                        onChanged: (value) => context
+                            .read<VerseFilterCubit>()
+                            .updateFilter(value),
                       ),
-                      onPressed: () {
-                        _controller.clear();
-                        context.read<VerseFilterCubit>().clear();
-                      },
                     ),
-              isDense: true,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.outline.withValues(alpha: 0.35),
+                    // Metrics badge + expand toggle shown only when filtering
+                    if (isFiltering) ...[
+                      const SizedBox(width: 4),
+                      if (!_isExpanded && state.totalMatches > 0)
+                        _CountBadge(
+                          count: state.totalMatches,
+                          colorScheme: colorScheme,
+                        ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        tooltip:
+                            _isExpanded ? 'Recolher métricas' : 'Ver métricas',
+                        icon: Icon(
+                          _isExpanded
+                              ? Icons.keyboard_arrow_up_rounded
+                              : Icons.keyboard_arrow_down_rounded,
+                          size: 20,
+                          color: colorScheme.onSurface.withValues(alpha: 0.65),
+                        ),
+                        onPressed: () =>
+                            setState(() => _isExpanded = !_isExpanded),
+                      ),
+                    ],
+                  ],
+                ),
+                // ── Expanded metrics + version filter panel ─────────────
+                if (_isExpanded && isFiltering) ...[
+                  const SizedBox(height: 6),
+                  _FilterMetricsPanel(filterState: state),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ── Count badge shown when panel is collapsed ─────────────────────────────────
+
+class _CountBadge extends StatelessWidget {
+  const _CountBadge({required this.count, required this.colorScheme});
+
+  final int count;
+  final ColorScheme colorScheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        '$count',
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: colorScheme.onPrimaryContainer,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Expanded metrics + version filter panel ───────────────────────────────────
+
+class _FilterMetricsPanel extends StatelessWidget {
+  const _FilterMetricsPanel({required this.filterState});
+
+  final VerseFilterState filterState;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final counts = filterState.matchCounts;
+    final excluded = filterState.excludedVersionIds;
+
+    final sorted = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final wordCounts = filterState.wordCounts;
+    final sortedWords = wordCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Summary ──────────────────────────────────────────────────
+          Row(
+            children: [
+              Text(
+                '${filterState.totalMatches} ocorrências',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
                 ),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.outline.withValues(alpha: 0.35),
+              if (sorted.isNotEmpty)
+                Text(
+                  ' · ${sorted.where((e) => e.value > 0).length} versão(ões)',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
                 ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: colorScheme.primary),
+            ],
+          ),
+
+          // ── Per-version counts ────────────────────────────────────────
+          if (sorted.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: sorted.map((entry) {
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '${entry.key.toUpperCase()}: ${entry.value}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          // ── Per-keyword occurrence counts ─────────────────────────────
+          if (sortedWords.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Por palavra:',
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurface.withValues(alpha: 0.55),
               ),
             ),
-            onChanged: (value) =>
-                context.read<VerseFilterCubit>().updateFilter(value),
-          );
-        },
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: sortedWords.map((entry) {
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF176).withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: const Color(0xFFE6C619).withValues(alpha: 0.7),
+                    ),
+                  ),
+                  child: Text(
+                    '"${entry.key}": ${entry.value}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          // ── Version inclusion toggle chips ────────────────────────────
+          if (counts.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Versões incluídas na pesquisa:',
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurface.withValues(alpha: 0.55),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: counts.keys.map((versionId) {
+                final isActive = !excluded.contains(versionId);
+                final count = counts[versionId] ?? 0;
+                return FilterChip(
+                  label: Text(
+                    '${versionId.toUpperCase()} ($count)',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isActive
+                          ? colorScheme.onSecondaryContainer
+                          : colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  selected: isActive,
+                  onSelected: (_) => context
+                      .read<VerseFilterCubit>()
+                      .toggleVersionExclusion(versionId),
+                  showCheckmark: false,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  selectedColor: colorScheme.secondaryContainer,
+                  backgroundColor: colorScheme.surface.withValues(alpha: 0.8),
+                  side: BorderSide(
+                    color: isActive
+                        ? colorScheme.secondary.withValues(alpha: 0.6)
+                        : colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ],
       ),
     );
   }
