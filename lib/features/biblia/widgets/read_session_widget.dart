@@ -72,13 +72,12 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                       final key = widget.verseKeys[verse.number] ??
                           ValueKey(verse.number);
                       final matchesFilter = !isFiltering ||
-                          filterKeywords.any((kw) =>
-                              verse.text.toLowerCase().contains(kw));
+                          filterKeywords.any(
+                              (kw) => verse.text.toLowerCase().contains(kw));
 
                       return AnimatedOpacity(
                         duration: const Duration(milliseconds: 150),
-                        opacity:
-                            isFiltering && !matchesFilter ? 0.28 : 1.0,
+                        opacity: isFiltering && !matchesFilter ? 0.28 : 1.0,
                         child: VerseReadWidget(
                           key: key,
                           verse: verse,
@@ -125,8 +124,8 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                       highlightState.highlights.containsKey(verseRef);
 
                   final matchesFilter = !isFiltering ||
-                      filterKeywords.any(
-                          (kw) => verse.text.toLowerCase().contains(kw));
+                      filterKeywords
+                          .any((kw) => verse.text.toLowerCase().contains(kw));
 
                   Color? backgroundColor;
                   if (isSelected) {
@@ -146,8 +145,7 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                     }
                   }
 
-                  final dimOpacity =
-                      isFiltering && !matchesFilter ? 0.28 : 1.0;
+                  final dimOpacity = isFiltering && !matchesFilter ? 0.28 : 1.0;
 
                   final baseStyle = TextStyle(
                     fontSize: settings.fontSize,
@@ -187,11 +185,10 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                   );
 
                   // Verse Text — with word-level keyword highlights
-                  final rawText = verse.text +
-                      (i < _uniqueVerses.length - 1 ? ' ' : '');
+                  final rawText =
+                      verse.text + (i < _uniqueVerses.length - 1 ? ' ' : '');
                   final bodyBaseStyle = style.copyWith(
-                    decoration:
-                        isSelected ? TextDecoration.underline : null,
+                    decoration: isSelected ? TextDecoration.underline : null,
                     decorationStyle: TextDecorationStyle.dashed,
                     decorationColor: Theme.of(context).colorScheme.primary,
                     backgroundColor: backgroundColor,

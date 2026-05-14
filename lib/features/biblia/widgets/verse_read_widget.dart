@@ -45,16 +45,17 @@ class VerseReadWidget extends StatelessWidget {
                     } else if (highlightState is HighlightsLoaded) {
                       final highlight = highlightState.highlights[verseRef];
                       if (highlight != null) {
-                        backgroundColor =
-                            Theme.brightnessOf(context) == Brightness.light
-                                ? Color(int.parse(highlight.colorHex, radix: 16))
-                                    .withValues(alpha: .8)
-                                : Color(int.parse(highlight.colorHex, radix: 16))
-                                    .withValues(alpha: .3);
+                        backgroundColor = Theme.brightnessOf(context) ==
+                                Brightness.light
+                            ? Color(int.parse(highlight.colorHex, radix: 16))
+                                .withValues(alpha: .8)
+                            : Color(int.parse(highlight.colorHex, radix: 16))
+                                .withValues(alpha: .3);
                       }
                     }
 
-                    final bgTextColor = settingsState.readingBackground.textColor;
+                    final bgTextColor =
+                        settingsState.readingBackground.textColor;
                     final normalTextColor = bgTextColor ??
                         (Theme.brightnessOf(context) == Brightness.light
                             ? Colors.black
@@ -81,26 +82,23 @@ class VerseReadWidget extends StatelessWidget {
                     final style = settingsState.isGoogleFont
                         ? GoogleFonts.getFont(settingsState.fontFamily,
                             textStyle: baseStyle)
-                        : baseStyle.copyWith(fontFamily: settingsState.fontFamily);
+                        : baseStyle.copyWith(
+                            fontFamily: settingsState.fontFamily);
 
                     final numberStyle = style.copyWith(
                       fontWeight: FontWeight.w500,
-                      decoration:
-                          isSelected ? TextDecoration.underline : null,
+                      decoration: isSelected ? TextDecoration.underline : null,
                       decorationStyle: TextDecorationStyle.dashed,
-                      decorationColor:
-                          Theme.of(context).colorScheme.primary,
+                      decorationColor: Theme.of(context).colorScheme.primary,
                       color: !isHighlighted
                           ? normalTextColor
                           : highlightedTextColor,
                     );
 
                     final bodyBaseStyle = style.copyWith(
-                      decoration:
-                          isSelected ? TextDecoration.underline : null,
+                      decoration: isSelected ? TextDecoration.underline : null,
                       decorationStyle: TextDecorationStyle.dashed,
-                      decorationColor:
-                          Theme.of(context).colorScheme.onSurface,
+                      decorationColor: Theme.of(context).colorScheme.onSurface,
                       color: !isHighlighted
                           ? normalTextColor
                           : highlightedTextColor,
