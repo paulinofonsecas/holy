@@ -1,6 +1,4 @@
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -192,9 +190,10 @@ Deixe o aplicativo com a sua cara e confortável para sua visão.
   @override
   Widget build(BuildContext context) {
     final tutorials = _getTutorials(context);
+    final isWide = MediaQuery.sizeOf(context).width > 600;
 
     return Scaffold(
-      appBar: kIsWeb
+      appBar: isWide
           ? null
           : AppBar(
               title: const Text('Central de Ajuda'),

@@ -12,7 +12,7 @@ class GeminiAIService {
   GeminiAIService() : _apiKey = const String.fromEnvironment('GEMINI_API_KEY') {
     _model = GenerativeModel(
       model: const String.fromEnvironment('GEMINI_TEXT_MODEL',
-          defaultValue: 'gemini-2.5-flash'),
+          defaultValue: 'gemini-3.1-flash-lite'),
       apiKey: _apiKey,
       systemInstruction: Content.system('''
 Você é um assistente analítico e teológico de nível acadêmico, integrado a um aplicativo de estudos avançados. Sua missão é fornecer um "Entendimento Aprofundado" sobre a busca do usuário.
