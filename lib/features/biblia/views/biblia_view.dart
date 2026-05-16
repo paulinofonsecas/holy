@@ -18,7 +18,6 @@ import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widget
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,6 +30,7 @@ import '../multiversion/multiversion_cubit.dart';
 import '../multiversion/multiversion_view.dart';
 import '../widgets/animated_chapter_navigation.dart';
 import '../widgets/biblia_app_bar.dart';
+import '../widgets/verse_filter_bar.dart';
 
 @Preview(name: 'My  ')
 Widget mySampleText() {
@@ -93,21 +93,23 @@ class _BibliaViewState extends State<BibliaView> {
   }
 
   void _startHideTimer() {
-    _hideTimer?.cancel();
-    if (kIsWeb) {
-      if (!_showButtons && mounted) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final isWideScreen = MediaQuery.of(context).size.width >= 600;
+      _hideTimer?.cancel();
+
+      if (!isWideScreen && !_showButtons) {
         setState(() {
           _showButtons = true;
         });
+        return;
       }
-      return;
-    }
-    _hideTimer = Timer(const Duration(seconds: 5), () {
-      if (mounted && _showButtons) {
-        setState(() {
-          _showButtons = false;
-        });
-      }
+      _hideTimer = Timer(const Duration(seconds: 5), () {
+        if (mounted && _showButtons) {
+          setState(() {
+            _showButtons = false;
+          });
+        }
+      });
     });
   }
 
@@ -317,7 +319,7 @@ class _BibliaViewState extends State<BibliaView> {
               body: const SafeArea(
                 child: Column(
                   children: [
-                    _VerseFilterBar(),
+                    VerseFilterBar(),
                     Expanded(child: MultiversionView()),
                   ],
                 ),
@@ -398,13 +400,12 @@ class _BibliaViewState extends State<BibliaView> {
                       ),
                     ],
                   ),
-                  const _VerseFilterBar(),
+                  const VerseFilterBar(),
                   Expanded(
                     child: Stack(
                       children: [
                         NotificationListener<ScrollNotification>(
                           onNotification: (notification) {
-                            if (kIsWeb) return false;
                             if (notification is ScrollStartNotification) {
                               _hideTimer?.cancel();
                               if (_showButtons) {
@@ -573,426 +574,4 @@ class _BibliaViewState extends State<BibliaView> {
   // Future<bool> _canYouContinueToGenerateDialog(BuildContext context) {
 
   // }
-}
-
-// ── Verse Filter Bar ──────────────────────────────────────────────────────────
-
-/// A persistent search/filter bar shown above reading content in both
-/// single-version and multi-version modes.
-///
-/// Typing one or more comma-separated keywords filters the verse list to
-/// show only matching verses (highlighted) while dimming the rest.
-class _VerseFilterBar extends StatefulWidget {
-  const _VerseFilterBar();
-
-  @override
-  State<_VerseFilterBar> createState() => _VerseFilterBarState();
-}
-
-class _VerseFilterBarState extends State<_VerseFilterBar> {
-  final _controller = TextEditingController();
-  bool _isExpanded = false;
-  int _currentMatchIndex = -1;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _scrollToNextMatch(List<int> matches) {
-    if (matches.isEmpty) return;
-    setState(() {
-      _currentMatchIndex = (_currentMatchIndex + 1) % matches.length;
-    });
-    _triggerScroll(matches[_currentMatchIndex]);
-  }
-
-  void _scrollToPreviousMatch(List<int> matches) {
-    if (matches.isEmpty) return;
-    setState(() {
-      _currentMatchIndex = (_currentMatchIndex - 1) % matches.length;
-      if (_currentMatchIndex < 0) _currentMatchIndex += matches.length;
-    });
-    _triggerScroll(matches[_currentMatchIndex]);
-  }
-
-  void _triggerScroll(int verseNumber) {
-    final state = context.read<BibliaBloc>().state;
-    if (state is BibleChapterLoaded) {
-      context.read<BibliaBloc>().add(
-            GetChapter(
-              state.versionId,
-              state.chapter.bookId,
-              state.chapter.number.toString(),
-              verse: verseNumber,
-            ),
-          );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return BlocBuilder<VerseFilterCubit, VerseFilterState>(
-      builder: (context, state) {
-        final isFiltering = state.isFiltering;
-        return AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // ── Search field + toggle row ───────────────────────────
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText:
-                              'Filtrar versículos por palavras-chave. Separe os termos com ,',
-                          hintStyle: TextStyle(
-                            fontSize: 12,
-                            color:
-                                colorScheme.onSurface.withValues(alpha: 0.45),
-                          ),
-                          prefixIcon: Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 4),
-                            child: AppHugeIcon(
-                              icon: HugeIcons.strokeRoundedSearch01,
-                              size: 16,
-                              color:
-                                  colorScheme.onSurface.withValues(alpha: 0.5),
-                            ),
-                          ),
-                          prefixIconConstraints:
-                              const BoxConstraints(minWidth: 36, minHeight: 36),
-                          suffixIcon: !isFiltering
-                              ? null
-                              : IconButton(
-                                  visualDensity: VisualDensity.compact,
-                                  icon: AppHugeIcon(
-                                    icon: HugeIcons.strokeRoundedCancel01,
-                                    size: 16,
-                                    color: colorScheme.onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
-                                  onPressed: () {
-                                    _controller.clear();
-                                    setState(() {
-                                      _isExpanded = false;
-                                      _currentMatchIndex = -1;
-                                    });
-                                    context.read<VerseFilterCubit>().clear();
-                                  },
-                                ),
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color:
-                                  colorScheme.outline.withValues(alpha: 0.35),
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color:
-                                  colorScheme.outline.withValues(alpha: 0.35),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: colorScheme.primary),
-                          ),
-                        ),
-                        onChanged: (value) {
-                          setState(() => _currentMatchIndex = -1);
-                          context.read<VerseFilterCubit>().updateFilter(value);
-                        },
-                      ),
-                    ),
-                    // Metrics badge + expand toggle shown only when filtering
-                    if (isFiltering) ...[
-                      const SizedBox(width: 4),
-                      Builder(
-                        builder: (context) {
-                          final versionId = context
-                              .watch<BibleVersionCubit>()
-                              .state
-                              .version
-                              .id;
-                          final matches = state.matchVerses[versionId] ?? [];
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                icon: const Icon(Icons.keyboard_arrow_up,
-                                    size: 28),
-                                padding: EdgeInsets.zero,
-                                onPressed: matches.isEmpty
-                                    ? null
-                                    : () => _scrollToPreviousMatch(matches),
-                              ),
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                icon: const Icon(Icons.keyboard_arrow_down,
-                                    size: 28),
-                                padding: EdgeInsets.zero,
-                                onPressed: matches.isEmpty
-                                    ? null
-                                    : () => _scrollToNextMatch(matches),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 4),
-                      if (!_isExpanded && state.totalMatches > 0)
-                        _CountBadge(
-                          count: state.totalMatches,
-                          colorScheme: colorScheme,
-                        ),
-                      const SizedBox(width: 4),
-                      IconButton(
-                        visualDensity: VisualDensity.compact,
-                        tooltip:
-                            _isExpanded ? 'Recolher métricas' : 'Ver métricas',
-                        icon: Icon(
-                          _isExpanded
-                              ? Icons.keyboard_arrow_up_rounded
-                              : Icons.keyboard_arrow_down_rounded,
-                          size: 20,
-                          color: colorScheme.onSurface.withValues(alpha: 0.65),
-                        ),
-                        onPressed: () =>
-                            setState(() => _isExpanded = !_isExpanded),
-                      ),
-                    ],
-                  ],
-                ),
-                // ── Expanded metrics + version filter panel ─────────────
-                if (_isExpanded && isFiltering) ...[
-                  const SizedBox(height: 6),
-                  _FilterMetricsPanel(filterState: state),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ── Count badge shown when panel is collapsed ─────────────────────────────────
-
-class _CountBadge extends StatelessWidget {
-  const _CountBadge({required this.count, required this.colorScheme});
-
-  final int count;
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        '$count',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: colorScheme.onPrimaryContainer,
-        ),
-      ),
-    );
-  }
-}
-
-// ── Expanded metrics + version filter panel ───────────────────────────────────
-
-class _FilterMetricsPanel extends StatelessWidget {
-  const _FilterMetricsPanel({required this.filterState});
-
-  final VerseFilterState filterState;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final counts = filterState.matchVerses
-        .map((key, value) => MapEntry(key, value.length));
-    final excluded = filterState.excludedVersionIds;
-
-    final sorted = counts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    final wordCounts = filterState.wordCounts;
-    final sortedWords = wordCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ── Summary ──────────────────────────────────────────────────
-          Row(
-            children: [
-              Text(
-                '${filterState.totalMatches} ocorrências',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-              if (sorted.isNotEmpty)
-                Text(
-                  ' · ${sorted.where((e) => e.value > 0).length} versão(ões)',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-            ],
-          ),
-
-          // ── Per-version counts ────────────────────────────────────────
-          if (sorted.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: sorted.map((entry) {
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    '${entry.key.toUpperCase()}: ${entry.value}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.onSecondaryContainer,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-
-          // ── Per-keyword occurrence counts ─────────────────────────────
-          if (sortedWords.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Por palavra:',
-              style: TextStyle(
-                fontSize: 11,
-                color: colorScheme.onSurface.withValues(alpha: 0.55),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: sortedWords.map((entry) {
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF176).withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: const Color(0xFFE6C619).withValues(alpha: 0.7),
-                    ),
-                  ),
-                  child: Text(
-                    '"${entry.key}": ${entry.value}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-
-          // ── Version inclusion toggle chips ────────────────────────────
-          if (counts.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Versões incluídas na pesquisa:',
-              style: TextStyle(
-                fontSize: 11,
-                color: colorScheme.onSurface.withValues(alpha: 0.55),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: counts.keys.map((versionId) {
-                final isActive = !excluded.contains(versionId);
-                final count = counts[versionId] ?? 0;
-                return FilterChip(
-                  label: Text(
-                    '${versionId.toUpperCase()} ($count)',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isActive
-                          ? colorScheme.onSecondaryContainer
-                          : colorScheme.onSurface.withValues(alpha: 0.5),
-                    ),
-                  ),
-                  selected: isActive,
-                  onSelected: (_) => context
-                      .read<VerseFilterCubit>()
-                      .toggleVersionExclusion(versionId),
-                  showCheckmark: false,
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  visualDensity: VisualDensity.compact,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  selectedColor: colorScheme.secondaryContainer,
-                  backgroundColor: colorScheme.surface.withValues(alpha: 0.8),
-                  side: BorderSide(
-                    color: isActive
-                        ? colorScheme.secondary.withValues(alpha: 0.6)
-                        : colorScheme.outline.withValues(alpha: 0.3),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 }

@@ -126,7 +126,17 @@ class EuSouRepository implements IEuSouRepository {
         reference: '$fallbackBook $fallbackChapter:$fallbackVerseNum',
       );
     } catch (_) {
-      return null;
+      final fallbackVerse = await _searchProvider.getRandomVerse();
+      if (fallbackVerse == null) return null;
+      final fallbackBook = fallbackVerse.book.name;
+      final fallbackChapter = fallbackVerse.chapter.number;
+      final fallbackVerseNum = fallbackVerse.verse.number;
+      final fallbackText = fallbackVerse.verse.text;
+
+      return (
+        text: fallbackText,
+        reference: '$fallbackBook $fallbackChapter:$fallbackVerseNum',
+      );
     }
   }
 

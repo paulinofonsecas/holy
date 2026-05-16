@@ -1,5 +1,6 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_state.dart';
+import 'package:eu_sou/features/eu_sou/presentation/widgets/theme_toggle_button.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -141,6 +142,16 @@ class ReadingSettingsModal extends StatelessWidget {
                   );
                 },
               ),
+              const Gap(16),
+
+              // Dark Mode
+              _buildSectionTitle('Modo Escuro'),
+              ThemeToggleButton.withLabel(
+                onTapCallback: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+
               const Gap(16),
 
               // Font Size

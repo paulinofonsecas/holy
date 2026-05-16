@@ -8,7 +8,16 @@ import '../../../../shared/widgets/app_huge_icon.dart';
 /// Botão compacto que cicla entre os modos de tema: claro → escuro → sistema.
 /// Usa [ThemeBloc] + [ThemeModeChanged] — mesma abordagem de ThemeModePicker.
 class ThemeToggleButton extends StatelessWidget {
-  const ThemeToggleButton({super.key});
+  const ThemeToggleButton(
+      {super.key, this.withLabel = false, this.onTapCallback});
+
+  final bool withLabel;
+  final VoidCallback? onTapCallback;
+
+  factory ThemeToggleButton.withLabel({Key? key, VoidCallback? onTapCallback}) {
+    return ThemeToggleButton(
+        key: key, withLabel: true, onTapCallback: onTapCallback);
+  }
 
   /// Ciclo: light → dark → system → light → ...
   ThemeMode _nextMode(ThemeMode current) {
@@ -54,17 +63,50 @@ class ThemeToggleButton extends StatelessWidget {
         return Tooltip(
           message: 'Tema: ${_label(current)}',
           child: InkWell(
-            onTap: () => context
-                .read<ThemeBloc>()
-                .add(ThemeModeChanged(_nextMode(current))),
+            onTap: () {
+              context
+                  .read<ThemeBloc>()
+                  .add(ThemeModeChanged(_nextMode(current)));
+
+              onTapCallback?.call();
+            },
             borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: AppHugeIcon(
-                icon: _icon(current),
-                size: 22,
-                color: colorScheme.onSurface.withOpacity(0.65),
-              ),
+            child: Builder(
+              builder: (context) {
+                if (withLabel) {
+                  return Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _label(current),
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        AppHugeIcon(
+                          icon: _icon(current),
+                          size: 22,
+                          color: colorScheme.onSurface.withOpacity(0.65),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: AppHugeIcon(
+                      icon: _icon(current),
+                      size: 22,
+                      color: colorScheme.onSurface.withOpacity(0.65),
+                    ),
+                  );
+                }
+              },
             ),
           ),
         );
