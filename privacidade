@@ -1,0 +1,16 @@
+### POLÍTICA DE PRIVACIDADE - APP EUSOU
+
+**Última atualização: Janeiro de 2026**
+
+#### 1. Coleta de Dados
+* **Dados Pessoais:** O app EuSou não exige criação de conta. Não coletamos Nome, E-mail ou Telefone.
+* **Dados de Uso:** Coletamos apenas dados técnicos anônimos (Crashlytics) para correção de bugs e melhoria de performance.
+
+#### 2. Armazenamento Local
+Suas marcações, versículos favoritos e histórico de leitura são armazenados exclusivamente no seu dispositivo (Local Database/SharedPreferences). Se você deletar o app, esses dados serão removidos, a menos que utilize o backup manual do sistema operacional.
+
+#### 3. Serviços de Terceiros
+Podemos utilizar APIs externas para busca de versículos ou planos de leitura. Nestes casos, nenhuma informação identificável do usuário é transmitida.
+
+#### 4. Consentimento
+Ao utilizar o EuSou, você concorda com os termos aqui descritos.
