@@ -71,19 +71,20 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                 .toList();
 
             if (isFiltering) {
-              final matchCount = isVersionActive
+              final matches = isVersionActive
                   ? uniqueVerses
                       .where((v) => keywords
                           .any((kw) => v.text.toLowerCase().contains(kw)))
-                      .length
-                  : 0;
+                      .map((v) => v.number)
+                      .toList()
+                  : <int>[];
               final wordCounts = isVersionActive
                   ? _countKeywordOccurrences(uniqueVerses, keywords)
                   : <String, int>{};
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!mounted) return;
                 final cubit = context.read<VerseFilterCubit>();
-                cubit.reportMatchCount(versionId, matchCount);
+                cubit.reportMatches(versionId, matches);
                 cubit.reportWordCounts(versionId, wordCounts);
               });
             }
@@ -141,13 +142,13 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
               builder: (context, selectionState) {
                 final spans = <InlineSpan>[];
 
-                final _seenVerseNumbers = <int>{};
-                final _uniqueVerses = widget.chapter.verses
-                    .where((v) => _seenVerseNumbers.add(v.number))
+                final seenVerseNumbers = <int>{};
+                final uniqueVerses = widget.chapter.verses
+                    .where((v) => seenVerseNumbers.add(v.number))
                     .toList();
 
-                for (var i = 0; i < _uniqueVerses.length; i++) {
-                  final verse = _uniqueVerses[i];
+                for (var i = 0; i < uniqueVerses.length; i++) {
+                  final verse = uniqueVerses[i];
                   final verseRef =
                       "$versionId:${widget.chapter.bookId}:${widget.chapter.number}:${verse.number}";
 
@@ -223,7 +224,7 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
 
                   // Verse Text — with word-level keyword highlights
                   final rawText =
-                      verse.text + (i < _uniqueVerses.length - 1 ? ' ' : '');
+                      verse.text + (i < uniqueVerses.length - 1 ? ' ' : '');
                   final bodyBaseStyle = style.copyWith(
                     decoration: isSelected ? TextDecoration.underline : null,
                     decorationStyle: TextDecorationStyle.dashed,
@@ -252,19 +253,20 @@ class _ReadSessionWidgetState extends State<ReadSessionWidget> {
                 }
 
                 if (isFiltering) {
-                  final matchCount = isVersionActive
-                      ? _uniqueVerses
+                  final matches = isVersionActive
+                      ? uniqueVerses
                           .where((v) => keywords
                               .any((kw) => v.text.toLowerCase().contains(kw)))
-                          .length
-                      : 0;
+                          .map((v) => v.number)
+                          .toList()
+                      : <int>[];
                   final wordCounts = isVersionActive
-                      ? _countKeywordOccurrences(_uniqueVerses, keywords)
+                      ? _countKeywordOccurrences(uniqueVerses, keywords)
                       : <String, int>{};
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (!mounted) return;
                     final cubit = context.read<VerseFilterCubit>();
-                    cubit.reportMatchCount(versionId, matchCount);
+                    cubit.reportMatches(versionId, matches);
                     cubit.reportWordCounts(versionId, wordCounts);
                   });
                 }

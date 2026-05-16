@@ -39,7 +39,8 @@ class DailyContentService {
     String verseText,
     String verseReference,
   ) async {
-    final todayKey = _dateKey(DateTime.now());
+    final now = DateTime.now();
+    final todayKey = _dateKey(DateTime(now.year, now.month, now.day));
 
     if (_prefs.getString(_kDate) == todayKey) {
       final ess = _prefs.getString(_kEssencia);
@@ -100,7 +101,15 @@ class DailyContentService {
     String verseText,
     String verseReference,
   ) async {
-    final todayKey = _dateKey(DateTime.now());
+    final now = DateTime.now();
+    final todayKey = _dateKey(DateTime(now.year, now.month, now.day));
+
+    if (_inFlight != null) {
+      debugPrint(
+        'DailyContentService: regeneration already in progress for $verseReference, awaiting existing call.',
+      );
+      return _inFlight!;
+    }
 
     try {
       debugPrint(

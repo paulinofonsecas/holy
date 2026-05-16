@@ -17,6 +17,7 @@ class AboutView extends StackedView<AboutViewModel> {
   ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final isWide = MediaQuery.of(context).size.width > 600;
 
     // Adaptive colors based on Material 3 Theme
     final surfaceColor = isDark
@@ -27,12 +28,14 @@ class AboutView extends StackedView<AboutViewModel> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: const Text('Sobre o App'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
+      appBar: isWide
+          ? null
+          : AppBar(
+              title: const Text('Sobre o App'),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+            ),
       body: viewModel.isBusy
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

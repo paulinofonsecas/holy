@@ -15,6 +15,7 @@ import 'package:eu_sou/features/biblia/presentation/pages/book_selection_page.da
 import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
+import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widgets/verse_actions_page.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
@@ -22,22 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
-
-// ─── Highlight colour presets (same palette as ColorPickerModal) ─────────────
-
-const _kHighlightSwatches = [
-  _HighlightSwatch(Color(0xFFFFF176), 'FFFFF176'),
-  _HighlightSwatch(Color(0xFFAED581), 'FFAED581'),
-  _HighlightSwatch(Color(0xFF81D4FA), 'FF81D4FA'),
-  _HighlightSwatch(Color(0xFFF48FB1), 'FFF48FB1'),
-  _HighlightSwatch(Color(0xFFCE93D8), 'FFCE93D8'),
-];
-
-class _HighlightSwatch {
-  const _HighlightSwatch(this.color, this.hex);
-  final Color color;
-  final String hex;
-}
 
 // ─── Public widget ────────────────────────────────────────────────────────────
 
@@ -658,16 +643,60 @@ class _PanelContentState extends State<_PanelContent> {
                           ),
                         ),
 
-                        // Floating highlight menu — 20 px above the bottom edge,
-                        // centered, inset 16 px on each side, scrollable if needed.
+                        // Action row for selected verses
                         if (selState.isInSelectionMode)
                           Positioned(
-                            bottom: 20,
-                            left: 16,
-                            right: 16,
-                            child: _FloatingHighlightMenu(
-                              selectedVerses:
-                                  selState.selectedVerses.values.toList(),
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: BlocBuilder<BibliaBloc, BibliaState>(
+                              builder: (context, state) {
+                                if (state is! BibleChapterLoaded) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surface.withValues(
+                                      alpha: 0.95,
+                                    ),
+                                    border: Border(
+                                      top: BorderSide(
+                                        color: colorScheme.outlineVariant
+                                            .withValues(alpha: 0.4),
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  child: SingleChildScrollView(
+                                    key: const ValueKey('ActionRowActive'),
+                                    scrollDirection: Axis.horizontal,
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16, 4, 16, 2),
+                                      child: ActionRowWidget(
+                                        verses: selState.selectedVerses.values
+                                            .toList(),
+                                        verseReference: () {
+                                          final sel = (selState
+                                              .selectedVerses.values
+                                              .toList()
+                                            ..sort((a, b) =>
+                                                a.number.compareTo(b.number)));
+                                          final book = state.chapter.bookId;
+                                          final chap = state.chapter.number;
+                                          if (sel.isEmpty) return '$book $chap';
+                                          if (sel.length == 1) {
+                                            return '$book $chap:${sel.first.number}';
+                                          }
+                                          return '$book $chap:${sel.first.number}-${sel.last.number}';
+                                        }(),
+                                        bookId: state.chapter.bookId,
+                                        chapterNumber: state.chapter.number,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                       ],
@@ -884,166 +913,6 @@ class _HeaderChip extends StatelessWidget {
       return chip;
     }
     return chip;
-  }
-}
-
-// ─── Floating highlight menu ──────────────────────────────────────────────────
-
-/// A pill-shaped floating bar anchored 20 px above the bottom of the panel.
-/// It is inset 16 px on each side and scrolls horizontally when its content
-/// would otherwise overflow.
-class _FloatingHighlightMenu extends StatelessWidget {
-  const _FloatingHighlightMenu({required this.selectedVerses});
-
-  final List<BibleVerse> selectedVerses;
-
-  void _applyHighlight(BuildContext context, String colorHex) {
-    final bibliaState = context.read<BibliaBloc>().state;
-    if (bibliaState is! BibleChapterLoaded) return;
-    final versionId = context.read<BibleVersionCubit>().state.version.id;
-
-    for (final verse in selectedVerses) {
-      context.read<HighlightBloc>().add(AddHighlight(
-            verseRef:
-                '$versionId:${bibliaState.chapter.bookId}:${bibliaState.chapter.number}:${verse.number}',
-            colorHex: colorHex,
-          ));
-    }
-    context.read<VerseSelectionBloc>().add(ClearSelection());
-  }
-
-  void _removeHighlight(BuildContext context) {
-    final bibliaState = context.read<BibliaBloc>().state;
-    if (bibliaState is! BibleChapterLoaded) return;
-    final versionId = context.read<BibleVersionCubit>().state.version.id;
-
-    for (final verse in selectedVerses) {
-      context.read<HighlightBloc>().add(RemoveHighlight(
-            verseRef:
-                '$versionId:${bibliaState.chapter.bookId}:${bibliaState.chapter.number}:${verse.number}',
-          ));
-    }
-    context.read<VerseSelectionBloc>().add(ClearSelection());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final sortedNumbers = selectedVerses.map((v) => v.number).toList()..sort();
-    final label = sortedNumbers.length == 1
-        ? 'v.\u00a0${sortedNumbers.first}'
-        : 'v.\u00a0${sortedNumbers.first}–${sortedNumbers.last}';
-
-    return Center(
-      child: Material(
-        elevation: 6,
-        shadowColor: colorScheme.shadow.withValues(alpha: 0.3),
-        shape: const StadiumBorder(),
-        color: colorScheme.surfaceContainerHigh,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: SizedBox(
-            height: 48,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Verse reference label
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface.withValues(alpha: 0.65),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                VerticalDivider(
-                  width: 1,
-                  thickness: 1,
-                  indent: 10,
-                  endIndent: 10,
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 10),
-
-                // Highlight colour swatches
-                for (final swatch in _kHighlightSwatches)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () => _applyHighlight(context, swatch.hex),
-                      child: Container(
-                        width: 26,
-                        height: 26,
-                        decoration: BoxDecoration(
-                          color: swatch.color,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: colorScheme.outline.withValues(alpha: 0.2),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: swatch.color.withValues(alpha: 0.4),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                VerticalDivider(
-                  width: 1,
-                  thickness: 1,
-                  indent: 10,
-                  endIndent: 10,
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 4),
-
-                // Remove highlight
-                Tooltip(
-                  message: 'Remover destaque',
-                  child: InkWell(
-                    onTap: () => _removeHighlight(context),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: AppHugeIcon(
-                        icon: HugeIcons.strokeRoundedMinusSignCircle,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Clear selection
-                Tooltip(
-                  message: 'Limpar seleção',
-                  child: InkWell(
-                    onTap: () => context
-                        .read<VerseSelectionBloc>()
-                        .add(ClearSelection()),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: AppHugeIcon(
-                        icon: HugeIcons.strokeRoundedCancel01,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 

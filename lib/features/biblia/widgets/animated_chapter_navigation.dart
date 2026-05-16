@@ -1,6 +1,6 @@
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class AnimatedChapterNavigation extends StatefulWidget {
   final bool isNext;
@@ -15,7 +15,8 @@ class AnimatedChapterNavigation extends StatefulWidget {
   });
 
   @override
-  State<AnimatedChapterNavigation> createState() => _AnimatedChapterNavigationState();
+  State<AnimatedChapterNavigation> createState() =>
+      _AnimatedChapterNavigationState();
 }
 
 class _AnimatedChapterNavigationState extends State<AnimatedChapterNavigation>
@@ -30,7 +31,7 @@ class _AnimatedChapterNavigationState extends State<AnimatedChapterNavigation>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _animation = Tween<double>(begin: -4.0, end: 4.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
@@ -55,7 +56,10 @@ class _AnimatedChapterNavigationState extends State<AnimatedChapterNavigation>
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.7),
+              color: Theme.of(context)
+                  .colorScheme
+                  .primaryContainer
+                  .withOpacity(0.4),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -69,9 +73,12 @@ class _AnimatedChapterNavigationState extends State<AnimatedChapterNavigation>
               animation: _animation,
               builder: (context, child) {
                 return Transform.translate(
-                  offset: Offset(widget.isNext ? _animation.value : -_animation.value, 0),
+                  offset: Offset(
+                      widget.isNext ? _animation.value : -_animation.value, 0),
                   child: AppHugeIcon(
-                    icon: widget.isNext ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
+                    icon: widget.isNext
+                        ? HugeIcons.strokeRoundedArrowRight01
+                        : HugeIcons.strokeRoundedArrowLeft01,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
                     size: 32,
                   ),

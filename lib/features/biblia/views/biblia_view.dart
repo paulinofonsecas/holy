@@ -18,6 +18,7 @@ import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widget
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -93,6 +94,14 @@ class _BibliaViewState extends State<BibliaView> {
 
   void _startHideTimer() {
     _hideTimer?.cancel();
+    if (kIsWeb) {
+      if (!_showButtons && mounted) {
+        setState(() {
+          _showButtons = true;
+        });
+      }
+      return;
+    }
     _hideTimer = Timer(const Duration(seconds: 5), () {
       if (mounted && _showButtons) {
         setState(() {
@@ -395,6 +404,7 @@ class _BibliaViewState extends State<BibliaView> {
                       children: [
                         NotificationListener<ScrollNotification>(
                           onNotification: (notification) {
+                            if (kIsWeb) return false;
                             if (notification is ScrollStartNotification) {
                               _hideTimer?.cancel();
                               if (_showButtons) {
@@ -582,11 +592,43 @@ class _VerseFilterBar extends StatefulWidget {
 class _VerseFilterBarState extends State<_VerseFilterBar> {
   final _controller = TextEditingController();
   bool _isExpanded = false;
+  int _currentMatchIndex = -1;
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _scrollToNextMatch(List<int> matches) {
+    if (matches.isEmpty) return;
+    setState(() {
+      _currentMatchIndex = (_currentMatchIndex + 1) % matches.length;
+    });
+    _triggerScroll(matches[_currentMatchIndex]);
+  }
+
+  void _scrollToPreviousMatch(List<int> matches) {
+    if (matches.isEmpty) return;
+    setState(() {
+      _currentMatchIndex = (_currentMatchIndex - 1) % matches.length;
+      if (_currentMatchIndex < 0) _currentMatchIndex += matches.length;
+    });
+    _triggerScroll(matches[_currentMatchIndex]);
+  }
+
+  void _triggerScroll(int verseNumber) {
+    final state = context.read<BibliaBloc>().state;
+    if (state is BibleChapterLoaded) {
+      context.read<BibliaBloc>().add(
+            GetChapter(
+              state.versionId,
+              state.chapter.bookId,
+              state.chapter.number.toString(),
+              verse: verseNumber,
+            ),
+          );
+    }
   }
 
   @override
@@ -644,7 +686,10 @@ class _VerseFilterBarState extends State<_VerseFilterBar> {
                                   ),
                                   onPressed: () {
                                     _controller.clear();
-                                    setState(() => _isExpanded = false);
+                                    setState(() {
+                                      _isExpanded = false;
+                                      _currentMatchIndex = -1;
+                                    });
                                     context.read<VerseFilterCubit>().clear();
                                   },
                                 ),
@@ -670,19 +715,55 @@ class _VerseFilterBarState extends State<_VerseFilterBar> {
                             borderSide: BorderSide(color: colorScheme.primary),
                           ),
                         ),
-                        onChanged: (value) => context
-                            .read<VerseFilterCubit>()
-                            .updateFilter(value),
+                        onChanged: (value) {
+                          setState(() => _currentMatchIndex = -1);
+                          context.read<VerseFilterCubit>().updateFilter(value);
+                        },
                       ),
                     ),
                     // Metrics badge + expand toggle shown only when filtering
                     if (isFiltering) ...[
+                      const SizedBox(width: 4),
+                      Builder(
+                        builder: (context) {
+                          final versionId = context
+                              .watch<BibleVersionCubit>()
+                              .state
+                              .version
+                              .id;
+                          final matches = state.matchVerses[versionId] ?? [];
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(Icons.keyboard_arrow_up,
+                                    size: 28),
+                                padding: EdgeInsets.zero,
+                                onPressed: matches.isEmpty
+                                    ? null
+                                    : () => _scrollToPreviousMatch(matches),
+                              ),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(Icons.keyboard_arrow_down,
+                                    size: 28),
+                                padding: EdgeInsets.zero,
+                                onPressed: matches.isEmpty
+                                    ? null
+                                    : () => _scrollToNextMatch(matches),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                       const SizedBox(width: 4),
                       if (!_isExpanded && state.totalMatches > 0)
                         _CountBadge(
                           count: state.totalMatches,
                           colorScheme: colorScheme,
                         ),
+                      const SizedBox(width: 4),
                       IconButton(
                         visualDensity: VisualDensity.compact,
                         tooltip:
@@ -752,7 +833,8 @@ class _FilterMetricsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final counts = filterState.matchCounts;
+    final counts = filterState.matchVerses
+        .map((key, value) => MapEntry(key, value.length));
     final excluded = filterState.excludedVersionIds;
 
     final sorted = counts.entries.toList()

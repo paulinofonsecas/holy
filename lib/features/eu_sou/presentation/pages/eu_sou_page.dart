@@ -462,22 +462,22 @@ class _EuSouPageState extends State<EuSouPage>
 
                           const SizedBox(height: 36),
 
-                          // CTA reflexões anteriores
-                          GestureDetector(
-                            onTap: () => _navigateToReflexoes(context),
-                            child: Text(
-                              'VER REFLEXÕES ANTERIORES',
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 2.0,
-                                color: colorScheme.onSurface,
-                                decoration: TextDecoration.underline,
-                                decorationColor: colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 48),
+                          // // CTA reflexões anteriores
+                          // GestureDetector(
+                          //   onTap: () => _navigateToReflexoes(context),
+                          //   child: Text(
+                          //     'VER REFLEXÕES ANTERIORES',
+                          //     style: GoogleFonts.inter(
+                          //       fontSize: 11,
+                          //       fontWeight: FontWeight.w700,
+                          //       letterSpacing: 2.0,
+                          //       color: colorScheme.onSurface,
+                          //       decoration: TextDecoration.underline,
+                          //       decorationColor: colorScheme.onSurface,
+                          //     ),
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 48),
 
                           // — ZONA 2: ESTUDOS (1 estudo) —
                           EstudosPreviewSection(

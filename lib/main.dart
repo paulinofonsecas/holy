@@ -84,10 +84,10 @@ Future<void> _bootstrapApp() async {
 
     final deeplinkService = DeeplinkService();
 
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+    // await SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    //   DeviceOrientation.portraitDown,
+    // ]);
 
     final dbHelper = DatabaseHelper();
     final db = await dbHelper.database;

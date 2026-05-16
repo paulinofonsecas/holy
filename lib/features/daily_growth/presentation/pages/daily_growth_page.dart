@@ -41,11 +41,11 @@ class DailyGrowthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isWide = MediaQuery.of(context).size.width >= 600;
+    final isWide = MediaQuery.sizeOf(context).width > 600;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      appBar: !isWide
+      appBar: isWide
           ? null
           : AppBar(
               backgroundColor: colorScheme.surface,
@@ -67,7 +67,6 @@ class DailyGrowthPage extends StatelessWidget {
               actions: const [
                 // IconButton(
                 //   icon: const Icon(Icons.share_outlined, size: 20),
-                //   onPressed: () {/* TODO: share streak */},
                 // ),
               ],
             ),

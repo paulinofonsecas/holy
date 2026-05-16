@@ -3,7 +3,6 @@ import 'dart:developer' show log;
 
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -99,14 +98,15 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isWide = MediaQuery.of(context).size.width > 600;
 
     return Builder(builder: (context) {
       return Scaffold(
         body: SafeArea(
           child: Column(
             children: [
-              if (!kIsWeb) _buildAppBar(context, l10n),
-              if (kIsWeb) _buildWebHeader(context, l10n),
+              if (!isWide) _buildAppBar(context, l10n),
+              if (isWide) _buildWebHeader(context, l10n),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {

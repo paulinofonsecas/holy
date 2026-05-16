@@ -1,5 +1,4 @@
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -17,28 +16,31 @@ class VerseHistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations.of(context);
+    final isWide = MediaQuery.sizeOf(context).width > 600;
 
     return Scaffold(
-      appBar: kIsWeb
+      appBar: isWide
           ? null
           : AppBar(
               title: const Text('Histórico de Versículos'),
               centerTitle: true,
               actions: [
-          BlocBuilder<VerseHistoryBloc, VerseHistoryState>(
-            builder: (context, state) {
-              if (state is VerseHistoryLoaded && state.history.isNotEmpty) {
-                return IconButton(
-                  onPressed: () => _showClearHistoryDialog(context),
-                  icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedDelete01),
-                  tooltip: 'Limpar histórico',
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
-      ),
+                BlocBuilder<VerseHistoryBloc, VerseHistoryState>(
+                  builder: (context, state) {
+                    if (state is VerseHistoryLoaded &&
+                        state.history.isNotEmpty) {
+                      return IconButton(
+                        onPressed: () => _showClearHistoryDialog(context),
+                        icon: const AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedDelete01),
+                        tooltip: 'Limpar histórico',
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
+            ),
       body: RefreshIndicator(
         onRefresh: () async {
           context.read<VerseHistoryBloc>().add(LoadVerseHistory());
@@ -92,7 +94,7 @@ class VerseHistoryPage extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                          AppHugeIcon(
+                        AppHugeIcon(
                           icon: HugeIcons.strokeRoundedClock03,
                           size: 64,
                           color: Theme.of(context).colorScheme.outline,
@@ -122,10 +124,12 @@ class VerseHistoryPage extends StatelessWidget {
                       DateFormat('dd/MM/yyyy HH:mm').format(item.timestamp);
 
                   return ListTile(
-                    leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedBook01),
+                    leading:
+                        const AppHugeIcon(icon: HugeIcons.strokeRoundedBook01),
                     title: Text(item.verseRef),
                     subtitle: Text('Versão: ${item.versionId} • $dateStr'),
-                    trailing: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 14),
+                    trailing: const AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowRight01, size: 14),
                     onTap: () {
                       // Parse verseRef to get bookId, chapter, verse
                       // Format: "bookId chapter:verse"
@@ -153,8 +157,8 @@ class VerseHistoryPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (_) => const BibliaPage(),
-                    settings: const RouteSettings(
-                        arguments: 'bible_reading_details')),
+                              settings: const RouteSettings(
+                                  arguments: 'bible_reading_details')),
                         );
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
