@@ -5,6 +5,8 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../models/push_notification_model.dart';
+import '../../utils/web_utils.dart';
+import '../../services/toast_service.dart';
 
 class LocalNotificationService {
   final FlutterLocalNotificationsPlugin _plugin;
@@ -66,11 +68,28 @@ class LocalNotificationService {
   }
 
   Future<void> showNotification(PushNotificationModel notification) async {
+    debugPrint('LocalNotificationService.showNotification: title="${notification.title}", body="${notification.body}", kIsWeb=$kIsWeb');
+    
+    // Trigger the premium in-app notification overlay banner in the foreground!
+    try {
+      toastService.showNotification(
+        title: notification.title,
+        body: notification.body,
+      );
+    } catch (e) {
+      debugPrint('Failed to show in-app notification overlay: $e');
+    }
+
+    if (kIsWeb) {
+      debugPrint('LocalNotificationService.showNotification: calling showWebNotification');
+      showWebNotification(notification.title, notification.body);
+      return;
+    }
     try {
       await _plugin.show(
         id: notification.hashCode,
         title: notification.title,
-        body: notification.body,
+        body: notification.body, 
         notificationDetails: _notificationDetails,
         payload: notification.payload,
       );
@@ -87,6 +106,7 @@ class LocalNotificationService {
     required int minute,
     String? payload,
   }) async {
+    if (kIsWeb) return;
     try {
       await _plugin.zonedSchedule(
         id: id,
@@ -111,6 +131,7 @@ class LocalNotificationService {
     String? payload,
     bool repeatDailyAtTime = false,
   }) async {
+    if (kIsWeb) return;
     try {
       await _plugin.zonedSchedule(
         id: id,
@@ -129,12 +150,19 @@ class LocalNotificationService {
   }
 
   Future<List<PendingNotificationRequest>> getPendingNotificationRequests() {
+    if (kIsWeb) return Future.value([]);
     return _plugin.pendingNotificationRequests();
   }
 
-  Future<void> cancelNotification(int id) => _plugin.cancel(id: id);
+  Future<void> cancelNotification(int id) async {
+    if (kIsWeb) return;
+    await _plugin.cancel(id: id);
+  }
 
-  Future<void> cancelAllNotifications() => _plugin.cancelAll();
+  Future<void> cancelAllNotifications() async {
+    if (kIsWeb) return;
+    await _plugin.cancelAll();
+  }
 
   void addOnNotificationTapListener(Function(String?) listener) {
     _onNotificationTapListeners.add(listener);

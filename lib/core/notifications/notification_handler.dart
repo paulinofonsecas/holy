@@ -14,7 +14,13 @@ class NotificationHandler {
   FCMService? _fcmService;
 
   Future<void> initialize() async {
-    await localNotificationService.initialize();
+    if (!kIsWeb) {
+      try {
+        await localNotificationService.initialize();
+      } catch (e) {
+        debugPrint('Warning: LocalNotificationService initialization failed: $e');
+      }
+    }
     _fcmService = FCMService(localNotificationService);
     try {
       await _fcmService?.initialize();

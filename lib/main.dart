@@ -32,19 +32,18 @@ import 'entry_point.dart';
 import 'error_screen.dart';
 
 Future<void> main() async {
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-
   await SentryFlutter.init(
     (options) {
       options.dsn = SentryConfig.dsn.isEmpty ? null : SentryConfig.dsn;
       options.environment = SentryConfig.environment;
       options.tracesSampleRate = SentryConfig.tracesSampleRate;
     },
-    appRunner: () => _bootstrapApp(widgetsBinding),
+    appRunner: () => _bootstrapApp(),
   );
 }
 
-Future<void> _bootstrapApp(WidgetsBinding widgetsBinding) async {
+Future<void> _bootstrapApp() async {
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   try {
     if (!kIsWeb) {
       try {
