@@ -8,6 +8,8 @@ import '../widgets/personal_name_panel.dart';
 import '../widgets/eu_sou_overview_panel.dart';
 import 'package:eu_sou/features/daily_growth/presentation/cubit/daily_growth_cubit.dart';
 import 'package:eu_sou/features/daily_growth/presentation/pages/daily_growth_page.dart';
+import 'package:eu_sou/features/journeys/presentation/pages/journeys_page.dart';
+import 'package:eu_sou/features/journeys/presentation/widgets/journey_home_card.dart';
 import 'package:eu_sou/features/eu_sou/domain/models/user_stats.dart';
 import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +46,7 @@ import '../widgets/reflexoes_anteriores_page.dart';
 
 enum _EuSouPanel {
   overview,
+  journeys,
   dailyGrowth,
   markedVerses,
   verseHistory,
@@ -58,6 +61,8 @@ extension _EuSouPanelExtension on _EuSouPanel {
     switch (this) {
       case _EuSouPanel.overview:
         return 'Hoje';
+      case _EuSouPanel.journeys:
+        return 'Jornada';
       case _EuSouPanel.dailyGrowth:
         return 'Crescimento Diário';
       case _EuSouPanel.markedVerses:
@@ -79,6 +84,8 @@ extension _EuSouPanelExtension on _EuSouPanel {
     switch (this) {
       case _EuSouPanel.overview:
         return HugeIcons.strokeRoundedHome01;
+      case _EuSouPanel.journeys:
+        return HugeIcons.strokeRoundedRoute01;
       case _EuSouPanel.dailyGrowth:
         return HugeIcons.strokeRoundedChartUp;
       case _EuSouPanel.markedVerses:
@@ -156,6 +163,8 @@ class _EuSouPageState extends State<EuSouPage>
 
   Widget _buildSelectedPanel(BuildContext context) {
     switch (_selectedPanel) {
+      case _EuSouPanel.journeys:
+        return const JourneysPage();
       case _EuSouPanel.dailyGrowth:
         _dailyGrowthCubit ??= DailyGrowthCubit(
           reminderService: context.read<DailyReminderService>(),
@@ -367,14 +376,16 @@ class _EuSouPageState extends State<EuSouPage>
               }
 
               if (state is EuSouError) {
-                final versionId = context.read<BibleVersionCubit>().state.version.id;
+                final versionId =
+                    context.read<BibleVersionCubit>().state.version.id;
                 final cacheProvider = context.read<BibleCacheProvider>();
 
                 return FutureBuilder<bool>(
                   future: cacheProvider.isVersionCached(versionId),
                   builder: (context, snapshot) {
                     final isCached = snapshot.data ?? false;
-                    if (!isCached || snapshot.connectionState == ConnectionState.waiting) {
+                    if (!isCached ||
+                        snapshot.connectionState == ConnectionState.waiting) {
                       if (isWide) {
                         return Row(
                           children: [
@@ -467,7 +478,20 @@ class _EuSouPageState extends State<EuSouPage>
                                       escritasNotas: 0,
                                       estudosCount: 0)),
                           const SizedBox(height: 28),
-                          const BibleReadingSection(),
+                          if (isWide)
+                            const Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(child: BibleReadingSection()),
+                                SizedBox(width: 16),
+                                Expanded(child: JourneyHomeCard()),
+                              ],
+                            )
+                          else ...[
+                            const BibleReadingSection(),
+                            const SizedBox(height: 16),
+                            const JourneyHomeCard(),
+                          ],
                           const SizedBox(height: 36),
                           PraticaSection(
                               text: state.reflection?.pratica ??
@@ -530,11 +554,12 @@ class _EuSouPageState extends State<EuSouPage>
   }
 
   void _navigateToReflexoes(BuildContext context) {
+    final euSouBloc = context.read<EuSouBloc>();
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
-          value: context.read<EuSouBloc>(),
+          value: euSouBloc,
           child: const ReflexoesAnterioresPage(),
         ),
       ),

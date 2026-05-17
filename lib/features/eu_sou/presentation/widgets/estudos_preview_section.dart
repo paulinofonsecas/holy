@@ -74,11 +74,12 @@ class EstudosPreviewSection extends StatelessWidget {
   }
 
   void _navigateToAllStudies(BuildContext context) {
+    final deepUnderstandingBloc = context.read<DeepUnderstandingBloc>();
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
-          value: context.read<DeepUnderstandingBloc>(),
+          value: deepUnderstandingBloc,
           child: const DeepUnderstandingHistoryPage(),
         ),
       ),

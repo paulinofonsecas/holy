@@ -2,6 +2,7 @@ import 'package:eu_sou/features/eu_sou/domain/models/user_stats.dart';
 import 'package:eu_sou/features/eu_sou/presentation/bloc/eu_sou_bloc.dart';
 import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
 import 'package:eu_sou/features/eu_sou/presentation/widgets/bible_reading_section.dart';
+import 'package:eu_sou/features/journeys/presentation/widgets/journey_home_card.dart';
 import 'package:eu_sou/features/eu_sou/presentation/widgets/error_view.dart';
 import 'package:eu_sou/features/eu_sou/presentation/widgets/eu_sou_skeleton_overview.dart';
 import 'package:eu_sou/features/eu_sou/presentation/widgets/generate_understanding_button.dart';
@@ -35,6 +36,7 @@ class EuSouOverviewPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isWide = MediaQuery.of(context).size.width > 900;
 
     // Usar diretamente os dados passados via parâmetro ao invés de BlocBuilder duplicado
     return Scaffold(
@@ -98,7 +100,20 @@ class EuSouOverviewPanel extends StatelessWidget {
                               ),
                         ),
                         const SizedBox(height: 28),
-                        const BibleReadingSection(),
+                        if (isWide)
+                          const Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: BibleReadingSection()),
+                              SizedBox(width: 16),
+                              Expanded(child: JourneyHomeCard()),
+                            ],
+                          )
+                        else ...[
+                          const BibleReadingSection(),
+                          const SizedBox(height: 16),
+                          const JourneyHomeCard(),
+                        ],
                         const SizedBox(height: 36),
                         PraticaSection(
                           text: state.reflection?.pratica ??

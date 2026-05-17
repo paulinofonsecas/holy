@@ -1,5 +1,8 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
+import 'package:eu_sou/features/journeys/data/datasources/journey_local_data_source.dart';
+import 'package:eu_sou/features/journeys/data/repositories/journey_repository_impl.dart';
+import 'package:eu_sou/features/journeys/presentation/bloc/journey_bloc.dart';
 import 'package:eu_sou/app/app.dart';
 import 'package:eu_sou/core/data/provider/github_bible_provider.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
@@ -181,6 +184,15 @@ class EntryPoint extends StatelessWidget {
             repository: context.read<EuSouRepository>(),
             contentService: context.read<DailyContentService>(),
             deepUnderstandingBloc: context.read<DeepUnderstandingBloc>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => JourneyBloc(
+            repository: JourneyRepositoryImpl(
+              localDataSource: JourneyLocalDataSourceImpl(
+                sharedPreferences: sharedPreferences,
+              ),
+            ),
           ),
         ),
       ],

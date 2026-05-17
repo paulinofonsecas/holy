@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/design_system/app_colors/highlight_colors.dart';
 import 'package:eu_sou/core/design_system/app_colors/app_colors.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_state.dart';
@@ -49,12 +50,7 @@ class VerseReadWidget extends StatelessWidget {
                     } else if (highlightState is HighlightsLoaded) {
                       final highlight = highlightState.highlights[verseRef];
                       if (highlight != null) {
-                        backgroundColor = Theme.brightnessOf(context) ==
-                                Brightness.light
-                            ? Color(int.parse(highlight.colorHex, radix: 16))
-                                .withValues(alpha: .8)
-                            : Color(int.parse(highlight.colorHex, radix: 16))
-                                .withValues(alpha: .3);
+                        backgroundColor = HighlightColorTheme.getColor(context, highlight.colorHex);
                       }
                     }
 
@@ -201,10 +197,7 @@ class VerseReadWidget extends StatelessWidget {
   Color getVerseBackgroudColor(BuildContext context) {
     if (alreadyHighlighted(context)) {
       final highlightColorHex = getVerseHighlightColor(context);
-      return Theme.brightnessOf(context) == Brightness.light
-          ? Color(int.parse(highlightColorHex, radix: 16)).withValues(alpha: .2)
-          : Color(int.parse(highlightColorHex, radix: 16))
-              .withValues(alpha: .2);
+      return HighlightColorTheme.getColor(context, highlightColorHex).withValues(alpha: .4);
     }
 
     return Theme.brightnessOf(context) == Brightness.light

@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/design_system/app_colors/highlight_colors.dart';
 import 'package:eu_sou/core/design_system/theme_extension/app_theme_extension.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -21,7 +22,7 @@ class MarkedVerseItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Color(int.parse(markedVerse.colorHex, radix: 16));
+    final color = HighlightColorTheme.getDisplayColor(context, markedVerse.colorHex);
     final dateStr =
         DateFormat('dd/MM/yyyy HH:mm').format(markedVerse.createdAt);
 

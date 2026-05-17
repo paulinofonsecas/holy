@@ -14,6 +14,8 @@ class ReadingSettingsModal extends StatelessWidget {
   const ReadingSettingsModal({super.key});
 
   static void show(BuildContext context) {
+    final readingSettingsCubit = context.read<ReadingSettingsCubit>();
+    final bibleVersionCubit = context.read<BibleVersionCubit>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -22,8 +24,8 @@ class ReadingSettingsModal extends StatelessWidget {
       builder: (modalContext) {
         return MultiBlocProvider(
           providers: [
-            BlocProvider.value(value: context.read<ReadingSettingsCubit>()),
-            BlocProvider.value(value: context.read<BibleVersionCubit>()),
+            BlocProvider.value(value: readingSettingsCubit),
+            BlocProvider.value(value: bibleVersionCubit),
           ],
           child: const ReadingSettingsModal(),
         );

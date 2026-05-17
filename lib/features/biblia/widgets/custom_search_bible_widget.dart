@@ -21,13 +21,15 @@ class CustomSearchBibleWidget extends StatelessWidget {
             state is BuscaCarregada && state.resultados.results.isNotEmpty;
         return IconButton(
           onPressed: () async {
+            final bibliaBloc = context.read<BibliaBloc>();
+            final searchBloc = context.read<SearchBloc>();
             final resultado = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (newContext) => MultiBlocProvider(
                   providers: [
-                    BlocProvider.value(value: context.read<BibliaBloc>()),
-                    BlocProvider.value(value: context.read<SearchBloc>()),
+                    BlocProvider.value(value: bibliaBloc),
+                    BlocProvider.value(value: searchBloc),
                   ],
                   child: const TelaBusca(),
                 ),

@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/design_system/app_colors/highlight_colors.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -17,11 +18,11 @@ class ColorPickerModal extends StatelessWidget {
   });
 
   static const List<Map<String, dynamic>> colors = [
-    {'name': 'Yellow', 'color': Color(0xFFFFF176), 'hex': 'FFFFF176'},
-    {'name': 'Green', 'color': Color(0xFFAED581), 'hex': 'FFAED581'},
-    {'name': 'Blue', 'color': Color(0xFF81D4FA), 'hex': 'FF81D4FA'},
-    {'name': 'Pink', 'color': Color(0xFFF48FB1), 'hex': 'FFF48FB1'},
-    {'name': 'Purple', 'color': Color(0xFFCE93D8), 'hex': 'FFCE93D8'},
+    {'name': 'Yellow', 'hex': 'FFFFF176'},
+    {'name': 'Green', 'hex': 'FFAED581'},
+    {'name': 'Blue', 'hex': 'FF81D4FA'},
+    {'name': 'Pink', 'hex': 'FFF48FB1'},
+    {'name': 'Purple', 'hex': 'FFCE93D8'},
   ];
 
   @override
@@ -65,7 +66,7 @@ class ColorPickerModal extends StatelessWidget {
                     width: 45,
                     height: 45,
                     decoration: BoxDecoration(
-                      color: colorData['color'],
+                      color: HighlightColorTheme.getDisplayColor(context, colorData['hex']),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: Theme.of(context)

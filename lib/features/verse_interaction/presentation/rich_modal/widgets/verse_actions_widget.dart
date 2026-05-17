@@ -206,7 +206,7 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
 
     return Row(
       children: [
-        HighlightRow(
+        HighlightRowWidget(
           onColorSelected: (color) {
             viewModel.applyHighlight(color);
             viewModel.clearSelection();

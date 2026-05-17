@@ -1,34 +1,35 @@
+import 'package:eu_sou/core/design_system/app_colors/highlight_colors.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-class HighlightRow extends StatefulWidget {
+class HighlightRowWidget extends StatefulWidget {
   final Function(String colorHex) onColorSelected;
   final VoidCallback onRemoveHighlight;
 
-  const HighlightRow({
+  const HighlightRowWidget({
     super.key,
     required this.onColorSelected,
     required this.onRemoveHighlight,
   });
 
   @override
-  State<HighlightRow> createState() => _HighlightRowState();
+  State<HighlightRowWidget> createState() => _HighlightRowWidgetState();
 }
 
-class _HighlightRowState extends State<HighlightRow> {
+class _HighlightRowWidgetState extends State<HighlightRowWidget> {
   bool isOpen = false;
 
   static const List<Map<String, dynamic>> colors = [
-    {'name': 'Yellow', 'color': Color(0xFFFFF176), 'hex': 'FFFFF176'},
-    {'name': 'Green', 'color': Color(0xFFAED581), 'hex': 'FFAED581'},
-    {'name': 'Blue', 'color': Color(0xFF81D4FA), 'hex': 'FF81D4FA'},
-    {'name': 'Pink', 'color': Color(0xFFF48FB1), 'hex': 'FFFFF176'},
-    {'name': 'Purple', 'color': Color(0xFFCE93D8), 'hex': 'FFCE93D8'},
-    {'name': 'Orange', 'color': Color(0xFFFFB74D), 'hex': 'FFFFB74D'},
-    {'name': 'Red', 'color': Color(0xFFE57373), 'hex': 'FFE57373'},
-    {'name': 'Brown', 'color': Color(0xFFA1887F), 'hex': 'FFA1887F'},
-    {'name': 'Black', 'color': Color(0xFF000000), 'hex': 'FF000000'},
+    {'name': 'Yellow', 'hex': 'FFFFF176'},
+    {'name': 'Green', 'hex': 'FFAED581'},
+    {'name': 'Blue', 'hex': 'FF81D4FA'},
+    {'name': 'Pink', 'hex': 'FFF48FB1'},
+    {'name': 'Purple', 'hex': 'FFCE93D8'},
+    {'name': 'Orange', 'hex': 'FFFFB74D'},
+    {'name': 'Red', 'hex': 'FFE57373'},
+    {'name': 'Brown', 'hex': 'FFA1887F'},
+    {'name': 'Gray', 'hex': 'FF393939'},
   ];
 
   @override
@@ -48,7 +49,7 @@ class _HighlightRowState extends State<HighlightRow> {
                       child: ColorItemWidget(
                         onColorSelected: widget.onColorSelected,
                         hexColor: e['hex'],
-                        color: e['color'],
+                        color: HighlightColorTheme.getDisplayColor(context, e['hex']),
                       ),
                     );
                   },
@@ -75,7 +76,7 @@ class _HighlightRowState extends State<HighlightRow> {
                   child: ColorItemWidget(
                     onColorSelected: widget.onColorSelected,
                     hexColor: colorData['hex'],
-                    color: colorData['color'],
+                    color: HighlightColorTheme.getDisplayColor(context, colorData['hex']),
                   ),
                 );
               }),
