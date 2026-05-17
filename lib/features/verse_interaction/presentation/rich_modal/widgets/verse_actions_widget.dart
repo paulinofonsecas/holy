@@ -24,7 +24,7 @@ import '../rich_modal_viewmodel.dart';
 import 'action_row.dart';
 import 'highlight_row.dart';
 
-class VerseActionsPage {
+class VerseActionsWidget {
   static WoltModalSheetPage build({
     required BuildContext context,
     required RichModalViewModel viewModel,

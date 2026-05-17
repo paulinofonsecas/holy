@@ -93,21 +93,22 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
       return;
     }
 
-    // Se já estiver carregado o mesmo capítulo, apenas atualizamos o versículo alvo se necessário
+    // Se já estiver carregado o mesmo capítulo, apenas atualizamos o versículo alvo ou offset se necessário
     if (state is BibleChapterLoaded) {
       final currentState = state as BibleChapterLoaded;
       if (currentState.versionId == event.version &&
           currentState.chapter.number.toString() == event.chapter &&
           currentState.chapter.bookId == event.book) {
-        // Se o versículo alvo for diferente, emitimos o novo estado para disparar o scroll
+        // Se o versículo alvo, targetVerses ou scrollOffset forem diferentes, emitimos o novo estado para disparar o scroll
         if (currentState.targetVerse != event.verse ||
-            currentState.targetVerses != event.targetVerses) {
+            currentState.targetVerses != event.targetVerses ||
+            event.scrollOffset != null) {
           emit(BibleChapterLoaded(
             currentState.chapter,
             versionId: currentState.versionId,
             targetVerse: event.verse,
             targetVerses: event.targetVerses,
-            initialScrollOffset: currentState.initialScrollOffset,
+            initialScrollOffset: event.scrollOffset ?? currentState.initialScrollOffset,
           ));
         }
         return;
@@ -129,7 +130,7 @@ class BibliaBloc extends Bloc<BibliaEvent, BibliaState> {
         chapterNumber: result.number,
       );
 
-      final savedOffset = _scrollPersistenceService.getBibleScrollOffset(
+      final savedOffset = event.scrollOffset ?? _scrollPersistenceService.getBibleScrollOffset(
         result.bookId,
         result.number,
       );

@@ -1,3 +1,4 @@
+import 'package:bible_handler/bible_handler.dart';
 import '../widgets/eu_sou_skeleton_overview.dart';
 import '../widgets/error_view.dart';
 import '../widgets/generate_understanding_button.dart';
@@ -366,28 +367,50 @@ class _EuSouPageState extends State<EuSouPage>
               }
 
               if (state is EuSouError) {
-                if (isWide) {
-                  return Row(
-                    children: [
-                      _buildSideMenu(context),
-                      const VerticalDivider(width: 1),
-                      Expanded(
-                        child: Center(
-                          child: ErrorView(
-                            message: state.message,
-                            onRetry: _loadData,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                }
+                final versionId = context.read<BibleVersionCubit>().state.version.id;
+                final cacheProvider = context.read<BibleCacheProvider>();
 
-                return Center(
-                  child: ErrorView(
-                    message: state.message,
-                    onRetry: _loadData,
-                  ),
+                return FutureBuilder<bool>(
+                  future: cacheProvider.isVersionCached(versionId),
+                  builder: (context, snapshot) {
+                    final isCached = snapshot.data ?? false;
+                    if (!isCached || snapshot.connectionState == ConnectionState.waiting) {
+                      if (isWide) {
+                        return Row(
+                          children: [
+                            _buildSideMenu(context),
+                            const VerticalDivider(width: 1),
+                            const Expanded(child: EuSouSkeletonOverview()),
+                          ],
+                        );
+                      }
+                      return const EuSouSkeletonOverview();
+                    }
+
+                    if (isWide) {
+                      return Row(
+                        children: [
+                          _buildSideMenu(context),
+                          const VerticalDivider(width: 1),
+                          Expanded(
+                            child: Center(
+                              child: ErrorView(
+                                message: state.message,
+                                onRetry: _loadData,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    return Center(
+                      child: ErrorView(
+                        message: state.message,
+                        onRetry: _loadData,
+                      ),
+                    );
+                  },
                 );
               }
 

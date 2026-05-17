@@ -12,6 +12,7 @@ import 'package:eu_sou/core/services/highlight_changed_notifier.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
+import 'package:eu_sou/features/biblia/data/repositories/multiversion_session_repository.dart';
 import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
 import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
@@ -97,6 +98,9 @@ class EntryPoint extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => ReadingSettingsRepository(sharedPreferences),
+        ),
+        RepositoryProvider(
+          create: (context) => MultiversionSessionRepository(sharedPreferences),
         ),
         RepositoryProvider<IBibleProvider>(
           create: (context) => GithubBibleProvider(

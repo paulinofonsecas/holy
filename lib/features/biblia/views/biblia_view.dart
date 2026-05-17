@@ -14,7 +14,7 @@ import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_under
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
-import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widgets/verse_actions_page.dart';
+import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widgets/verse_actions_widget.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';

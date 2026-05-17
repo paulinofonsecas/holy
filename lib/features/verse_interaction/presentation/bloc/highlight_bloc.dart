@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -11,13 +13,42 @@ part 'highlight_state.dart';
 class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
   final HighlightRepository _repository;
   final HighlightChangedNotifier? _changedNotifier;
+  StreamSubscription<void>? _notifierSubscription;
+  // Guard to avoid reloading when this bloc itself triggered the notification.
+  bool _isSelf = false;
 
-  HighlightBloc(this._repository, {HighlightChangedNotifier? changedNotifier})
-      : _changedNotifier = changedNotifier,
+  HighlightBloc(
+    this._repository, {
+    HighlightChangedNotifier? changedNotifier,
+    /// When [listenToChanges] is true this bloc will automatically reload
+    /// highlights whenever another [HighlightBloc] instance (e.g. a sibling
+    /// multiversion panel) persists a change via [changedNotifier].
+    /// The global (BibliaPage) instance does NOT need this because it is the
+    /// source of truth; panel-local instances set this to true so they stay
+    /// in sync without sharing state directly.
+    bool listenToChanges = false,
+  })  : _changedNotifier = changedNotifier,
         super(HighlightInitial()) {
     on<LoadHighlights>(_onLoadHighlights);
     on<AddHighlight>(_onAddHighlight);
     on<RemoveHighlight>(_onRemoveHighlight);
+
+    if (listenToChanges && changedNotifier != null) {
+      _notifierSubscription = changedNotifier.stream.listen((_) {
+        // Skip reloading if this bloc was the one that fired the notification.
+        if (_isSelf) {
+          _isSelf = false;
+          return;
+        }
+        if (!isClosed) add(LoadHighlights());
+      });
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    await _notifierSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoadHighlights(
@@ -55,6 +86,9 @@ class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
       } else {
         add(LoadHighlights());
       }
+      // Mark as self so the stream listener skips the next notification that
+      // this very bloc is about to fire (avoiding a redundant reload).
+      _isSelf = true;
       _changedNotifier?.notify();
     } catch (e) {
       emit(HighlightError(message: e.toString()));
@@ -77,6 +111,7 @@ class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
       } else {
         add(LoadHighlights());
       }
+      _isSelf = true;
       _changedNotifier?.notify();
     } catch (e) {
       emit(HighlightError(message: e.toString()));

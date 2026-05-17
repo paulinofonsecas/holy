@@ -4,6 +4,7 @@ import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/design_system/theme/theme_colors.dart';
 import 'package:eu_sou/core/design_system/theme/theme_data.dart';
+import 'package:eu_sou/core/services/highlight_changed_notifier.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
@@ -13,9 +14,10 @@ import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/biblia/presentation/pages/book_selection_page.dart';
 import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
+import 'package:eu_sou/features/verse_interaction/data/repositories/highlight_repository.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
-import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widgets/verse_actions_page.dart';
+import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widgets/verse_actions_widget.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
@@ -38,9 +40,11 @@ class MultiversionPanelWidget extends StatefulWidget {
     this.initialVersionId,
     this.initialBookId,
     this.initialChapter,
+    this.initialScrollOffset,
   });
 
   final String panelId;
+  final double? initialScrollOffset;
 
   /// The panel's accent colour. Drives its [Theme]. Defaults to
   /// [AppThemeColors.defaultPrimaryColor] when null.
@@ -63,6 +67,11 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
   late final BookSelectionCubit _bookCubit;
   late final VerseSelectionBloc _selectionBloc;
   late final ReadingSettingsCubit _readingSettingsCubit;
+  // Each panel gets its own HighlightBloc instance so that applying/removing
+  // a highlight in one panel does not immediately trigger a UI rebuild (and
+  // an accidental clearSelection) in *every* other panel. The shared
+  // HighlightChangedNotifier still keeps all panels in sync lazily.
+  late final HighlightBloc _highlightBloc;
 
   @override
   void initState() {
@@ -76,6 +85,15 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
       context.read<IBibleRepository>(),
       context.read<ScrollPersistenceService>(),
     );
+    // Create a panel-local HighlightBloc backed by the same global repository
+    // and notifier. This isolates immediate rebuilds to the acting panel while
+    // still propagating changes to sibling panels via the notifier.
+    _highlightBloc = HighlightBloc(
+      context.read<HighlightRepository>(),
+      changedNotifier: context.read<HighlightChangedNotifier>(),
+      // Auto-reload when a sibling panel persists a highlight change.
+      listenToChanges: true,
+    )..add(LoadHighlights());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -87,7 +105,12 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
       if (widget.initialVersionId != null) {
         _versionCubit.changeVersionById(versionId);
       }
-      _bibliaBloc.add(GetChapter(versionId, bookId, chapter.toString()));
+      _bibliaBloc.add(GetChapter(
+        versionId,
+        bookId,
+        chapter.toString(),
+        scrollOffset: widget.initialScrollOffset,
+      ));
     });
   }
 
@@ -98,6 +121,7 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
     _bookCubit.close();
     _selectionBloc.close();
     _readingSettingsCubit.close();
+    _highlightBloc.close();
     super.dispose();
   }
 
@@ -119,6 +143,8 @@ class _MultiversionPanelWidgetState extends State<MultiversionPanelWidget> {
           BlocProvider.value(value: _bookCubit),
           BlocProvider.value(value: _selectionBloc),
           BlocProvider.value(value: _readingSettingsCubit),
+          // Panel-local HighlightBloc — isolates highlight rebuilds per panel.
+          BlocProvider.value(value: _highlightBloc),
         ],
         child: _PanelContent(
           panelId: widget.panelId,
@@ -520,6 +546,10 @@ class _PanelContentState extends State<_PanelContent> {
     } else if (notification is ScrollEndNotification) {
       if (!_showNavButtons) setState(() => _showNavButtons = true);
       _startHideTimer();
+      context.read<MultiversionCubit>().updatePanelScrollOffset(
+            widget.panelId,
+            notification.metrics.pixels,
+          );
     }
     return false;
   }
@@ -531,182 +561,197 @@ class _PanelContentState extends State<_PanelContent> {
     final colorScheme = Theme.of(context).colorScheme;
     final bgColor = colorScheme.surface;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: Border(
-          right: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.4),
-            width: 1,
+    return BlocListener<BibliaBloc, BibliaState>(
+      listener: (context, state) {
+        if (state is BibleChapterLoaded) {
+          context.read<MultiversionCubit>().updatePanelPosition(
+                panelId: widget.panelId,
+                versionId: state.versionId,
+                bookId: state.chapter.bookId,
+                chapter: state.chapter.number,
+                scrollOffset: state.initialScrollOffset,
+              );
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: bgColor,
+          border: Border(
+            right: BorderSide(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+              width: 1,
+            ),
           ),
         ),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
-            children: [
-              // ── Header ─────────────────────────────────────────────────────
-              _PanelHeader(
-                panelColor: widget.panelColor,
-                onVersionTap: _openVersionPicker,
-                onBookTap: _openBookSelection,
-                onColorTap: _openColorPicker,
-                onSettingsTap: _openReadingSettings,
-                onClose: widget.canClose ? widget.onClose : null,
-              ),
-              const Divider(height: 1),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Column(
+              children: [
+                // ── Header ─────────────────────────────────────────────────────
+                _PanelHeader(
+                  panelColor: widget.panelColor,
+                  onVersionTap: _openVersionPicker,
+                  onBookTap: _openBookSelection,
+                  onColorTap: _openColorPicker,
+                  onSettingsTap: _openReadingSettings,
+                  onClose: widget.canClose ? widget.onClose : null,
+                ),
+                const Divider(height: 1),
 
-              // ── Verse reader + resizable right panel + floating menu ────────
-              Expanded(
-                child: BlocBuilder<VerseSelectionBloc, VerseSelectionState>(
-                  builder: (context, selState) {
-                    return Stack(
-                      children: [
-                        // Row: verse reader + optional resizable right panel
-                        Positioned.fill(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Main verse reader
-                              Expanded(
-                                child: NotificationListener<ScrollNotification>(
-                                  onNotification: _onScrollNotification,
-                                  child: Stack(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () =>
-                                            _panelFocusNode.requestFocus(),
-                                        onHorizontalDragEnd: (details) {
-                                          if (details.primaryVelocity! > 0) {
-                                            _navigateToPreviousChapter();
-                                          } else if (details.primaryVelocity! <
-                                              0) {
-                                            _navigateToNextChapter();
-                                          }
-                                        },
-                                        child: MouseRegion(
-                                          onEnter: (_) =>
+                // ── Verse reader + resizable right panel + floating menu ────────
+                Expanded(
+                  child: BlocBuilder<VerseSelectionBloc, VerseSelectionState>(
+                    builder: (context, selState) {
+                      return Stack(
+                        children: [
+                          // Row: verse reader + optional resizable right panel
+                          Positioned.fill(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Main verse reader
+                                Expanded(
+                                  child:
+                                      NotificationListener<ScrollNotification>(
+                                    onNotification: _onScrollNotification,
+                                    child: Stack(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () =>
                                               _panelFocusNode.requestFocus(),
-                                          child: ScreenReaderPage(
-                                            focusNode: _panelFocusNode,
+                                          onHorizontalDragEnd: (details) {
+                                            if (details.primaryVelocity! > 0) {
+                                              _navigateToPreviousChapter();
+                                            } else if (details
+                                                    .primaryVelocity! <
+                                                0) {
+                                              _navigateToNextChapter();
+                                            }
+                                          },
+                                          child: MouseRegion(
+                                            onEnter: (_) =>
+                                                _panelFocusNode.requestFocus(),
+                                            child: ScreenReaderPage(
+                                              focusNode: _panelFocusNode,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      // ← prev-chapter button
-                                      Positioned(
-                                        left: 4,
-                                        top: 0,
-                                        bottom: 0,
-                                        child: Center(
-                                          child: AnimatedOpacity(
-                                            duration: const Duration(
-                                                milliseconds: 300),
-                                            opacity:
-                                                _showNavButtons ? 1.0 : 0.0,
-                                            child: IgnorePointer(
-                                              ignoring: !_showNavButtons,
-                                              child: _ChapterNavButton(
-                                                isNext: false,
-                                                onTap:
-                                                    _navigateToPreviousChapter,
+                                        // ← prev-chapter button
+                                        Positioned(
+                                          left: 4,
+                                          top: 0,
+                                          bottom: 0,
+                                          child: Center(
+                                            child: AnimatedOpacity(
+                                              duration: const Duration(
+                                                  milliseconds: 300),
+                                              opacity:
+                                                  _showNavButtons ? 1.0 : 0.0,
+                                              child: IgnorePointer(
+                                                ignoring: !_showNavButtons,
+                                                child: _ChapterNavButton(
+                                                  isNext: false,
+                                                  onTap:
+                                                      _navigateToPreviousChapter,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      // → next-chapter button
-                                      Positioned(
-                                        right: 4,
-                                        top: 0,
-                                        bottom: 0,
-                                        child: Center(
-                                          child: AnimatedOpacity(
-                                            duration: const Duration(
-                                                milliseconds: 300),
-                                            opacity:
-                                                _showNavButtons ? 1.0 : 0.0,
-                                            child: IgnorePointer(
-                                              ignoring: !_showNavButtons,
-                                              child: _ChapterNavButton(
-                                                isNext: true,
-                                                onTap: _navigateToNextChapter,
+                                        // → next-chapter button
+                                        Positioned(
+                                          right: 4,
+                                          top: 0,
+                                          bottom: 0,
+                                          child: Center(
+                                            child: AnimatedOpacity(
+                                              duration: const Duration(
+                                                  milliseconds: 300),
+                                              opacity:
+                                                  _showNavButtons ? 1.0 : 0.0,
+                                              child: IgnorePointer(
+                                                ignoring: !_showNavButtons,
+                                                child: _ChapterNavButton(
+                                                  isNext: true,
+                                                  onTap: _navigateToNextChapter,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Action row for selected verses
-                        if (selState.isInSelectionMode)
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: BlocBuilder<BibliaBloc, BibliaState>(
-                              builder: (context, state) {
-                                if (state is! BibleChapterLoaded) {
-                                  return const SizedBox.shrink();
-                                }
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surface.withValues(
-                                      alpha: 0.95,
-                                    ),
-                                    border: Border(
-                                      top: BorderSide(
-                                        color: colorScheme.outlineVariant
-                                            .withValues(alpha: 0.4),
-                                        width: 1,
-                                      ),
-                                    ),
-                                  ),
-                                  child: SingleChildScrollView(
-                                    key: const ValueKey('ActionRowActive'),
-                                    scrollDirection: Axis.horizontal,
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16, 4, 16, 2),
-                                      child: ActionRowWidget(
-                                        verses: selState.selectedVerses.values
-                                            .toList(),
-                                        verseReference: () {
-                                          final sel = (selState
-                                              .selectedVerses.values
-                                              .toList()
-                                            ..sort((a, b) =>
-                                                a.number.compareTo(b.number)));
-                                          final book = state.chapter.bookId;
-                                          final chap = state.chapter.number;
-                                          if (sel.isEmpty) return '$book $chap';
-                                          if (sel.length == 1) {
-                                            return '$book $chap:${sel.first.number}';
-                                          }
-                                          return '$book $chap:${sel.first.number}-${sel.last.number}';
-                                        }(),
-                                        bookId: state.chapter.bookId,
-                                        chapterNumber: state.chapter.number,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
+                              ],
                             ),
                           ),
-                      ],
-                    );
-                  },
+
+                          // Action row for selected verses
+                          if (selState.isInSelectionMode)
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: BlocBuilder<BibliaBloc, BibliaState>(
+                                builder: (context, state) {
+                                  if (state is! BibleChapterLoaded) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final sel = (selState.selectedVerses.values.toList()
+                                    ..sort((a, b) => a.number.compareTo(b.number)));
+                                  final book = state.chapter.bookId;
+                                  final chap = state.chapter.number;
+                                  final String verseRefStr;
+                                  if (sel.isEmpty) {
+                                    verseRefStr = '$book $chap';
+                                  } else if (sel.length == 1) {
+                                    verseRefStr = '$book $chap:${sel.first.number}';
+                                  } else {
+                                    verseRefStr = '$book $chap:${sel.first.number}-${sel.last.number}';
+                                  }
+
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.surface.withValues(
+                                        alpha: 0.95,
+                                      ),
+                                      border: Border(
+                                        top: BorderSide(
+                                          color: colorScheme.outlineVariant
+                                              .withValues(alpha: 0.4),
+                                          width: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    child: SingleChildScrollView(
+                                      key: const ValueKey('ActionRowActive'),
+                                      scrollDirection: Axis.horizontal,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 4, 16, 2),
+                                        child: ActionRowWidget(
+                                          verses: selState.selectedVerses.values
+                                              .toList(),
+                                          verseReference: verseRefStr,
+                                          bookId: state.chapter.bookId,
+                                          chapterNumber: state.chapter.number,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_panel_widget.dart';
+import 'package:eu_sou/features/biblia/multiversion/multiversion_sessions_sidebar.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,21 +47,32 @@ class MultiversionView extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (int i = 0; i < visibleIds.length; i++)
-                        Expanded(
-                          child: MultiversionPanelWidget(
-                            key: ValueKey(visibleIds[i]),
-                            panelId: visibleIds[i],
-                            panelColor: state.panelColors[visibleIds[i]],
-                            canClose: visibleIds.length > 1,
-                            onClose: () => cubit.removePanel(visibleIds[i]),
-                            // First panel opens at the current reading position,
-                            // subsequent panels open at genesis 1 by default
-                            initialVersionId: i == 0 ? initVersion : null,
-                            initialBookId: i == 0 ? initBook : null,
-                            initialChapter: i == 0 ? initChapter : null,
-                          ),
+                      // Sidebar on the left
+                      if (state.showSessionsSidebar)
+                        const MultiversionSessionsSidebar(),
+
+                      // Panels
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (int i = 0; i < visibleIds.length; i++)
+                              Expanded(
+                                child: MultiversionPanelWidget(
+                                  key: ValueKey(visibleIds[i]),
+                                  panelId: visibleIds[i],
+                                  panelColor: state.panelColors[visibleIds[i]],
+                                  canClose: visibleIds.length > 1,
+                                  onClose: () => cubit.removePanel(visibleIds[i]),
+                                  initialVersionId: state.panelConfigs[visibleIds[i]]?.versionId ?? (i == 0 ? initVersion : null),
+                                  initialBookId: state.panelConfigs[visibleIds[i]]?.bookId ?? (i == 0 ? initBook : null),
+                                  initialChapter: state.panelConfigs[visibleIds[i]]?.chapter ?? (i == 0 ? initChapter : null),
+                                  initialScrollOffset: state.panelConfigs[visibleIds[i]]?.scrollOffset,
+                                ),
+                              ),
+                          ],
                         ),
+                      ),
                     ],
                   ),
                 ),
@@ -68,6 +80,8 @@ class MultiversionView extends StatelessWidget {
                 _MultiversionToolbar(
                   panelCount: visibleIds.length,
                   maxPanels: maxPanels,
+                  isSidebarOpen: state.showSessionsSidebar,
+                  onToggleSidebar: cubit.toggleSessionsSidebar,
                   onAddPanel:
                       state.panelIds.length < maxPanels ? cubit.addPanel : null,
                   onClose: cubit.disable,
@@ -85,12 +99,16 @@ class _MultiversionToolbar extends StatelessWidget {
   const _MultiversionToolbar({
     required this.panelCount,
     required this.maxPanels,
+    required this.isSidebarOpen,
+    required this.onToggleSidebar,
     required this.onClose,
     this.onAddPanel,
   });
 
   final int panelCount;
   final int maxPanels;
+  final bool isSidebarOpen;
+  final VoidCallback onToggleSidebar;
   final VoidCallback? onAddPanel;
   final VoidCallback onClose;
 
@@ -113,6 +131,21 @@ class _MultiversionToolbar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
+          // Sidebar Toggle Button
+          IconButton(
+            icon: AppHugeIcon(
+              icon: HugeIcons.strokeRoundedSidebarLeft,
+              size: 16,
+              color: colorScheme.primary,
+            ),
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            onPressed: onToggleSidebar,
+            tooltip: isSidebarOpen ? 'Ocultar Sessões' : 'Mostrar Sessões',
+          ),
+          const SizedBox(width: 8),
+
           AppHugeIcon(
             icon: HugeIcons.strokeRoundedLayoutTable01,
             size: 16,

@@ -10,6 +10,7 @@ import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
+import 'package:eu_sou/features/biblia/data/repositories/multiversion_session_repository.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/onboarding/presentation/splash_page.dart';
@@ -68,7 +69,11 @@ class _AppState extends State<App> {
             create: (context) => ReadingSettingsCubit(
                 context.read<ReadingSettingsRepository>())),
         BlocProvider(create: (_) => BookSelectionCubit()),
-        BlocProvider(create: (_) => MultiversionCubit()),
+        BlocProvider(
+          create: (context) => MultiversionCubit(
+            context.read<MultiversionSessionRepository>(),
+          ),
+        ),
         BlocProvider(
             create: (context) =>
                 DeeplinkBloc(context.read<IDeeplinkService>())),
