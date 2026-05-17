@@ -42,7 +42,7 @@ class DeeplinkService implements IDeeplinkService {
     String? source,
   }) async {
     final link =
-        'holy://share?v=$verseRef${source != null ? '&utm_source=$source' : ''}';
+        'https://biblia.eusou.one/share?v=$verseRef${source != null ? '&utm_source=$source' : ''}';
     _logger.info('Generated deep link: $link');
     return link;
   }
@@ -51,9 +51,9 @@ class DeeplinkService implements IDeeplinkService {
   Map<String, String>? parseLink(Uri uri) {
     _logger.info('Parsing deep link: $uri');
 
-    // Support both custom scheme (holy://share) and the previous https domain (links.holy.app/share)
+    // Support custom scheme (holy://share), standard share domain (links.holy.app/share) and new domain (biblia.eusou.one/share)
     final bool isCorrectHost =
-        uri.host == 'links.holy.app' || uri.host == 'share';
+        uri.host == 'links.holy.app' || uri.host == 'biblia.eusou.one' || uri.host == 'share';
     final bool isCorrectPath =
         uri.path == '/share' || uri.path == '' || uri.path == '/';
     final bool isCorrectScheme = uri.scheme == 'https' || uri.scheme == 'holy';
