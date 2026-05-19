@@ -18,10 +18,46 @@ class DeepUnderstandingHistoryPage extends StatefulWidget {
 
 class _DeepUnderstandingHistoryPageState
     extends State<DeepUnderstandingHistoryPage> {
+  static const _pageSize = 10;
+
+  int _displayCount = _pageSize;
+  bool _loadingMore = false;
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     context.read<DeepUnderstandingBloc>().add(const LoadHistoryEvent());
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      _loadMore();
+    }
+  }
+
+  void _loadMore() {
+    if (_loadingMore) return;
+    final sessions = context.read<DeepUnderstandingBloc>().state.sessions;
+    if (_displayCount >= sessions.length) return;
+    setState(() => _loadingMore = true);
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (!mounted) return;
+      setState(() {
+        _displayCount = (_displayCount + _pageSize).clamp(0, sessions.length);
+        _loadingMore = false;
+      });
+    });
   }
 
   String _formatDate(DateTime date) {
@@ -66,21 +102,10 @@ class _DeepUnderstandingHistoryPageState
             return Center(child: CircularProgressIndicator(color: accentColor));
           }
 
-          final sessions = state.sessions.toList()
-            ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-
-          // if (sessions.isEmpty && state is! DeepUnderstandingInProgress) {
-          //   if (state is DeepUnderstandingHistoryError) {
-          //     return Center(
-          //         child: Text('Erro ao carregar histórico: ${state.error}'));
-          //   }
-          //   return Center(
-          //     child: Text(
-          //       'Nenhuma reflexão registrada ainda.',
-          //       style: TextStyle(color: secondaryTextColor, fontSize: 16),
-          //     ),
-          //   );
-          // }
+          final sessions = (state.sessions.toList()
+                ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt)))
+              .take(_displayCount)
+              .toList();
 
           final grouped = <String, List<AnalysisSession>>{};
           for (var s in sessions) {
@@ -88,10 +113,13 @@ class _DeepUnderstandingHistoryPageState
             grouped.putIfAbsent(dateStr, () => []).add(s);
           }
 
+          final totalSessions = state.sessions.length;
+
           return SafeArea(
             child: Stack(
               children: [
                 CustomScrollView(
+                  controller: _scrollController,
                   slivers: [
                     SliverToBoxAdapter(
                       child: Padding(
@@ -144,6 +172,17 @@ class _DeepUnderstandingHistoryPageState
                                   context, dateStr, dateSessions);
                             },
                             childCount: grouped.keys.length,
+                          ),
+                        ),
+                      ),
+                    if (_loadingMore || _displayCount < totalSessions)
+                      SliverToBoxAdapter(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: _loadingMore
+                                ? CircularProgressIndicator(color: accentColor)
+                                : const SizedBox.shrink(),
                           ),
                         ),
                       ),
