@@ -43,8 +43,7 @@ class EuSouOverviewPanel extends StatelessWidget {
       backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: BlocBuilder<EuSouBloc, EuSouState>(
-          buildWhen: (previous, current) =>
-              previous.runtimeType != current.runtimeType,
+          buildWhen: (previous, current) => previous != current,
           builder: (context, state) {
             if (state is EuSouLoading) {
               return const EuSouSkeletonOverview();

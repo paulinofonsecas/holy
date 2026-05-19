@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../shared/widgets/app_huge_icon.dart';
+import '../../data/repositories/eu_sou_repository.dart';
 import '../../domain/models/daily_reflection.dart';
-import '../bloc/eu_sou_bloc.dart';
 import '../utils/verse_navigation.dart';
 
 class ReflexoesAnterioresPage extends StatefulWidget {
@@ -18,43 +18,58 @@ class ReflexoesAnterioresPage extends StatefulWidget {
 }
 
 class _ReflexoesAnterioresPageState extends State<ReflexoesAnterioresPage> {
-  List<DailyReflection> _history = [];
+  static const _pageSize = 10;
+
+  List<DailyReflection> _allHistory = [];
+  List<DailyReflection> _displayed = [];
   bool _loading = true;
+  bool _loadingMore = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _load();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      _loadMore();
+    }
   }
 
   Future<void> _load() async {
-    // Acede ao repositório via BLoC (o BLoC tem acesso ao repository)
-    // Para simplicidade, usamos o estado carregado + SharedPreferences direto
-    final euSouState = context.read<EuSouBloc>().state;
+    final repository = context.read<EuSouRepository>();
+    final history = await repository.getReflectionHistory();
+    if (!mounted) return;
+    setState(() {
+      _allHistory = history;
+      _displayed = history.take(_pageSize).toList();
+      _loading = false;
+    });
+  }
 
-    // O repositório não é exposto diretamente; chamamos via uma função no BLoC
-    // Por agora apresentamos a reflexão de hoje se carregada
-    final List<DailyReflection> history = [];
-
-    if (euSouState is EuSouLoaded) {
-      history.add(euSouState.reflection ??
-          DailyReflection(
-            date: DateTime.now().toIso8601String(),
-            verseText: 'Nenhuma reflexão disponível',
-            verseReference: '',
-            essencia:
-                'Faça suas primeiras reflexões para que elas apareçam aqui!',
-            greetingWord: '',
-            pratica: '',
-          ));
-    }
-
-    if (mounted) {
-      setState(() {
-        _history = history;
-        _loading = false;
-      });
-    }
+  Future<void> _loadMore() async {
+    if (_loadingMore || _displayed.length >= _allHistory.length) return;
+    setState(() => _loadingMore = true);
+    await Future.delayed(const Duration(milliseconds: 200));
+    if (!mounted) return;
+    setState(() {
+      _displayed.addAll(
+        _allHistory.skip(_displayed.length).take(_pageSize),
+      );
+      _loadingMore = false;
+    });
   }
 
   @override
@@ -70,30 +85,40 @@ class _ReflexoesAnterioresPageState extends State<ReflexoesAnterioresPage> {
               backgroundColor: bgColor,
               elevation: 0,
               scrolledUnderElevation: 0,
-        title: Text(
-          'REFLEXÕES ANTERIORES',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 2.5,
-            color: colorScheme.onSurface.withOpacity(0.55),
-          ),
-        ),
-        centerTitle: true,
-      ),
+              title: Text(
+                'REFLEXÕES ANTERIORES',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 2.5,
+                  color: colorScheme.onSurface.withOpacity(0.55),
+                ),
+              ),
+              centerTitle: true,
+            ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _history.isEmpty
+          : _allHistory.isEmpty
               ? _EmptyState()
               : ListView.separated(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(28),
-                  itemCount: _history.length,
+                  itemCount:
+                      _displayed.length + (_loadingMore ? 1 : 0),
                   separatorBuilder: (_, __) => Divider(
                     height: 48,
                     color: colorScheme.onSurface.withOpacity(0.08),
                   ),
                   itemBuilder: (context, index) {
-                    return _ReflexaoCard(reflection: _history[index]);
+                    if (index == _displayed.length) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    return _ReflexaoCard(reflection: _displayed[index]);
                   },
                 ),
     );
