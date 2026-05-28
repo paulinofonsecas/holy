@@ -178,7 +178,14 @@ class _DeepUnderstandingPageState extends State<DeepUnderstandingPage> {
               );
             }
             if (state is DeepUnderstandingCancelled) {
-              Navigator.pop(context);
+              final route = ModalRoute.of(context);
+              if (route != null) {
+                if (route.isCurrent) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.of(context).removeRoute(route);
+                }
+              }
             }
           },
           builder: (context, state) {

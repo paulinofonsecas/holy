@@ -8,6 +8,7 @@ import 'package:eu_sou/core/services/ai_service.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
+import 'package:eu_sou/features/deep_understanding/data/repositories/hive_vector_store_web.dart';
 import 'package:eu_sou/features/deep_understanding/data/repositories/in_memory_vector_store.dart';
 import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
 import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
@@ -74,9 +75,10 @@ Future<void> _bootstrapApp() async {
 
     late final DeepUnderstandingService deepUnderstandingService;
     final aiService = GeminiAIService();
+    final vectorStore = kIsWeb ? HiveVectorStore() : InMemoryVectorStore();
 
     deepUnderstandingService = DeepUnderstandingService(
-      InMemoryVectorStore(),
+      vectorStore,
       aiService,
       notificationHandler.localNotificationService,
     );

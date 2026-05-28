@@ -346,6 +346,18 @@ class _EuSouPageState extends State<EuSouPage>
                   );
             },
           ),
+          BlocListener<DeepUnderstandingBloc, DeepUnderstandingState>(
+            listener: (context, state) {
+              if (state is DeepUnderstandingCancelled || state is DeepUnderstandingFailure) {
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.remove(_kReflectionUnderstandingDate);
+                });
+                if (mounted) {
+                  setState(() => _hasGeneratedToday = false);
+                }
+              }
+            },
+          ),
         ],
         child: SafeArea(
           child: BlocBuilder<EuSouBloc, EuSouState>(

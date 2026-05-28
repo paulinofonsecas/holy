@@ -12,6 +12,8 @@ import 'package:eu_sou/features/biblia/widgets/screen_reader_page.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
+import 'package:eu_sou/features/search/presentation/widgets/deep_understanding_dialog.dart'
+    show DeepUnderstandingDialog;
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bloc.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widgets/verse_actions_widget.dart';
@@ -368,9 +370,14 @@ class _BibliaViewState extends State<BibliaView> {
                             return;
                           }
 
-                          var query = await _showQueryInputDialog(context);
+                          var query =
+                              await DeepUnderstandingDialog.show(context);
+
+                          if (query == null) {
+                            return;
+                          }
+
                           if (context.mounted) {
-                            query ??= 'Entendimento geral';
                             final versionId = context
                                 .read<BibleVersionCubit>()
                                 .state
@@ -538,35 +545,6 @@ class _BibliaViewState extends State<BibliaView> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Future<String?> _showQueryInputDialog(BuildContext context) {
-    final TextEditingController queryController = TextEditingController();
-    return showDialog<String?>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eu Sou'),
-        content: TextField(
-          autocorrect: false,
-          controller: queryController,
-          decoration: const InputDecoration(
-            hintText: 'Qual o tema da sua análise?',
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, null),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context,
-                queryController.text.isEmpty ? null : queryController.text),
-            child: const Text('Analisar'),
-          ),
-        ],
       ),
     );
   }
