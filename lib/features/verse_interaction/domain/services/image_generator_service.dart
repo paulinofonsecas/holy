@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:gal/gal.dart';
-import '../../../../core/utils/web_utils.dart';
 
+import '../../../../core/utils/web_utils.dart';
 import '../models/verse_image_composition.dart';
 
 class ImageGeneratorService {
@@ -120,7 +120,7 @@ class ImageGeneratorService {
     }
 
     final String fileName =
-        'holy_verse_${DateTime.now().millisecondsSinceEpoch}';
+        'eusou_verse_${DateTime.now().millisecondsSinceEpoch}';
 
     if (kIsWeb) {
       try {

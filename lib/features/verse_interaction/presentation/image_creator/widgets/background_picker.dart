@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -146,10 +144,16 @@ class BackgroundPicker extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(7),
-                  child: Image.file(
-                    File(viewModel.customBackgroundPath!),
-                    fit: BoxFit.cover,
-                  ),
+                  child: viewModel.customBackgroundBytes != null
+                      ? Image.memory(
+                          viewModel.customBackgroundBytes!,
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 60,
+                        )
+                      : const SizedBox.expand(
+                          child: ColoredBox(color: Colors.grey),
+                        ),
                 ),
                 Positioned(
                   top: 2,
@@ -197,7 +201,8 @@ class BackgroundPicker extends StatelessWidget {
       );
 
       if (image != null) {
-        viewModel.setCustomBackground(image.path);
+        final bytes = await image.readAsBytes();
+        viewModel.setCustomBackground(image.path, bytes: bytes);
       }
     } on Exception catch (e) {
       if (context.mounted) {

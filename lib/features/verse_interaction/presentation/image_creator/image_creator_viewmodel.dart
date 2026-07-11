@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
@@ -41,6 +43,9 @@ class ImageCreatorViewModel extends BaseViewModel {
 
   String? _customBackgroundPath;
   String? get customBackgroundPath => _customBackgroundPath;
+
+  Uint8List? _customBackgroundBytes;
+  Uint8List? get customBackgroundBytes => _customBackgroundBytes;
 
   VerseImageComposition? get currentComposition =>
       _compositions.isNotEmpty ? _compositions[_currentIndex] : null;
@@ -103,15 +108,57 @@ class ImageCreatorViewModel extends BaseViewModel {
         .map((comp) => comp.copyWith(
               backgroundId: background.id,
               backgroundColor: background.color,
+              backgroundBlur: 0.0,
+              backgroundBrightness: 0.0,
+              backgroundContrast: 1.0,
+              backgroundSaturation: 1.0,
             ))
         .toList();
     _customBackgroundPath = null;
+    _customBackgroundBytes = null;
     notifyListeners();
   }
 
-  void setCustomBackground(String path) {
+  void setCustomBackground(String path, {Uint8List? bytes}) {
     if (_compositions.isEmpty) return;
     _customBackgroundPath = path;
+    _customBackgroundBytes = bytes;
+    _compositions = _compositions
+        .map((comp) => comp.copyWith(
+              backgroundBlur: 0.0,
+              backgroundBrightness: 0.0,
+              backgroundContrast: 1.0,
+              backgroundSaturation: 1.0,
+            ))
+        .toList();
+    notifyListeners();
+  }
+
+  void setBackgroundBlur(double value) {
+    if (currentComposition == null) return;
+    _compositions[_currentIndex] =
+        currentComposition!.copyWith(backgroundBlur: value);
+    notifyListeners();
+  }
+
+  void setBackgroundBrightness(double value) {
+    if (currentComposition == null) return;
+    _compositions[_currentIndex] =
+        currentComposition!.copyWith(backgroundBrightness: value);
+    notifyListeners();
+  }
+
+  void setBackgroundContrast(double value) {
+    if (currentComposition == null) return;
+    _compositions[_currentIndex] =
+        currentComposition!.copyWith(backgroundContrast: value);
+    notifyListeners();
+  }
+
+  void setBackgroundSaturation(double value) {
+    if (currentComposition == null) return;
+    _compositions[_currentIndex] =
+        currentComposition!.copyWith(backgroundSaturation: value);
     notifyListeners();
   }
 

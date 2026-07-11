@@ -12,10 +12,11 @@ class TypographyControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentSize = viewModel.currentComposition?.fontSize ?? 18.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Font family selector
         const Text(
           'Fonte',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -45,6 +46,44 @@ class TypographyControls extends StatelessWidget {
         ),
 
         const SizedBox(height: 16),
+
+        Row(
+          children: [
+            Text(
+              'A',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+            Expanded(
+              child: Slider(
+                value: currentSize,
+                min: 14,
+                max: 28,
+                divisions: 14,
+                label: currentSize.round().toString(),
+                onChanged: (value) {
+                  final preset = FontSizePreset.values.firstWhere(
+                    (p) => (p.size - value).abs() < 0.5,
+                    orElse: () => FontSizePreset.medium,
+                  );
+                  viewModel.selectFontSizePreset(preset);
+                },
+              ),
+            ),
+            Text(
+              'A',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 8),
       ],
     );
   }

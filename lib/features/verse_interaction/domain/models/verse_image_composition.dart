@@ -57,6 +57,10 @@ class VerseImageComposition {
   final AspectRatioOption aspectRatio;
   final bool autoText;
   final List<CanvasElement> elements;
+  final double backgroundBlur;
+  final double backgroundBrightness;
+  final double backgroundContrast;
+  final double backgroundSaturation;
 
   static const List<CanvasElement> _defaultElements = [
     CanvasElement(type: CanvasElementType.verseBody, position: Offset(0, 0.02)),
@@ -77,6 +81,10 @@ class VerseImageComposition {
     this.aspectRatio = AspectRatioOption.square,
     this.autoText = true,
     List<CanvasElement>? elements,
+    this.backgroundBlur = 0.0,
+    this.backgroundBrightness = 0.0,
+    this.backgroundContrast = 1.0,
+    this.backgroundSaturation = 1.0,
   }) : elements = elements ?? _defaultElements;
 
   VerseImageComposition copyWith({
@@ -94,6 +102,10 @@ class VerseImageComposition {
     bool? autoText,
     AspectRatioOption? aspectRatio,
     List<CanvasElement>? elements,
+    double? backgroundBlur,
+    double? backgroundBrightness,
+    double? backgroundContrast,
+    double? backgroundSaturation,
   }) {
     return VerseImageComposition(
       verses: verses ?? this.verses,
@@ -110,6 +122,10 @@ class VerseImageComposition {
       autoText: autoText ?? this.autoText,
       aspectRatio: aspectRatio ?? this.aspectRatio,
       elements: elements ?? this.elements,
+      backgroundBlur: backgroundBlur ?? this.backgroundBlur,
+      backgroundBrightness: backgroundBrightness ?? this.backgroundBrightness,
+      backgroundContrast: backgroundContrast ?? this.backgroundContrast,
+      backgroundSaturation: backgroundSaturation ?? this.backgroundSaturation,
     );
   }
 

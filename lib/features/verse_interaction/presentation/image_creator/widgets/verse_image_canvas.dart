@@ -1,8 +1,11 @@
-import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../domain/models/verse_image_composition.dart';
 
@@ -12,6 +15,7 @@ class VerseImageCanvas extends StatefulWidget {
   final bool isEditing;
   final void Function(List<CanvasElement>)? onElementsUpdate;
   final String? customBackgroundPath;
+  final Uint8List? customBackgroundBytes;
 
   const VerseImageCanvas({
     super.key,
@@ -20,6 +24,7 @@ class VerseImageCanvas extends StatefulWidget {
     this.isEditing = true,
     this.onElementsUpdate,
     this.customBackgroundPath,
+    this.customBackgroundBytes,
   });
 
   @override
@@ -233,8 +238,10 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
                 ),
               ],
             ),
-            child: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowExpand01,
-              size: 8, color: Colors.black54),
+            child: const AppHugeIcon(
+                icon: HugeIcons.strokeRoundedArrowExpand01,
+                size: 8,
+                color: Colors.black54),
           ),
         ),
       ],
@@ -261,8 +268,19 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
 
   Widget _buildBackground() {
     if (widget.customBackgroundPath != null) {
+      final comp = widget.composition;
+      Widget image = widget.customBackgroundBytes != null
+          ? Image.memory(
+              widget.customBackgroundBytes!,
+              fit: BoxFit.cover,
+              gaplessPlayback: true,
+            )
+          : const SizedBox.expand(child: ColoredBox(color: Colors.grey));
+
+      image = _applyImageFilters(image, comp);
+
       return Stack(fit: StackFit.expand, children: [
-        Image.file(File(widget.customBackgroundPath!), fit: BoxFit.cover),
+        image,
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -290,6 +308,73 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
         ),
       ),
     );
+  }
+
+  Widget _applyImageFilters(Widget image, VerseImageComposition comp) {
+    final blur = comp.backgroundBlur;
+    final brightness = comp.backgroundBrightness;
+    final contrast = comp.backgroundContrast;
+    final saturation = comp.backgroundSaturation;
+
+    final hasFilters =
+        blur > 0 || brightness != 0.0 || contrast != 1.0 || saturation != 1.0;
+
+    if (!hasFilters) return image;
+
+    Widget filtered = image;
+
+    if (blur > 0) {
+      filtered = ImageFiltered(
+        imageFilter: ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+        child: filtered,
+      );
+    }
+
+    if (brightness != 0.0 || contrast != 1.0 || saturation != 1.0) {
+      final b = brightness;
+      final c = contrast;
+      final s = saturation;
+
+      // Saturation via luminance weighting
+      const lr = 0.2126;
+      const lg = 0.7152;
+      const lb = 0.0722;
+
+      final sr = (1 - s) * lr;
+      final sg = (1 - s) * lg;
+      final sb = (1 - s) * lb;
+
+      // Combined 4x5 color matrix: brightness + contrast + saturation
+      final List<double> matrix = [
+        c * (sr + s),
+        c * sg,
+        c * sb,
+        0,
+        b,
+        sr * c,
+        c * (sg + s),
+        c * sb,
+        0,
+        b,
+        sr * c,
+        sg * c,
+        c * (sb + s),
+        0,
+        b,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+      ];
+
+      filtered = ColorFiltered(
+        colorFilter: ColorFilter.matrix(matrix),
+        child: filtered,
+      );
+    }
+
+    return filtered;
   }
 
   Widget _buildVignette() => Container(
@@ -467,16 +552,45 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
       fontWeight: FontWeight.w300,
       shadows: _shadows(),
     );
+    final currentVersion = context.read<BibleVersionCubit>().state;
+
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-        decoration: BoxDecoration(
-          border: Border.all(color: _dimColor, width: 0.8),
-          borderRadius: BorderRadius.circular(20),
+        child: Column(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(version, style: style, textAlign: TextAlign.center),
+                Text(' •   ', style: style, textAlign: TextAlign.center),
+                Text('eu sou', style: style, textAlign: TextAlign.center),
+              ],
+            ),
+            Text(fullVersionName(currentVersion.version.name),
+                style: style, textAlign: TextAlign.center),
+          ],
         ),
-        child: Text(version, style: style, textAlign: TextAlign.center),
       ),
     );
+  }
+
+  String fullVersionName(String versionId) {
+    switch (versionId.toLowerCase()) {
+      case 'nvi':
+        return 'Nova Versão Internacional';
+      case 'ara':
+        return 'Almeida Revista e Atualizada';
+      case 'acf':
+        return 'Almeida Corrigida Fiel';
+      case 'nvt':
+        return 'Nova Versão Transformadora';
+      case 'nvt-pt':
+        return 'Nova Versão Transformadora (PT)';
+      default:
+        return versionId;
+    }
   }
 
   List<Shadow> _shadows() => [

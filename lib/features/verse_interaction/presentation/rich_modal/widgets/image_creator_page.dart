@@ -6,12 +6,14 @@ import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:stacked/stacked.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../domain/services/image_generator_service.dart';
 import '../../image_creator/image_creator_viewmodel.dart';
 import '../../image_creator/widgets/aspect_ratio_selector.dart';
+import '../../image_creator/widgets/background_editor.dart';
 import '../../image_creator/widgets/background_picker.dart';
 import '../../image_creator/widgets/typography_controls.dart';
 import '../../image_creator/widgets/verse_image_canvas.dart';
@@ -112,16 +114,42 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(48.0),
-              child: CircularProgressIndicator(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text(
+                    'Preparando composição...',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ],
+              ),
             ),
           );
         }
 
         if (viewModel.compositions.isEmpty) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(48.0),
-              child: Text('Erro ao carregar composição'),
+              padding: const EdgeInsets.all(48.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Erro ao carregar composição',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton(
+                    onPressed: () => viewModel.initialize(
+                        widget.verses, widget.verseReference, widget.versionId),
+                    child: const Text('Tentar novamente'),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -193,6 +221,8 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                                   isEditing: _isCanvasEditing,
                                   customBackgroundPath:
                                       viewModel.customBackgroundPath,
+                                  customBackgroundBytes:
+                                      viewModel.customBackgroundBytes,
                                   onElementsUpdate: (elements) {
                                     viewModel.updateElements(elements);
                                   },
@@ -204,22 +234,19 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
                       ),
                       if (viewModel.compositions.length > 1) ...[
                         const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            viewModel.compositions.length,
-                            (index) => Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: viewModel.currentIndex == index
-                                    ? Theme.of(context).primaryColor
-                                    : Colors.grey.shade300,
-                              ),
-                            ),
+                        SmoothPageIndicator(
+                          controller: _pageController,
+                          count: viewModel.compositions.length,
+                          effect: ExpandingDotsEffect(
+                            dotWidth: 6,
+                            dotHeight: 6,
+                            expansionFactor: 3,
+                            spacing: 5,
+                            activeDotColor: Theme.of(context).primaryColor,
+                            dotColor: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.18),
                           ),
                         ),
                       ],
@@ -230,66 +257,75 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
 
               const SizedBox(height: 24),
 
-              AspectRatioSelector(viewModel: viewModel),
-
-              const SizedBox(height: 16),
-
-              ElevatedButton.icon(
-                onPressed: (viewModel.isGenerating ||
-                        viewModel.compositions.length > 1)
-                    ? null
-                    : () async {
-                        await _generateAndShareImages(viewModel);
-                      },
-                icon: viewModel.isGenerating
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child:
-                            CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const AppHugeIcon(icon: HugeIcons.strokeRoundedShare01),
-                label: Text(
-                  viewModel.isGenerating
-                      ? 'Gerando...'
-                      : viewModel.compositions.length > 1
-                          ? 'Partilha múltipla indisponível'
-                          : 'Partilhar Imagem',
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
-              ),
+              BackgroundPicker(viewModel: viewModel),
 
               const SizedBox(height: 24),
 
-              BackgroundPicker(viewModel: viewModel),
+              BackgroundEditor(viewModel: viewModel),
 
               const SizedBox(height: 24),
 
               TypographyControls(viewModel: viewModel),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-              ElevatedButton.icon(
-                onPressed: viewModel.isGenerating
-                    ? null
-                    : () async {
-                        await _saveImagesToGallery(viewModel);
-                      },
-                icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedDownload01),
-                label: Text(
-                  viewModel.isGenerating
-                      ? 'Gerando...'
-                      : viewModel.compositions.length > 1
-                          ? 'Baixar Todas'
-                          : 'Baixar Imagem',
-                ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
+              AspectRatioSelector(viewModel: viewModel),
+
+              const SizedBox(height: 24),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: viewModel.isGenerating
+                          ? null
+                          : () async {
+                              await _generateAndShareImages(viewModel);
+                            },
+                      icon: viewModel.isGenerating
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const AppHugeIcon(
+                              icon: HugeIcons.strokeRoundedShare01),
+                      label: Text(
+                        viewModel.isGenerating
+                            ? 'Gerando...'
+                            : 'Partilhar',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        textStyle: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: viewModel.isGenerating
+                          ? null
+                          : () async {
+                              await _saveImagesToGallery(viewModel);
+                            },
+                      icon: const AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedDownload01),
+                      label: Text(
+                        viewModel.isGenerating
+                            ? 'Gerando...'
+                            : viewModel.compositions.length > 1
+                                ? 'Baixar Todas'
+                                : 'Baixar',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        textStyle: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
             ],
@@ -301,8 +337,8 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
 
   Future<void> _prepareCanvasForCapture() async {
     setState(() => _isCanvasEditing = false);
-    // Wait two frames so the canvas rebuilds without handles
-    await Future.delayed(const Duration(milliseconds: 80));
+    await WidgetsBinding.instance.endOfFrame;
+    await WidgetsBinding.instance.endOfFrame;
   }
 
   void _restoreCanvasAfterCapture() {
@@ -342,7 +378,7 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
             '${viewModel.compositions.map((c) => c.fullText).join('\n\n')}\n\n${viewModel.compositions.first.verseReference}',
       );
     } catch (e) {
-      toastService.showError('Erro ao gerar imagens: $e');
+      toastService.showError('Não foi possível gerar as imagens.');
     } finally {
       viewModel.setGenerating(false);
       _restoreCanvasAfterCapture();
@@ -377,10 +413,10 @@ class _ImageCreatorPageState extends State<ImageCreatorPage> {
         toastService
             .showWarning('$successCount de ${viewModel.compositions.length} imagens salvas.');
       } else {
-        throw Exception('Nenhuma imagem foi salva');
+        throw Exception('save_failed');
       }
     } catch (e) {
-      toastService.showError('Erro ao salvar imagens: $e');
+      toastService.showError('Não foi possível salvar as imagens.');
     } finally {
       viewModel.setGenerating(false);
       _restoreCanvasAfterCapture();
