@@ -81,7 +81,8 @@ class _BookSelectionPageState extends State<BookSelectionPage> {
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
+                      icon: const AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedCancel01),
                     ),
                   ),
                   Text(
@@ -103,11 +104,21 @@ class _BookSelectionPageState extends State<BookSelectionPage> {
                 autofocus: true,
                 decoration: InputDecoration(
                   hintText: 'Pesquisar livro...',
-                  prefixIcon: const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
+                  prefixIcon: const SizedBox(
+                    width: 40,
+                    child: Center(
+                      child: AppHugeIcon(
+                          icon: HugeIcons.strokeRoundedSearch01, size: 20),
+                    ),
+                  ),
                   suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
-                          onPressed: () => _searchController.clear(),
+                      ? Center(
+                          child: IconButton(
+                            icon: const AppHugeIcon(
+                                icon: HugeIcons.strokeRoundedCancel01,
+                                size: 16),
+                            onPressed: () => _searchController.clear(),
+                          ),
                         )
                       : null,
                   filled: true,

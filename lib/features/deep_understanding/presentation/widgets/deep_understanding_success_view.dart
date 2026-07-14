@@ -61,8 +61,7 @@ class DeepUnderstandingSuccessView extends StatelessWidget {
 
             // ── Main Markdown body ────────────────────────────────────────
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(vertical: 24.0),
               child: MarkdownBody(
                 data: state.result,
                 selectable: true,

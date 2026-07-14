@@ -4,9 +4,9 @@ import 'package:eu_sou/features/search/presentation/bloc/search_bloc.dart';
 import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class CustomSearchBibleWidget extends StatelessWidget {
   const CustomSearchBibleWidget({
@@ -64,6 +64,7 @@ class CustomSearchBibleWidget extends StatelessWidget {
               AppHugeIcon(
                 icon: HugeIcons.strokeRoundedSearch01,
                 color: hasSearch ? Theme.of(context).colorScheme.primary : null,
+                size: 16,
               ),
               if (hasSearch)
                 Positioned(

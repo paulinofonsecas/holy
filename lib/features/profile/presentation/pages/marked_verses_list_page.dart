@@ -195,11 +195,11 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
               decoration: InputDecoration(
                 hintText: 'Pesquisar...',
                 prefixIcon:
-                    const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
+                    const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01, size: 16),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const AppHugeIcon(
-                            icon: HugeIcons.strokeRoundedCancel01),
+                            icon: HugeIcons.strokeRoundedCancel01, size: 20),
                         onPressed: () {
                           _searchController.clear();
                           _onSearchChanged('');
@@ -268,11 +268,11 @@ class _MarkedVersesListPageState extends State<MarkedVersesListPage> {
               decoration: InputDecoration(
                 hintText: 'Pesquisar em versículos marcados...',
                 prefixIcon:
-                    const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
+                    const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01, size: 16),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const AppHugeIcon(
-                            icon: HugeIcons.strokeRoundedCancel01),
+                            icon: HugeIcons.strokeRoundedCancel01, size: 16),
                         onPressed: () {
                           _searchController.clear();
                           _onSearchChanged('');

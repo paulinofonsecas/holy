@@ -67,7 +67,7 @@ class _SearchInputBarState extends State<SearchInputBar> {
           ),
           prefixIcon: AppHugeIcon(
             icon: HugeIcons.strokeRoundedSearch01,
-            size: 22,
+            size: 16,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           ),
           isDense: true,

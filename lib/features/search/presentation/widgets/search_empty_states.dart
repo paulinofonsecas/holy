@@ -26,7 +26,7 @@ class NoResultToSingleWorldWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
                 AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01,
-                  color: Theme.of(context).primaryColor, size: 20),
+                  color: Theme.of(context).primaryColor, size: 16),
               const SizedBox(width: 8),
               Text(
                 'Pesquisa avançada',

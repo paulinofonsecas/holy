@@ -11,13 +11,13 @@ import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/core/services/highlight_changed_notifier.dart';
-import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
+import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/switch_book_modal.dart';
 import 'package:eu_sou/features/biblia/views/biblia_view.dart';
-import 'package:eu_sou/features/eu_sou/presentation/pages/eu_sou_page.dart';
 import 'package:eu_sou/features/eu_sou/presentation/bloc/eu_sou_bloc.dart';
+import 'package:eu_sou/features/eu_sou/presentation/pages/eu_sou_page.dart';
 import 'package:eu_sou/features/profile/domain/repositories/i_marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/presentation/bloc/marked_verses_bloc.dart';
 import 'package:eu_sou/features/profile/presentation/pages/marked_verses_list_page.dart';
@@ -120,12 +120,16 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           });
 
           // Re-trigger loading of chapter and EuSou reflection once download completes
-          final scrollPersistenceService = context.read<ScrollPersistenceService>();
-          final savedPosition = scrollPersistenceService.getLastReadingPosition();
+          final scrollPersistenceService =
+              context.read<ScrollPersistenceService>();
+          final savedPosition =
+              scrollPersistenceService.getLastReadingPosition();
           final resolvedBookId = savedPosition?.bookId ?? 'GEN';
-          final resolvedChapter = savedPosition?.chapterNumber.toString() ?? '1';
+          final resolvedChapter =
+              savedPosition?.chapterNumber.toString() ?? '1';
 
-          final currentVersionId = context.read<BibleVersionCubit>().state.version.id;
+          final currentVersionId =
+              context.read<BibleVersionCubit>().state.version.id;
           context.read<BibliaBloc>().add(GetChapter(
                 currentVersionId,
                 resolvedBookId,
@@ -426,7 +430,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                                 icon: AppHugeIcon(
                                     icon: HugeIcons.strokeRoundedSearch01,
                                     key: keySearchTab,
-                                    size: 20),
+                                    size: 16),
                                 label: l10n.search,
                               ),
                             ],
@@ -494,7 +498,7 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                       icon: AppHugeIcon(
                           icon: HugeIcons.strokeRoundedSearch01,
                           key: keySearchTab,
-                          size: 20),
+                          size: 16),
                       label: l10n.search,
                     ),
                   ],

@@ -35,7 +35,8 @@ class _BookSearchModalState extends State<BookSearchModal> {
             autocorrect: false,
             decoration: const InputDecoration(
               hintText: 'Search for a book...',
-              prefixIcon: AppHugeIcon(icon: HugeIcons.strokeRoundedBook01),
+              prefixIcon:
+                  AppHugeIcon(icon: HugeIcons.strokeRoundedBook01, size: 16),
             ),
           ),
           const SizedBox(height: 16),
@@ -51,7 +52,8 @@ class _BookSearchModalState extends State<BookSearchModal> {
                 widget.onSearch?.call(_textController.text);
               }
             },
-            icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedSearch01),
+            icon: const AppHugeIcon(
+                icon: HugeIcons.strokeRoundedSearch01, size: 16),
           ),
         ],
       ),

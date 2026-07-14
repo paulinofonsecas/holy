@@ -140,6 +140,8 @@ class _AppBarChip extends StatelessWidget {
       fontSize: 9,
       color: colorScheme.onSurface.withValues(alpha: 0.5),
     );
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -155,7 +157,7 @@ class _AppBarChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               child,
-              if (label.isNotEmpty) ...[
+              if (label.isNotEmpty && screenWidth > 360) ...[
                 const Gap(2),
                 Text(label, style: labelStyle),
               ],

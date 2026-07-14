@@ -138,31 +138,37 @@ class _DeepUnderstandingPageState extends State<DeepUnderstandingPage> {
             BlocBuilder<DeepUnderstandingBloc, DeepUnderstandingState>(
               builder: (context, state) {
                 if (state is DeepUnderstandingSuccess) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedTextFont,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Theme.of(context).colorScheme.onSurface
-                              : const Color(0xFF2D1B13),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedTextFont,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : const Color(0xFF2D1B13),
+                          ),
+                          tooltip: 'Ajustar fonte',
+                          onPressed: _showFontSizeSheet,
                         ),
-                        tooltip: 'Ajustar fonte',
-                        onPressed: _showFontSizeSheet,
-                      ),
-                      IconButton(
-                        icon: AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedShare01,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Theme.of(context).colorScheme.onSurface
-                              : const Color(0xFF2D1B13),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedShare01,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : const Color(0xFF2D1B13),
+                          ),
+                          onPressed: () =>
+                              DeepUnderstandingActions.showExportOptions(
+                                  context, state),
                         ),
-                        onPressed: () =>
-                            DeepUnderstandingActions.showExportOptions(
-                                context, state),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 }
                 return const SizedBox.shrink();
