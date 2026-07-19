@@ -559,17 +559,17 @@ class _VerseImageCanvasState extends State<VerseImageCanvas> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
         child: Column(
           children: [
+            Text('Eu Sou', style: style, textAlign: TextAlign.center),
             Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(version, style: style, textAlign: TextAlign.center),
                 Text(' •   ', style: style, textAlign: TextAlign.center),
-                Text('eu sou', style: style, textAlign: TextAlign.center),
+                Text(fullVersionName(currentVersion.version.name),
+                    style: style, textAlign: TextAlign.center),
               ],
             ),
-            Text(fullVersionName(currentVersion.version.name),
-                style: style, textAlign: TextAlign.center),
           ],
         ),
       ),
