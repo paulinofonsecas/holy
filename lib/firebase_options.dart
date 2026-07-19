@@ -30,7 +30,10 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -44,42 +47,32 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBO66r4gWMoYcJEjYwpMsVrkxyyQIzV36M',
-    appId: '1:802718084241:web:660f28e8371cb06e2de330',
+    apiKey: 'AIzaSyAWTrAjgpPiv4mPN19MM1rJhEvkPu4E7bY',
+    appId: '1:802718084241:web:5fbee23d65b1901c2de330',
     messagingSenderId: '802718084241',
     projectId: 'caiaia01',
     authDomain: 'caiaia01.firebaseapp.com',
     databaseURL: 'https://caiaia01-default-rtdb.firebaseio.com',
     storageBucket: 'caiaia01.firebasestorage.app',
-    measurementId: 'G-VSBT4NL44P',
+    measurementId: 'G-ZF6VF7Y2PJ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDF0NxGyrNIj1_Sc2ALJN_Ejg_xsYpb5-0',
-    appId: '1:802718084241:android:1a079e1cb43bc3a82de330',
+    appId: '1:802718084241:android:d0aa2422a70a87872de330',
     messagingSenderId: '802718084241',
     projectId: 'caiaia01',
     databaseURL: 'https://caiaia01-default-rtdb.firebaseio.com',
     storageBucket: 'caiaia01.firebasestorage.app',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDBvLlZjf0eAxQbjRCKgWGr4xsRzKqdeZY',
-    appId: '1:86790721181:web:8a683fe1c409f183db0e74',
-    messagingSenderId: '86790721181',
-    projectId: 'admin-we-barato',
-    authDomain: 'admin-we-barato.firebaseapp.com',
-    storageBucket: 'admin-we-barato.firebasestorage.app',
-    measurementId: 'G-KP4V9S19Y0',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCktxDXI1lID2xJ5wMAD7UCUzimVu6zbwg',
-    appId: '1:802718084241:ios:bbe03b9b6f7eccaa2de330',
+    appId: '1:802718084241:ios:26c0177eba0b91662de330',
     messagingSenderId: '802718084241',
     projectId: 'caiaia01',
     databaseURL: 'https://caiaia01-default-rtdb.firebaseio.com',
     storageBucket: 'caiaia01.firebasestorage.app',
-    iosBundleId: 'com.paulinofonseca.eusou',
+    iosBundleId: 'app.biblia.eusou',
   );
 }

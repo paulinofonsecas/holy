@@ -10,7 +10,7 @@ workflows:
     max_build_duration: 60
 
     integrations:
-      app_store_connect: "martins"
+      app_store_connect: 'martins'
 
     environment:
       flutter: stable
@@ -19,16 +19,16 @@ workflows:
 
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.paulinofonseca.eusou
+        bundle_identifier: app.biblia.eusou
 
     triggering:
       events:
         - push
       branch_patterns:
-        - pattern: "main"
+        - pattern: 'main'
           include: true
       cancel_previous_builds: true
-    
+
     cache:
       cache_paths:
         - $HOME/.pub-cache
@@ -78,13 +78,13 @@ workflows:
       # ----------------------------------------------------------
       # iOS
       # ----------------------------------------------------------
-      - name: "[iOS] Install CocoaPods"
+      - name: '[iOS] Install CocoaPods'
         script: |
           cd ios
           pod install
           cd ..
 
-      - name: "[iOS] Build IPA"
+      - name: '[iOS] Build IPA'
         script: |
           flutter build ipa --release \
             --build-name=$APP_VERSION \
