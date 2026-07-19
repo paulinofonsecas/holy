@@ -19,6 +19,7 @@ class _VerseFilterBarState extends State<VerseFilterBar> {
   final _controller = TextEditingController();
   bool _isExpanded = false;
   int _currentMatchIndex = -1;
+  bool _autoScrollToFirst = false;
 
   @override
   void dispose() {
@@ -28,6 +29,7 @@ class _VerseFilterBarState extends State<VerseFilterBar> {
 
   void _scrollToNextMatch(List<int> matches) {
     if (matches.isEmpty) return;
+    _autoScrollToFirst = false;
     setState(() {
       _currentMatchIndex = (_currentMatchIndex + 1) % matches.length;
     });
@@ -36,6 +38,7 @@ class _VerseFilterBarState extends State<VerseFilterBar> {
 
   void _scrollToPreviousMatch(List<int> matches) {
     if (matches.isEmpty) return;
+    _autoScrollToFirst = false;
     setState(() {
       _currentMatchIndex = (_currentMatchIndex - 1) % matches.length;
       if (_currentMatchIndex < 0) _currentMatchIndex += matches.length;
@@ -60,7 +63,18 @@ class _VerseFilterBarState extends State<VerseFilterBar> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return BlocBuilder<VerseFilterCubit, VerseFilterState>(
+    return BlocConsumer<VerseFilterCubit, VerseFilterState>(
+      listener: (context, state) {
+        if (_autoScrollToFirst && state.isFiltering) {
+          final versionId = context.read<BibleVersionCubit>().state.version.id;
+          final matches = state.matchVerses[versionId] ?? [];
+          if (matches.isNotEmpty) {
+            _autoScrollToFirst = false;
+            setState(() => _currentMatchIndex = 0);
+            _triggerScroll(matches[0]);
+          }
+        }
+      },
       builder: (context, state) {
         final isFiltering = state.isFiltering;
         return AnimatedSize(
@@ -115,6 +129,7 @@ class _VerseFilterBarState extends State<VerseFilterBar> {
                                     setState(() {
                                       _isExpanded = false;
                                       _currentMatchIndex = -1;
+                                      _autoScrollToFirst = false;
                                     });
                                     context.read<VerseFilterCubit>().clear();
                                   },
@@ -142,7 +157,10 @@ class _VerseFilterBarState extends State<VerseFilterBar> {
                           ),
                         ),
                         onChanged: (value) {
-                          setState(() => _currentMatchIndex = -1);
+                          setState(() {
+                            _currentMatchIndex = -1;
+                            _autoScrollToFirst = true;
+                          });
                           context.read<VerseFilterCubit>().updateFilter(value);
                         },
                       ),
