@@ -44,7 +44,9 @@ class BibleAppBar extends StatelessWidget {
         vertical: 4,
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: 8,
         children: [
           // ── Left: version / back ──────────────────────────────────────
           if (!isFirst)
@@ -84,11 +86,18 @@ class BibleAppBar extends StatelessWidget {
 
           // ── Center: book / chapter ────────────────────────────────────
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: SizedBox(
-                width: double.infinity,
-                child: BookSelectorWidget(onBookTap: onBookTap),
+            child: InkWell(
+              onTap: onBookTap,
+              borderRadius: BorderRadius.circular(8),
+              child: _AppBarChip(
+                label: 'Livro / Capítulo',
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: BookSelectorWidget(onBookTap: onBookTap),
+                  ),
+                ),
               ),
             ),
           ),
@@ -107,7 +116,6 @@ class BibleAppBar extends StatelessWidget {
           // ── Individual labeled action chips ───────────────────────────
           if (actions != null)
             for (final action in actions!) ...[
-              const Gap(6),
               _AppBarChip(
                 label: action.label,
                 onTap: action.onTap,
@@ -141,6 +149,7 @@ class _AppBarChip extends StatelessWidget {
       color: colorScheme.onSurface.withValues(alpha: 0.5),
     );
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Material(
       color: Colors.transparent,
@@ -148,13 +157,15 @@ class _AppBarChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
+          height: screenHeight * .06,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             border: Border.all(color: borderColor, width: 1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               child,
               if (label.isNotEmpty && screenWidth > 360) ...[
@@ -182,61 +193,39 @@ class BookSelectorWidget extends StatelessWidget {
     return BlocBuilder<BibliaBloc, BibliaState>(
       builder: (context, state) {
         if (state is BibleChapterLoaded) {
-          return Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline,
-                width: 1,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: InkWell(
-              onTap: onBookTap,
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Gap(2),
-                        Text(
-                          "${state.chapter.bookName} ${state.chapter.number}",
-                          key: (ModalRoute.of(context)?.isFirst ?? true)
-                              ? keyBibleContentTab
-                              : null,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const Gap(4),
-                        const AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedArrowDown01,
-                          size: 16,
-                        ),
-                      ],
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    "${state.chapter.bookName}",
+                    key: (ModalRoute.of(context)?.isFirst ?? true)
+                        ? keyBibleContentTab
+                        : null,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const Gap(2),
-                    Text(
-                      'Livro / Capítulo',
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                Text(
+                  " ${state.chapter.number}",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Gap(4),
+                const AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowDown01,
+                  size: 16,
+                ),
+              ],
             ),
           );
         }

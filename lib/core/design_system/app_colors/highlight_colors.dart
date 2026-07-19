@@ -10,39 +10,39 @@ class HighlightColorTheme {
     switch (cleanHex) {
       case 'FFFFF176': // Yellow
         return isDark
-            ? const Color(0xFFFBC02D).withValues(alpha: 0.3)
-            : const Color(0xFFFFF176).withValues(alpha: 0.8);
+            ? const Color(0xFFFFF176).withValues(alpha: 0.8)
+            : const Color(0xFFFBC02D).withValues(alpha: 0.3);
       case 'FFAED581': // Green
         return isDark
-            ? const Color(0xFF7CB342).withValues(alpha: 0.3)
+            ? const Color(0xFF7CB342).withValues(alpha: 0.4)
             : const Color(0xFFAED581).withValues(alpha: 0.8);
       case 'FF81D4FA': // Blue
         return isDark
-            ? const Color(0xFF0288D1).withValues(alpha: 0.3)
+            ? const Color(0xFF0288D1).withValues(alpha: 0.5)
             : const Color(0xFF81D4FA).withValues(alpha: 0.8);
       case 'FFF48FB1': // Pink
         return isDark
-            ? const Color(0xFFC2185B).withValues(alpha: 0.3)
+            ? const Color(0xFFC2185B).withValues(alpha: 0.5)
             : const Color(0xFFF48FB1).withValues(alpha: 0.8);
       case 'FFCE93D8': // Purple
         return isDark
-            ? const Color(0xFF7B1FA2).withValues(alpha: 0.3)
-            : const Color(0xFFCE93D8).withValues(alpha: 0.8);
+            ? const Color(0xFF7B1FA2).withValues(alpha: 0.5)
+            : const Color(0xFFCE95D8).withValues(alpha: 0.8);
       case 'FFFFB74D': // Orange
         return isDark
-            ? const Color(0xFFF57C00).withValues(alpha: 0.3)
+            ? const Color(0xFFF57C00).withValues(alpha: 0.5)
             : const Color(0xFFFFB74D).withValues(alpha: 0.8);
       case 'FFE57373': // Red
         return isDark
-            ? const Color(0xFFD32F2F).withValues(alpha: 0.3)
+            ? const Color(0xFFD32F2F).withValues(alpha: 0.5)
             : const Color(0xFFE57373).withValues(alpha: 0.8);
       case 'FFA1887F': // Brown
         return isDark
-            ? const Color(0xFF5D4037).withValues(alpha: 0.3)
+            ? const Color(0xFF5D4037).withValues(alpha: 0.5)
             : const Color(0xFFA1887F).withValues(alpha: 0.8);
       case 'FF393939': // Gray
         return isDark
-            ? const Color(0xFF757575).withValues(alpha: 0.3)
+            ? const Color(0xFF757575).withValues(alpha: 0.5)
             : const Color(0xFFE0E0E0).withValues(alpha: 0.8);
       default:
         // Fallback for any other custom hex color

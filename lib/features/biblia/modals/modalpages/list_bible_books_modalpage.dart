@@ -2,9 +2,9 @@
 
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../widgets/bible_book_list_item.dart';
@@ -42,53 +42,51 @@ SliverWoltModalSheetPage listBibleBooksModalPage(
     ),
     mainContentSliversBuilder: (sliverContext) {
       return [
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            childCount: BibleBooks.values.length,
-            (context, index) {
-              final book = BibleBooks.values[index];
+        SliverList.builder(
+          itemBuilder: (context, index) {
+            final book = BibleBooks.values[index];
 
-              if (book.bookId == BibleBooks.genesis.bookId) {
-                return Column(
-                  children: [
-                    const Gap(32),
-                    Text(
-                      'Antigo Testamento',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    BibleBookListItem(
-                      key: ValueKey(book.bookId),
-                      book: book,
-                    ),
-                  ],
-                );
-              } else if (book.bookId == BibleBooks.matthew.bookId) {
-                return Column(
-                  children: [
-                    const Gap(32),
-                    Text(
-                      'Novo Testamento',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    BibleBookListItem(
-                      key: ValueKey(book.bookId),
-                      book: book,
-                    ),
-                  ],
-                );
-              }
-
-              return BibleBookListItem(
-                key: ValueKey(book.bookId),
-                book: book,
-                onTapListener: (book) {
-                  if (book.bookId == BibleBooks.revelation.bookId) {
-                    debugPrint('Last book tapped');
-                  }
-                },
+            if (book.bookId == BibleBooks.genesis.bookId) {
+              return Column(
+                children: [
+                  const Gap(32),
+                  Text(
+                    'Antigo Testamento',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  BibleBookListItem(
+                    key: ValueKey(book.bookId),
+                    book: book,
+                  ),
+                ],
               );
-            },
-          ),
+            } else if (book.bookId == BibleBooks.matthew.bookId) {
+              return Column(
+                children: [
+                  const Gap(32),
+                  Text(
+                    'Novo Testamento',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  BibleBookListItem(
+                    key: ValueKey(book.bookId),
+                    book: book,
+                  ),
+                ],
+              );
+            }
+
+            return BibleBookListItem(
+              key: ValueKey(book.bookId),
+              book: book,
+              onTapListener: (book) {
+                if (book.bookId == BibleBooks.revelation.bookId) {
+                  debugPrint('Last book tapped');
+                }
+              },
+            );
+          },
+          itemCount: BibleBooks.values.length,
         ),
       ];
     },

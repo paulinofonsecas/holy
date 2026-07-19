@@ -1,5 +1,5 @@
-import 'package:eu_sou/core/design_system/app_colors/highlight_colors.dart';
 import 'package:eu_sou/core/design_system/app_colors/app_colors.dart';
+import 'package:eu_sou/core/design_system/app_colors/highlight_colors.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_state.dart';
 import 'package:eu_sou/features/biblia/bloc/verse_filter_cubit.dart';
@@ -50,7 +50,8 @@ class VerseReadWidget extends StatelessWidget {
                     } else if (highlightState is HighlightsLoaded) {
                       final highlight = highlightState.highlights[verseRef];
                       if (highlight != null) {
-                        backgroundColor = HighlightColorTheme.getColor(context, highlight.colorHex);
+                        backgroundColor = HighlightColorTheme.getColor(
+                            context, highlight.colorHex);
                       }
                     }
 
@@ -116,7 +117,7 @@ class VerseReadWidget extends StatelessWidget {
                             .add(ToggleVerseSelection(verse));
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Align(
                           alignment: settingsState.textAlign == TextAlign.center
                               ? Alignment.topCenter
@@ -125,10 +126,6 @@ class VerseReadWidget extends StatelessWidget {
                                   : Alignment.topLeft,
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 4,
-                              horizontal: 8,
-                            ),
                             decoration: BoxDecoration(
                               color: backgroundColor,
                               borderRadius: BorderRadius.circular(4),
@@ -197,7 +194,8 @@ class VerseReadWidget extends StatelessWidget {
   Color getVerseBackgroudColor(BuildContext context) {
     if (alreadyHighlighted(context)) {
       final highlightColorHex = getVerseHighlightColor(context);
-      return HighlightColorTheme.getColor(context, highlightColorHex).withValues(alpha: .4);
+      return HighlightColorTheme.getColor(context, highlightColorHex)
+          .withValues(alpha: .4);
     }
 
     return Theme.brightnessOf(context) == Brightness.light

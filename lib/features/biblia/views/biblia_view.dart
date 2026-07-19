@@ -30,7 +30,6 @@ import '../bloc/biblia_bloc.dart';
 import '../bloc/verse_filter_cubit.dart';
 import '../multiversion/multiversion_cubit.dart';
 import '../multiversion/multiversion_view.dart';
-import '../widgets/animated_chapter_navigation.dart';
 import '../widgets/biblia_app_bar.dart';
 import '../widgets/verse_filter_bar.dart';
 
@@ -77,7 +76,7 @@ class BibliaView extends StatefulWidget {
 }
 
 class _BibliaViewState extends State<BibliaView> {
-  bool _showButtons = true;
+  bool _showButtons = false;
   Timer? _hideTimer;
   @override
   void initState() {
@@ -95,24 +94,24 @@ class _BibliaViewState extends State<BibliaView> {
   }
 
   void _startHideTimer() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final isWideScreen = MediaQuery.of(context).size.width >= 600;
-      _hideTimer?.cancel();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final isWideScreen = MediaQuery.of(context).size.width >= 600;
+    //   _hideTimer?.cancel();
 
-      if (!isWideScreen && !_showButtons) {
-        setState(() {
-          _showButtons = true;
-        });
-        return;
-      }
-      _hideTimer = Timer(const Duration(seconds: 5), () {
-        if (mounted && _showButtons) {
-          setState(() {
-            _showButtons = false;
-          });
-        }
-      });
-    });
+    //   if (!isWideScreen && !_showButtons) {
+    //     setState(() {
+    //       _showButtons = true;
+    //     });
+    //     return;
+    //   }
+    //   _hideTimer = Timer(const Duration(seconds: 5), () {
+    //     if (mounted && _showButtons) {
+    //       setState(() {
+    //         _showButtons = false;
+    //       });
+    //     }
+    //   });
+    // });
   }
 
   void _ensureInitialReadingPositionLoaded() {
@@ -354,7 +353,7 @@ class _BibliaViewState extends State<BibliaView> {
                           ),
                         ),
                       BibleAppBarAction(
-                        label: 'Entendimento',
+                        label: 'Eu Sou',
                         onTap: () async {
                           final state = context.read<BibliaBloc>().state;
 
@@ -411,63 +410,43 @@ class _BibliaViewState extends State<BibliaView> {
                   Expanded(
                     child: Stack(
                       children: [
-                        NotificationListener<ScrollNotification>(
-                          onNotification: (notification) {
-                            if (notification is ScrollStartNotification) {
-                              _hideTimer?.cancel();
-                              if (_showButtons) {
-                                setState(() {
-                                  _showButtons = false;
-                                });
-                              }
-                            } else if (notification is ScrollEndNotification) {
-                              if (!_showButtons) {
-                                setState(() {
-                                  _showButtons = true;
-                                });
-                              }
-                              _startHideTimer();
+                        GestureDetector(
+                          onHorizontalDragEnd: (details) {
+                            // Sensitivity adjustment if needed
+                            if (details.primaryVelocity! > 0) {
+                              // Swipe Right -> Previous Chapter
+                              _navigateToPreviousChapter();
+                            } else if (details.primaryVelocity! < 0) {
+                              // Swipe Left -> Next Chapter
+                              _navigateToNextChapter();
                             }
-                            return false;
                           },
-                          child: GestureDetector(
-                            onHorizontalDragEnd: (details) {
-                              // Sensitivity adjustment if needed
-                              if (details.primaryVelocity! > 0) {
-                                // Swipe Right -> Previous Chapter
-                                _navigateToPreviousChapter();
-                              } else if (details.primaryVelocity! < 0) {
-                                // Swipe Left -> Next Chapter
-                                _navigateToNextChapter();
-                              }
-                            },
-                            child: const ScreenReaderPage(),
-                          ),
+                          child: const ScreenReaderPage(),
                         ),
-                        Positioned(
-                          left: 12,
-                          top: 0,
-                          bottom: 0,
-                          child: Center(
-                            child: AnimatedChapterNavigation(
-                              isNext: false,
-                              visible: _showButtons,
-                              onTap: _navigateToPreviousChapter,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 12,
-                          top: 0,
-                          bottom: 0,
-                          child: Center(
-                            child: AnimatedChapterNavigation(
-                              isNext: true,
-                              visible: _showButtons,
-                              onTap: _navigateToNextChapter,
-                            ),
-                          ),
-                        ),
+                        // Positioned(
+                        //   left: 12,
+                        //   top: 0,
+                        //   bottom: 0,
+                        //   child: Center(
+                        //     child: AnimatedChapterNavigation(
+                        //       isNext: false,
+                        //       // visible: _showButtons,
+                        //       onTap: _navigateToPreviousChapter,
+                        //     ),
+                        //   ),
+                        // ),
+                        // Positioned(
+                        //   right: 12,
+                        //   top: 0,
+                        //   bottom: 0,
+                        //   child: Center(
+                        //     child: AnimatedChapterNavigation(
+                        //       isNext: true,
+                        //       visible: _showButtons,
+                        //       onTap: _navigateToNextChapter,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -505,7 +484,7 @@ class _BibliaViewState extends State<BibliaView> {
                                 scrollDirection: Axis.horizontal,
                                 child: Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(16, 4, 16, 2),
+                                      const EdgeInsets.fromLTRB(4, 4, 4, 2),
                                   child: ActionRowWidget(
                                     verses: context
                                         .read<VerseSelectionBloc>()

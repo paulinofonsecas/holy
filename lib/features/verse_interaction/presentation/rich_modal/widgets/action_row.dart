@@ -48,7 +48,7 @@ class ActionRow extends StatelessWidget {
           _ActionButton(
             icon: HugeIcons.strokeRoundedSparkles,
             color: context.colorScheme.primary,
-            label: 'Entendimento',
+            label: 'Eu Sou',
             onTap: onDeepUnderstanding,
           ),
         if (onCompare != null)
