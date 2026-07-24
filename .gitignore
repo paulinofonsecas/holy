@@ -4,6 +4,7 @@
 *.pyc
 *.swp
 .env
+lib/firebase_options.dart
 assets/.env
 .env.*
 .DS_Store
