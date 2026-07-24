@@ -120,7 +120,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
           Slider(
             value: _limiteVersiculos,
             min: 1,
-            max: _totalResults.toInt().clamp(1, _totalResults.toInt()),
+            max: _totalResults.toDouble().clamp(1, _totalResults.toDouble()),
             divisions: 19,
             label: _limiteVersiculos.toInt().toString(),
             onChanged: (val) => setState(() => _limiteVersiculos = val),
@@ -138,7 +138,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
           Slider(
             value: _limiteLivros,
             min: 1,
-            max: _totalBooks.toInt().clamp(1, 66),
+            max: _totalBooks.toDouble().clamp(1, 66),
             divisions: (_totalBooks > 1 ? _totalBooks - 1 : 1),
             label: _limiteLivros.toInt().toString(),
             onChanged: (val) => setState(() => _limiteLivros = val),
