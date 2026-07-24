@@ -28,19 +28,20 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/config/sentry_config.dart';
 import 'entry_point.dart';
 import 'error_screen.dart';
 
 Future<void> main() async {
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = SentryConfig.dsn.isEmpty ? null : SentryConfig.dsn;
-      options.environment = SentryConfig.environment;
-      options.tracesSampleRate = SentryConfig.tracesSampleRate;
-    },
-    appRunner: () => _bootstrapApp(),
-  );
+  // await SentryFlutter.init(
+  //   (options) {
+  //     options.dsn = SentryConfig.dsn.isEmpty ? null : SentryConfig.dsn;
+  //     options.environment = SentryConfig.environment;
+  //     options.tracesSampleRate = SentryConfig.tracesSampleRate;
+  //   },
+  //   appRunner: () =>
+  // );
+
+  _bootstrapApp();
 }
 
 Future<void> _bootstrapApp() async {

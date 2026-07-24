@@ -30,6 +30,9 @@ class BuscaCarregada extends EstadoBusca {
   final String? idVersaoSelecionada;
   final List<String> versoesDisponiveis;
   final double initialScrollOffset;
+  final SortOrder ordenacao;
+  final int? limiteLivros;
+  final int? limiteVersiculos;
 
   const BuscaCarregada({
     required this.resultados,
@@ -39,7 +42,36 @@ class BuscaCarregada extends EstadoBusca {
     this.idVersaoSelecionada,
     this.versoesDisponiveis = const [],
     this.initialScrollOffset = 0.0,
+    this.ordenacao = SortOrder.normal,
+    this.limiteLivros,
+    this.limiteVersiculos,
   });
+
+  BuscaCarregada copyWith({
+    SearchResults? resultados,
+    List<Book>? correspondenciasLivros,
+    List<SearchQueryPart>? consultas,
+    bool? buscarTodasVersoes,
+    String? idVersaoSelecionada,
+    List<String>? versoesDisponiveis,
+    double? initialScrollOffset,
+    SortOrder? ordenacao,
+    int? limiteLivros,
+    int? limiteVersiculos,
+  }) {
+    return BuscaCarregada(
+      resultados: resultados ?? this.resultados,
+      correspondenciasLivros: correspondenciasLivros ?? this.correspondenciasLivros,
+      consultas: consultas ?? this.consultas,
+      buscarTodasVersoes: buscarTodasVersoes ?? this.buscarTodasVersoes,
+      idVersaoSelecionada: idVersaoSelecionada ?? this.idVersaoSelecionada,
+      versoesDisponiveis: versoesDisponiveis ?? this.versoesDisponiveis,
+      initialScrollOffset: initialScrollOffset ?? this.initialScrollOffset,
+      ordenacao: ordenacao ?? this.ordenacao,
+      limiteLivros: limiteLivros ?? this.limiteLivros,
+      limiteVersiculos: limiteVersiculos ?? this.limiteVersiculos,
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -50,6 +82,9 @@ class BuscaCarregada extends EstadoBusca {
         idVersaoSelecionada,
         versoesDisponiveis,
         initialScrollOffset,
+        ordenacao,
+        limiteLivros,
+        limiteVersiculos,
       ];
 }
 

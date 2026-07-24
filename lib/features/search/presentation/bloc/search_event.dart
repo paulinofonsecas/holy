@@ -91,3 +91,25 @@ class TransformarEmBuscaAvancada extends EventoBusca {}
 class PesquisaRandomica extends EventoBusca {}
 
 class ForcarRestauracaoScrollBusca extends EventoBusca {}
+
+enum SortOrder { normal, alphabetical }
+
+class AlterarOrdenacao extends EventoBusca {
+  final SortOrder ordenacao;
+  const AlterarOrdenacao(this.ordenacao);
+
+  @override
+  List<Object?> get props => [ordenacao];
+}
+
+class AlterarLimiteResultados extends EventoBusca {
+  final int limiteLivros;
+  final int limiteVersiculos;
+  const AlterarLimiteResultados({
+    required this.limiteLivros,
+    required this.limiteVersiculos,
+  });
+
+  @override
+  List<Object?> get props => [limiteLivros, limiteVersiculos];
+}

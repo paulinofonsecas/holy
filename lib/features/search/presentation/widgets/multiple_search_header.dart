@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/search_bloc.dart';
+import 'search_filter_bottom_sheet.dart';
 import 'search_input_bar.dart';
 
 class MultipleSearchHeader extends StatelessWidget {
-  const MultipleSearchHeader(
-      {super.key, this.isGlobalSearchAllVersions = false});
-
-  final bool isGlobalSearchAllVersions;
+  const MultipleSearchHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +16,6 @@ class MultipleSearchHeader extends StatelessWidget {
         final bloc = context.read<SearchBloc>();
         final searchState = context.read<SearchBloc>().state;
 
-        // Handle local state if BuscaCarregada hasn't updated yet or we are in other states
         List<SearchQueryPart> queries;
         if (state is BuscaCarregada) {
           queries = state.consultas;
@@ -30,13 +27,11 @@ class MultipleSearchHeader extends StatelessWidget {
           queries = [const SearchQueryPart(term: '')];
         }
 
-        // Use the operator from the second part (if exists) as the global toggle
         final operadorGeral =
             (queries.length > 1) ? queries[1].operator : JoinOperator.and;
 
         return Column(
           children: [
-            // Join Operator Toggle (only if multiple queries)
             if (queries.length > 1)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
@@ -74,47 +69,29 @@ class MultipleSearchHeader extends StatelessWidget {
                     .read<SearchBloc>()
                     .add(TermoBuscaAlterado(val, index: 0));
               },
-            ),
-            const SizedBox(height: 8),
-            if (searchState is BuscaCarregada)
-              InkWell(
-                onTap: () {
-                  context.read<SearchBloc>().add(
-                        AlternarBuscaTodasVersoes(!isGlobalSearchAllVersions),
-                      );
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Todas as versões',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      Transform.scale(
-                        scale: 0.9,
-                        child: Checkbox(
-                          value: isGlobalSearchAllVersions,
-                          onChanged: (valor) {
-                            context.read<SearchBloc>().add(
-                                  AlternarBuscaTodasVersoes(valor ?? false),
-                                );
-                          },
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                    ],
+              suffixIcon: GestureDetector(
+                onTap: () => SearchFilterBottomSheet.show(context),
+                child: Container(
+                  margin: const EdgeInsets.only(right: 4),
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.tune_rounded,
+                    size: 18,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
                   ),
                 ),
               ),
+            ),
           ],
         );
       },

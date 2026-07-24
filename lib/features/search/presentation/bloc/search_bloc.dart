@@ -21,6 +21,9 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
   String? _idVersao;
   String? _idVersaoSelecionada;
   double _scrollOffset = 0;
+  SortOrder _ordenacao = SortOrder.normal;
+  int? _limiteLivros;
+  int? _limiteVersiculos;
 
   List<SearchQueryPart> get consultas => _consultas;
   double get scrollOffset => _scrollOffset;
@@ -47,6 +50,8 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     on<TransformarEmBuscaAvancada>(_onTransformToAdvancedSearch);
     on<PesquisaRandomica>(_onRandomSearch);
     on<ForcarRestauracaoScrollBusca>(_onForceScrollRestoration);
+    on<AlterarOrdenacao>(_onSortOrderChanged);
+    on<AlterarLimiteResultados>(_onLimitChanged);
   }
 
   void _onForceScrollRestoration(
@@ -64,7 +69,31 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         idVersaoSelecionada: currentState.idVersaoSelecionada,
         versoesDisponiveis: currentState.versoesDisponiveis,
         initialScrollOffset: savedOffset,
+        ordenacao: currentState.ordenacao,
+        limiteLivros: currentState.limiteLivros,
+        limiteVersiculos: currentState.limiteVersiculos,
       ));
+    }
+  }
+
+  Future<void> _onSortOrderChanged(
+    AlterarOrdenacao event,
+    Emitter<EstadoBusca> emit,
+  ) async {
+    _ordenacao = event.ordenacao;
+    if (_consultas.any((q) => q.term.length >= 3)) {
+      await _realizarBusca(emit);
+    }
+  }
+
+  Future<void> _onLimitChanged(
+    AlterarLimiteResultados event,
+    Emitter<EstadoBusca> emit,
+  ) async {
+    _limiteLivros = event.limiteLivros;
+    _limiteVersiculos = event.limiteVersiculos;
+    if (_consultas.any((q) => q.term.length >= 3)) {
+      await _realizarBusca(emit);
     }
   }
 
@@ -150,6 +179,9 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         versoesDisponiveis: state is BuscaCarregada
             ? (state as BuscaCarregada).versoesDisponiveis
             : const [],
+        ordenacao: _ordenacao,
+        limiteLivros: _limiteLivros,
+        limiteVersiculos: _limiteVersiculos,
       ));
     }
   }
@@ -194,6 +226,9 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         consultas: List.from(_consultas),
         buscarTodasVersoes: _buscarTodasVersoes,
         idVersaoSelecionada: _idVersaoSelecionada,
+        ordenacao: _ordenacao,
+        limiteLivros: _limiteLivros,
+        limiteVersiculos: _limiteVersiculos,
       ));
     }
   }
@@ -217,6 +252,9 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         consultas: List.from(_consultas),
         buscarTodasVersoes: _buscarTodasVersoes,
         idVersaoSelecionada: _idVersaoSelecionada,
+        ordenacao: _ordenacao,
+        limiteLivros: _limiteLivros,
+        limiteVersiculos: _limiteVersiculos,
       ));
     }
   }
@@ -234,6 +272,9 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         consultas: List.from(_consultas),
         buscarTodasVersoes: _buscarTodasVersoes,
         idVersaoSelecionada: _idVersaoSelecionada,
+        ordenacao: _ordenacao,
+        limiteLivros: _limiteLivros,
+        limiteVersiculos: _limiteVersiculos,
       ));
     }
   }
@@ -319,6 +360,9 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
     _consultas = [const SearchQueryPart(term: '')];
     _idVersaoSelecionada = null;
     _scrollOffset = 0;
+    _ordenacao = SortOrder.normal;
+    _limiteLivros = null;
+    _limiteVersiculos = null;
     _scrollPersistenceService.saveSearchScrollOffset(0.0);
     emit(BuscaInicial());
   }
@@ -375,14 +419,51 @@ class SearchBloc extends Bloc<EventoBusca, EstadoBusca> {
         );
       }
 
+      // Aplicar ordenação
+      var resultadosOrdenados = List<SearchResult>.from(resultadosExibidos.results);
+      if (_ordenacao == SortOrder.alphabetical) {
+        resultadosOrdenados.sort((a, b) {
+          final bookCmp = a.book.name.compareTo(b.book.name);
+          if (bookCmp != 0) return bookCmp;
+          final chapterCmp = a.chapter.number.compareTo(b.chapter.number);
+          if (chapterCmp != 0) return chapterCmp;
+          return a.verse.number.compareTo(b.verse.number);
+        });
+      }
+
+      // Aplicar limite de versículos (apenas se definido)
+      if (_limiteVersiculos != null && resultadosOrdenados.length > _limiteVersiculos!) {
+        resultadosOrdenados = resultadosOrdenados.sublist(0, _limiteVersiculos!);
+      }
+
+      // Aplicar limite de livros (apenas se definido)
+      var resultadosLimitados = resultadosOrdenados;
+      if (_limiteLivros != null) {
+        final livrosUnicos = <String>{};
+        resultadosLimitados = <SearchResult>[];
+        for (final r in resultadosOrdenados) {
+          if (livrosUnicos.add(r.book.id)) {
+            if (livrosUnicos.length > _limiteLivros!) break;
+          }
+          resultadosLimitados.add(r);
+        }
+      }
+
       emit(BuscaCarregada(
-        resultados: resultadosExibidos,
+        resultados: SearchResults(
+          query: resultadosExibidos.query,
+          totalResults: resultadosLimitados.length,
+          results: resultadosLimitados,
+        ),
         correspondenciasLivros: correspondenciasLivros,
         consultas: List.from(_consultas),
         buscarTodasVersoes: _buscarTodasVersoes,
         idVersaoSelecionada: _idVersaoSelecionada,
         versoesDisponiveis: versoesDisponiveis,
         initialScrollOffset: _scrollOffset,
+        ordenacao: _ordenacao,
+        limiteLivros: _limiteLivros,
+        limiteVersiculos: _limiteVersiculos,
       ));
     } catch (e, rastroPilha) {
       _registrador.error('❌ Erro na busca no bloc', e, rastroPilha);

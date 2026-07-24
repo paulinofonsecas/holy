@@ -126,6 +126,8 @@ class VerseReadWidget extends StatelessWidget {
                                   : Alignment.topLeft,
                           child: Container(
                             width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4, vertical: 2),
                             decoration: BoxDecoration(
                               color: backgroundColor,
                               borderRadius: BorderRadius.circular(4),

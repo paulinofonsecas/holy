@@ -9,6 +9,7 @@ class SearchInputBar extends StatefulWidget {
   final bool showRemove;
   final String hintText;
   final Widget? dragHandle;
+  final Widget? suffixIcon;
 
   const SearchInputBar({
     super.key,
@@ -18,6 +19,7 @@ class SearchInputBar extends StatefulWidget {
     this.showRemove = false,
     this.hintText = 'Termo de busca...',
     this.dragHandle,
+    this.suffixIcon,
   });
 
   @override
@@ -67,7 +69,7 @@ class _SearchInputBarState extends State<SearchInputBar> {
           ),
           prefixIcon: AppHugeIcon(
             icon: HugeIcons.strokeRoundedSearch01,
-            size: 16,
+            size: 13,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           ),
           isDense: true,
@@ -90,18 +92,41 @@ class _SearchInputBarState extends State<SearchInputBar> {
               width: 1,
             ),
           ),
-          suffixIcon: _controller.text.isNotEmpty
-              ? IconButton(
-                  icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 18),
-                  onPressed: () {
-                    _controller.clear();
-                    widget.onChanged('');
-                  },
-                )
-              : null,
+          suffixIcon: _buildSuffixIcon(),
         ),
         onChanged: widget.onChanged,
       ),
+    );
+  }
+
+  Widget? _buildSuffixIcon() {
+    final hasClear = _controller.text.isNotEmpty;
+    final hasFilter = widget.suffixIcon != null;
+
+    if (!hasClear && !hasFilter) return null;
+    if (!hasClear && hasFilter) return widget.suffixIcon;
+    if (hasClear && !hasFilter) {
+      return IconButton(
+        icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 18),
+        onPressed: () {
+          _controller.clear();
+          widget.onChanged('');
+        },
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 18),
+          onPressed: () {
+            _controller.clear();
+            widget.onChanged('');
+          },
+        ),
+        widget.suffixIcon!,
+      ],
     );
   }
 }

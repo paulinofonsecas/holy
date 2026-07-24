@@ -8,7 +8,6 @@ import 'package:eu_sou/features/search/presentation/widgets/multiple_search_head
 import 'package:eu_sou/features/search/presentation/widgets/search_actions.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_empty_states.dart';
 import 'package:eu_sou/features/search/presentation/widgets/search_result_tile.dart';
-import 'package:eu_sou/features/search/presentation/widgets/search_version_filter.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
@@ -129,18 +128,7 @@ class _TelaBuscaState extends State<TelaBusca> {
                         padding: const EdgeInsets.all(16.0),
                         sliver: SliverList(
                           delegate: SliverChildListDelegate([
-                            MultipleSearchHeader(
-                              isGlobalSearchAllVersions:
-                                  estado is BuscaCarregada
-                                      ? estado.buscarTodasVersoes
-                                      : false,
-                            ),
-                            if (estado is BuscaCarregada &&
-                                estado.buscarTodasVersoes)
-                              SearchVersionFilter(
-                                versoesDisponiveis: estado.versoesDisponiveis,
-                                idVersaoSelecionada: estado.idVersaoSelecionada,
-                              ),
+                            const MultipleSearchHeader(),
                           ]),
                         ),
                       ),
