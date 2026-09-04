@@ -83,3 +83,7 @@ UTF8
 
 sentry.properties
 sentry-wizard.exe
+
+# Patrol
+**/test_bundle.dart
+.patrol.env

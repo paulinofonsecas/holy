@@ -106,6 +106,8 @@ dev_dependencies:
   mocktail: ^1.0.4
   integration_test:
     sdk: flutter
+  patrol: ^4.9.0
+  patrol_mcp: ^0.2.0
 
   json_serializable: ^6.7.1
   freezed: ^3.2.3
@@ -145,3 +147,7 @@ sentry:
   upload_source_maps: true
   project: eusou
   org: forjatek
+
+patrol:
+  android:
+    package_name: app.biblia.eusou
