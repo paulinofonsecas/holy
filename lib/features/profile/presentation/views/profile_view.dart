@@ -10,6 +10,7 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/services/feedback_service.dart';
+import '../../../biblia/presentation/pages/bible_versions_page.dart';
 import '../../../feedback/views/about_view.dart';
 import '../../../theme/presentation/bloc/theme_bloc.dart';
 import '../../../tutorial/presentation/pages/tutorials_list_page.dart';
@@ -105,6 +106,21 @@ class ProfileView extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const VerseHistoryPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildProfileOption(
+                  context,
+                  icon: HugeIcons.strokeRoundedBooks01,
+                  title: 'Versões da Bíblia',
+                  subtitle: 'Baixar, remover e escolher a versão ativa',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BibleVersionsPage(),
                       ),
                     );
                   },
@@ -252,7 +268,8 @@ class ProfileView extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
-        trailing: const AppHugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 16),
+        trailing: const AppHugeIcon(
+            icon: HugeIcons.strokeRoundedArrowRight01, size: 16),
         onTap: onTap,
       ),
     );

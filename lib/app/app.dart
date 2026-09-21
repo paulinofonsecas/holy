@@ -1,3 +1,4 @@
+import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
 import 'package:eu_sou/core/design_system/theme/theme_data.dart';
 import 'package:eu_sou/core/design_system/theme/theme_extension.dart';
@@ -6,11 +7,14 @@ import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/toast_service.dart';
+import 'package:eu_sou/core/services/version_persistence_service.dart';
+import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
+import 'package:eu_sou/features/biblia/bloc/bible_versions_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
-import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
 import 'package:eu_sou/features/biblia/data/repositories/multiversion_session_repository.dart';
+import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/pages/deep_understanding_page.dart';
 import 'package:eu_sou/features/onboarding/presentation/splash_page.dart';
@@ -64,7 +68,18 @@ class _AppState extends State<App> {
       providers: [
         BlocProvider(create: (context) => context.read<ThemeBloc>()),
         BlocProvider(create: (_) => LocaleBloc()),
-        BlocProvider(create: (_) => BibleVersionCubit()),
+        BlocProvider(
+          create: (context) => BibleVersionCubit(
+            persistence: context.read<VersionPersistenceService>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => BibleVersionsCubit(
+            cacheProvider: context.read<BibleCacheProvider>(),
+            versionCubit: context.read<BibleVersionCubit>(),
+            webCachePersistence: context.read<WebCachePersistenceService>(),
+          )..load(),
+        ),
         BlocProvider(
             create: (context) => ReadingSettingsCubit(
                 context.read<ReadingSettingsRepository>())),

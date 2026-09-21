@@ -186,6 +186,36 @@ class BibleCacheProvider {
     return Chapter(number: chapterNumber, verses: verses);
   }
 
+  /// Returns the ids of every version currently cached locally.
+  Future<List<String>> getCachedVersionIds() async {
+    try {
+      final results = await db.query('versions', columns: ['id']);
+
+      final ids = results
+          .map((row) => row['id'])
+          .whereType<String>()
+          .toList(growable: false);
+
+      if (ids.isNotEmpty) return ids;
+
+      // On web, fall back to the books table so pre-cached data
+      // (present in the initial database) is detected as well.
+      if (kIsWeb) {
+        final bookResults = await db.query('books', columns: ['version_id']);
+        return bookResults
+            .map((row) => row['version_id'])
+            .whereType<String>()
+            .toSet()
+            .toList(growable: false);
+      }
+
+      return ids;
+    } catch (e) {
+      // If there's an error, assume nothing is cached.
+      return const <String>[];
+    }
+  }
+
   /// Checks if a version is already cached.
   /// On web, this also verifies that the version exists by checking books table.
   Future<bool> isVersionCached(String versionId) async {

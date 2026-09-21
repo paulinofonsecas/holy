@@ -285,6 +285,8 @@ class _DeepUnderstandingDialogState extends State<DeepUnderstandingDialog> {
           child: Text(
             label,
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

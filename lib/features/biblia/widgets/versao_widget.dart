@@ -1,9 +1,8 @@
-import 'package:bible_handler/bible_handler.dart';
+import 'package:eu_sou/features/biblia/modals/bible_versions_sheet.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class VersaoWidget extends StatelessWidget {
@@ -20,115 +19,7 @@ class VersaoWidget extends StatelessWidget {
 
   /// Shows the version picker bottom sheet. Can be called externally.
   static void showPicker(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final bgColor = colorScheme.surface;
-    final cacheProvider = context.read<BibleCacheProvider>();
-    final versionCubit = context.read<BibleVersionCubit>();
-
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      backgroundColor: bgColor,
-      useSafeArea: true,
-      builder: (sheetContext) {
-        // deletedIds tracks versions removed in this session so the UI
-        // updates immediately without waiting for a FutureBuilder refresh.
-        final Set<String> deletedIds = {};
-
-        return StatefulBuilder(
-          builder: (builderContext, setModalState) {
-            final bibleVersion = versionCubit.state.version;
-
-            return SafeArea(
-              child: SingleChildScrollView(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: bgColor),
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        'Escolha uma versão',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Gap(16),
-                      ...BibleVersions.values.map((e) {
-                        final isSelected = bibleVersion.id == e.id;
-                        final wasDeleted = deletedIds.contains(e.id);
-
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          child: ListTile(
-                            onTap: () {
-                              versionCubit.changeVersion(e);
-                              Navigator.pop(sheetContext);
-                            },
-                            title: Text('${e.id} - ${e.name}'),
-                            trailing: isSelected
-                                ? AppHugeIcon(
-                                    icon: HugeIcons
-                                        .strokeRoundedCheckmarkCircle01,
-                                    color: colorScheme.primary)
-                                : wasDeleted
-                                    ? const AppHugeIcon(
-                                        icon: HugeIcons.strokeRoundedDownload01,
-                                        size: 20)
-                                    : FutureBuilder<bool>(
-                                        future:
-                                            cacheProvider.isVersionCached(e.id),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.data == true) {
-                                            // Cached and not active — show
-                                            // checkmark + delete icon.
-                                            return Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const AppHugeIcon(
-                                                    icon: HugeIcons
-                                                        .strokeRoundedCheckmarkCircle01,
-                                                    size: 20),
-                                                const SizedBox(width: 16),
-                                                GestureDetector(
-                                                  onTap: () async {
-                                                    await cacheProvider
-                                                        .removeVersion(e.id);
-                                                    setModalState(() {
-                                                      deletedIds.add(e.id);
-                                                    });
-                                                  },
-                                                  child: AppHugeIcon(
-                                                    icon: HugeIcons
-                                                        .strokeRoundedDelete02,
-                                                    size: 20,
-                                                    color: colorScheme.error,
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          }
-                                          return const AppHugeIcon(
-                                              icon: HugeIcons
-                                                  .strokeRoundedDownload01,
-                                              size: 20);
-                                        },
-                                      ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
+    BibleVersionsSheet.show(context);
   }
 
   @override

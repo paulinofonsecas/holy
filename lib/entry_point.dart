@@ -1,8 +1,5 @@
 import 'package:bible_handler/bible_handler.dart';
 import 'package:dio/dio.dart';
-import 'package:eu_sou/features/journeys/data/datasources/journey_local_data_source.dart';
-import 'package:eu_sou/features/journeys/data/repositories/journey_repository_impl.dart';
-import 'package:eu_sou/features/journeys/presentation/bloc/journey_bloc.dart';
 import 'package:eu_sou/app/app.dart';
 import 'package:eu_sou/core/data/provider/github_bible_provider.dart';
 import 'package:eu_sou/core/data/provider/interfaces/i_bible_provider.dart';
@@ -13,9 +10,10 @@ import 'package:eu_sou/core/notifications/services/local_notification_service.da
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/highlight_changed_notifier.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
+import 'package:eu_sou/core/services/version_persistence_service.dart';
 import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
-import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
 import 'package:eu_sou/features/biblia/data/repositories/multiversion_session_repository.dart';
+import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
 import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
 import 'package:eu_sou/features/deep_understanding/domain/usecases/deep_understanding_service.dart';
 import 'package:eu_sou/features/deep_understanding/presentation/bloc/deep_understanding_bloc.dart';
@@ -24,6 +22,9 @@ import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart'
 import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
 import 'package:eu_sou/features/eu_sou/presentation/bloc/eu_sou_bloc.dart';
 import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
+import 'package:eu_sou/features/journeys/data/datasources/journey_local_data_source.dart';
+import 'package:eu_sou/features/journeys/data/repositories/journey_repository_impl.dart';
+import 'package:eu_sou/features/journeys/presentation/bloc/journey_bloc.dart';
 import 'package:eu_sou/features/profile/data/repositories/marked_verses_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/profile_repository.dart';
 import 'package:eu_sou/features/profile/data/repositories/search_history_repository.dart';
@@ -98,6 +99,9 @@ class EntryPoint extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => ScrollPersistenceService(sharedPreferences),
+        ),
+        RepositoryProvider(
+          create: (context) => VersionPersistenceService(sharedPreferences),
         ),
         RepositoryProvider(
           create: (context) => ReadingSettingsRepository(sharedPreferences),

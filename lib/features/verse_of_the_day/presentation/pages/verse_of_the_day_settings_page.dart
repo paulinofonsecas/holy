@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../../features/biblia/modals/bible_versions_sheet.dart';
 import '../../../../../shared/widgets/app_huge_icon.dart';
-
 import '../bloc/verse_of_the_day_bloc.dart';
 import '../bloc/verse_of_the_day_event.dart';
 import '../bloc/verse_of_the_day_state.dart';
@@ -140,42 +140,15 @@ class VerseOfTheDaySettingsPage extends StatelessWidget {
   }
 
   void _showVersionPicker(BuildContext context, VerseOfTheDayState state) {
-    final versions = ['NVI', 'KJA', 'KJV', 'ARA', 'ACF', 'NRM'];
-
-    showModalBottomSheet(
-      context: context,
-      builder: (modalContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Selecione a tradução',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              ...versions.map(
-                (version) => ListTile(
-                  title: Text(version),
-                  trailing: state.settings.versionId == version
-                      ? const AppHugeIcon(icon: HugeIcons.strokeRoundedTick01, color: Colors.green)
-                      : null,
-                  onTap: () {
-                    context.read<VerseOfTheDayBloc>().add(
-                          UpdateVerseOfTheDayVersion(version),
-                        );
-                    Navigator.pop(modalContext);
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
+    // A versão do VOTD é independente da versão ativa global, então a seleção
+    // é entregue diretamente ao VerseOfTheDayBloc.
+    BibleVersionsSheet.show(
+      context,
+      activeVersionId: state.settings.versionId,
+      onSelect: (versionId) {
+        context.read<VerseOfTheDayBloc>().add(
+              UpdateVerseOfTheDayVersion(versionId),
+            );
       },
     );
   }

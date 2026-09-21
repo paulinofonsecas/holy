@@ -93,6 +93,9 @@ class UrlBibleLoader implements BibleLoader {
         }
       }
 
+      // The download is done; from here on the archive is processed locally.
+      onProgress?.call(DownloadProgress.extracting());
+
       // Unzip the file
       print('Unzipping Bible version: $version');
       final bytes = await zipFile.readAsBytes();
@@ -112,10 +115,8 @@ class UrlBibleLoader implements BibleLoader {
       var effectivePath = tempDir.path;
       final metadataFile = File(p.join(effectivePath, 'metadata.xml'));
       if (!await metadataFile.exists()) {
-        final subDirs = await tempDir
-            .list()
-            .where((event) => event is Directory)
-            .toList();
+        final subDirs =
+            await tempDir.list().where((event) => event is Directory).toList();
         if (subDirs.isNotEmpty) {
           final potentialPath = subDirs.first.path;
           final potentialMetadata = File(p.join(potentialPath, 'metadata.xml'));

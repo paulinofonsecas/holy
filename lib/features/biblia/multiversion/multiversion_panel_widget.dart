@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/design_system/theme/theme_colors.dart';
 import 'package:eu_sou/core/design_system/theme/theme_data.dart';
@@ -10,6 +9,7 @@ import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
+import 'package:eu_sou/features/biblia/modals/bible_versions_sheet.dart';
 import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/biblia/presentation/pages/book_selection_page.dart';
@@ -255,104 +255,35 @@ class _PanelContentState extends State<_PanelContent> {
     }
   }
 
-  void _openVersionPicker() {
-    final bibleVersion = context.read<BibleVersionCubit>().state.version;
-    final colorScheme = Theme.of(context).colorScheme;
-    final bgColor = colorScheme.surface;
-
-    // Capture the blocs so they are accessible in the sheet
+  Future<void> _openVersionPicker() async {
+    // O painel tem o seu próprio BibleVersionCubit: a seleção feita no sheet
+    // não altera a versão ativa global.
     final versionCubit = context.read<BibleVersionCubit>();
     final bibliaBloc = context.read<BibliaBloc>();
+    final previousVersionId = versionCubit.state.version.id;
 
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      backgroundColor: bgColor,
-      useSafeArea: true,
-      builder: (sheetContext) {
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: versionCubit),
-            BlocProvider.value(value: bibliaBloc),
-          ],
-          child: SafeArea(
-            child: SingleChildScrollView(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Escolha uma versão',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Gap(16),
-                    ...BibleVersions.values.map((e) {
-                      final isSelected = bibleVersion.id == e.id;
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: ListTile(
-                          onTap: () {
-                            versionCubit.changeVersion(e);
-                            // Reload current chapter in the new version
-                            final current = bibliaBloc.state;
-                            if (current is BibleChapterLoaded) {
-                              bibliaBloc.add(GetChapter(
-                                e.id,
-                                current.chapter.bookId,
-                                current.chapter.number.toString(),
-                              ));
-                            } else {
-                              bibliaBloc.add(GetChapter(
-                                e.id,
-                                BibleBooks.genesis.bookId,
-                                '1',
-                              ));
-                            }
-                            Navigator.pop(sheetContext);
-                          },
-                          title: Text('${e.id} - ${e.name}'),
-                          trailing: isSelected
-                              ? AppHugeIcon(
-                                  icon:
-                                      HugeIcons.strokeRoundedCheckmarkCircle01,
-                                  color: Theme.of(context).colorScheme.primary,
-                                )
-                              : FutureBuilder<bool>(
-                                  future: context
-                                      .read<BibleCacheProvider>()
-                                      .isVersionCached(e.id),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.data == true) {
-                                      return const AppHugeIcon(
-                                        icon: HugeIcons
-                                            .strokeRoundedCheckmarkCircle01,
-                                        size: 20,
-                                      );
-                                    }
-                                    return const AppHugeIcon(
-                                        icon: HugeIcons.strokeRoundedDownload01,
-                                        size: 20);
-                                  },
-                                ),
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+    await BibleVersionsSheet.show(context, versionCubit: versionCubit);
+
+    if (!mounted) return;
+
+    final newVersionId = versionCubit.state.version.id;
+    if (newVersionId == previousVersionId) return;
+
+    // Recarrega o capítulo atual na nova versão.
+    final current = bibliaBloc.state;
+    if (current is BibleChapterLoaded) {
+      bibliaBloc.add(GetChapter(
+        newVersionId,
+        current.chapter.bookId,
+        current.chapter.number.toString(),
+      ));
+    } else {
+      bibliaBloc.add(GetChapter(
+        newVersionId,
+        BibleBooks.genesis.bookId,
+        '1',
+      ));
+    }
   }
 
   void _openBookSelection() {
@@ -698,17 +629,21 @@ class _PanelContentState extends State<_PanelContent> {
                                   if (state is! BibleChapterLoaded) {
                                     return const SizedBox.shrink();
                                   }
-                                  final sel = (selState.selectedVerses.values.toList()
-                                    ..sort((a, b) => a.number.compareTo(b.number)));
+                                  final sel =
+                                      (selState.selectedVerses.values.toList()
+                                        ..sort((a, b) =>
+                                            a.number.compareTo(b.number)));
                                   final book = state.chapter.bookId;
                                   final chap = state.chapter.number;
                                   final String verseRefStr;
                                   if (sel.isEmpty) {
                                     verseRefStr = '$book $chap';
                                   } else if (sel.length == 1) {
-                                    verseRefStr = '$book $chap:${sel.first.number}';
+                                    verseRefStr =
+                                        '$book $chap:${sel.first.number}';
                                   } else {
-                                    verseRefStr = '$book $chap:${sel.first.number}-${sel.last.number}';
+                                    verseRefStr =
+                                        '$book $chap:${sel.first.number}-${sel.last.number}';
                                   }
 
                                   return Container(

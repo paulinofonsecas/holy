@@ -59,12 +59,13 @@ class UrlBibleLoader implements BibleLoader {
       }
 
       final bytes = response.bodyBytes;
+      // The download is done; from here on the archive is processed locally.
       onProgress?.call(
         const DownloadProgress(
-          percent: 0.5,
-          downloadedBytes: 50,
-          totalBytes: 100,
-          status: DownloadStatus.downloading,
+          percent: 1.0,
+          downloadedBytes: 0,
+          totalBytes: 0,
+          status: DownloadStatus.extracting,
           message: 'Unzipping version...',
         ),
       );
@@ -85,10 +86,10 @@ class UrlBibleLoader implements BibleLoader {
       // 3. Parse USX using the map of contents
       onProgress?.call(
         const DownloadProgress(
-          percent: 0.8,
-          downloadedBytes: 80,
-          totalBytes: 100,
-          status: DownloadStatus.downloading,
+          percent: 1.0,
+          downloadedBytes: 0,
+          totalBytes: 0,
+          status: DownloadStatus.extracting,
           message: 'Parsing USX...',
         ),
       );
@@ -99,10 +100,10 @@ class UrlBibleLoader implements BibleLoader {
       if (cacheProvider != null) {
         onProgress?.call(
           const DownloadProgress(
-            percent: 0.9,
-            downloadedBytes: 90,
-            totalBytes: 100,
-            status: DownloadStatus.downloading,
+            percent: 1.0,
+            downloadedBytes: 0,
+            totalBytes: 0,
+            status: DownloadStatus.extracting,
             message: 'Caching into SQLite...',
           ),
         );

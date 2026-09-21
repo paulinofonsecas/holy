@@ -1,5 +1,5 @@
-import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_state.dart';
+import 'package:eu_sou/features/biblia/modals/bible_versions_sheet.dart';
 import 'package:eu_sou/features/eu_sou/presentation/widgets/theme_toggle_button.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
@@ -363,7 +363,7 @@ class ReadingSettingsModal extends StatelessWidget {
               // Bible Version
               _buildSectionTitle('Versão da Bíblia'),
               const Gap(8),
-              _buildBibleVersionList(context),
+              _buildBibleVersionTile(context),
             ],
           ),
         );
@@ -400,40 +400,67 @@ class ReadingSettingsModal extends StatelessWidget {
     );
   }
 
-  Widget _buildBibleVersionList(BuildContext context) {
+  /// Abre o sheet completo de versões (baixar, remover, selecionar).
+  Widget _buildBibleVersionTile(BuildContext context) {
     final currentVersion = context.watch<BibleVersionCubit>().state.version;
-    return Column(
-      children: BibleVersions.values.map((v) {
-        final isSelected = currentVersion.id == v.id;
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(v.name,
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return InkWell(
+      key: const ValueKey('reading-settings-version-tile'),
+      onTap: () => BibleVersionsSheet.show(context),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    currentVersion.name,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const Gap(2),
+                  Text(
+                    '${currentVersion.id} • ${currentVersion.language} • ${currentVersion.year}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Gap(8),
+            Text(
+              'Trocar',
               style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color:
-                    isSelected ? Theme.of(context).colorScheme.primary : null,
-              )),
-          subtitle: Text(v.id),
-          trailing: isSelected
-              ? AppHugeIcon(
-                  icon: HugeIcons.strokeRoundedCheckmarkCircle01,
-                  color: Theme.of(context).colorScheme.primary)
-              : FutureBuilder<bool>(
-                  future:
-                      context.read<BibleCacheProvider>().isVersionCached(v.id),
-                  builder: (context, snapshot) {
-                    if (snapshot.data == true) {
-                      return const AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedCheckmarkCircle01,
-                          size: 20);
-                    }
-                    return const AppHugeIcon(
-                        icon: HugeIcons.strokeRoundedDownload01, size: 20);
-                  },
-                ),
-          onTap: () => context.read<BibleVersionCubit>().changeVersion(v),
-        );
-      }).toList(),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.primary,
+              ),
+            ),
+            AppHugeIcon(
+              icon: HugeIcons.strokeRoundedArrowRight01,
+              size: 16,
+              color: colorScheme.primary,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
