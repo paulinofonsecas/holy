@@ -23,10 +23,10 @@ void main() {
       await $.pumpWidgetAndSettle(
         MaterialApp(
           home: Scaffold(
-            body: Center(child: Text('Eu Sou')),
+            body: const Center(child: Text('Eu Sou')),
             bottomNavigationBar: NavigationBar(
               selectedIndex: 1,
-              destinations: [
+              destinations: const [
                 NavigationDestination(
                   icon: Icon(Icons.book),
                   label: 'Bíblia',
