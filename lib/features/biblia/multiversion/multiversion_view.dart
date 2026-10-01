@@ -1,8 +1,10 @@
+import 'package:eu_sou/core/services/bottom_bar_visibility_notifier.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_cubit.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_panel_widget.dart';
 import 'package:eu_sou/features/biblia/multiversion/multiversion_sessions_sidebar.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:eu_sou/shared/widgets/collapsible_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -63,11 +65,23 @@ class MultiversionView extends StatelessWidget {
                                   panelId: visibleIds[i],
                                   panelColor: state.panelColors[visibleIds[i]],
                                   canClose: visibleIds.length > 1,
-                                  onClose: () => cubit.removePanel(visibleIds[i]),
-                                  initialVersionId: state.panelConfigs[visibleIds[i]]?.versionId ?? (i == 0 ? initVersion : null),
-                                  initialBookId: state.panelConfigs[visibleIds[i]]?.bookId ?? (i == 0 ? initBook : null),
-                                  initialChapter: state.panelConfigs[visibleIds[i]]?.chapter ?? (i == 0 ? initChapter : null),
-                                  initialScrollOffset: state.panelConfigs[visibleIds[i]]?.scrollOffset,
+                                  onClose: () =>
+                                      cubit.removePanel(visibleIds[i]),
+                                  initialVersionId: state
+                                          .panelConfigs[visibleIds[i]]
+                                          ?.versionId ??
+                                      (i == 0 ? initVersion : null),
+                                  initialBookId: state
+                                          .panelConfigs[visibleIds[i]]
+                                          ?.bookId ??
+                                      (i == 0 ? initBook : null),
+                                  initialChapter: state
+                                          .panelConfigs[visibleIds[i]]
+                                          ?.chapter ??
+                                      (i == 0 ? initChapter : null),
+                                  initialScrollOffset: state
+                                      .panelConfigs[visibleIds[i]]
+                                      ?.scrollOffset,
                                 ),
                               ),
                           ],
@@ -76,15 +90,25 @@ class MultiversionView extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Toolbar: add panel + panel count info
-                _MultiversionToolbar(
-                  panelCount: visibleIds.length,
-                  maxPanels: maxPanels,
-                  isSidebarOpen: state.showSessionsSidebar,
-                  onToggleSidebar: cubit.toggleSessionsSidebar,
-                  onAddPanel:
-                      state.panelIds.length < maxPanels ? cubit.addPanel : null,
-                  onClose: cubit.disable,
+                // Toolbar: add panel + panel count info (hide-on-scroll)
+                AnimatedBuilder(
+                  animation: context.read<BottomBarVisibilityNotifier>(),
+                  builder: (context, _) {
+                    return CollapsibleBar(
+                      visible:
+                          context.read<BottomBarVisibilityNotifier>().visible,
+                      child: _MultiversionToolbar(
+                        panelCount: visibleIds.length,
+                        maxPanels: maxPanels,
+                        isSidebarOpen: state.showSessionsSidebar,
+                        onToggleSidebar: cubit.toggleSessionsSidebar,
+                        onAddPanel: state.panelIds.length < maxPanels
+                            ? cubit.addPanel
+                            : null,
+                        onClose: cubit.disable,
+                      ),
+                    );
+                  },
                 ),
               ],
             );

@@ -1,8 +1,8 @@
 // ignore_for_file: library_prefixes
 
-import 'dart:async';
 import 'dart:developer' as developer;
 
+import 'package:eu_sou/core/services/bottom_bar_visibility_notifier.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_state.dart';
@@ -20,6 +20,7 @@ import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widget
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:eu_sou/shared/widgets/collapsible_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,42 +77,20 @@ class BibliaView extends StatefulWidget {
 }
 
 class _BibliaViewState extends State<BibliaView> {
-  bool _showButtons = false;
-  Timer? _hideTimer;
+  // Limiar acumulado (px) antes de mudar o estado das barras.
+  // Evita micro-movimentos acidentais ("toques fantasmas").
+  static const double _hideThreshold = 20.0;
+  static const double _showThreshold = 15.0;
+
+  bool _barsVisible = true;
+  double _accumulatedDelta = 0.0;
+
   @override
   void initState() {
     super.initState();
-    _startHideTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureInitialReadingPositionLoaded();
     });
-  }
-
-  @override
-  void dispose() {
-    _hideTimer?.cancel();
-    super.dispose();
-  }
-
-  void _startHideTimer() {
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   final isWideScreen = MediaQuery.of(context).size.width >= 600;
-    //   _hideTimer?.cancel();
-
-    //   if (!isWideScreen && !_showButtons) {
-    //     setState(() {
-    //       _showButtons = true;
-    //     });
-    //     return;
-    //   }
-    //   _hideTimer = Timer(const Duration(seconds: 5), () {
-    //     if (mounted && _showButtons) {
-    //       setState(() {
-    //         _showButtons = false;
-    //       });
-    //     }
-    //   });
-    // });
   }
 
   void _ensureInitialReadingPositionLoaded() {
@@ -171,7 +150,6 @@ class _BibliaViewState extends State<BibliaView> {
   }
 
   void _navigateToPreviousChapter() {
-    _startHideTimer(); // Reset timer on interaction
     final bibleBloc = context.read<BibliaBloc>();
     final state = bibleBloc.state;
 
@@ -206,7 +184,6 @@ class _BibliaViewState extends State<BibliaView> {
   }
 
   void _navigateToNextChapter() {
-    _startHideTimer(); // Reset timer on interaction
     final bibleBloc = context.read<BibliaBloc>();
     final state = bibleBloc.state;
 
@@ -238,6 +215,51 @@ class _BibliaViewState extends State<BibliaView> {
         );
       }
     }
+  }
+
+  /// Estados do hide-on-scroll: monitoriza direção e delta acumulado
+  /// para esconder/mostrar as barras sem reagir a tremores ou toques fantasmas.
+  bool _onScrollNotification(ScrollNotification notification) {
+    final metrics = notification.metrics;
+
+    // Força visibilidade quando se está no topo da página (estado inicial)
+    if (metrics.pixels <= 0) {
+      _setBarsVisible(true);
+      _accumulatedDelta = 0.0;
+      return false;
+    }
+
+    if (notification is ScrollUpdateNotification) {
+      final delta = notification.scrollDelta ?? 0.0;
+      if (delta == 0.0) return false;
+
+      // Acumula delta na direção atual; reinicia quando a direção muda
+      if (_accumulatedDelta > 0 && delta < 0 ||
+          _accumulatedDelta < 0 && delta > 0) {
+        _accumulatedDelta = 0.0;
+      }
+      _accumulatedDelta += delta;
+
+      // Scroll Down -> esconder barras (exceto em modo de seleção/filtro)
+      if (_accumulatedDelta > _hideThreshold && _barsVisible) {
+        final isFiltering = context.read<VerseFilterCubit>().state.isFiltering;
+        if (!isFiltering) _setBarsVisible(false);
+        _accumulatedDelta = 0.0;
+      }
+      // Scroll Up -> mostrar barras imediatamente
+      else if (_accumulatedDelta < -_showThreshold && !_barsVisible) {
+        _setBarsVisible(true);
+        _accumulatedDelta = 0.0;
+      }
+    }
+
+    return false;
+  }
+
+  void _setBarsVisible(bool visible) {
+    if (_barsVisible == visible || !mounted) return;
+    setState(() => _barsVisible = visible);
+    context.read<BottomBarVisibilityNotifier>().setVisible(visible);
   }
 
   bool isMultiVersionAvailable(BuildContext context) {
@@ -306,6 +328,18 @@ class _BibliaViewState extends State<BibliaView> {
                   state.versionId.toUpperCase()) {
                 versionCubit.changeVersionById(state.versionId);
               }
+
+              // Novo capítulo -> volta ao estado inicial com as barras visíveis
+              _accumulatedDelta = 0.0;
+              _setBarsVisible(true);
+            }
+          },
+        ),
+        BlocListener<VerseSelectionBloc, VerseSelectionState>(
+          listener: (context, state) {
+            // Modo de seleção -> as barras têm de estar visíveis
+            if (state.isInSelectionMode) {
+              _setBarsVisible(true);
             }
           },
         ),
@@ -315,13 +349,20 @@ class _BibliaViewState extends State<BibliaView> {
           // ── Multiversion mode ────────────────────────────────────────────
           if (multiversionState.isEnabled &&
               !isMultiVersionAvailable(context)) {
+            final bottomNotifier = context.read<BottomBarVisibilityNotifier>();
             return Scaffold(
               backgroundColor: bgColor,
-              body: const SafeArea(
+              body: SafeArea(
                 child: Column(
                   children: [
-                    VerseFilterBar(),
-                    Expanded(child: MultiversionView()),
+                    AnimatedBuilder(
+                      animation: bottomNotifier,
+                      builder: (context, _) => CollapsibleBar(
+                        visible: bottomNotifier.visible,
+                        child: const VerseFilterBar(),
+                      ),
+                    ),
+                    const Expanded(child: MultiversionView()),
                   ],
                 ),
               ),
@@ -334,120 +375,134 @@ class _BibliaViewState extends State<BibliaView> {
             body: SafeArea(
               child: Column(
                 children: [
-                  const Gap(2),
-                  BibleAppBar(
-                    onBookTap: () {
-                      SwitchBookModal.show(context);
-                    },
-                    actions: [
-                      // Multiversion toggle – only on screens wide enough
-                      if (MediaQuery.of(context).size.width >= 600)
-                        BibleAppBarAction(
-                          label: 'Multiversão',
-                          onTap: !isMultiVersionAvailable(context)
-                              ? () => context.read<MultiversionCubit>().enable()
-                              : null,
-                          child: AppHugeIcon(
-                            icon: HugeIcons.strokeRoundedLayoutTable01,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      BibleAppBarAction(
-                        label: 'Eu Sou',
-                        onTap: () async {
-                          final state = context.read<BibliaBloc>().state;
-
-                          if (state is! BibleChapterLoaded ||
-                              state.chapter.verses.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Carregando capítulo... Tente novamente em alguns segundos.',
+                  // ── Região superior animada (app bar + filtro) ───────────
+                  CollapsibleBar(
+                    visible: _barsVisible,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Gap(2),
+                        BibleAppBar(
+                          onBookTap: () {
+                            SwitchBookModal.show(context);
+                          },
+                          actions: [
+                            // Multiversion toggle – only on screens wide enough
+                            if (MediaQuery.of(context).size.width >= 600)
+                              BibleAppBarAction(
+                                label: 'Multiversão',
+                                onTap: !isMultiVersionAvailable(context)
+                                    ? () => context
+                                        .read<MultiversionCubit>()
+                                        .enable()
+                                    : null,
+                                child: AppHugeIcon(
+                                  icon: HugeIcons.strokeRoundedLayoutTable01,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
-                            );
-                            return;
-                          }
+                            BibleAppBarAction(
+                              label: 'Eu Sou',
+                              onTap: () async {
+                                final state = context.read<BibliaBloc>().state;
 
-                          var query =
-                              await DeepUnderstandingDialog.show(context);
+                                if (state is! BibleChapterLoaded ||
+                                    state.chapter.verses.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Carregando capítulo... Tente novamente em alguns segundos.',
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
 
-                          if (query == null) {
-                            return;
-                          }
+                                var query =
+                                    await DeepUnderstandingDialog.show(context);
 
-                          if (context.mounted) {
-                            final versionId = context
-                                .read<BibleVersionCubit>()
-                                .state
-                                .version
-                                .id;
-                            context.read<DeepUnderstandingBloc>().add(
-                                  StartAnalysisForVersesEvent(
-                                    query,
-                                    state.chapter.verses,
-                                    state.chapter.bookId,
-                                    state.chapter.number,
-                                    versionId,
-                                  ),
-                                );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) =>
-                                      const DeepUnderstandingPage()),
-                            );
-                          }
-                        },
-                        child: AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedSparkles,
-                          color: Theme.of(context).colorScheme.primary,
+                                if (query == null) {
+                                  return;
+                                }
+
+                                if (context.mounted) {
+                                  final versionId = context
+                                      .read<BibleVersionCubit>()
+                                      .state
+                                      .version
+                                      .id;
+                                  context.read<DeepUnderstandingBloc>().add(
+                                        StartAnalysisForVersesEvent(
+                                          query,
+                                          state.chapter.verses,
+                                          state.chapter.bookId,
+                                          state.chapter.number,
+                                          versionId,
+                                        ),
+                                      );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const DeepUnderstandingPage()),
+                                  );
+                                }
+                              },
+                              child: AppHugeIcon(
+                                icon: HugeIcons.strokeRoundedSparkles,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const VerseFilterBar(),
-                  Expanded(
-                    child: Stack(
-                      children: [
-                        GestureDetector(
-                          onHorizontalDragEnd: (details) {
-                            // Sensitivity adjustment if needed
-                            if (details.primaryVelocity! > 0) {
-                              // Swipe Right -> Previous Chapter
-                              _navigateToPreviousChapter();
-                            } else if (details.primaryVelocity! < 0) {
-                              // Swipe Left -> Next Chapter
-                              _navigateToNextChapter();
-                            }
-                          },
-                          child: const ScreenReaderPage(),
-                        ),
-                        // Positioned(
-                        //   left: 12,
-                        //   top: 0,
-                        //   bottom: 0,
-                        //   child: Center(
-                        //     child: AnimatedChapterNavigation(
-                        //       isNext: false,
-                        //       // visible: _showButtons,
-                        //       onTap: _navigateToPreviousChapter,
-                        //     ),
-                        //   ),
-                        // ),
-                        // Positioned(
-                        //   right: 12,
-                        //   top: 0,
-                        //   bottom: 0,
-                        //   child: Center(
-                        //     child: AnimatedChapterNavigation(
-                        //       isNext: true,
-                        //       visible: _showButtons,
-                        //       onTap: _navigateToNextChapter,
-                        //     ),
-                        //   ),
-                        // ),
+                        const VerseFilterBar(),
                       ],
+                    ),
+                  ),
+                  Expanded(
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: _onScrollNotification,
+                      child: Stack(
+                        children: [
+                          GestureDetector(
+                            onHorizontalDragEnd: (details) {
+                              // Sensitivity adjustment if needed
+                              if (details.primaryVelocity! > 0) {
+                                // Swipe Right -> Previous Chapter
+                                _navigateToPreviousChapter();
+                              } else if (details.primaryVelocity! < 0) {
+                                // Swipe Left -> Next Chapter
+                                _navigateToNextChapter();
+                              }
+                            },
+                            child: const ScreenReaderPage(),
+                          ),
+                          // Positioned(
+                          //   left: 12,
+                          //   top: 0,
+                          //   bottom: 0,
+                          //   child: Center(
+                          //     child: AnimatedChapterNavigation(
+                          //       isNext: false,
+                          //       // visible: _showButtons,
+                          //       onTap: _navigateToPreviousChapter,
+                          //     ),
+                          //   ),
+                          // ),
+                          // Positioned(
+                          //   right: 12,
+                          //   top: 0,
+                          //   bottom: 0,
+                          //   child: Center(
+                          //     child: AnimatedChapterNavigation(
+                          //       isNext: true,
+                          //       visible: _showButtons,
+                          //       onTap: _navigateToNextChapter,
+                          //     ),
+                          //   ),
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
                   BlocBuilder<BibliaBloc, BibliaState>(

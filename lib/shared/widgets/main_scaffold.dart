@@ -8,6 +8,7 @@ import 'package:eu_sou/core/deeplinks/bloc/deeplink_event.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_state.dart';
 import 'package:eu_sou/core/localization/generated/app_localizations.dart';
 import 'package:eu_sou/core/notifications/notification_handler.dart';
+import 'package:eu_sou/core/services/bottom_bar_visibility_notifier.dart';
 import 'package:eu_sou/core/services/deeplink_service.dart';
 import 'package:eu_sou/core/services/feedback_service.dart';
 import 'package:eu_sou/core/services/highlight_changed_notifier.dart';
@@ -26,6 +27,7 @@ import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:eu_sou/shared/widgets/collapsible_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -353,6 +355,8 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
         ),
         BlocListener<TabControllerCubit, int>(
           listener: (context, currentIndex) {
+            // Trocar de tab -> garantir a NavigationBar visível novamente
+            context.read<BottomBarVisibilityNotifier>().setVisible(true);
             if (currentIndex == 0) {
               context.read<BibliaBloc>().add(ForceScrollRestoration());
             } else if (currentIndex == 1) {
@@ -399,41 +403,43 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                     ),
                     bottomNavigationBar: isWide
                         ? null
-                        : NavigationBar(
-                            selectedIndex: currentIndex,
-                            backgroundColor: bgColor,
-                            onDestinationSelected: (index) {
-                              if (index == 0 && currentIndex == 0) {
-                                SwitchBookModal.show(context);
-                                return;
-                              }
-                              context
-                                  .read<TabControllerCubit>()
-                                  .changeTo(index);
-                            },
-                            destinations: [
-                              NavigationDestination(
-                                icon: AppHugeIcon(
-                                    icon: HugeIcons.strokeRoundedBook01,
-                                    key: keyBibleTab,
-                                    size: 20),
-                                label: l10n.bible,
-                              ),
-                              NavigationDestination(
-                                icon: AppHugeIcon(
-                                    icon: HugeIcons.strokeRoundedSun01,
-                                    key: keyProfileTab,
-                                    size: 20),
-                                label: 'Eu Sou',
-                              ),
-                              NavigationDestination(
-                                icon: AppHugeIcon(
-                                    icon: HugeIcons.strokeRoundedSearch01,
-                                    key: keySearchTab,
-                                    size: 16),
-                                label: l10n.search,
-                              ),
-                            ],
+                        : _CollapsibleBottomNavigationBar(
+                            child: NavigationBar(
+                              selectedIndex: currentIndex,
+                              backgroundColor: bgColor,
+                              onDestinationSelected: (index) {
+                                if (index == 0 && currentIndex == 0) {
+                                  SwitchBookModal.show(context);
+                                  return;
+                                }
+                                context
+                                    .read<TabControllerCubit>()
+                                    .changeTo(index);
+                              },
+                              destinations: [
+                                NavigationDestination(
+                                  icon: AppHugeIcon(
+                                      icon: HugeIcons.strokeRoundedBook01,
+                                      key: keyBibleTab,
+                                      size: 20),
+                                  label: l10n.bible,
+                                ),
+                                NavigationDestination(
+                                  icon: AppHugeIcon(
+                                      icon: HugeIcons.strokeRoundedSun01,
+                                      key: keyProfileTab,
+                                      size: 20),
+                                  label: 'Eu Sou',
+                                ),
+                                NavigationDestination(
+                                  icon: AppHugeIcon(
+                                      icon: HugeIcons.strokeRoundedSearch01,
+                                      key: keySearchTab,
+                                      size: 16),
+                                  label: l10n.search,
+                                ),
+                              ],
+                            ),
                           ),
                   ),
                 );
@@ -469,39 +475,41 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                     children: _buildPages(context),
                   ),
                 ),
-                bottomNavigationBar: NavigationBar(
-                  selectedIndex: currentIndex,
-                  backgroundColor: bgColor,
-                  onDestinationSelected: (index) {
-                    if (index == 0 && currentIndex == 0) {
-                      SwitchBookModal.show(context);
-                      return;
-                    }
-                    context.read<TabControllerCubit>().changeTo(index);
-                  },
-                  destinations: [
-                    NavigationDestination(
-                      icon: AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedBook01,
-                          key: keyBibleTab,
-                          size: 20),
-                      label: l10n.bible,
-                    ),
-                    NavigationDestination(
-                      icon: AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedSun01,
-                          key: keyProfileTab,
-                          size: 20),
-                      label: 'Eu Sou',
-                    ),
-                    NavigationDestination(
-                      icon: AppHugeIcon(
-                          icon: HugeIcons.strokeRoundedSearch01,
-                          key: keySearchTab,
-                          size: 16),
-                      label: l10n.search,
-                    ),
-                  ],
+                bottomNavigationBar: _CollapsibleBottomNavigationBar(
+                  child: NavigationBar(
+                    selectedIndex: currentIndex,
+                    backgroundColor: bgColor,
+                    onDestinationSelected: (index) {
+                      if (index == 0 && currentIndex == 0) {
+                        SwitchBookModal.show(context);
+                        return;
+                      }
+                      context.read<TabControllerCubit>().changeTo(index);
+                    },
+                    destinations: [
+                      NavigationDestination(
+                        icon: AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedBook01,
+                            key: keyBibleTab,
+                            size: 20),
+                        label: l10n.bible,
+                      ),
+                      NavigationDestination(
+                        icon: AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedSun01,
+                            key: keyProfileTab,
+                            size: 20),
+                        label: 'Eu Sou',
+                      ),
+                      NavigationDestination(
+                        icon: AppHugeIcon(
+                            icon: HugeIcons.strokeRoundedSearch01,
+                            key: keySearchTab,
+                            size: 16),
+                        label: l10n.search,
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -695,6 +703,34 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// NavigationBar que colapsa/expandre conforme o hide-on-scroll da leitura.
+/// Quando oculta, preserva a área segura inferior do sistema.
+class _CollapsibleBottomNavigationBar extends StatelessWidget {
+  const _CollapsibleBottomNavigationBar({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final notifier = context.read<BottomBarVisibilityNotifier>();
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+
+    return AnimatedBuilder(
+      animation: notifier,
+      builder: (context, _) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CollapsibleBar(visible: notifier.visible, child: child),
+            // Mantém a área segura do sistema quando a barra está oculta
+            SizedBox(height: notifier.visible ? 0 : bottomInset),
+          ],
+        );
+      },
     );
   }
 }

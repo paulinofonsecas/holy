@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/design_system/theme/theme_colors.dart';
 import 'package:eu_sou/core/design_system/theme/theme_data.dart';
+import 'package:eu_sou/core/services/bottom_bar_visibility_notifier.dart';
 import 'package:eu_sou/core/services/highlight_changed_notifier.dart';
 import 'package:eu_sou/core/services/scroll_persistence_service.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/bloc/book_selection_cubit.dart';
 import 'package:eu_sou/features/biblia/bloc/reading_settings_cubit.dart';
+import 'package:eu_sou/features/biblia/bloc/verse_filter_cubit.dart';
 import 'package:eu_sou/features/biblia/data/repositories/reading_settings_repository.dart';
 import 'package:eu_sou/features/biblia/modals/bible_versions_sheet.dart';
 import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
@@ -21,6 +23,7 @@ import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/widget
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:eu_sou/shared/widgets/collapsible_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -175,8 +178,16 @@ class _PanelContent extends StatefulWidget {
 }
 
 class _PanelContentState extends State<_PanelContent> {
+  // Hide-on-scroll por painel: os headers são independentes porque os painéis
+  // fazem scroll de forma isolada. A toolbar partilhada e a NavigationBar
+  // seguem o painel mais recente a fazer scroll (via BottomBarVisibilityNotifier).
+  static const double _hideThreshold = 20.0;
+  static const double _showThreshold = 15.0;
+
   Timer? _hideTimer;
   bool _showNavButtons = true;
+  bool _headerVisible = true;
+  double _accumulatedDelta = 0.0;
   final FocusNode _panelFocusNode = FocusNode();
 
   @override
@@ -470,6 +481,12 @@ class _PanelContentState extends State<_PanelContent> {
 
   // ── Scroll notification helper ──────────────────────────────────────────────
 
+  void _setHeaderVisible(bool visible) {
+    if (_headerVisible == visible || !mounted) return;
+    setState(() => _headerVisible = visible);
+    context.read<BottomBarVisibilityNotifier>().setVisible(visible);
+  }
+
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is ScrollStartNotification) {
       _hideTimer?.cancel();
@@ -482,6 +499,36 @@ class _PanelContentState extends State<_PanelContent> {
             notification.metrics.pixels,
           );
     }
+
+    // Hide-on-scroll (mesma lógica da vista single-version)
+    final metrics = notification.metrics;
+    if (metrics.pixels <= 0) {
+      _setHeaderVisible(true);
+      _accumulatedDelta = 0.0;
+      return false;
+    }
+
+    if (notification is ScrollUpdateNotification) {
+      final delta = notification.scrollDelta ?? 0.0;
+      if (delta == 0.0) return false;
+
+      // Acumula na direção atual; reinicia quando a direção muda
+      if (_accumulatedDelta > 0 && delta < 0 ||
+          _accumulatedDelta < 0 && delta > 0) {
+        _accumulatedDelta = 0.0;
+      }
+      _accumulatedDelta += delta;
+
+      if (_accumulatedDelta > _hideThreshold && _headerVisible) {
+        final isFiltering = context.read<VerseFilterCubit>().state.isFiltering;
+        if (!isFiltering) _setHeaderVisible(false);
+        _accumulatedDelta = 0.0;
+      } else if (_accumulatedDelta < -_showThreshold && !_headerVisible) {
+        _setHeaderVisible(true);
+        _accumulatedDelta = 0.0;
+      }
+    }
+
     return false;
   }
 
@@ -492,18 +539,34 @@ class _PanelContentState extends State<_PanelContent> {
     final colorScheme = Theme.of(context).colorScheme;
     final bgColor = colorScheme.surface;
 
-    return BlocListener<BibliaBloc, BibliaState>(
-      listener: (context, state) {
-        if (state is BibleChapterLoaded) {
-          context.read<MultiversionCubit>().updatePanelPosition(
-                panelId: widget.panelId,
-                versionId: state.versionId,
-                bookId: state.chapter.bookId,
-                chapter: state.chapter.number,
-                scrollOffset: state.initialScrollOffset,
-              );
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<BibliaBloc, BibliaState>(
+          listener: (context, state) {
+            if (state is BibleChapterLoaded) {
+              context.read<MultiversionCubit>().updatePanelPosition(
+                    panelId: widget.panelId,
+                    versionId: state.versionId,
+                    bookId: state.chapter.bookId,
+                    chapter: state.chapter.number,
+                    scrollOffset: state.initialScrollOffset,
+                  );
+
+              // Novo capítulo -> volta ao estado inicial com o header visível
+              _accumulatedDelta = 0.0;
+              _setHeaderVisible(true);
+            }
+          },
+        ),
+        BlocListener<VerseSelectionBloc, VerseSelectionState>(
+          listener: (context, state) {
+            // Modo de seleção -> o header tem de estar visível
+            if (state.isInSelectionMode) {
+              _setHeaderVisible(true);
+            }
+          },
+        ),
+      ],
       child: Container(
         decoration: BoxDecoration(
           color: bgColor,
@@ -518,16 +581,24 @@ class _PanelContentState extends State<_PanelContent> {
           builder: (context, constraints) {
             return Column(
               children: [
-                // ── Header ─────────────────────────────────────────────────────
-                _PanelHeader(
-                  panelColor: widget.panelColor,
-                  onVersionTap: _openVersionPicker,
-                  onBookTap: _openBookSelection,
-                  onColorTap: _openColorPicker,
-                  onSettingsTap: _openReadingSettings,
-                  onClose: widget.canClose ? widget.onClose : null,
+                // ── Header (hide-on-scroll por painel) ────────────────────────
+                CollapsibleBar(
+                  visible: _headerVisible,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _PanelHeader(
+                        panelColor: widget.panelColor,
+                        onVersionTap: _openVersionPicker,
+                        onBookTap: _openBookSelection,
+                        onColorTap: _openColorPicker,
+                        onSettingsTap: _openReadingSettings,
+                        onClose: widget.canClose ? widget.onClose : null,
+                      ),
+                      const Divider(height: 1),
+                    ],
+                  ),
                 ),
-                const Divider(height: 1),
 
                 // ── Verse reader + resizable right panel + floating menu ────────
                 Expanded(
