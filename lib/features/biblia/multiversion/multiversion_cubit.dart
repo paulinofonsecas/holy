@@ -62,12 +62,20 @@ class MultiversionCubit extends Cubit<MultiversionState> {
     return colors[idx];
   }
 
-  /// Returns the max number of panels allowed for the given screen width.
-  static int maxPanelsForWidth(double width) {
-    if (width >= 1660) return 999; // unlimited
-    if (width >= 1024) return 3;
+  /// Returns the max number of panels allowed for the given viewport.
+  ///
+  /// In vertical (portrait / narrow) layouts panels stack full-width, which
+  /// quickly becomes illegible, so at most 2 are allowed. Landscape follows
+  /// the width-based rules.
+  static int maxPanelsFor(Size size) {
+    if (size.width < 720) return 2; // vertical stacking
+    if (size.width >= 1660) return 999; // unlimited
+    if (size.width >= 1024) return 3;
     return 2;
   }
+
+  /// Backwards-compatible width-only variant.
+  static int maxPanelsForWidth(double width) => maxPanelsFor(Size(width, 0));
 
   void enable() {
     if (!state.isEnabled) {
@@ -115,7 +123,8 @@ class MultiversionCubit extends Cubit<MultiversionState> {
   void removePanel(String id) {
     if (state.panelIds.length <= 1) return;
     final newColors = Map<String, Color>.from(state.panelColors)..remove(id);
-    final newConfigs = Map<String, PanelConfig>.from(state.panelConfigs)..remove(id);
+    final newConfigs = Map<String, PanelConfig>.from(state.panelConfigs)
+      ..remove(id);
     emit(state.copyWith(
       panelIds: state.panelIds.where((p) => p != id).toList(),
       panelColors: newColors,
@@ -147,7 +156,8 @@ class MultiversionCubit extends Cubit<MultiversionState> {
     required int chapter,
     double scrollOffset = 0.0,
   }) {
-    final color = state.panelColors[panelId] ?? AppThemeColors.defaultPrimaryColor;
+    final color =
+        state.panelColors[panelId] ?? AppThemeColors.defaultPrimaryColor;
     final colorHex = '#${color.value.toRadixString(16).padLeft(8, '0')}';
 
     final config = PanelConfig(
@@ -157,6 +167,8 @@ class MultiversionCubit extends Cubit<MultiversionState> {
       bookId: bookId,
       chapter: chapter,
       scrollOffset: scrollOffset,
+      // Preserve the layout weight adjusted via the draggable divider.
+      flex: state.panelConfigs[panelId]?.flex ?? 1.0,
     );
 
     final updatedConfigs = Map<String, PanelConfig>.from(state.panelConfigs)
@@ -175,6 +187,16 @@ class MultiversionCubit extends Cubit<MultiversionState> {
     }
   }
 
+  /// Updates the layout weight (flex) of a panel, used by the draggable
+  /// divider in vertical stacking.
+  void updatePanelFlex(String panelId, double flex) {
+    final currentConfig = state.panelConfigs[panelId];
+    if (currentConfig == null || currentConfig.flex == flex) return;
+    final updatedConfigs = Map<String, PanelConfig>.from(state.panelConfigs)
+      ..[panelId] = currentConfig.copyWith(flex: flex);
+    emit(state.copyWith(panelConfigs: updatedConfigs));
+  }
+
   /// Toggle sidebar visibility.
   void toggleSessionsSidebar() {
     emit(state.copyWith(showSessionsSidebar: !state.showSessionsSidebar));
@@ -190,7 +212,8 @@ class MultiversionCubit extends Cubit<MultiversionState> {
         activePanels.add(config);
       } else {
         // Fallback in case a panel has not reported its state yet (e.g. still loading)
-        final color = state.panelColors[id] ?? AppThemeColors.defaultPrimaryColor;
+        final color =
+            state.panelColors[id] ?? AppThemeColors.defaultPrimaryColor;
         final colorHex = '#${color.value.toRadixString(16).padLeft(8, '0')}';
         activePanels.add(PanelConfig(
           id: id,
@@ -219,7 +242,8 @@ class MultiversionCubit extends Cubit<MultiversionState> {
 
   /// Deletes a saved session.
   Future<void> deleteSession(String sessionId) async {
-    final updatedSessions = state.savedSessions.where((s) => s.id != sessionId).toList();
+    final updatedSessions =
+        state.savedSessions.where((s) => s.id != sessionId).toList();
     await _repository.saveSessions(updatedSessions);
     emit(state.copyWith(savedSessions: updatedSessions));
   }
@@ -246,6 +270,7 @@ class MultiversionCubit extends Cubit<MultiversionState> {
         bookId: panel.bookId,
         chapter: panel.chapter,
         scrollOffset: panel.scrollOffset,
+        flex: panel.flex,
       );
     }
 

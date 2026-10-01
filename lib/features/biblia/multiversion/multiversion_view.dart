@@ -11,19 +11,73 @@ import 'package:hugeicons/hugeicons.dart';
 
 /// Responsive multiversion layout.
 ///
-/// Breakpoints (max visible panels):
+/// Portrait / narrow (width < 720): panels stack vertically at full width,
+/// separated by draggable dividers; the sessions sidebar opens as a bottom
+/// sheet. Landscape keeps the side-by-side layout with the inline sidebar.
+///
+/// Landscape breakpoints (max visible panels):
 ///   width < 1024 → 2 panels
 ///   1024 ≤ width < 1660 → 3 panels
 ///   width ≥ 1660 → unlimited
 class MultiversionView extends StatelessWidget {
   const MultiversionView({super.key});
 
+  static const double _verticalBreakpoint = 720;
+  static const double _minPanelFlex = 0.2;
+
+  void _showSessionsSheet(BuildContext context) {
+    final cubit = context.read<MultiversionCubit>();
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => SizedBox(
+        height: MediaQuery.of(sheetContext).size.height * 0.6,
+        width: double.infinity,
+        child: BlocProvider.value(
+          value: cubit,
+          child: const MultiversionSessionsSidebar(isSheet: true),
+        ),
+      ),
+    );
+  }
+
+  /// Redistributes the flex between [panelId] and [neighbourId] when their
+  /// divider is dragged by [deltaPx] pixels inside an area of [areaPx].
+  void _handleDividerDrag(
+    BuildContext context, {
+    required String panelId,
+    required String neighbourId,
+    required double deltaPx,
+    required double areaPx,
+  }) {
+    if (areaPx <= 0) return;
+    final cubit = context.read<MultiversionCubit>();
+    final configs = cubit.state.panelConfigs;
+    final flexA = configs[panelId]?.flex ?? 1.0;
+    final flexB = configs[neighbourId]?.flex ?? 1.0;
+    final totalFlex = flexA + flexB;
+
+    final flexDelta = (deltaPx / areaPx) * totalFlex;
+    final newA =
+        (flexA + flexDelta).clamp(_minPanelFlex, totalFlex - _minPanelFlex);
+    final newB = totalFlex - newA;
+
+    cubit.updatePanelFlex(panelId, newA);
+    cubit.updatePanelFlex(neighbourId, newB);
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final maxPanels = MultiversionCubit.maxPanelsForWidth(width);
+        final isVertical = width < _verticalBreakpoint;
+        final maxPanels = MultiversionCubit.maxPanelsFor(Size(
+          width,
+          constraints.maxHeight,
+        ));
 
         return BlocBuilder<MultiversionCubit, MultiversionState>(
           builder: (context, state) {
@@ -46,47 +100,48 @@ class MultiversionView extends StatelessWidget {
             return Column(
               children: [
                 Expanded(
-                  child: Row(
+                  child: Flex(
+                    direction: isVertical ? Axis.vertical : Axis.horizontal,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Sidebar on the left
-                      if (state.showSessionsSidebar)
+                      // Inline sidebar only in the horizontal layout
+                      if (!isVertical && state.showSessionsSidebar)
                         const MultiversionSessionsSidebar(),
 
-                      // Panels
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (int i = 0; i < visibleIds.length; i++)
-                              Expanded(
-                                child: MultiversionPanelWidget(
-                                  key: ValueKey(visibleIds[i]),
-                                  panelId: visibleIds[i],
-                                  panelColor: state.panelColors[visibleIds[i]],
-                                  canClose: visibleIds.length > 1,
-                                  onClose: () =>
-                                      cubit.removePanel(visibleIds[i]),
-                                  initialVersionId: state
-                                          .panelConfigs[visibleIds[i]]
-                                          ?.versionId ??
-                                      (i == 0 ? initVersion : null),
-                                  initialBookId: state
-                                          .panelConfigs[visibleIds[i]]
-                                          ?.bookId ??
-                                      (i == 0 ? initBook : null),
-                                  initialChapter: state
-                                          .panelConfigs[visibleIds[i]]
-                                          ?.chapter ??
-                                      (i == 0 ? initChapter : null),
-                                  initialScrollOffset: state
-                                      .panelConfigs[visibleIds[i]]
-                                      ?.scrollOffset,
-                                ),
-                              ),
-                          ],
+                      // Panels (+ draggable dividers when stacked vertically)
+                      for (int i = 0; i < visibleIds.length; i++) ...[
+                        if (isVertical && i > 0)
+                          _PanelDivider(
+                            onDrag: (dy) => _handleDividerDrag(
+                              context,
+                              panelId: visibleIds[i - 1],
+                              neighbourId: visibleIds[i],
+                              deltaPx: dy,
+                              areaPx: constraints.maxHeight,
+                            ),
+                          ),
+                        Expanded(
+                          flex: _flexOf(state, visibleIds[i]),
+                          child: MultiversionPanelWidget(
+                            key: ValueKey(visibleIds[i]),
+                            panelId: visibleIds[i],
+                            panelColor: state.panelColors[visibleIds[i]],
+                            canClose: visibleIds.length > 1,
+                            onClose: () => cubit.removePanel(visibleIds[i]),
+                            initialVersionId:
+                                state.panelConfigs[visibleIds[i]]?.versionId ??
+                                    (i == 0 ? initVersion : null),
+                            initialBookId:
+                                state.panelConfigs[visibleIds[i]]?.bookId ??
+                                    (i == 0 ? initBook : null),
+                            initialChapter:
+                                state.panelConfigs[visibleIds[i]]?.chapter ??
+                                    (i == 0 ? initChapter : null),
+                            initialScrollOffset:
+                                state.panelConfigs[visibleIds[i]]?.scrollOffset,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -101,7 +156,9 @@ class MultiversionView extends StatelessWidget {
                         panelCount: visibleIds.length,
                         maxPanels: maxPanels,
                         isSidebarOpen: state.showSessionsSidebar,
-                        onToggleSidebar: cubit.toggleSessionsSidebar,
+                        onToggleSidebar: isVertical
+                            ? () => _showSessionsSheet(context)
+                            : cubit.toggleSessionsSidebar,
                         onAddPanel: state.panelIds.length < maxPanels
                             ? cubit.addPanel
                             : null,
@@ -115,6 +172,42 @@ class MultiversionView extends StatelessWidget {
           },
         );
       },
+    );
+  }
+
+  /// Flex weight of [panelId] as an int (hundredths) for [Expanded].
+  int _flexOf(MultiversionState state, String panelId) {
+    final f = state.panelConfigs[panelId]?.flex ?? 1.0;
+    return (f * 100).round();
+  }
+}
+
+/// Thin draggable divider between vertically stacked panels. Dragging it
+/// up/down redistributes the height (flex) of the two adjacent panels.
+class _PanelDivider extends StatelessWidget {
+  const _PanelDivider({required this.onDrag});
+
+  final void Function(double dy) onDrag;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeRow,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onVerticalDragUpdate: (details) => onDrag(details.delta.dy),
+        child: Container(
+          height: 12,
+          color: colorScheme.surface,
+          alignment: Alignment.center,
+          child: Container(
+            height: 1,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+          ),
+        ),
+      ),
     );
   }
 }

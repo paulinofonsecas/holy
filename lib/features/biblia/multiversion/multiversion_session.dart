@@ -8,6 +8,10 @@ class PanelConfig extends Equatable {
   final int chapter;
   final double scrollOffset;
 
+  /// Layout weight of the panel in the multiversion Flex (default 1.0 →
+  /// equal split). Saved with the session so layouts restore as-is.
+  final double flex;
+
   const PanelConfig({
     required this.id,
     required this.colorHex,
@@ -15,6 +19,7 @@ class PanelConfig extends Equatable {
     required this.bookId,
     required this.chapter,
     this.scrollOffset = 0.0,
+    this.flex = 1.0,
   });
 
   Map<String, dynamic> toJson() {
@@ -25,6 +30,7 @@ class PanelConfig extends Equatable {
       'bookId': bookId,
       'chapter': chapter,
       'scrollOffset': scrollOffset,
+      'flex': flex,
     };
   }
 
@@ -36,6 +42,7 @@ class PanelConfig extends Equatable {
       bookId: json['bookId'] as String,
       chapter: json['chapter'] as int,
       scrollOffset: (json['scrollOffset'] as num?)?.toDouble() ?? 0.0,
+      flex: (json['flex'] as num?)?.toDouble() ?? 1.0,
     );
   }
 
@@ -46,6 +53,7 @@ class PanelConfig extends Equatable {
     String? bookId,
     int? chapter,
     double? scrollOffset,
+    double? flex,
   }) {
     return PanelConfig(
       id: id ?? this.id,
@@ -54,11 +62,13 @@ class PanelConfig extends Equatable {
       bookId: bookId ?? this.bookId,
       chapter: chapter ?? this.chapter,
       scrollOffset: scrollOffset ?? this.scrollOffset,
+      flex: flex ?? this.flex,
     );
   }
 
   @override
-  List<Object?> get props => [id, colorHex, versionId, bookId, chapter, scrollOffset];
+  List<Object?> get props =>
+      [id, colorHex, versionId, bookId, chapter, scrollOffset, flex];
 }
 
 class MultiversionSession extends Equatable {

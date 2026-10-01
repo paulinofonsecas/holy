@@ -8,7 +8,11 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 class MultiversionSessionsSidebar extends StatelessWidget {
-  const MultiversionSessionsSidebar({super.key});
+  const MultiversionSessionsSidebar({super.key, this.isSheet = false});
+
+  /// When true, the sidebar renders for a bottom sheet: full width and
+  /// without the inline right border.
+  final bool isSheet;
 
   void _showSaveSessionDialog(BuildContext context, MultiversionCubit cubit) {
     final textTheme = Theme.of(context).textTheme;
@@ -34,7 +38,8 @@ class MultiversionSessionsSidebar extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             'Salvar Sessão de Estudo',
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -59,7 +64,8 @@ class MultiversionSessionsSidebar extends StatelessWidget {
                   labelStyle: TextStyle(color: colorScheme.primary),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                    borderSide:
+                        BorderSide(color: colorScheme.primary, width: 1.5),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -88,7 +94,8 @@ class MultiversionSessionsSidebar extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('Salvar'),
             ),
@@ -108,15 +115,17 @@ class MultiversionSessionsSidebar extends StatelessWidget {
         final cubit = context.read<MultiversionCubit>();
 
         return Container(
-          width: 250,
+          width: isSheet ? double.infinity : 250,
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerLow,
-            border: Border(
-              right: BorderSide(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                width: 1,
-              ),
-            ),
+            border: isSheet
+                ? null
+                : Border(
+                    right: BorderSide(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                      width: 1,
+                    ),
+                  ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -192,7 +201,8 @@ class MultiversionSessionsSidebar extends StatelessWidget {
                               AppHugeIcon(
                                 icon: HugeIcons.strokeRoundedFolder01,
                                 size: 36,
-                                color: colorScheme.outline.withValues(alpha: 0.5),
+                                color:
+                                    colorScheme.outline.withValues(alpha: 0.5),
                               ),
                               const Gap(12),
                               Text(
@@ -211,8 +221,8 @@ class MultiversionSessionsSidebar extends StatelessWidget {
                         itemCount: state.savedSessions.length,
                         itemBuilder: (context, index) {
                           final session = state.savedSessions[index];
-                          final formattedDate =
-                              DateFormat('dd/MM/yyyy HH:mm').format(session.createdAt);
+                          final formattedDate = DateFormat('dd/MM/yyyy HH:mm')
+                              .format(session.createdAt);
 
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 4),
@@ -221,7 +231,8 @@ class MultiversionSessionsSidebar extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                               side: BorderSide(
-                                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                color: colorScheme.outlineVariant
+                                    .withValues(alpha: 0.3),
                               ),
                             ),
                             child: InkWell(
@@ -233,23 +244,28 @@ class MultiversionSessionsSidebar extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Expanded(
                                           child: Text(
                                             session.name,
-                                            style: textTheme.bodyMedium?.copyWith(
+                                            style:
+                                                textTheme.bodyMedium?.copyWith(
                                               fontWeight: FontWeight.bold,
                                               color: colorScheme.onSurface,
                                             ),
                                           ),
                                         ),
                                         GestureDetector(
-                                          onTap: () => cubit.deleteSession(session.id),
+                                          onTap: () =>
+                                              cubit.deleteSession(session.id),
                                           child: AppHugeIcon(
-                                            icon: HugeIcons.strokeRoundedDelete01,
+                                            icon:
+                                                HugeIcons.strokeRoundedDelete01,
                                             size: 14,
-                                            color: colorScheme.error.withValues(alpha: 0.8),
+                                            color: colorScheme.error
+                                                .withValues(alpha: 0.8),
                                           ),
                                         ),
                                       ],
@@ -259,7 +275,8 @@ class MultiversionSessionsSidebar extends StatelessWidget {
                                       formattedDate,
                                       style: textTheme.labelSmall?.copyWith(
                                         fontSize: 9,
-                                        color: colorScheme.onSurface.withValues(alpha: 0.5),
+                                        color: colorScheme.onSurface
+                                            .withValues(alpha: 0.5),
                                       ),
                                     ),
                                     const Gap(8),
@@ -271,10 +288,13 @@ class MultiversionSessionsSidebar extends StatelessWidget {
                                         // Parse hex into color
                                         Color pColor = colorScheme.primary;
                                         try {
-                                          final cleanHex = p.colorHex.replaceFirst('#', '');
+                                          final cleanHex =
+                                              p.colorHex.replaceFirst('#', '');
                                           pColor = cleanHex.length == 6
-                                              ? Color(int.parse('FF$cleanHex', radix: 16))
-                                              : Color(int.parse(cleanHex, radix: 16));
+                                              ? Color(int.parse('FF$cleanHex',
+                                                  radix: 16))
+                                              : Color(int.parse(cleanHex,
+                                                  radix: 16));
                                         } catch (_) {}
 
                                         return Container(
@@ -283,16 +303,20 @@ class MultiversionSessionsSidebar extends StatelessWidget {
                                             vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: pColor.withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(4),
+                                            color:
+                                                pColor.withValues(alpha: 0.15),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                             border: Border.all(
-                                              color: pColor.withValues(alpha: 0.3),
+                                              color:
+                                                  pColor.withValues(alpha: 0.3),
                                               width: 0.5,
                                             ),
                                           ),
                                           child: Text(
                                             p.versionId,
-                                            style: textTheme.labelSmall?.copyWith(
+                                            style:
+                                                textTheme.labelSmall?.copyWith(
                                               fontSize: 9,
                                               fontWeight: FontWeight.bold,
                                               color: pColor,
