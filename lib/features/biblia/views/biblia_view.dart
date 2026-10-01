@@ -388,19 +388,18 @@ class _BibliaViewState extends State<BibliaView> {
                           },
                           actions: [
                             // Multiversion toggle – only on screens wide enough
-                            if (MediaQuery.of(context).size.width >= 600)
-                              BibleAppBarAction(
-                                label: 'Multiversão',
-                                onTap: !isMultiVersionAvailable(context)
-                                    ? () => context
-                                        .read<MultiversionCubit>()
-                                        .enable()
-                                    : null,
-                                child: AppHugeIcon(
-                                  icon: HugeIcons.strokeRoundedLayoutTable01,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                            // if (MediaQuery.of(context).size.width >= 600)
+                            BibleAppBarAction(
+                              label: 'Multiversão',
+                              onTap: !isMultiVersionAvailable(context)
+                                  ? () =>
+                                      context.read<MultiversionCubit>().enable()
+                                  : null,
+                              child: AppHugeIcon(
+                                icon: HugeIcons.strokeRoundedLayoutTable01,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
+                            ),
                             BibleAppBarAction(
                               label: 'Eu Sou',
                               onTap: () async {
