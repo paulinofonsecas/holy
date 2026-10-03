@@ -19,7 +19,7 @@ workflows:
 
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: app.biblia.eusou
+        bundle_identifier: com.paulinofonseca.eusou
 
     triggering:
       events:

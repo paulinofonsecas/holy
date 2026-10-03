@@ -1,4 +1,4 @@
-package app.biblia.eusou
+package com.paulinofonseca.eusou
 
 import io.flutter.embedding.android.FlutterActivity
 

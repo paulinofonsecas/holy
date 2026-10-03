@@ -73,6 +73,6 @@ class DefaultFirebaseOptions {
     projectId: 'caiaia01',
     databaseURL: 'https://caiaia01-default-rtdb.firebaseio.com',
     storageBucket: 'caiaia01.firebasestorage.app',
-    iosBundleId: 'app.biblia.eusou',
+    iosBundleId: 'com.paulinofonseca.eusou',
   );
 }

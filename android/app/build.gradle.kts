@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "app.biblia.eusou"
+    namespace = "com.paulinofonseca.eusou"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "app.biblia.eusou"
+        applicationId = "com.paulinofonseca.eusou"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

@@ -1,4 +1,4 @@
-package app.biblia.eusou;
+package com.paulinofonseca.eusou;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;

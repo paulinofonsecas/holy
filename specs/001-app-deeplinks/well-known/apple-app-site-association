@@ -3,7 +3,7 @@
     "apps": [],
     "details": [
       {
-        "appID": "TEAM_ID.app.biblia.eusou",
+        "appID": "TEAM_ID.com.paulinofonseca.eusou",
         "paths": [ "/share", "/share/*" ]
       }
     ]
