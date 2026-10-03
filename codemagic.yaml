@@ -58,38 +58,38 @@ workflows:
       # ----------------------------------------------------------
       # Android
       # ----------------------------------------------------------
-      # - name: "[Android] Configurar Keystore e key.properties"
-      #   script: |
-      #     echo $CM_KEYSTORE_BASE64 | base64 --decode > /tmp/keystore.keystore
+      - name: "[Android] Configurar Keystore e key.properties"
+        script: |
+          echo $CM_KEYSTORE_BASE64 | base64 --decode > /tmp/keystore.keystore
 
-      #     cat >> "$CM_BUILD_DIR/android/key.properties" <<EOF
-      #     storePassword=$CM_STORE_PASSWORD
-      #     keyPassword=$CM_KEY_PASSWORD
-      #     keyAlias=$CM_KEY_ALIAS
-      #     storeFile=/tmp/keystore.keystore
-      #     EOF
+          cat >> "$CM_BUILD_DIR/android/key.properties" <<EOF
+          storePassword=$CM_STORE_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          storeFile=/tmp/keystore.keystore
+          EOF
 
-      # - name: "[Android] Build App Bundle (AAB)"
-      #   script: |
-      #     flutter build appbundle --release \
-      #       --build-name=$APP_VERSION \
-      #       --build-number=$APP_BUILD_NUMBER
+      - name: "[Android] Build App Bundle (AAB)"
+        script: |
+          flutter build appbundle --release \
+            --build-name=$APP_VERSION \
+            --build-number=$APP_BUILD_NUMBER
 
       # ----------------------------------------------------------
       # iOS
       # ----------------------------------------------------------
-      - name: '[iOS] Install CocoaPods'
-        script: |
-          cd ios
-          pod install
-          cd ..
+      # - name: '[iOS] Install CocoaPods'
+      #   script: |
+      #     cd ios
+      #     pod install
+      #     cd ..
 
-      - name: '[iOS] Build IPA'
-        script: |
-          flutter build ipa --release \
-            --build-name=$APP_VERSION \
-            --build-number=$APP_BUILD_NUMBER \
-            --export-options-plist=$HOME/export_options.plist
+      # - name: '[iOS] Build IPA'
+      #   script: |
+      #     flutter build ipa --release \
+      #       --build-name=$APP_VERSION \
+      #       --build-number=$APP_BUILD_NUMBER \
+      #       --export-options-plist=$HOME/export_options.plist
 
     artifacts:
       # - build/app/outputs/bundle/release/app-release.aab
