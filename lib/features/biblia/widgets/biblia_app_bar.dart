@@ -1,4 +1,3 @@
-import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/biblia/bloc/biblia_bloc.dart';
 import 'package:eu_sou/features/biblia/modals/reading_settings_modal.dart';
 import 'package:eu_sou/features/biblia/widgets/versao_widget.dart';
@@ -61,7 +60,6 @@ class BibleAppBar extends StatelessWidget {
                   label: 'Versão',
                   onTap: () => VersaoWidget.showPicker(context),
                   child: Row(
-                    key: keyBibleVersionTab,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -202,9 +200,6 @@ class BookSelectorWidget extends StatelessWidget {
                 Flexible(
                   child: Text(
                     "${state.chapter.bookName}",
-                    key: (ModalRoute.of(context)?.isFirst ?? true)
-                        ? keyBibleContentTab
-                        : null,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

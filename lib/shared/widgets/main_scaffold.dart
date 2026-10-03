@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bible_handler/bible_handler.dart';
-import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_bloc.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_event.dart';
 import 'package:eu_sou/core/deeplinks/bloc/deeplink_state.dart';
@@ -32,19 +31,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'analysis_banner_overlay.dart';
 
 class MainScaffold extends StatefulWidget {
   final FeedbackService? feedbackService;
-  final bool showTutorialOnStart;
   final Uri? initialDeepLink;
 
   const MainScaffold({
     super.key,
     this.feedbackService,
-    this.showTutorialOnStart = false,
     this.initialDeepLink,
   });
 
@@ -52,9 +48,8 @@ class MainScaffold extends StatefulWidget {
   State<MainScaffold> createState() => _MainScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
+class _MainScaffoldState extends State<MainScaffold> {
   StreamSubscription<Uri?>? _deeplinkSubscription;
-  bool _tutorialStarted = false;
   bool _isDownloading = false;
   DownloadProgress? _downloadProgress;
   bool _downloadError = false;
@@ -62,11 +57,6 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
   // Bloc para a sidebar de versículos marcados (criado uma vez)
   MarkedVersesBloc? _sidebarMarkedVersesBloc;
   bool _sidebarCollapsed = false;
-
-  final GlobalKey keyBibleTab = GlobalKey();
-  final GlobalKey keySearchTab = GlobalKey();
-  final GlobalKey keyProfileTab = GlobalKey();
-  final GlobalKey keyStudiesTab = GlobalKey();
 
   @override
   void initState() {
@@ -194,12 +184,6 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
             ));
       }
     }
-  }
-
-  Future<void> _startTutorial() async {
-    showTutorial();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(tutorialShownKey, true);
   }
 
   @override
@@ -343,16 +327,6 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
 
     return MultiBlocListener(
       listeners: [
-        BlocListener<BibliaBloc, BibliaState>(
-          listener: (context, state) {
-            if (state is BibleChapterLoaded &&
-                widget.showTutorialOnStart &&
-                !_tutorialStarted) {
-              _tutorialStarted = true;
-              _startTutorial();
-            }
-          },
-        ),
         BlocListener<TabControllerCubit, int>(
           listener: (context, currentIndex) {
             // Trocar de tab -> garantir a NavigationBar visível novamente
@@ -420,21 +394,18 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                                 NavigationDestination(
                                   icon: AppHugeIcon(
                                       icon: HugeIcons.strokeRoundedBook01,
-                                      key: keyBibleTab,
                                       size: 20),
                                   label: l10n.bible,
                                 ),
                                 NavigationDestination(
                                   icon: AppHugeIcon(
                                       icon: HugeIcons.strokeRoundedSun01,
-                                      key: keyProfileTab,
                                       size: 20),
                                   label: 'Eu Sou',
                                 ),
                                 NavigationDestination(
                                   icon: AppHugeIcon(
                                       icon: HugeIcons.strokeRoundedSearch01,
-                                      key: keySearchTab,
                                       size: 16),
                                   label: l10n.search,
                                 ),
@@ -489,23 +460,17 @@ class _MainScaffoldState extends State<MainScaffold> with TutorialMixin {
                     destinations: [
                       NavigationDestination(
                         icon: AppHugeIcon(
-                            icon: HugeIcons.strokeRoundedBook01,
-                            key: keyBibleTab,
-                            size: 20),
+                            icon: HugeIcons.strokeRoundedBook01, size: 20),
                         label: l10n.bible,
                       ),
                       NavigationDestination(
                         icon: AppHugeIcon(
-                            icon: HugeIcons.strokeRoundedSun01,
-                            key: keyProfileTab,
-                            size: 20),
+                            icon: HugeIcons.strokeRoundedSun01, size: 20),
                         label: 'Eu Sou',
                       ),
                       NavigationDestination(
                         icon: AppHugeIcon(
-                            icon: HugeIcons.strokeRoundedSearch01,
-                            key: keySearchTab,
-                            size: 16),
+                            icon: HugeIcons.strokeRoundedSearch01, size: 16),
                         label: l10n.search,
                       ),
                     ],

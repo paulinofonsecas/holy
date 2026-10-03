@@ -1,5 +1,4 @@
 import 'package:bible_handler/bible_handler.dart';
-import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:flutter/foundation.dart';
@@ -19,26 +18,13 @@ class SplashViewModel extends BaseViewModel {
   bool _isDownloading = false;
   bool get isDownloading => _isDownloading;
 
-  bool _shouldShowTutorial = false;
-  bool get shouldShowTutorial => _shouldShowTutorial;
-
   SplashViewModel(
     this._cacheProvider,
     this._webCachePersistenceService,
   );
 
-  /// Static method to check if tutorial should be shown
-  /// Used by SplashPage for quick initialization
-  static Future<bool> checkShouldShowTutorial() async {
-    final prefs = await SharedPreferences.getInstance();
-    return !(prefs.getBool(tutorialShownKey) ?? false);
-  }
-
   Future<bool> initialize() async {
     const versionId = 'JFAA';
-
-    final prefs = await SharedPreferences.getInstance();
-    _shouldShowTutorial = !(prefs.getBool(tutorialShownKey) ?? false);
 
     // Check cache with robust fallback mechanism
     try {

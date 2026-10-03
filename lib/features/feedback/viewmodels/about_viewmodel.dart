@@ -189,7 +189,7 @@ class AboutViewModel extends BaseViewModel {
   }
 
   void openPrivacyPolicy() {
-    launchUrlExternal('https://www.eusou.one/privacidade');
+    launchUrlExternal('https://eusou.one/privacidade');
   }
 
   void openSupport() {

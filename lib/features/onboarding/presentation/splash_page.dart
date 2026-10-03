@@ -8,8 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import 'splash_viewmodel.dart';
-
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
@@ -38,10 +36,6 @@ class SplashPage extends StatelessWidget {
       // Remove native splash immediately
       _safeRemoveNativeSplash();
 
-      // Quick check for tutorial flag
-      final shouldShowTutorial =
-          await SplashViewModel.checkShouldShowTutorial();
-
       Uri? initialLink;
       try {
         initialLink = await deeplinkService.getInitialLink();
@@ -59,7 +53,6 @@ class SplashPage extends StatelessWidget {
       navigator.pushReplacement(
         MaterialPageRoute(
           builder: (context) => MainScaffold(
-            showTutorialOnStart: shouldShowTutorial,
             initialDeepLink: initialLink,
           ),
         ),

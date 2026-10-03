@@ -1,4 +1,3 @@
-import 'package:eu_sou/app/tuoring.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_bloc.dart';
 import 'package:eu_sou/features/verse_of_the_day/presentation/bloc/verse_of_the_day_event.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
@@ -24,11 +23,9 @@ class ProfileView extends StatelessWidget {
   ProfileView({
     super.key,
     FeedbackService? feedbackService,
-    this.onShowTutorial,
   }) : _feedbackService = feedbackService ?? FeedbackService();
 
   final FeedbackService _feedbackService;
-  final VoidCallback? onShowTutorial;
 
   void _navigateToAbout(BuildContext context) {
     Navigator.push(
@@ -163,19 +160,6 @@ class ProfileView extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 8),
-                if (onShowTutorial != null) ...[
-                  _buildProfileOption(
-                    context,
-                    key: keyTutorialField,
-                    icon: HugeIcons.strokeRoundedRocket01,
-                    title: 'Introdução Rápida',
-                    subtitle: 'Rever a introdução do aplicativo',
-                    onTap: () {
-                      onShowTutorial!();
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                ],
                 _buildProfileOption(
                   context,
                   icon: HugeIcons.strokeRoundedHelpCircle,
