@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Main application bootstrap entry point.
@@ -19,6 +20,12 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 /// dependency creation, and finally runs the app.
 Future<void> bootstrap() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  // On web, use the hash URL strategy (/#/...) so that refreshing the page
+  // always loads the root document and never hits a 404 on the server.
+  if (kIsWeb) {
+    setUrlStrategy(const HashUrlStrategy());
+  }
 
   try {
     _preserveSplash(widgetsBinding);
