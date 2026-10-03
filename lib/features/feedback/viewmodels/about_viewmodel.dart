@@ -189,8 +189,7 @@ class AboutViewModel extends BaseViewModel {
   }
 
   void openPrivacyPolicy() {
-    launchUrlExternal(
-        'https://github.com/paulinofonsecas/holy/blob/main/PRIVACY_POLICY.md');
+    launchUrlExternal('https://www.eusou.one/privacidade');
   }
 
   void openSupport() {
