@@ -214,6 +214,38 @@ class _BibliaViewState extends State<BibliaView> {
     }
   }
 
+  Future<void> _openEuSou() async {
+    final state = context.read<BibliaBloc>().state;
+    if (state is! BibleChapterLoaded || state.chapter.verses.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Carregando capítulo... Tente novamente em alguns segundos.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final query = await DeepUnderstandingDialog.show(context);
+    if (query == null || !mounted) return;
+
+    final versionId = context.read<BibleVersionCubit>().state.version.id;
+    context.read<DeepUnderstandingBloc>().add(
+          StartAnalysisForVersesEvent(
+            query,
+            state.chapter.verses,
+            state.chapter.bookId,
+            state.chapter.number,
+            versionId,
+          ),
+        );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DeepUnderstandingPage()),
+    );
+  }
+
   void _setBarsVisible(bool visible) {
     if (!mounted) return;
     context.read<BottomBarVisibilityNotifier>().setVisible(visible);
@@ -359,6 +391,18 @@ class _BibliaViewState extends State<BibliaView> {
           // ── Single-version mode ──────────────────────────────────────────
           return Scaffold(
             backgroundColor: bgColor,
+            floatingActionButton: FloatingActionButton.extended(
+              heroTag: 'eu-sou-reading-action',
+              onPressed: _openEuSou,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              icon: AppHugeIcon(
+                icon: HugeIcons.strokeRoundedSparkles,
+                size: 18,
+                color: colorScheme.onPrimary,
+              ),
+              label: const Text('Eu Sou'),
+            ),
             body: SafeArea(
               child: Column(
                 children: [
@@ -387,60 +431,6 @@ class _BibliaViewState extends State<BibliaView> {
                                     : null,
                                 child: AppHugeIcon(
                                   icon: HugeIcons.strokeRoundedLayoutTable01,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                              BibleAppBarAction(
-                                label: 'Eu Sou',
-                                onTap: () async {
-                                  final state =
-                                      context.read<BibliaBloc>().state;
-
-                                  if (state is! BibleChapterLoaded ||
-                                      state.chapter.verses.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Carregando capítulo... Tente novamente em alguns segundos.',
-                                        ),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  var query =
-                                      await DeepUnderstandingDialog.show(
-                                          context);
-
-                                  if (query == null) {
-                                    return;
-                                  }
-
-                                  if (context.mounted) {
-                                    final versionId = context
-                                        .read<BibleVersionCubit>()
-                                        .state
-                                        .version
-                                        .id;
-                                    context.read<DeepUnderstandingBloc>().add(
-                                          StartAnalysisForVersesEvent(
-                                            query,
-                                            state.chapter.verses,
-                                            state.chapter.bookId,
-                                            state.chapter.number,
-                                            versionId,
-                                          ),
-                                        );
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) =>
-                                              const DeepUnderstandingPage()),
-                                    );
-                                  }
-                                },
-                                child: AppHugeIcon(
-                                  icon: HugeIcons.strokeRoundedSparkles,
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
