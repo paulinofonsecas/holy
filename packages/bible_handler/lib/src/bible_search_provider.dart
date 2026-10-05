@@ -62,6 +62,7 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
 
       var aggregated = <String, SearchResult>{};
       final matchScores = <String, int>{};
+      final relevanceScores = <String, int>{};
 
       for (int i = 0; i < validQueries.length; i++) {
         final q = validQueries[i];
@@ -74,6 +75,11 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
         );
 
         final termMap = {for (final r in termResults) _resultKey(r): r};
+        for (final result in termResults) {
+          final key = _resultKey(result);
+          relevanceScores[key] = (relevanceScores[key] ?? 0) +
+              _termRelevanceScore(q.term, result.verse.text);
+        }
         final bit = 1 << (validQueries.length - 1 - i);
 
         if (i == 0) {
@@ -116,7 +122,13 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
             return scoreB.compareTo(scoreA); // Higher score first
           }
 
-          // 3. Fallback to standard Bible order (book, chapter, verse)
+          final relevanceA = relevanceScores[_resultKey(a)] ?? 0;
+          final relevanceB = relevanceScores[_resultKey(b)] ?? 0;
+          if (relevanceA != relevanceB) {
+            return relevanceB.compareTo(relevanceA);
+          }
+
+          // 3. Stable fallback to standard Bible order (book, chapter, verse)
           return _compareResults(a, b);
         });
 
@@ -342,6 +354,23 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
 
   String _resultKey(SearchResult r) {
     return '${r.versionId}|${r.book.id}|${r.chapter.number}|${r.verse.number}';
+  }
+
+  int _termRelevanceScore(String term, String verseText) {
+    final normalizedTerm = _removeDiacritics(term).toLowerCase().trim();
+    final normalizedText = _removeDiacritics(verseText).toLowerCase();
+    if (normalizedTerm.isEmpty) return 0;
+
+    var score = 0;
+    var offset = 0;
+    while (true) {
+      final matchIndex = normalizedText.indexOf(normalizedTerm, offset);
+      if (matchIndex < 0) break;
+      score += matchIndex == 0 ? 12 : 8;
+      offset = matchIndex + normalizedTerm.length;
+    }
+
+    return score;
   }
 
   SearchResult Function(Map<String, Object?> row) _mapRowToResult(

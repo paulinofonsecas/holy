@@ -83,6 +83,24 @@ void main() {
       expect(results.totalResults, 3); // Verses 1, 3, 4
     });
 
+    test('ranks verses with more term occurrences first', () async {
+      await db.execute(
+        'INSERT INTO verses_fts (version_id, book_id, chapter, verse, text) VALUES (?, ?, ?, ?, ?)',
+        ['V1', 'GEN', 1, 5, 'Amor e paz.'],
+      );
+      await db.execute(
+        'INSERT INTO verses_fts (version_id, book_id, chapter, verse, text) VALUES (?, ?, ?, ?, ?)',
+        ['V1', 'GEN', 1, 6, 'Amor, amor, amor.'],
+      );
+
+      final results = await searchProvider.advancedSearch(
+        queries: [const SearchQueryPart(term: 'amor')],
+        versionId: 'V1',
+      );
+
+      expect(results.results.first.verse.number, 6);
+    });
+
     test('book matches across versions are deduplicated by book id', () async {
       await db.insert('versions', {
         'id': 'V2',
