@@ -183,6 +183,10 @@ class AboutViewModel extends BaseViewModel {
     launchUrlExternal('https://chat.whatsapp.com/your-group-id');
   }
 
+  void contactWhatsApp() {
+    launchUrlExternal('https://wa.me/244925412030');
+  }
+
   void openTermsOfUse() {
     launchUrlExternal(
         'https://github.com/paulinofonsecas/holy/blob/main/TERMS_OF_USE.md');

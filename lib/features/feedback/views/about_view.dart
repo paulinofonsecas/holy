@@ -44,6 +44,8 @@ class AboutView extends StackedView<AboutViewModel> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildGrowthSection(context, viewModel),
+                  const Gap(16),
+                  _buildWhatsAppCard(context, viewModel),
                   const Gap(32),
                   _buildHeaderCard(context),
                   const Gap(32),
@@ -102,6 +104,68 @@ class AboutView extends StackedView<AboutViewModel> {
                   ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWhatsAppCard(
+    BuildContext context,
+    AboutViewModel viewModel,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    const whatsappGreen = Color(0xFF25D366);
+
+    return Material(
+      color: colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: viewModel.contactWhatsApp,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: const BoxDecoration(
+                  color: whatsappGreen,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.chat_rounded,
+                  color: Colors.white,
+                ),
+              ),
+              const Gap(16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Fale conosco pelo WhatsApp',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    const Gap(4),
+                    Text(
+                      '+244 925 412 030',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.open_in_new,
+                size: 18,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
         ),
       ),
     );
