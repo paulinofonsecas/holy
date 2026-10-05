@@ -1,6 +1,8 @@
 import 'package:eu_sou/core/design_system/app_colors/highlight_colors.dart';
+import 'package:eu_sou/features/verse_interaction/presentation/bloc/highlight_bloc.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class HighlightRowWidget extends StatefulWidget {
@@ -34,6 +36,13 @@ class _HighlightRowWidgetState extends State<HighlightRowWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final highlightState = context.watch<HighlightBloc>().state;
+    final usedColors = highlightState is HighlightsLoaded
+        ? highlightState.highlights.values
+            .map((highlight) => highlight.colorHex)
+        : const <String>[];
+    final orderedColors = HighlightColorTheme.sortByUsage(colors, usedColors);
+
     return !isOpen
         ? Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -42,14 +51,15 @@ class _HighlightRowWidgetState extends State<HighlightRowWidget> {
                 borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
-                ...colors.take(2).map(
+                ...orderedColors.take(2).map(
                   (e) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6),
                       child: ColorItemWidget(
                         onColorSelected: widget.onColorSelected,
                         hexColor: e['hex'],
-                        color: HighlightColorTheme.getDisplayColor(context, e['hex']),
+                        color: HighlightColorTheme.getDisplayColor(
+                            context, e['hex']),
                       ),
                     );
                   },
@@ -70,13 +80,14 @@ class _HighlightRowWidgetState extends State<HighlightRowWidget> {
                 tooltip: 'Remover destaque',
               ),
               const SizedBox(width: 8),
-              ...colors.map((colorData) {
+              ...orderedColors.map((colorData) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: ColorItemWidget(
                     onColorSelected: widget.onColorSelected,
                     hexColor: colorData['hex'],
-                    color: HighlightColorTheme.getDisplayColor(context, colorData['hex']),
+                    color: HighlightColorTheme.getDisplayColor(
+                        context, colorData['hex']),
                   ),
                 );
               }),

@@ -2,6 +2,28 @@ import 'package:flutter/material.dart';
 
 /// Helper class to resolve highlight colors for both light and dark themes.
 class HighlightColorTheme {
+  static List<Map<String, dynamic>> sortByUsage(
+    List<Map<String, dynamic>> colors,
+    Iterable<String> usedHexes,
+  ) {
+    String normalize(String hex) => hex.replaceAll('#', '').toUpperCase();
+
+    final usage = <String, int>{};
+    for (final hex in usedHexes) {
+      final key = normalize(hex);
+      usage.update(key, (count) => count + 1, ifAbsent: () => 1);
+    }
+
+    final indexedColors = colors.indexed.toList();
+    indexedColors.sort((a, b) {
+      final countA = usage[normalize(a.$2['hex'] as String)] ?? 0;
+      final countB = usage[normalize(b.$2['hex'] as String)] ?? 0;
+      final usageOrder = countB.compareTo(countA);
+      return usageOrder != 0 ? usageOrder : a.$1.compareTo(b.$1);
+    });
+    return indexedColors.map((entry) => entry.$2).toList();
+  }
+
   /// Resolves the actual background highlight color to render behind the verse text.
   static Color getColor(BuildContext context, String hex) {
     final isDark = Theme.brightnessOf(context) == Brightness.dark;

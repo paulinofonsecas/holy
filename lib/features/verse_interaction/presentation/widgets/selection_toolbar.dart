@@ -1,3 +1,4 @@
+import 'package:eu_sou/core/design_system/app_colors/highlight_colors.dart';
 import 'package:eu_sou/shared/bible_models.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
@@ -46,20 +47,23 @@ class SelectionToolbar extends StatelessWidget {
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedPencilEdit02),
+                    icon: const AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedPencilEdit02),
                     onPressed: () {
                       _showHighlightOptions(context, state);
                     },
                   ),
                   IconButton(
-                    icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedMoreHorizontal),
+                    icon: const AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedMoreHorizontal),
                     onPressed: () {
                       _showRichModal(context, state);
                     },
                     tooltip: 'Mais opções',
                   ),
                   IconButton(
-                    icon: const AppHugeIcon(icon: HugeIcons.strokeRoundedCancel01),
+                    icon: const AppHugeIcon(
+                        icon: HugeIcons.strokeRoundedCancel01),
                     onPressed: () {
                       context.read<VerseSelectionBloc>().add(ClearSelection());
                     },
@@ -75,12 +79,22 @@ class SelectionToolbar extends StatelessWidget {
 
   void _showHighlightOptions(BuildContext context, VerseSelectionState state) {
     final versionId = context.read<BibleVersionCubit>().state.version.id;
+    final highlightState = context.read<HighlightBloc>().state;
+    final usedColors = highlightState is HighlightsLoaded
+        ? highlightState.highlights.values
+            .map((highlight) => highlight.colorHex)
+        : const <String>[];
+    final orderedColors = HighlightColorTheme.sortByUsage(
+      ColorPickerModal.defaultColors,
+      usedColors,
+    );
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (modalContext) => ColorPickerModal(
         verseRef: "multiple", // Special case for multiple
+        colors: orderedColors,
         onColorSelected: (colorHex) {
           for (final verse in state.selectedVerses.values) {
             final verseRef =

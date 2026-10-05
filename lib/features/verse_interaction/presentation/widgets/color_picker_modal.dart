@@ -8,6 +8,7 @@ class ColorPickerModal extends StatelessWidget {
   final Function(String colorHex) onColorSelected;
   final VoidCallback onRemoveHighlight;
   final VoidCallback? onShare;
+  final List<Map<String, dynamic>> colors;
 
   const ColorPickerModal({
     super.key,
@@ -15,9 +16,10 @@ class ColorPickerModal extends StatelessWidget {
     required this.onColorSelected,
     required this.onRemoveHighlight,
     this.onShare,
+    this.colors = defaultColors,
   });
 
-  static const List<Map<String, dynamic>> colors = [
+  static const List<Map<String, dynamic>> defaultColors = [
     {'name': 'Yellow', 'hex': 'FFFFF176'},
     {'name': 'Green', 'hex': 'FFAED581'},
     {'name': 'Blue', 'hex': 'FF81D4FA'},
@@ -66,7 +68,8 @@ class ColorPickerModal extends StatelessWidget {
                     width: 45,
                     height: 45,
                     decoration: BoxDecoration(
-                      color: HighlightColorTheme.getDisplayColor(context, colorData['hex']),
+                      color: HighlightColorTheme.getDisplayColor(
+                          context, colorData['hex']),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: Theme.of(context)
@@ -82,7 +85,8 @@ class ColorPickerModal extends StatelessWidget {
             const SizedBox(height: 20),
             if (onShare != null) ...[
               ListTile(
-                leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedShare01),
+                leading:
+                    const AppHugeIcon(icon: HugeIcons.strokeRoundedShare01),
                 title: const Text('Compartilhar'),
                 onTap: () {
                   Navigator.pop(context);
@@ -92,7 +96,8 @@ class ColorPickerModal extends StatelessWidget {
               const Divider(),
             ],
             ListTile(
-              leading: const AppHugeIcon(icon: HugeIcons.strokeRoundedMinusSignCircle),
+              leading: const AppHugeIcon(
+                  icon: HugeIcons.strokeRoundedMinusSignCircle),
               title: const Text('Remover Destaque'),
               onTap: () {
                 onRemoveHighlight();
