@@ -100,7 +100,6 @@ class AppDependencies {
       notificationService: notificationHandler.localNotificationService,
       prefs: sharedPreferences,
       searchProvider: searchProvider,
-      aiService: aiService,
     );
 
     final profileRepo = ProfileRepository();

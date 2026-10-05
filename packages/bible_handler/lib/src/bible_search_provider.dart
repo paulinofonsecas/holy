@@ -165,25 +165,26 @@ class SqlBibleSearchProvider implements BibleSearchProvider {
       final normalizedQuery = _removeDiacritics(query).toLowerCase().trim();
       if (normalizedQuery.isEmpty) return [];
 
-      final matchedBooks = results
-          .map(
-        (row) => Book(
+      final matchedBooksById = <String, Book>{};
+      for (final row in results) {
+        final book = Book(
           id: row['id'] as String,
           name: (row['name'] as String).trim(),
           longName: (row['long_name'] as String).trim(),
           abbreviation: (row['abbreviation'] as String).trim(),
           chapters: [],
-        ),
-      )
-          .where((book) {
+        );
         final name = _removeDiacritics(book.name).toLowerCase();
         final longName = _removeDiacritics(book.longName).toLowerCase();
         final abbr = _removeDiacritics(book.abbreviation).toLowerCase();
 
-        return name.contains(normalizedQuery) ||
+        if (name.contains(normalizedQuery) ||
             longName.contains(normalizedQuery) ||
-            abbr.contains(normalizedQuery);
-      }).toList();
+            abbr.contains(normalizedQuery)) {
+          matchedBooksById.putIfAbsent(book.id, () => book);
+        }
+      }
+      final matchedBooks = matchedBooksById.values.toList();
 
       // Fetch chapter counts for each matched book.
       final booksWithChapters = <Book>[];

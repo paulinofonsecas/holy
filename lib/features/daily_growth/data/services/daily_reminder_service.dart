@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:bible_handler/bible_handler.dart';
 import 'package:eu_sou/core/notifications/services/local_notification_service.dart';
-import 'package:eu_sou/core/services/ai_service.dart';
 import 'package:eu_sou/features/daily_growth/domain/models/daily_reminder.dart';
 import 'package:eu_sou/features/daily_growth/domain/models/verse_focus_mood.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,17 +16,14 @@ class DailyReminderService {
   final LocalNotificationService _notificationService;
   final SharedPreferences _prefs;
   final BibleSearchProvider _searchProvider;
-  final GeminiAIService? _aiService;
 
   DailyReminderService({
     required LocalNotificationService notificationService,
     required SharedPreferences prefs,
     required BibleSearchProvider searchProvider,
-    GeminiAIService? aiService,
   })  : _notificationService = notificationService,
         _prefs = prefs,
-        _searchProvider = searchProvider,
-        _aiService = aiService;
+        _searchProvider = searchProvider;
 
   /// Default preset reminders shown on first launch.
   static List<DailyReminder> get defaultReminders => [
@@ -102,18 +98,13 @@ class DailyReminderService {
     final moodHint = mood?.notificationHint ??
         'Mensagem bíblica breve para fortalecer a fé no dia.';
 
-    final aiMessages = await _tryGenerateAiMessages(
-      reminder: reminder,
-      moodHint: moodHint,
-      verseData: verseData,
-    );
-
     for (int i = 0; i < _kDaysAhead; i++) {
       final verse = verseData[i];
-      final body = aiMessages.isNotEmpty
-          ? aiMessages[i]
-          : _buildFallbackBody(
-              reminder: reminder, verse: verse, moodHint: moodHint);
+      final body = _buildFallbackBody(
+        reminder: reminder,
+        verse: verse,
+        moodHint: moodHint,
+      );
 
       final payload = jsonEncode({
         'type': 'daily_growth_reminder',
@@ -204,31 +195,6 @@ class DailyReminderService {
     }
 
     return verses;
-  }
-
-  Future<List<String>> _tryGenerateAiMessages({
-    required DailyReminder reminder,
-    required String moodHint,
-    required List<_VerseReminderData> verseData,
-  }) async {
-    if (_aiService == null) return const [];
-
-    final verses = verseData
-        .map((v) => {
-              'reference': v.reference,
-              'text': v.text,
-            })
-        .toList();
-
-    final messages = await _aiService.generateWeeklyReminderMessages(
-      reminderLabel: reminder.label,
-      reminderSubtitle: reminder.subtitle,
-      moodHint: moodHint,
-      verses: verses,
-    );
-
-    if (messages.length != _kDaysAhead) return const [];
-    return messages;
   }
 
   String _buildFallbackBody({

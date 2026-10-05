@@ -391,17 +391,31 @@ class _BibliaViewState extends State<BibliaView> {
           // ── Single-version mode ──────────────────────────────────────────
           return Scaffold(
             backgroundColor: bgColor,
-            floatingActionButton: FloatingActionButton.extended(
-              heroTag: 'eu-sou-reading-action',
-              onPressed: _openEuSou,
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              icon: AppHugeIcon(
-                icon: HugeIcons.strokeRoundedSparkles,
-                size: 18,
-                color: colorScheme.onPrimary,
-              ),
-              label: const Text('Eu Sou'),
+            floatingActionButton:
+                BlocBuilder<VerseSelectionBloc, VerseSelectionState>(
+              builder: (context, selectionState) {
+                if (selectionState.isInSelectionMode) {
+                  return const SizedBox.shrink();
+                }
+
+                return FloatingActionButton(
+                  heroTag: 'eu-sou-reading-action',
+                  onPressed: _openEuSou,
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.75),
+                  foregroundColor: colorScheme.onPrimary,
+                  shape: const CircleBorder(
+                    side: BorderSide(
+                      color: Colors.transparent,
+                      width: 0,
+                    ),
+                  ),
+                  child: AppHugeIcon(
+                    icon: HugeIcons.strokeRoundedSparkles,
+                    size: 38,
+                    color: colorScheme.onPrimary,
+                  ),
+                );
+              },
             ),
             body: SafeArea(
               child: Column(

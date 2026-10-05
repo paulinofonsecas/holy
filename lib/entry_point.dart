@@ -43,6 +43,7 @@ import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -84,7 +85,7 @@ class EntryPoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
+    return MultiProvider(
       providers: [
         RepositoryProvider(
           create: (context) => Dio(),
@@ -141,9 +142,8 @@ class EntryPoint extends StatelessWidget {
           create: (_) => HighlightChangedNotifier(),
           dispose: (notifier) => notifier.dispose(),
         ),
-        RepositoryProvider<BottomBarVisibilityNotifier>(
+        ChangeNotifierProvider<BottomBarVisibilityNotifier>(
           create: (_) => BottomBarVisibilityNotifier(),
-          dispose: (notifier) => notifier.dispose(),
         ),
         RepositoryProvider<VerseInteractionProvider>(
           create: (context) => SqlVerseInteractionProvider(db),

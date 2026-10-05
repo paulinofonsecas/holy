@@ -83,6 +83,26 @@ void main() {
       expect(results.totalResults, 3); // Verses 1, 3, 4
     });
 
+    test('book matches across versions are deduplicated by book id', () async {
+      await db.insert('versions', {
+        'id': 'V2',
+        'name': 'Version 2',
+        'lng': 'pt',
+        'last_cached': 0,
+      });
+      await db.insert('books', {
+        'version_id': 'V2',
+        'id': 'GEN',
+        'name': 'Genesis',
+        'long_name': 'Genesis',
+        'abbreviation': 'Gn',
+      });
+
+      final books = await searchProvider.matchBooks(query: 'Genesis');
+
+      expect(books.map((book) => book.id).toList(), ['GEN']);
+    });
+
     test('AND join works (Intersection)', () async {
       // "Deus" AND "luz"
       final results = await searchProvider.advancedSearch(
