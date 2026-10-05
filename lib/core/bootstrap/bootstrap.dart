@@ -93,8 +93,4 @@ void _launchBackgroundTasks(AppDependencies deps) {
     verseService: deps.verseService,
     dailyReminderService: deps.dailyReminderService,
   ));
-  unawaited(warmUpDailyReflectionInBackground(
-    euSouRepository: deps.euSouRepository,
-    dailyContentService: deps.dailyContentService,
-  ));
 }

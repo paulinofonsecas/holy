@@ -25,8 +25,8 @@ class DailyGrowthLoaded extends DailyGrowthState {
   final List<DailyReminder> reminders;
   final VerseFocusMood? selectedMood;
   final DailyReflection? reflection;
-  final bool isRegeneratingContent;
-  final bool regenerateError;
+  final bool isLoadingAnotherVerse;
+  final bool anotherVerseError;
 
   const DailyGrowthLoaded({
     required this.streak,
@@ -34,8 +34,8 @@ class DailyGrowthLoaded extends DailyGrowthState {
     required this.reminders,
     this.selectedMood,
     this.reflection,
-    this.isRegeneratingContent = false,
-    this.regenerateError = false,
+    this.isLoadingAnotherVerse = false,
+    this.anotherVerseError = false,
   });
 
   DailyGrowthLoaded copyWith({
@@ -44,8 +44,8 @@ class DailyGrowthLoaded extends DailyGrowthState {
     List<DailyReminder>? reminders,
     VerseFocusMood? selectedMood,
     DailyReflection? reflection,
-    bool? isRegeneratingContent,
-    bool? regenerateError,
+    bool? isLoadingAnotherVerse,
+    bool? anotherVerseError,
     bool clearMood = false,
   }) {
     return DailyGrowthLoaded(
@@ -54,9 +54,9 @@ class DailyGrowthLoaded extends DailyGrowthState {
       reminders: reminders ?? this.reminders,
       selectedMood: clearMood ? null : (selectedMood ?? this.selectedMood),
       reflection: reflection ?? this.reflection,
-      isRegeneratingContent:
-          isRegeneratingContent ?? this.isRegeneratingContent,
-      regenerateError: regenerateError ?? this.regenerateError,
+      isLoadingAnotherVerse:
+          isLoadingAnotherVerse ?? this.isLoadingAnotherVerse,
+      anotherVerseError: anotherVerseError ?? this.anotherVerseError,
     );
   }
 
@@ -67,8 +67,8 @@ class DailyGrowthLoaded extends DailyGrowthState {
         reminders,
         selectedMood,
         reflection,
-        isRegeneratingContent,
-        regenerateError,
+        isLoadingAnotherVerse,
+        anotherVerseError,
       ];
 }
 

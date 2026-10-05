@@ -43,7 +43,7 @@ class EuSouRepository implements IEuSouRepository {
         _streakService = streakService;
 
   @override
-  Future<DailyReflection?> getTodayReflection() async {
+  Future<DailyReflection?> getTodayReflection({String? versionId}) async {
     final cached = _prefs.getString(_kTodayReflection);
     if (cached == null) return null;
 
@@ -52,6 +52,10 @@ class EuSouRepository implements IEuSouRepository {
 
     final today = _dateKey(DateTime.now());
     if (reflection.date != today) return null;
+    if (versionId != null &&
+        reflection.versionId.toUpperCase() != versionId.toUpperCase()) {
+      return null;
+    }
 
     return reflection;
   }
@@ -93,7 +97,7 @@ class EuSouRepository implements IEuSouRepository {
     );
   }
 
-  /// Busca um versículo aleatório para o dia e o cacheia por data.
+  /// Busca um versículo aleatório no banco local da versão solicitada.
   Future<({String text, String reference})?> getDailyVerse(
       String versionId) async {
     try {
@@ -101,42 +105,14 @@ class EuSouRepository implements IEuSouRepository {
       final verse = await _searchProvider.getRandomVerse(
         versionId: normalizedVersionId,
       );
-      if (verse != null) {
-        final bookName = verse.book.name;
-        final chapter = verse.chapter.number;
-        final verseNum = verse.verse.number;
-        final text = verse.verse.text;
-
-        return (
-          text: text,
-          reference: '$bookName $chapter:$verseNum',
-        );
-      }
-
-      final fallbackVerse = await _searchProvider.getRandomVerse();
-      if (fallbackVerse == null) return null;
-
-      final fallbackBook = fallbackVerse.book.name;
-      final fallbackChapter = fallbackVerse.chapter.number;
-      final fallbackVerseNum = fallbackVerse.verse.number;
-      final fallbackText = fallbackVerse.verse.text;
-
+      if (verse == null) return null;
       return (
-        text: fallbackText,
-        reference: '$fallbackBook $fallbackChapter:$fallbackVerseNum',
+        text: verse.verse.text,
+        reference:
+            '${verse.book.name} ${verse.chapter.number}:${verse.verse.number}',
       );
     } catch (_) {
-      final fallbackVerse = await _searchProvider.getRandomVerse();
-      if (fallbackVerse == null) return null;
-      final fallbackBook = fallbackVerse.book.name;
-      final fallbackChapter = fallbackVerse.chapter.number;
-      final fallbackVerseNum = fallbackVerse.verse.number;
-      final fallbackText = fallbackVerse.verse.text;
-
-      return (
-        text: fallbackText,
-        reference: '$fallbackBook $fallbackChapter:$fallbackVerseNum',
-      );
+      return null;
     }
   }
 

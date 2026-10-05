@@ -1,15 +1,10 @@
-import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 typedef DailyContent = ({String essencia, String pratica});
 
-/// Gera o ESSÊNCIA (insight espiritual) e PRÁTICA (desafio do dia) com Gemini.
-/// Cache diário em SharedPreferences evita chamadas repetidas à API.
+/// Builds and caches daily reflection text locally from the selected Bible verse.
 class DailyContentService {
   final SharedPreferences _prefs;
 
@@ -17,25 +12,14 @@ class DailyContentService {
   static const _kEssencia = 'eu_sou_content_essencia';
   static const _kPratica = 'eu_sou_content_pratica';
   static const _kSource = 'eu_sou_content_source';
+  static const _kVerseText = 'eu_sou_content_verse_text';
+  static const _kVerseReference = 'eu_sou_content_verse_reference';
 
-  static const _sourceAi = 'ai';
-  static const _sourceFallback = 'fallback';
-
-  /// Lock: prevents simultaneous Gemini calls (warm-up + cubit race).
-  Future<DailyContent>? _inFlight;
+  static const _sourceLocal = 'local';
 
   DailyContentService({required SharedPreferences prefs}) : _prefs = prefs;
 
-  String? _readEnv(String key) {
-    try {
-      return dotenv.env[key];
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Retorna o conteúdo do dia, gerando via Gemini se necessário.
-  Future<DailyContent> getOrGenerate(
+  Future<DailyContent> getLocalContent(
     String verseText,
     String verseReference,
   ) async {
@@ -43,156 +27,46 @@ class DailyContentService {
     final todayKey = _dateKey(DateTime(now.year, now.month, now.day));
 
     if (_prefs.getString(_kDate) == todayKey) {
-      final ess = _prefs.getString(_kEssencia);
-      final prat = _prefs.getString(_kPratica);
-      final source = _prefs.getString(_kSource);
-      if (ess != null && prat != null) {
-        final isFallback = source == _sourceFallback ||
-            _isKnownFallback(
-              essencia: ess,
-              pratica: prat,
-              verseReference: verseReference,
-            );
-
-        // Cache do dia só é reaproveitado diretamente quando veio de IA.
-        if (!isFallback) {
-          debugPrint('DailyContentService: using AI cache for $verseReference');
-          return (essencia: ess, pratica: prat);
-        }
-
-        debugPrint(
-          'DailyContentService: cached fallback detected for $verseReference, regenerating...',
-        );
+      final essencia = _prefs.getString(_kEssencia);
+      final pratica = _prefs.getString(_kPratica);
+      if (essencia != null &&
+          pratica != null &&
+          _prefs.getString(_kSource) == _sourceLocal &&
+          _prefs.getString(_kVerseText) == verseText &&
+          _prefs.getString(_kVerseReference) == verseReference &&
+          _isKnownFallback(
+            essencia: essencia,
+            pratica: pratica,
+            verseReference: verseReference,
+          )) {
+        return (essencia: essencia, pratica: pratica);
       }
     }
 
-    try {
-      debugPrint('DailyContentService: generating content for $verseReference');
-      final result = await (_inFlight ??= _generate(verseText, verseReference)
-        ..whenComplete(() => _inFlight = null));
-      final source = _isKnownFallback(
-        essencia: result.essencia,
-        pratica: result.pratica,
-        verseReference: verseReference,
-      )
-          ? _sourceFallback
-          : _sourceAi;
-
-      await _prefs.setString(_kDate, todayKey);
-      await _prefs.setString(_kEssencia, result.essencia);
-      await _prefs.setString(_kPratica, result.pratica);
-      await _prefs.setString(_kSource, source);
-      debugPrint(
-          'DailyContentService: stored $source content for $verseReference');
-      return result;
-    } catch (e) {
-      debugPrint(
-          'DailyContentService: Gemini error — using verse fallback. $e');
-      final fallback = _buildVerseBasedFallback(verseText, verseReference);
-      await _prefs.setString(_kDate, todayKey);
-      await _prefs.setString(_kEssencia, fallback.essencia);
-      await _prefs.setString(_kPratica, fallback.pratica);
-      await _prefs.setString(_kSource, _sourceFallback);
-      return fallback;
-    }
+    final result = await _generate(verseText, verseReference);
+    await _saveLocalContent(todayKey, verseText, verseReference, result);
+    return result;
   }
 
-  Future<DailyContent> regenerate(
+  Future<void> _saveLocalContent(
+    String dateKey,
     String verseText,
     String verseReference,
+    DailyContent content,
   ) async {
-    final now = DateTime.now();
-    final todayKey = _dateKey(DateTime(now.year, now.month, now.day));
-
-    if (_inFlight != null) {
-      debugPrint(
-        'DailyContentService: regeneration already in progress for $verseReference, awaiting existing call.',
-      );
-      return _inFlight!;
-    }
-
-    try {
-      debugPrint(
-        'DailyContentService: force regenerating content for $verseReference',
-      );
-      final result = await _generate(verseText, verseReference);
-      final source = _isKnownFallback(
-        essencia: result.essencia,
-        pratica: result.pratica,
-        verseReference: verseReference,
-      )
-          ? _sourceFallback
-          : _sourceAi;
-
-      await _prefs.setString(_kDate, todayKey);
-      await _prefs.setString(_kEssencia, result.essencia);
-      await _prefs.setString(_kPratica, result.pratica);
-      await _prefs.setString(_kSource, source);
-      debugPrint(
-        'DailyContentService: force stored $source content for $verseReference',
-      );
-      return result;
-    } catch (e) {
-      debugPrint(
-        'DailyContentService: force regeneration failed, using fallback. $e',
-      );
-      final fallback = _buildVerseBasedFallback(verseText, verseReference);
-      await _prefs.setString(_kDate, todayKey);
-      await _prefs.setString(_kEssencia, fallback.essencia);
-      await _prefs.setString(_kPratica, fallback.pratica);
-      await _prefs.setString(_kSource, _sourceFallback);
-      return fallback;
-    }
+    await _prefs.setString(_kDate, dateKey);
+    await _prefs.setString(_kEssencia, content.essencia);
+    await _prefs.setString(_kPratica, content.pratica);
+    await _prefs.setString(_kSource, _sourceLocal);
+    await _prefs.setString(_kVerseText, verseText);
+    await _prefs.setString(_kVerseReference, verseReference);
   }
 
   Future<DailyContent> _generate(
       String verseText, String verseReference) async {
-    final apiKey = _readEnv('GEMINI_API_KEY') ??
-        const String.fromEnvironment('GEMINI_API_KEY');
-
-    if (apiKey.isEmpty) {
-      debugPrint('DailyContentService: GEMINI_API_KEY missing, using fallback');
-      return _buildVerseBasedFallback(verseText, verseReference);
-    }
-
-    final model = GenerativeModel(
-      model: _readEnv('GEMINI_TEXT_MODEL') ??
-          const String.fromEnvironment('GEMINI_TEXT_MODEL',
-              defaultValue: 'gemini-2.5-flash'),
-      apiKey: apiKey,
-      generationConfig: GenerationConfig(
-        maxOutputTokens: 200,
-        temperature: 0.85,
-      ),
-    );
-
-    final prompt = '''
-Você é um diretor espiritual cristão.
-Use EXCLUSIVAMENTE o verso fornecido abaixo para criar uma reflexão do dia.
-
-VERSO_REFERENCIA: $verseReference
-VERSO_TEXTO: "$verseText"
-
-Responda APENAS neste formato (sem markdown e sem texto extra):
-ESSENCIA: <uma única frase de insight espiritual conectada ao verso>
-PRATICA: <uma única frase de ação prática para hoje baseada no verso>
-''';
-
-    final response = await model.generateContent([Content.text(prompt)]);
-    final raw = response.text ?? '';
-    debugPrint('DailyContentService: raw model response received');
-
-    final decoded = _parseJson(raw);
-    if (decoded != null) {
-      debugPrint('DailyContentService: parsed AI response successfully');
-      return decoded;
-    }
-
-    debugPrint(
-      'DailyContentService: failed to parse AI response, using fallback.\n'
-      'Full raw response: $raw',
-    );
-    return _buildVerseBasedFallback(verseText, verseReference);
+    final local = _buildVerseBasedFallback(verseText, verseReference);
+    final raw = 'ESSENCIA: ${local.essencia}\nPRATICA: ${local.pratica}';
+    return _parseJson(raw) ?? local;
   }
 
   DailyContent? _parseJson(String raw) {
@@ -348,18 +222,6 @@ PRATICA: <uma única frase de ação prática para hoje baseada no verso>
     // Uses contains to tolerate minor punctuation/spacing variations.
     return pratica.contains('Leia novamente este versículo') &&
         essencia.contains(verseReference);
-  }
-
-  bool isFallbackContent({
-    required String essencia,
-    required String pratica,
-    required String verseReference,
-  }) {
-    return _isKnownFallback(
-      essencia: essencia,
-      pratica: pratica,
-      verseReference: verseReference,
-    );
   }
 
   DailyContent _buildVerseBasedFallback(

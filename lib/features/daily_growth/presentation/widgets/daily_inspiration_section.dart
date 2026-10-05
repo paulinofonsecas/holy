@@ -1,19 +1,19 @@
 import 'package:eu_sou/features/eu_sou/domain/models/daily_reflection.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class DailyInspirationSection extends StatefulWidget {
   final DailyReflection? reflection;
-  final bool isRegenerating;
-  final VoidCallback? onRegenerate;
+  final bool isLoadingAnotherVerse;
+  final VoidCallback? onAnotherVerse;
 
   const DailyInspirationSection({
     super.key,
     required this.reflection,
-    required this.isRegenerating,
-    required this.onRegenerate,
+    required this.isLoadingAnotherVerse,
+    required this.onAnotherVerse,
   });
 
   @override
@@ -56,8 +56,9 @@ class _DailyInspirationSectionState extends State<DailyInspirationSection> {
               ],
             ),
             TextButton.icon(
-              onPressed: widget.isRegenerating ? null : widget.onRegenerate,
-              icon: widget.isRegenerating
+              onPressed:
+                  widget.isLoadingAnotherVerse ? null : widget.onAnotherVerse,
+              icon: widget.isLoadingAnotherVerse
                   ? SizedBox(
                       width: 14,
                       height: 14,
@@ -66,9 +67,14 @@ class _DailyInspirationSectionState extends State<DailyInspirationSection> {
                         color: accentColor,
                       ),
                     )
-                  : AppHugeIcon(icon: HugeIcons.strokeRoundedRefresh, size: 15, color: accentColor),
+                  : AppHugeIcon(
+                      icon: HugeIcons.strokeRoundedRefresh,
+                      size: 15,
+                      color: accentColor),
               label: Text(
-                widget.isRegenerating ? 'Gerando...' : 'Regenerar',
+                widget.isLoadingAnotherVerse
+                    ? 'A carregar...'
+                    : 'Outro versículo',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,

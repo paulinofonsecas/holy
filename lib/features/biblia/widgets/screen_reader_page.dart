@@ -34,6 +34,8 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
   final Map<int, GlobalKey> _verseKeys = {};
   String? _currentChapterId;
   String? _currentVersionId;
+  bool _suppressProgrammaticScrollNotifications = false;
+  int _programmaticScrollGeneration = 0;
 
   @override
   void initState() {
@@ -72,7 +74,18 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
 
       final maxExtent = _scrollController.position.maxScrollExtent;
       final targetOffset = offset.clamp(0.0, maxExtent);
+      _suppressProgrammaticScroll();
       _scrollController.jumpTo(targetOffset);
+    });
+  }
+
+  void _suppressProgrammaticScroll() {
+    final generation = ++_programmaticScrollGeneration;
+    _suppressProgrammaticScrollNotifications = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && generation == _programmaticScrollGeneration) {
+        _suppressProgrammaticScrollNotifications = false;
+      }
     });
   }
 
@@ -88,6 +101,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final key = _verseKeys[verseNumber];
       if (key != null && key.currentContext != null) {
+        _suppressProgrammaticScroll();
         Scrollable.ensureVisible(
           key.currentContext!,
           alignment: 0.75,
@@ -274,17 +288,20 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
             return KeyEventResult.ignored;
           },
           child: GestureDetector(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              physics: const ClampingScrollPhysics(),
-              child: Column(
-                children: [
-                  ReadSessionWidget(
-                    key: Key("$chapterId-$versionId"),
-                    chapter: state.chapter,
-                    verseKeys: _verseKeys,
-                  ),
-                ],
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (_) => _suppressProgrammaticScrollNotifications,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                  children: [
+                    ReadSessionWidget(
+                      key: Key("$chapterId-$versionId"),
+                      chapter: state.chapter,
+                      verseKeys: _verseKeys,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

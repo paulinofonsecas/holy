@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:eu_sou/features/daily_growth/data/services/daily_reminder_service.dart';
 import 'package:eu_sou/features/daily_growth/data/services/milestone_service.dart';
 import 'package:eu_sou/features/daily_growth/domain/models/daily_reminder.dart';
@@ -6,6 +8,7 @@ import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart'
 import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
 import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
 import 'package:eu_sou/features/eu_sou/domain/models/daily_reflection.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,10 +22,11 @@ class DailyGrowthCubit extends Cubit<DailyGrowthState> {
   final SharedPreferences _prefs;
   final EuSouRepository _euSouRepository;
   final DailyContentService _dailyContentService;
-
-  static const _defaultVersionId = 'JFAA';
+  final BibleVersionCubit _versionCubit;
 
   static const _kMoodKey = 'daily_growth_verse_focus_mood';
+  late final StreamSubscription<BibleVersionState> _versionSubscription;
+  String? _loadedVersionId;
 
   DailyGrowthCubit({
     required DailyReminderService reminderService,
@@ -31,15 +35,25 @@ class DailyGrowthCubit extends Cubit<DailyGrowthState> {
     required SharedPreferences prefs,
     required EuSouRepository euSouRepository,
     required DailyContentService dailyContentService,
+    required BibleVersionCubit versionCubit,
   })  : _reminderService = reminderService,
         _streakService = streakService,
         _milestoneService = milestoneService,
         _prefs = prefs,
         _euSouRepository = euSouRepository,
         _dailyContentService = dailyContentService,
-        super(const DailyGrowthInitial());
+        _versionCubit = versionCubit,
+        super(const DailyGrowthInitial()) {
+    _versionSubscription = _versionCubit.stream.listen((versionState) {
+      if (_loadedVersionId != versionState.version.id) {
+        unawaited(load());
+      }
+    });
+  }
 
   Future<void> load() async {
+    final versionId = _versionCubit.state.version.id;
+    _loadedVersionId = versionId;
     emit(const DailyGrowthLoading());
     try {
       final streak = await _streakService.getStreak();
@@ -47,7 +61,8 @@ class DailyGrowthCubit extends Cubit<DailyGrowthState> {
       final reminders = await _reminderService.loadReminders();
       final moodKey = _prefs.getString(_kMoodKey);
       final mood = VerseFocusMoodExt.fromKey(moodKey);
-      final reflection = await _loadTodayReflection();
+      final reflection = await _loadTodayReflection(versionId);
+      if (_versionCubit.state.version.id != versionId) return;
 
       emit(DailyGrowthLoaded(
         streak: streak,
@@ -61,39 +76,25 @@ class DailyGrowthCubit extends Cubit<DailyGrowthState> {
     }
   }
 
-  Future<DailyReflection?> _loadTodayReflection() async {
-    final existing = await _euSouRepository.getTodayReflection();
+  Future<DailyReflection?> _loadTodayReflection(String versionId) async {
+    final existing = await _euSouRepository.getTodayReflection(
+      versionId: versionId,
+    );
     if (existing != null) {
-      if (_dailyContentService.isFallbackContent(
-        essencia: existing.essencia,
-        pratica: existing.pratica,
-        verseReference: existing.verseReference,
-      )) {
-        final regenerated = await _dailyContentService.getOrGenerate(
-          existing.verseText,
-          existing.verseReference,
-        );
-
-        final updated = existing.copyWith(
-          essencia: regenerated.essencia,
-          pratica: regenerated.pratica,
-        );
-        await _euSouRepository.saveTodayReflection(updated);
-        return updated;
-      }
       return existing;
     }
 
-    final verse = await _euSouRepository.getDailyVerse(_defaultVersionId);
+    final verse = await _euSouRepository.getDailyVerse(versionId);
     if (verse == null) return null;
 
     final content =
-        await _dailyContentService.getOrGenerate(verse.text, verse.reference);
+        await _dailyContentService.getLocalContent(verse.text, verse.reference);
     final reflection = DailyReflection(
       date: _dateKey(DateTime.now()),
       greetingWord: _euSouRepository.greetingForToday(),
       verseText: verse.text,
       verseReference: verse.reference,
+      versionId: versionId,
       essencia: content.essencia,
       pratica: content.pratica,
     );
@@ -175,43 +176,59 @@ class DailyGrowthCubit extends Cubit<DailyGrowthState> {
     }
   }
 
-  Future<void> regenerateTodayContent() async {
+  Future<void> loadAnotherVerse() async {
     final current = state;
     if (current is! DailyGrowthLoaded) return;
-    if (current.isRegeneratingContent) return;
+    if (current.isLoadingAnotherVerse) return;
 
-    emit(current.copyWith(isRegeneratingContent: true));
+    emit(current.copyWith(isLoadingAnotherVerse: true));
 
     try {
-      final baseReflection = current.reflection ?? await _loadTodayReflection();
-      if (baseReflection == null) {
-        emit(current.copyWith(isRegeneratingContent: false));
+      final versionId = _versionCubit.state.version.id;
+      final verse = await _euSouRepository.getDailyVerse(versionId);
+      if (verse == null) {
+        emit(current.copyWith(
+          isLoadingAnotherVerse: false,
+          anotherVerseError: true,
+        ));
         return;
       }
 
-      final regenerated = await _dailyContentService.regenerate(
-        baseReflection.verseText,
-        baseReflection.verseReference,
+      final content = await _dailyContentService.getLocalContent(
+        verse.text,
+        verse.reference,
       );
 
-      final updatedReflection = baseReflection.copyWith(
-        essencia: regenerated.essencia,
-        pratica: regenerated.pratica,
+      final updatedReflection = DailyReflection(
+        date: _dateKey(DateTime.now()),
+        greetingWord: _euSouRepository.greetingForToday(),
+        verseText: verse.text,
+        verseReference: verse.reference,
+        versionId: versionId,
+        essencia: content.essencia,
+        pratica: content.pratica,
       );
 
+      if (_versionCubit.state.version.id != versionId) return;
       await _euSouRepository.saveTodayReflection(updatedReflection);
 
       emit(current.copyWith(
         reflection: updatedReflection,
-        isRegeneratingContent: false,
-        regenerateError: false,
+        isLoadingAnotherVerse: false,
+        anotherVerseError: false,
       ));
     } catch (e) {
-      debugPrint('DailyGrowthCubit: regeneration error — $e');
+      debugPrint('DailyGrowthCubit: local verse refresh failed — $e');
       emit(current.copyWith(
-        isRegeneratingContent: false,
-        regenerateError: true,
+        isLoadingAnotherVerse: false,
+        anotherVerseError: true,
       ));
     }
+  }
+
+  @override
+  Future<void> close() async {
+    await _versionSubscription.cancel();
+    return super.close();
   }
 }

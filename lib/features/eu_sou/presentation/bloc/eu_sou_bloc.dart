@@ -90,23 +90,9 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
       DailyReflection? reflection;
 
       if (!forceRefresh) {
-        reflection = await _repository.getTodayReflection();
-        if (reflection != null &&
-            _contentService.isFallbackContent(
-              essencia: reflection.essencia,
-              pratica: reflection.pratica,
-              verseReference: reflection.verseReference,
-            )) {
-          final regenerated = await _contentService.getOrGenerate(
-            reflection.verseText,
-            reflection.verseReference,
-          );
-          reflection = reflection.copyWith(
-            essencia: regenerated.essencia,
-            pratica: regenerated.pratica,
-          );
-          await _repository.saveTodayReflection(reflection);
-        }
+        reflection = await _repository.getTodayReflection(
+          versionId: versionId,
+        );
       }
 
       if (reflection == null) {
@@ -119,7 +105,7 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
           return;
         }
 
-        final content = await _contentService.getOrGenerate(
+        final content = await _contentService.getLocalContent(
           verse.text,
           verse.reference,
         );
@@ -129,6 +115,7 @@ class EuSouBloc extends Bloc<EuSouEvent, EuSouState> {
           greetingWord: greeting,
           verseText: verse.text,
           verseReference: verse.reference,
+          versionId: versionId,
           essencia: content.essencia,
           pratica: content.pratica,
         );

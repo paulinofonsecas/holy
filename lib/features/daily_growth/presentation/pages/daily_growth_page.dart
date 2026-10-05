@@ -3,6 +3,7 @@ import 'package:eu_sou/features/daily_growth/data/services/milestone_service.dar
 import 'package:eu_sou/features/eu_sou/data/repositories/eu_sou_repository.dart';
 import 'package:eu_sou/features/eu_sou/data/services/daily_content_service.dart';
 import 'package:eu_sou/features/eu_sou/data/services/streak_service.dart';
+import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,6 +33,7 @@ class DailyGrowthPage extends StatelessWidget {
           prefs: ctx.read<SharedPreferences>(),
           euSouRepository: ctx.read<EuSouRepository>(),
           dailyContentService: ctx.read<DailyContentService>(),
+          versionCubit: ctx.read<BibleVersionCubit>(),
         )..load(),
         child: const DailyGrowthPage(),
       ),
@@ -73,13 +75,13 @@ class DailyGrowthPage extends StatelessWidget {
       body: BlocConsumer<DailyGrowthCubit, DailyGrowthState>(
         listenWhen: (prev, curr) =>
             curr is DailyGrowthLoaded &&
-            curr.regenerateError &&
-            (prev is! DailyGrowthLoaded || !prev.regenerateError),
+            curr.anotherVerseError &&
+            (prev is! DailyGrowthLoaded || !prev.anotherVerseError),
         listener: (context, state) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                'Não foi possível regenerar a mensagem. Tente novamente.',
+                'Não foi possível carregar outro versículo local.',
               ),
               behavior: SnackBarBehavior.floating,
             ),
@@ -144,9 +146,9 @@ class _LoadedBody extends StatelessWidget {
               // ── Verses / Messages of the Day ─────────────────────
               DailyInspirationSection(
                 reflection: state.reflection,
-                isRegenerating: state.isRegeneratingContent,
-                onRegenerate: () =>
-                    context.read<DailyGrowthCubit>().regenerateTodayContent(),
+                isLoadingAnotherVerse: state.isLoadingAnotherVerse,
+                onAnotherVerse: () =>
+                    context.read<DailyGrowthCubit>().loadAnotherVerse(),
               ),
 
               const SizedBox(height: 28),

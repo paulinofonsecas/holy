@@ -5,6 +5,7 @@ class DailyReflection {
   final String greetingWord;
   final String verseText;
   final String verseReference;
+  final String versionId;
   final String essencia;
   final String pratica;
 
@@ -13,6 +14,7 @@ class DailyReflection {
     required this.greetingWord,
     required this.verseText,
     required this.verseReference,
+    this.versionId = '',
     required this.essencia,
     required this.pratica,
   });
@@ -23,6 +25,7 @@ class DailyReflection {
       greetingWord: json['greetingWord'] as String,
       verseText: json['verseText'] as String,
       verseReference: json['verseReference'] as String,
+      versionId: json['versionId'] as String? ?? '',
       essencia: json['essencia'] as String,
       pratica: json['pratica'] as String,
     );
@@ -33,6 +36,7 @@ class DailyReflection {
         'greetingWord': greetingWord,
         'verseText': verseText,
         'verseReference': verseReference,
+        'versionId': versionId,
         'essencia': essencia,
         'pratica': pratica,
       };
@@ -52,6 +56,7 @@ class DailyReflection {
       greetingWord: greetingWord,
       verseText: verseText,
       verseReference: verseReference,
+      versionId: versionId,
       essencia: essencia ?? this.essencia,
       pratica: pratica ?? this.pratica,
     );

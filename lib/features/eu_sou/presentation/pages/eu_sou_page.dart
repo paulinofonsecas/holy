@@ -1,17 +1,10 @@
 import 'package:bible_handler/bible_handler.dart';
-import '../widgets/eu_sou_skeleton_overview.dart';
-import '../widgets/error_view.dart';
-import '../widgets/generate_understanding_button.dart';
-import '../widgets/bible_reading_section.dart';
-import '../widgets/inline_settings.dart';
-import '../widgets/personal_name_panel.dart';
-import '../widgets/eu_sou_overview_panel.dart';
 import 'package:eu_sou/features/daily_growth/presentation/cubit/daily_growth_cubit.dart';
 import 'package:eu_sou/features/daily_growth/presentation/pages/daily_growth_page.dart';
-import 'package:eu_sou/features/journeys/presentation/pages/journeys_page.dart';
-import 'package:eu_sou/features/journeys/presentation/widgets/journey_home_card.dart';
 import 'package:eu_sou/features/eu_sou/domain/models/user_stats.dart';
 import 'package:eu_sou/features/eu_sou/presentation/cubit/change_my_name_cubit.dart';
+import 'package:eu_sou/features/journeys/presentation/pages/journeys_page.dart';
+import 'package:eu_sou/features/journeys/presentation/widgets/journey_home_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -37,12 +30,19 @@ import '../../../tutorial/presentation/pages/tutorials_list_page.dart';
 import '../../data/models/analysis_session_preview.dart';
 import '../bloc/eu_sou_bloc.dart';
 import '../utils/verse_navigation.dart';
+import '../widgets/bible_reading_section.dart';
+import '../widgets/error_view.dart';
 import '../widgets/essencia_section.dart'; // exports EssenciaSection + PraticaSection
 import '../widgets/estudos_preview_section.dart';
 import '../widgets/eu_sou_header.dart';
+import '../widgets/eu_sou_overview_panel.dart';
+import '../widgets/eu_sou_skeleton_overview.dart';
+import '../widgets/generate_understanding_button.dart';
+import '../widgets/inline_settings.dart';
+import '../widgets/personal_name_panel.dart';
+import '../widgets/reflexoes_anteriores_page.dart';
 import '../widgets/stats_row.dart';
 import '../widgets/verse_section.dart';
-import '../widgets/reflexoes_anteriores_page.dart';
 
 enum _EuSouPanel {
   overview,
@@ -173,6 +173,7 @@ class _EuSouPageState extends State<EuSouPage>
           prefs: context.read<SharedPreferences>(),
           euSouRepository: context.read<EuSouRepository>(),
           dailyContentService: context.read<DailyContentService>(),
+          versionCubit: context.read<BibleVersionCubit>(),
         )..load();
         return BlocProvider.value(
           value: _dailyGrowthCubit!,
@@ -323,6 +324,9 @@ class _EuSouPageState extends State<EuSouPage>
       backgroundColor: bgColor,
       body: MultiBlocListener(
         listeners: [
+          BlocListener<BibleVersionCubit, BibleVersionState>(
+            listener: (context, state) => _loadData(),
+          ),
           // Sincroniza 1 estudo recente do DeepUnderstandingBloc → EuSouBloc
           BlocListener<DeepUnderstandingBloc, DeepUnderstandingState>(
             listenWhen: (previous, current) {
@@ -348,7 +352,8 @@ class _EuSouPageState extends State<EuSouPage>
           ),
           BlocListener<DeepUnderstandingBloc, DeepUnderstandingState>(
             listener: (context, state) {
-              if (state is DeepUnderstandingCancelled || state is DeepUnderstandingFailure) {
+              if (state is DeepUnderstandingCancelled ||
+                  state is DeepUnderstandingFailure) {
                 SharedPreferences.getInstance().then((prefs) {
                   prefs.remove(_kReflectionUnderstandingDate);
                 });
