@@ -178,9 +178,6 @@ class _PanelContent extends StatefulWidget {
 }
 
 class _PanelContentState extends State<_PanelContent> {
-  // Hide-on-scroll por painel: os headers são independentes porque os painéis
-  // fazem scroll de forma isolada. A toolbar partilhada e a NavigationBar
-  // seguem o painel mais recente a fazer scroll (via BottomBarVisibilityNotifier).
   static const double _hideThreshold = 20.0;
   static const double _showThreshold = 15.0;
 
@@ -482,8 +479,10 @@ class _PanelContentState extends State<_PanelContent> {
   // ── Scroll notification helper ──────────────────────────────────────────────
 
   void _setHeaderVisible(bool visible) {
-    if (_headerVisible == visible || !mounted) return;
-    setState(() => _headerVisible = visible);
+    if (!mounted) return;
+    if (_headerVisible != visible) {
+      setState(() => _headerVisible = visible);
+    }
     context.read<BottomBarVisibilityNotifier>().setVisible(visible);
   }
 
@@ -500,7 +499,6 @@ class _PanelContentState extends State<_PanelContent> {
           );
     }
 
-    // Hide-on-scroll (mesma lógica da vista single-version)
     final metrics = notification.metrics;
     if (metrics.pixels <= 0) {
       _setHeaderVisible(true);
@@ -512,7 +510,6 @@ class _PanelContentState extends State<_PanelContent> {
       final delta = notification.scrollDelta ?? 0.0;
       if (delta == 0.0) return false;
 
-      // Acumula na direção atual; reinicia quando a direção muda
       if (_accumulatedDelta > 0 && delta < 0 ||
           _accumulatedDelta < 0 && delta > 0) {
         _accumulatedDelta = 0.0;
@@ -538,7 +535,6 @@ class _PanelContentState extends State<_PanelContent> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final bgColor = colorScheme.surface;
-
     return MultiBlocListener(
       listeners: [
         BlocListener<BibliaBloc, BibliaState>(
@@ -551,8 +547,6 @@ class _PanelContentState extends State<_PanelContent> {
                     chapter: state.chapter.number,
                     scrollOffset: state.initialScrollOffset,
                   );
-
-              // Novo capítulo -> volta ao estado inicial com o header visível
               _accumulatedDelta = 0.0;
               _setHeaderVisible(true);
             }
@@ -560,7 +554,6 @@ class _PanelContentState extends State<_PanelContent> {
         ),
         BlocListener<VerseSelectionBloc, VerseSelectionState>(
           listener: (context, state) {
-            // Modo de seleção -> o header tem de estar visível
             if (state.isInSelectionMode) {
               _setHeaderVisible(true);
             }
@@ -581,7 +574,7 @@ class _PanelContentState extends State<_PanelContent> {
           builder: (context, constraints) {
             return Column(
               children: [
-                // ── Header (hide-on-scroll por painel) ────────────────────────
+                // ── Header do painel ─────────────────────────────────────────
                 CollapsibleBar(
                   visible: _headerVisible,
                   child: Column(

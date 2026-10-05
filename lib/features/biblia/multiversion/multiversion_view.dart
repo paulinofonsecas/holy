@@ -145,7 +145,7 @@ class MultiversionView extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Toolbar: add panel + panel count info (hide-on-scroll)
+                // Toolbar: add panel + panel count info
                 AnimatedBuilder(
                   animation: context.read<BottomBarVisibilityNotifier>(),
                   builder: (context, _) {

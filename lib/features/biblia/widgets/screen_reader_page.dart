@@ -90,8 +90,8 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
       if (key != null && key.currentContext != null) {
         Scrollable.ensureVisible(
           key.currentContext!,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
+          alignment: 0.75,
+          duration: Duration.zero,
         );
       }
     });
@@ -276,6 +276,7 @@ class _ScreenReaderPageState extends State<ScreenReaderPage> {
           child: GestureDetector(
             child: SingleChildScrollView(
               controller: _scrollController,
+              physics: const ClampingScrollPhysics(),
               child: Column(
                 children: [
                   ReadSessionWidget(

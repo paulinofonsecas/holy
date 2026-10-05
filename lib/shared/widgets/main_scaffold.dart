@@ -61,6 +61,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
     super.initState();
+    context.read<BottomBarVisibilityNotifier>().setVisible(true);
     notificationHandler.addOnNotificationTapListener(_handleNotificationTap);
 
     _setupDeeplinks();
