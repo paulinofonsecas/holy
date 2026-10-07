@@ -17,44 +17,30 @@ class UsxParser {
     final metadataContent = await metadataFile.readAsString();
     final metadataDocument = XmlDocument.parse(metadataContent);
 
-    final identification = metadataDocument
-        .findAllElements('identification')
-        .first;
+    final identification =
+        metadataDocument.findAllElements('identification').first;
     final name = identification.findElements('name').first.innerText;
-    final abbreviation = identification
-        .findElements('abbreviation')
-        .first
-        .innerText;
-    final nameLocal = identification
-        .findElements('nameLocal')
-        .firstOrNull
-        ?.innerText;
-    final description = identification
-        .findElements('description')
-        .firstOrNull
-        ?.innerText;
+    final abbreviation =
+        identification.findElements('abbreviation').first.innerText;
+    final nameLocal =
+        identification.findElements('nameLocal').firstOrNull?.innerText;
+    final description =
+        identification.findElements('description').firstOrNull?.innerText;
     final scope = identification.findElements('scope').firstOrNull?.innerText;
-    final bundleProducer = identification
-        .findElements('bundleProducer')
-        .firstOrNull
-        ?.innerText;
+    final bundleProducer =
+        identification.findElements('bundleProducer').firstOrNull?.innerText;
 
     final language = metadataDocument.findAllElements('language').first;
     final languageName = language.findElements('name').first.innerText;
     final languageIso = language.findElements('iso').first.innerText;
     final languageScript = language.findElements('script').first.innerText;
-    final languageScriptCode = language
-        .findElements('scriptCode')
-        .first
-        .innerText;
-    final languageScriptDirection = language
-        .findElements('scriptDirection')
-        .first
-        .innerText;
+    final languageScriptCode =
+        language.findElements('scriptCode').first.innerText;
+    final languageScriptDirection =
+        language.findElements('scriptDirection').first.innerText;
 
-    final copyrightElement = metadataDocument
-        .findAllElements('copyright')
-        .firstOrNull;
+    final copyrightElement =
+        metadataDocument.findAllElements('copyright').firstOrNull;
     final copyright = copyrightElement
         ?.findElements('fullStatement')
         .firstOrNull
@@ -121,44 +107,30 @@ class UsxParser {
     }
     final metadataDocument = XmlDocument.parse(metadataContent);
 
-    final identification = metadataDocument
-        .findAllElements('identification')
-        .first;
+    final identification =
+        metadataDocument.findAllElements('identification').first;
     final name = identification.findElements('name').first.innerText;
-    final abbreviation = identification
-        .findElements('abbreviation')
-        .first
-        .innerText;
-    final nameLocal = identification
-        .findElements('nameLocal')
-        .firstOrNull
-        ?.innerText;
-    final description = identification
-        .findElements('description')
-        .firstOrNull
-        ?.innerText;
+    final abbreviation =
+        identification.findElements('abbreviation').first.innerText;
+    final nameLocal =
+        identification.findElements('nameLocal').firstOrNull?.innerText;
+    final description =
+        identification.findElements('description').firstOrNull?.innerText;
     final scope = identification.findElements('scope').firstOrNull?.innerText;
-    final bundleProducer = identification
-        .findElements('bundleProducer')
-        .firstOrNull
-        ?.innerText;
+    final bundleProducer =
+        identification.findElements('bundleProducer').firstOrNull?.innerText;
 
     final language = metadataDocument.findAllElements('language').first;
     final languageName = language.findElements('name').first.innerText;
     final languageIso = language.findElements('iso').first.innerText;
     final languageScript = language.findElements('script').first.innerText;
-    final languageScriptCode = language
-        .findElements('scriptCode')
-        .first
-        .innerText;
-    final languageScriptDirection = language
-        .findElements('scriptDirection')
-        .first
-        .innerText;
+    final languageScriptCode =
+        language.findElements('scriptCode').first.innerText;
+    final languageScriptDirection =
+        language.findElements('scriptDirection').first.innerText;
 
-    final copyrightElement = metadataDocument
-        .findAllElements('copyright')
-        .firstOrNull;
+    final copyrightElement =
+        metadataDocument.findAllElements('copyright').firstOrNull;
     final copyright = copyrightElement
         ?.findElements('fullStatement')
         .firstOrNull
@@ -224,6 +196,12 @@ class UsxParser {
     String bookId,
     Map<String, Map<String, String>> bookNames,
   ) async {
+    // Sanitiza tags vazias (ex.: "<>texto</>"), que tornam o XML inválido e
+    // fazem o parser lançar "XmlParserException: name expected".
+    // Ocorrência conhecida: notas de referência no 2SA da versão NTLH.
+    if (content.contains('<>') || content.contains('</>')) {
+      content = content.replaceAll('<>', '').replaceAll('</>', '');
+    }
     final document = XmlDocument.parse(content);
 
     final bookMeta = bookNames[bookId];
