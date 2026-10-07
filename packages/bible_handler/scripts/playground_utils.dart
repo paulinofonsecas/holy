@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:bible_handler/src/models.dart';
 import 'package:bible_handler/src/sorting/book_order.dart';
+import 'package:path/path.dart' as p;
+import 'package:xml/xml.dart';
 
 // ---------------------------------------------------------------------------
 // Estruturas do relatório
@@ -14,6 +16,72 @@ class Finding {
   final String message;
 
   const Finding(this.severity, this.message);
+}
+
+// ---------------------------------------------------------------------------
+// Validação individual dos arquivos .usx (antes do parse completo)
+// ---------------------------------------------------------------------------
+
+/// Valida o XML de cada arquivo .usx do bundle.
+///
+/// Arquivos completamente malformados viram FAIL; arquivos que só falham por
+/// causa de tags vazias (`<>...</>`, toleradas pelo parser após sanitização)
+/// viram WARN. Retorna um finding de PASS quando todos os arquivos são válidos.
+List<Finding> validateUsxFiles(String rootPath) {
+  final findings = <Finding>[];
+  final files = Directory(rootPath)
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((f) => p.extension(f.path) == '.usx')
+      .toList()
+    ..sort((a, b) => p.basename(a.path).compareTo(p.basename(b.path)));
+
+  if (files.isEmpty) {
+    findings.add(
+      Finding(Severity.fail, 'Nenhum arquivo .usx encontrado em $rootPath'),
+    );
+    return findings;
+  }
+
+  var warns = 0;
+  for (final file in files) {
+    final name = p.basename(file.path);
+    final content = file.readAsStringSync();
+    try {
+      XmlDocument.parse(content);
+    } on XmlParserException catch (rawError) {
+      // Tenta de novo com a sanitização aplicada pelo parser (tags vazias).
+      try {
+        XmlDocument.parse(sanitizeUsx(content));
+        warns++;
+        findings.add(
+          Finding(
+            Severity.warn,
+            '$name contém tags vazias `<>...</>` '
+            '(toleradas pelo parser, mas corrigir no zip): $rawError',
+          ),
+        );
+      } on XmlParserException {
+        findings.add(
+          Finding(Severity.fail, '$name tem XML inválido: $rawError'),
+        );
+      }
+    }
+  }
+
+  if (warns == 0) {
+    findings.add(
+      Finding(Severity.pass, '${files.length} arquivos .usx com XML válido'),
+    );
+  }
+  return findings;
+}
+
+/// Remove tags vazias `<>` e `</>` (mesma sanitização aplicada pelo UsxParser).
+String sanitizeUsx(String content) {
+  final withoutOpenTag = content.replaceAll('<>', '');
+  final withoutCloseTag = withoutOpenTag.replaceAll('</>', '');
+  return withoutCloseTag;
 }
 
 // ---------------------------------------------------------------------------

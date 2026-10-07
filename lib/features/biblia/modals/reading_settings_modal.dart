@@ -435,7 +435,11 @@ class ReadingSettingsModal extends StatelessWidget {
                   ),
                   const Gap(2),
                   Text(
-                    '${currentVersion.id} • ${currentVersion.language} • ${currentVersion.year}',
+                    [
+                      currentVersion.id,
+                      currentVersion.language,
+                      if (currentVersion.year != null) currentVersion.year,
+                    ].join(' • '),
                     style: TextStyle(
                       fontSize: 12,
                       color: colorScheme.onSurfaceVariant,

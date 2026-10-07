@@ -161,8 +161,9 @@ class _VersionDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final year = info.version.year;
     final details = StringBuffer(
-      '${info.version.language} • ${info.version.year}',
+      year == null ? info.version.language : '${info.version.language} • $year',
     );
     if (info.isExtracting) {
       details.write(' • Extraindo...');
