@@ -4,6 +4,7 @@ export 'src/bible_memory_loader.dart';
 export 'src/bible_search_provider.dart';
 export 'src/interfaces.dart';
 export 'src/models.dart';
+export 'src/parsers/beblia_parser.dart';
 export 'src/parsers/sqlite_parser.dart';
 export 'src/parsers/usx_parser.dart';
 export 'src/services/download_service.dart';

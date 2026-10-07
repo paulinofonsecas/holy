@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 
 import 'bible_cache_provider.dart';
 import 'models.dart';
+import 'parsers/beblia_parser.dart';
 import 'parsers/sqlite_parser.dart';
 import 'parsers/usx_parser.dart';
 import 'services/download_service.dart';
@@ -58,12 +59,16 @@ class SqliteBibleLoader implements BibleLoader {
 /// Loads a Bible from a URL.
 class UrlBibleLoader implements BibleLoader {
   final String version;
+  final String? url;
   final BookSorter sorter;
   final void Function(DownloadProgress)? onProgress;
   final BibleCacheProvider? cacheProvider;
 
+  /// [url] permite baixar de uma fonte customizada (ex.: um arquivo XML
+  /// simples do repositório Beblia). Quando null, usa o zip USX padrão.
   UrlBibleLoader(
     this.version, {
+    this.url,
     this.sorter = const CanonicalBookSorter(),
     this.onProgress,
     this.cacheProvider,
@@ -71,8 +76,64 @@ class UrlBibleLoader implements BibleLoader {
 
   @override
   Future<Bible> load() async {
-    final url =
+    final effectiveUrl = url ??
         'https://raw.githubusercontent.com/paulinofonsecas/biblias/main/inst/usx/traducao/$version.zip';
+
+    if (looksLikeBebliaXmlUrl(effectiveUrl)) {
+      return _loadFromBebliaXml(effectiveUrl);
+    }
+
+    return _loadFromUsxZip(effectiveUrl);
+  }
+
+  /// Fluxo para arquivos XML simples (Beblia): baixa o arquivo único,
+  /// parseia a string e opcionalmente cacheia.
+  Future<Bible> _loadFromBebliaXml(String xmlUrl) async {
+    final tempDir = await Directory.systemTemp.createTemp(
+      'bible_handler_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    final xmlFile = File(p.join(tempDir.path, '$version.xml'));
+
+    try {
+      print('Downloading Bible version: $version from $xmlUrl');
+
+      final downloadService = DownloadService();
+      await for (final progress in downloadService.download(
+        xmlUrl,
+        xmlFile.path,
+      )) {
+        onProgress?.call(progress);
+        if (progress.status == DownloadStatus.error) {
+          throw Exception(progress.message);
+        }
+      }
+
+      onProgress?.call(DownloadProgress.extracting());
+
+      final content = await xmlFile.readAsString();
+      final bible = await const BebliaXmlParser().parse(
+        content,
+        versionId: version,
+        sorter: sorter,
+      );
+
+      if (cacheProvider != null) {
+        await cacheProvider!.cacheVersion(bible, versionId: version);
+      }
+
+      return bible;
+    } catch (e) {
+      print('Error loading bible from beblia xml: $e');
+      rethrow;
+    } finally {
+      if (tempDir.existsSync()) {
+        await tempDir.delete(recursive: true);
+      }
+    }
+  }
+
+  /// Fluxo original: zip USX do repositório biblias.
+  Future<Bible> _loadFromUsxZip(String zipUrl) async {
     final tempDir = await Directory.systemTemp.createTemp(
       'bible_handler_${DateTime.now().millisecondsSinceEpoch}',
     );
@@ -80,11 +141,11 @@ class UrlBibleLoader implements BibleLoader {
 
     try {
       // Download the zip file
-      print('Downloading Bible version: $version from $url');
+      print('Downloading Bible version: $version from $zipUrl');
 
       final downloadService = DownloadService();
       await for (final progress in downloadService.download(
-        url,
+        zipUrl,
         zipFile.path,
       )) {
         onProgress?.call(progress);
@@ -179,14 +240,19 @@ Future<Bible> loadBibleFromSqlite(String filePath) {
 }
 
 /// A top-level function to load a Bible version from a URL.
+///
+/// [url] permite baixar de uma fonte customizada (ex.: um arquivo XML
+/// simples do repositório Beblia). Quando null, usa o zip USX padrão.
 Future<Bible> loadBibleFromUrl(
   String version, {
+  String? url,
   BookSorter sorter = const CanonicalBookSorter(),
   void Function(DownloadProgress)? onProgress,
   BibleCacheProvider? cacheProvider,
 }) {
   return UrlBibleLoader(
     version,
+    url: url,
     sorter: sorter,
     onProgress: onProgress,
     cacheProvider: cacheProvider,

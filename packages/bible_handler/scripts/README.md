@@ -19,9 +19,28 @@ dart run scripts/playground_bible_versions.dart NVI --keep
 # Testa uma versão ainda não publicada, apontando direto para o .zip
 dart run scripts/playground_bible_versions.dart NOVA --url <url-do-zip>
 
+# Testa um arquivo XML simples (formato Beblia — 1000+ versões, 200+ idiomas)
+dart run scripts/playground_bible_versions.dart NTLH-XML \
+    --url https://raw.githubusercontent.com/Beblia/Holy-Bible-XML-Format/master/PortugueseNTLHBible.xml
+
+# Força o formato quando o auto-detector não resolver
+dart run scripts/playground_bible_versions.dart NOVA --url <url> --format xml
+
 # Ajuda
 dart run scripts/playground_bible_versions.dart --help
 ```
+
+### Formatos suportados
+
+| Formato                  | Detecção                            | Fluxo                                               |
+| ------------------------ | ----------------------------------- | --------------------------------------------------- |
+| Zip USX (repo `biblias`) | extensão `.zip`                     | download → unzip → `validateUsxFiles` → `UsxParser` |
+| XML simples (Beblia)     | extensão `.xml` (ou `--format xml`) | download único → `BebliaXmlParser` (sem unzip)      |
+
+No formato Beblia, os livros vêm só com ordinal global (1–66; Mateus = 40 mesmo
+em arquivos NT-only) e sem nomes — o parser usa tabela PT fixa com fallback EN.
+Sigla da versão vem do argumento `<VERSAO>`; copyright vem de `status`/`info`.
+Livros apócrifos (ordinal > 66) são preservados com id sintático `B<n>`.
 
 ### O que é verificado
 
@@ -48,7 +67,9 @@ o que permite usar o script em CI.
 > `bible_handler.dart`) porque o barrel depende de Flutter
 > (`bible_cache_provider.dart`), o que impediria `dart run` puro.
 
-## Bugs de dados conhecidos (nos zips do repositório `biblias`)
+## Bugs de dados conhecidos
+
+### Nos zips do repositório `biblias`
 
 - **NTLH**: `2SA.usx` (linha 714) contém tags vazias `<>...</>` (nota de
   referência). O `UsxParser` agora sanitiza isso, mas o ideal é corrigir o
@@ -56,3 +77,11 @@ o que permite usar o script em CI.
 - **NTLH / KJA**: `metadata.xml` com metadados trocados — a abreviação e o nome
   apontam para "ALBB" (Bíblia Albanesa) mesmo com o texto em português. O
   playground reporta isso como WARN. Corrigir o `metadata.xml` no zip.
+
+### No corpus Beblia
+
+- **NTLH (Beblia)**: 30.256 versos — menos que o USX equivalente (31.088).
+  Característica dos dados do repo Beblia (numeração/títulos diferentes), não
+  bug do parser; o playground reporta WARN de contagem.
+- Corpus heterogêneo em metadados (`translation` vs `name`, `status` vs `info`,
+  `"No Data"` em links) — tratado pelo parser leniente.
