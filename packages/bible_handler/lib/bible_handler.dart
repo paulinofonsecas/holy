@@ -1,3 +1,4 @@
+export 'src/beblia_catalog.dart';
 export 'src/bible_cache_provider.dart';
 export 'src/bible_importer.dart';
 export 'src/bible_memory_loader.dart';
