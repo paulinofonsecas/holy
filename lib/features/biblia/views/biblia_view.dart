@@ -82,12 +82,29 @@ class _BibliaViewState extends State<BibliaView> {
 
   double _accumulatedDelta = 0.0;
 
+  /// Visibilidade das barras antes de o painel de versículo (Verse On Tap)
+  /// abrir — para restaurar ao fechar o painel.
+  bool? _barsVisibleBeforeSelection;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureInitialReadingPositionLoaded();
     });
+  }
+
+  @override
+  void dispose() {
+    // Se a tela sair com o painel de versículo aberto, não deixa as barras
+    // escondidas para o resto do app.
+    if (_barsVisibleBeforeSelection != null) {
+      _barsVisibleBeforeSelection = null;
+      try {
+        context.read<BottomBarVisibilityNotifier>().setVisible(true);
+      } catch (_) {}
+    }
+    super.dispose();
   }
 
   void _ensureInitialReadingPositionLoaded() {
@@ -252,9 +269,14 @@ class _BibliaViewState extends State<BibliaView> {
   }
 
   bool _onScrollNotification(ScrollNotification notification) {
+    // Com o painel de versículo aberto, o scroll não pode trazer de volta
+    // o header ou a barra de navegação.
+    final inSelectionMode =
+        context.read<VerseSelectionBloc>().state.isInSelectionMode;
+
     final metrics = notification.metrics;
     if (metrics.pixels <= 0) {
-      _setBarsVisible(true);
+      if (!inSelectionMode) _setBarsVisible(true);
       _accumulatedDelta = 0.0;
       return false;
     }
@@ -274,7 +296,9 @@ class _BibliaViewState extends State<BibliaView> {
         final isFiltering = context.read<VerseFilterCubit>().state.isFiltering;
         if (!isFiltering) _setBarsVisible(false);
         _accumulatedDelta = 0.0;
-      } else if (_accumulatedDelta < -_showThreshold && !notifier.visible) {
+      } else if (_accumulatedDelta < -_showThreshold &&
+          !notifier.visible &&
+          !inSelectionMode) {
         _setBarsVisible(true);
         _accumulatedDelta = 0.0;
       }
@@ -351,14 +375,27 @@ class _BibliaViewState extends State<BibliaView> {
                 versionCubit.changeVersionById(state.versionId);
               }
               _accumulatedDelta = 0.0;
-              _setBarsVisible(true);
+              // Não traz o header/barras de volta se o painel de versículo
+              // estiver aberto.
+              if (!context.read<VerseSelectionBloc>().state.isInSelectionMode) {
+                _setBarsVisible(true);
+              }
             }
           },
         ),
         BlocListener<VerseSelectionBloc, VerseSelectionState>(
           listener: (context, state) {
             if (state.isInSelectionMode) {
-              _setBarsVisible(true);
+              // Painel de versículo (Verse On Tap) aberto: esconde header e
+              // barra de navegação — só o painel deve aparecer.
+              _barsVisibleBeforeSelection ??=
+                  context.read<BottomBarVisibilityNotifier>().visible;
+              _setBarsVisible(false);
+            } else if (_barsVisibleBeforeSelection != null) {
+              // Painel fechado: restaura a visibilidade anterior.
+              final restore = _barsVisibleBeforeSelection!;
+              _barsVisibleBeforeSelection = null;
+              _setBarsVisible(restore);
             }
           },
         ),

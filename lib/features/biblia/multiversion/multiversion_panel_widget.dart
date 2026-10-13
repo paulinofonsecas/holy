@@ -185,6 +185,11 @@ class _PanelContentState extends State<_PanelContent> {
   bool _showNavButtons = true;
   bool _headerVisible = true;
   double _accumulatedDelta = 0.0;
+
+  /// Visibilidade das barras antes de o painel de versículo (Verse On Tap)
+  /// abrir — para restaurar ao fechar o painel.
+  bool? _barsVisibleBeforeSelection;
+
   final FocusNode _panelFocusNode = FocusNode();
 
   @override
@@ -197,6 +202,14 @@ class _PanelContentState extends State<_PanelContent> {
   void dispose() {
     _hideTimer?.cancel();
     _panelFocusNode.dispose();
+    // Se o painel sair com o Verse On Tap aberto, não deixa as barras
+    // escondidas para o resto do app.
+    if (_barsVisibleBeforeSelection != null) {
+      _barsVisibleBeforeSelection = null;
+      try {
+        context.read<BottomBarVisibilityNotifier>().setVisible(true);
+      } catch (_) {}
+    }
     super.dispose();
   }
 
@@ -500,8 +513,12 @@ class _PanelContentState extends State<_PanelContent> {
     }
 
     final metrics = notification.metrics;
+    final inSelectionMode =
+        context.read<VerseSelectionBloc>().state.isInSelectionMode;
+
     if (metrics.pixels <= 0) {
-      _setHeaderVisible(true);
+      // Com o painel de versículo aberto, o scroll não traz o header de volta.
+      if (!inSelectionMode) _setHeaderVisible(true);
       _accumulatedDelta = 0.0;
       return false;
     }
@@ -520,7 +537,9 @@ class _PanelContentState extends State<_PanelContent> {
         final isFiltering = context.read<VerseFilterCubit>().state.isFiltering;
         if (!isFiltering) _setHeaderVisible(false);
         _accumulatedDelta = 0.0;
-      } else if (_accumulatedDelta < -_showThreshold && !_headerVisible) {
+      } else if (_accumulatedDelta < -_showThreshold &&
+          !_headerVisible &&
+          !inSelectionMode) {
         _setHeaderVisible(true);
         _accumulatedDelta = 0.0;
       }
@@ -548,14 +567,30 @@ class _PanelContentState extends State<_PanelContent> {
                     scrollOffset: state.initialScrollOffset,
                   );
               _accumulatedDelta = 0.0;
-              _setHeaderVisible(true);
+              // Não traz o header/barras de volta se o painel de
+              // versículo estiver aberto.
+              if (!context
+                  .read<VerseSelectionBloc>()
+                  .state
+                  .isInSelectionMode) {
+                _setHeaderVisible(true);
+              }
             }
           },
         ),
         BlocListener<VerseSelectionBloc, VerseSelectionState>(
           listener: (context, state) {
             if (state.isInSelectionMode) {
-              _setHeaderVisible(true);
+              // Painel de versículo (Verse On Tap) aberto: esconde o
+              // header do painel e a barra de navegação do app.
+              _barsVisibleBeforeSelection ??=
+                  context.read<BottomBarVisibilityNotifier>().visible;
+              _setHeaderVisible(false);
+            } else if (_barsVisibleBeforeSelection != null) {
+              // Painel fechado: restaura a visibilidade anterior.
+              final restore = _barsVisibleBeforeSelection!;
+              _barsVisibleBeforeSelection = null;
+              _setHeaderVisible(restore);
             }
           },
         ),
