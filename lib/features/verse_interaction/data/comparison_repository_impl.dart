@@ -1,33 +1,49 @@
 import 'package:eu_sou/core/data/repositories/interfaces/i_bible_repository.dart';
 import 'package:eu_sou/core/services/logger_service.dart';
+import 'package:eu_sou/shared/models/bible_version_ref.dart';
 
 import '../domain/models/comparison_request.dart';
 import '../domain/models/version_comparison_entry.dart';
 import '../domain/repositories/comparison_repository.dart';
 
 class ComparisonRepositoryImpl implements ComparisonRepository {
-  ComparisonRepositoryImpl(this._bibleRepository);
+  ComparisonRepositoryImpl(
+    this._bibleRepository, {
+    Map<String, String> extraVersionNames = const {},
+    Map<String, String> extraVersionLanguages = const {},
+  })  : _extraVersionNames = _normalize(extraVersionNames),
+        _extraVersionLanguages = _normalize(extraVersionLanguages);
 
   final IBibleRepository _bibleRepository;
   final _logger = LoggerService();
 
-  static const Map<String, String> _versionNames = {
-    'ACF': 'Almeida Corrigida e Fiel',
-    'ARA': 'Almeida Revisada e Atualizada',
-    'KJA': 'King James Atualizada',
-    'KJF': 'King James Fiel',
-    'NVI': 'Nova Versão Internacional',
-    'JFAA': 'John Ferreira de Almeida Atual.',
-  };
+  /// Nomes/idiomas extras conhecidos em runtime (catálogo da comunidade),
+  /// indexados por id em maiúsculas.
+  final Map<String, String> _extraVersionNames;
+  final Map<String, String> _extraVersionLanguages;
 
-  static const Map<String, String> _languageById = {
-    'ACF': 'Português',
-    'ARA': 'Português',
-    'KJA': 'Português',
-    'KJF': 'Português',
-    'NVI': 'Português',
-    'JFAA': 'Português',
-  };
+  static Map<String, String> _normalize(Map<String, String> source) {
+    return {
+      for (final entry in source.entries)
+        entry.key.trim().toUpperCase(): entry.value,
+    };
+  }
+
+  /// Nome de exibição: traduções oficiais vêm do enum [BibleVersions]
+  /// (via [BibleVersionRef]); a comunidade usa o catálogo; o resto fica com
+  /// o próprio id.
+  String _nameFor(String normalizedId) {
+    final official = BibleVersionRef.tryFromOfficialId(normalizedId);
+    if (official != null) return official.name;
+    return _extraVersionNames[normalizedId] ?? normalizedId;
+  }
+
+  /// Idioma de exibição, quando conhecido (oficial ou comunidade).
+  String? _languageFor(String normalizedId) {
+    final official = BibleVersionRef.tryFromOfficialId(normalizedId);
+    if (official != null) return official.language;
+    return _extraVersionLanguages[normalizedId];
+  }
 
   @override
   Future<List<VersionComparisonEntry>> getComparison(
@@ -53,8 +69,8 @@ class ComparisonRepositoryImpl implements ComparisonRepository {
     ComparisonRequest request,
   ) async {
     final normalizedId = versionId.toUpperCase();
-    final versionName = _versionNames[normalizedId] ?? normalizedId;
-    final language = _languageById[normalizedId];
+    final versionName = _nameFor(normalizedId);
+    final language = _languageFor(normalizedId);
 
     try {
       final chapter = await _bibleRepository.getChapter(
@@ -73,6 +89,7 @@ class ComparisonRepositoryImpl implements ComparisonRepository {
         isAvailable: true,
         language: language,
         error: null,
+        isSource: normalizedId == request.sourceVersionId.toUpperCase(),
       );
     } catch (error, stackTrace) {
       _logger.warning(
@@ -88,6 +105,7 @@ class ComparisonRepositoryImpl implements ComparisonRepository {
         isAvailable: false,
         language: language,
         error: error.toString(),
+        isSource: normalizedId == request.sourceVersionId.toUpperCase(),
       );
     }
   }

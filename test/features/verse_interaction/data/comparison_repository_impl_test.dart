@@ -99,4 +99,51 @@ void main() {
     expect(entry.verseText, isNull);
     expect(entry.error, contains('offline'));
   });
+
+  test('resolves official names from the enum and flags the source version',
+      () async {
+    when(
+      () => bibleRepository.getChapter('KJA', 'GEN', '1'),
+    ).thenAnswer((_) async => buildChapter('KJA', 'No princípio'));
+    when(
+      () => bibleRepository.getChapter('ARA', 'GEN', '1'),
+    ).thenAnswer((_) async => buildChapter('ARA', 'No começo'));
+
+    final result = await repository.getComparison(
+      createRequest(targets: const ['ARA']),
+    );
+
+    expect(result.first.versionId, 'KJA');
+    expect(result.first.isSource, isTrue);
+    // Nome oficial vem do enum BibleVersions (não de mapa hardcoded).
+    expect(result.first.versionName, 'King James Atualizada');
+
+    expect(result.last.versionId, 'ARA');
+    expect(result.last.isSource, isFalse);
+    expect(result.last.versionName, 'Almeida Revista e Atualizada');
+  });
+
+  test('uses community catalog names when provided', () async {
+    final communityRepository = ComparisonRepositoryImpl(
+      bibleRepository,
+      extraVersionNames: {'ENGLISHKJV': 'English KJV'},
+      extraVersionLanguages: {'ENGLISHKJV': 'Inglês'},
+    );
+
+    when(
+      () => bibleRepository.getChapter('KJA', 'GEN', '1'),
+    ).thenAnswer((_) async => buildChapter('KJA', 'In the beginning'));
+    when(
+      () => bibleRepository.getChapter('ENGLISHKJV', 'GEN', '1'),
+    ).thenAnswer((_) async => buildChapter('ENGLISHKJV', 'In the beginning'));
+
+    final result = await communityRepository.getComparison(
+      createRequest(targets: const ['englishkjv']),
+    );
+
+    final community = result.last;
+    expect(community.versionId, 'ENGLISHKJV');
+    expect(community.versionName, 'English KJV');
+    expect(community.language, 'Inglês');
+  });
 }

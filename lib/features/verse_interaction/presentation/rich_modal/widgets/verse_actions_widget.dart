@@ -13,8 +13,10 @@ import 'package:eu_sou/features/verse_interaction/presentation/bloc/selection_bl
 import 'package:eu_sou/features/verse_interaction/presentation/compare_versions/compare_versions_modal.dart';
 import 'package:eu_sou/features/verse_interaction/presentation/rich_modal/rich_verse_action_modal.dart';
 import 'package:eu_sou/shared/bible_models.dart';
+import 'package:eu_sou/features/biblia/bloc/bible_versions_cubit.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -100,15 +102,35 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
     );
 
     Future<List<String>> resolveTargetVersionIds() async {
+      // Só entra na comparação quem tem versos realmente cacheados: a tabela
+      // `versions` pode conter ids registrados sem dados (ex.: fallback web
+      // que marca a versão pedida sem baixá-la), que apareciam como
+      // "Versículo não disponível nesta versão".
+      const versesTable = kIsWeb ? 'verses_search' : 'verses_fts';
+
+      Future<bool> hasCachedVerses(String versionId) async {
+        final rows = await cacheProvider.db.query(
+          versesTable,
+          columns: ['version_id'],
+          where: 'version_id = ?',
+          whereArgs: [versionId],
+          limit: 1,
+        );
+        return rows.isNotEmpty;
+      }
+
       try {
         final rows = await cacheProvider.db.query('versions', columns: ['id']);
-        final cached = rows
-            .map((row) => row['id'] as String?)
-            .whereType<String>()
-            .map((id) => id.toUpperCase())
-            .where((id) => id != normalizedVersionId)
-            .toSet()
-            .toList();
+        final cached = <String>[];
+        for (final row in rows) {
+          final id = (row['id'] as String?)?.trim().toUpperCase();
+          if (id == null || id == normalizedVersionId || cached.contains(id)) {
+            continue;
+          }
+          if (await hasCachedVerses(id)) {
+            cached.add(id);
+          }
+        }
 
         if (cached.isNotEmpty) {
           return cached;
@@ -179,6 +201,27 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
       final currentChapter = widget.chapterNumber;
       final currentReference = widget.verseReference;
 
+      // Nomes/idiomas das versões da comunidade (catálogo Beblia) para a
+      // comparação exibir "English KJV" em vez do id cru. Lido antes dos
+      // awaits para evitar uso de contexto desatualizado.
+      final versionNames = <String, String>{};
+      final versionLanguages = <String, String>{};
+      try {
+        final community = context.read<BibleVersionsCubit>().state.community;
+        for (final entry in community) {
+          final id = entry.id.trim().toUpperCase();
+          versionNames[id] = entry.title;
+          final language = entry.language;
+          if (language != null) versionLanguages[id] = language;
+        }
+      } catch (error, stackTrace) {
+        logger.warning(
+          'Failed to load community names for comparison',
+          error,
+          stackTrace,
+        );
+      }
+
       final verseNumber = verseNumbers.reduce(
         (value, element) => value < element ? value : element,
       );
@@ -193,6 +236,8 @@ class _ActionRowWidgetState extends State<ActionRowWidget> {
         // ignore: use_build_context_synchronously
         context: navigator.context,
         bibleRepository: bibleRepository,
+        versionNames: versionNames,
+        versionLanguages: versionLanguages,
         request: ComparisonRequest(
           bookId: currentBookId,
           chapterNumber: currentChapter,
