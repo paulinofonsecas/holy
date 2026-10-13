@@ -134,7 +134,7 @@ void main() {
     });
 
     test('falls back to JFAA for unknown ids', () {
-      expect(BibleVersions.fromId('ARA'), BibleVersions.jfaa);
+      expect(BibleVersions.fromId('XYZ'), BibleVersions.jfaa);
     });
   });
 }

@@ -82,7 +82,7 @@ class BibleVersionCubit extends Cubit<BibleVersionState> {
     if (versions.isEmpty || !state.version.isCommunity) return;
 
     final known = _communityVersions[state.version.id.trim().toUpperCase()];
-    if (known == null || known == state.version) return;
+    if (known == null) return;
     if (known.name == state.version.name &&
         known.language == state.version.language &&
         known.year == state.version.year) {
