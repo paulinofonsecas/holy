@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:bible_handler/bible_handler.dart';
-import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/models/bible_version_ref.dart';
 
 /// Estado de uma tradução da Bíblia apresentado na UI
 /// (sheet de seleção e página de gerenciamento).
@@ -13,7 +13,9 @@ class BibleVersionInfo {
   });
 
   /// Tradução em si (metadados de sigla, nome, idioma e ano).
-  final BibleVersions version;
+  ///
+  /// Pode ser uma tradução oficial (enum) ou uma versão da comunidade.
+  final BibleVersionRef version;
 
   /// `true` quando a versão está disponível offline no dispositivo.
   final bool isDownloaded;
@@ -40,7 +42,7 @@ class BibleVersionInfo {
   bool get hasError => progress?.status == DownloadStatus.error;
 
   BibleVersionInfo copyWith({
-    BibleVersions? version,
+    BibleVersionRef? version,
     bool? isDownloaded,
     bool? isActive,
     DownloadProgress? progress,

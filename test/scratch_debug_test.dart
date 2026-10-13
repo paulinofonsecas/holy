@@ -19,6 +19,7 @@ void main() {
         versionId, {
         onProgress,
         cacheProvider,
+        url,
       }) async {
         // ignore: avoid_print
         print('loader start');
@@ -31,6 +32,7 @@ void main() {
 
     final seen = <String>[];
     cubit.stream.listen((state) {
+      if (state.versions.isEmpty) return;
       final nvi = state.versions.firstWhere(
         (e) => e.version.id == 'NVI',
         orElse: () => state.versions.first,

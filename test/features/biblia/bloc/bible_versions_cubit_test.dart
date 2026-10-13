@@ -38,6 +38,7 @@ void main() {
       versionId, {
       onProgress,
       cacheProvider,
+      url,
     }) async {
       const downloading = DownloadProgress(
         percent: 0.42,
@@ -65,6 +66,7 @@ void main() {
       versionId, {
       onProgress,
       cacheProvider,
+      url,
     }) async {
       onProgress?.call(DownloadProgress.extracting());
       return Bible(name: 'Nova Versão Internacional', abbreviation: 'NVI', books: const []);
@@ -138,6 +140,8 @@ void main() {
       });
 
       await cubit.download('NVI');
+      // Deixa os microtasks de entrega do stream rodarem antes de cancelar.
+      await Future<void>.delayed(Duration.zero);
       await subscription.cancel();
 
       expect(statuses, contains(DownloadStatus.extracting));
@@ -157,6 +161,8 @@ void main() {
       });
 
       await cubit.download('NVI');
+      // Deixa os microtasks de entrega do stream rodarem antes de cancelar.
+      await Future<void>.delayed(Duration.zero);
       await subscription.cancel();
 
       expect(extractingEntries, isNotEmpty);
@@ -177,6 +183,7 @@ void main() {
           versionId, {
           onProgress,
           cacheProvider,
+          url,
         }) async {
           calls++;
           await Future<void>.delayed(const Duration(milliseconds: 20));
@@ -201,6 +208,7 @@ void main() {
           versionId, {
           onProgress,
           cacheProvider,
+          url,
         }) async {
           throw Exception('network down');
         },
@@ -256,7 +264,7 @@ void main() {
 
       cubit.select('ACF');
 
-      expect(versionCubit.state.version, BibleVersions.acf);
+      expect(versionCubit.state.version.id, 'ACF');
       expect(entryFor(cubit, 'ACF').isActive, isTrue);
       expect(entryFor(cubit, 'JFAA').isActive, isFalse);
 

@@ -134,13 +134,18 @@ class _VersionBadge extends StatelessWidget {
               : colorScheme.outlineVariant.withValues(alpha: 0.6),
         ),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.4,
-          color: foreground,
+      // FittedBox: siglas longas de versões da comunidade (ex.:
+      // `PortugueseNAA`) encolhem para caber no badge de 48px.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+            color: foreground,
+          ),
         ),
       ),
     );

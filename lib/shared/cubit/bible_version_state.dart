@@ -1,7 +1,7 @@
 part of 'bible_version_cubit.dart';
 
 class BibleVersionState extends Equatable {
-  final BibleVersions version;
+  final BibleVersionRef version;
 
   const BibleVersionState({required this.version});
 
@@ -111,56 +111,4 @@ enum BibleVersions {
       orElse: () => BibleVersions.jfaa,
     );
   }
-}
-
-class BibleVersionStateACF extends BibleVersionState {
-  const BibleVersionStateACF() : super(version: BibleVersions.acf);
-}
-
-class BibleVersionStateARC extends BibleVersionState {
-  const BibleVersionStateARC() : super(version: BibleVersions.arc);
-}
-
-class BibleVersionStateARA extends BibleVersionState {
-  const BibleVersionStateARA() : super(version: BibleVersions.ara);
-}
-
-class BibleVersionStateAS21 extends BibleVersionState {
-  const BibleVersionStateAS21() : super(version: BibleVersions.as21);
-}
-
-class BibleVersionStateJFAA extends BibleVersionState {
-  const BibleVersionStateJFAA() : super(version: BibleVersions.jfaa);
-}
-
-class BibleVersionStateKJA extends BibleVersionState {
-  const BibleVersionStateKJA() : super(version: BibleVersions.kja);
-}
-
-class BibleVersionStateKJF extends BibleVersionState {
-  const BibleVersionStateKJF() : super(version: BibleVersions.kjf);
-}
-
-class BibleVersionStateNAA extends BibleVersionState {
-  const BibleVersionStateNAA() : super(version: BibleVersions.naa);
-}
-
-class BibleVersionStateNBV extends BibleVersionState {
-  const BibleVersionStateNBV() : super(version: BibleVersions.nbv);
-}
-
-class BibleVersionStateNTLH extends BibleVersionState {
-  const BibleVersionStateNTLH() : super(version: BibleVersions.ntlh);
-}
-
-class BibleVersionStateNVI extends BibleVersionState {
-  const BibleVersionStateNVI() : super(version: BibleVersions.nvi);
-}
-
-class BibleVersionStateNVT extends BibleVersionState {
-  const BibleVersionStateNVT() : super(version: BibleVersions.nvt);
-}
-
-class BibleVersionStateTB extends BibleVersionState {
-  const BibleVersionStateTB() : super(version: BibleVersions.tb);
 }

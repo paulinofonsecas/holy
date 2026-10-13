@@ -1,4 +1,4 @@
-import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
+import 'package:eu_sou/shared/models/bible_version_ref.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -8,12 +8,12 @@ import 'package:hugeicons/hugeicons.dart';
 class RemoveVersionDialog extends StatelessWidget {
   const RemoveVersionDialog({super.key, required this.version});
 
-  final BibleVersions version;
+  final BibleVersionRef version;
 
   /// Mostra o dialog e retorna `true` se o usuário confirmar a remoção.
   static Future<bool> show(
     BuildContext context, {
-    required BibleVersions version,
+    required BibleVersionRef version,
   }) async {
     final confirmed = await showDialog<bool>(
       context: context,

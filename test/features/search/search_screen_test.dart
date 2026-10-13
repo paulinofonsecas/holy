@@ -8,6 +8,7 @@ import 'package:eu_sou/features/search/presentation/pages/search_screen.dart';
 import 'package:eu_sou/features/search/presentation/widgets/highlighted_text.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/cubit/tab_controller_cubit.dart';
+import 'package:eu_sou/shared/models/bible_version_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,8 +50,11 @@ void main() {
     when(() => mockSearchBloc.consultas)
         .thenReturn([const SearchQueryPart(term: '')]);
     when(() => mockSearchBloc.scrollOffset).thenReturn(0.0);
-    when(() => mockBibleVersionCubit.state)
-        .thenReturn(const BibleVersionStateKJA());
+    when(() => mockBibleVersionCubit.state).thenReturn(
+      BibleVersionState(
+        version: BibleVersionRef.fromOfficial(BibleVersions.kja),
+      ),
+    );
     when(() => mockTabControllerCubit.state).thenReturn(0);
     when(() => mockVerseHistoryBloc.state).thenReturn(VerseHistoryInitial());
   });

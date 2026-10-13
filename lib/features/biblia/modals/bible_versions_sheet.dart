@@ -63,6 +63,14 @@ class BibleVersionsSheet extends StatelessWidget {
     final canManage =
         showManageFooter && versionCubit == null && onSelect == null;
 
+    // Garante o catálogo da comunidade para exibir versões Beblia já
+    // baixadas como opções selecionáveis (best-effort).
+    BibleVersionsCubit loadCatalog(BibleVersionsCubit cubit) {
+      cubit.load();
+      cubit.loadCommunityCatalog();
+      return cubit;
+    }
+
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -77,11 +85,13 @@ class BibleVersionsSheet extends StatelessWidget {
           // painel, para não mexer na versão ativa global.
           providers.add(
             BlocProvider<BibleVersionsCubit>(
-              create: (_) => BibleVersionsCubit(
-                cacheProvider: cacheProvider,
-                versionCubit: versionCubit,
-                webCachePersistence: webCachePersistence,
-              )..load(),
+              create: (_) => loadCatalog(
+                BibleVersionsCubit(
+                  cacheProvider: cacheProvider,
+                  versionCubit: versionCubit,
+                  webCachePersistence: webCachePersistence,
+                ),
+              ),
             ),
           );
         } else if (globalVersionsCubit != null) {
@@ -90,16 +100,18 @@ class BibleVersionsSheet extends StatelessWidget {
           );
           // Refresca o cache local, que pode ter mudado desde a última carga
           // (ex.: download automático do JFAA na inicialização).
-          globalVersionsCubit.load();
+          loadCatalog(globalVersionsCubit);
         } else {
           providers.add(
             BlocProvider<BibleVersionsCubit>(
-              create: (_) => BibleVersionsCubit(
-                cacheProvider: cacheProvider,
-                versionCubit:
-                    versionCubit ?? sheetContext.read<BibleVersionCubit>(),
-                webCachePersistence: webCachePersistence,
-              )..load(),
+              create: (_) => loadCatalog(
+                BibleVersionsCubit(
+                  cacheProvider: cacheProvider,
+                  versionCubit:
+                      versionCubit ?? sheetContext.read<BibleVersionCubit>(),
+                  webCachePersistence: webCachePersistence,
+                ),
+              ),
             ),
           );
         }
@@ -151,8 +163,16 @@ class BibleVersionsSheet extends StatelessWidget {
                     state: _applyActiveOverride(state),
                     scrollController: scrollController,
                     onSelect: _handleSelect,
-                    onDownload: (id) =>
-                        context.read<BibleVersionsCubit>().download(id),
+                    onDownload: (id) {
+                      final cubit = context.read<BibleVersionsCubit>();
+                      // Versões da comunidade baixam de fonte customizada.
+                      final entry = cubit.communityEntryFor(id);
+                      if (entry != null) {
+                        cubit.downloadCommunity(entry);
+                      } else {
+                        cubit.download(id);
+                      }
+                    },
                     onRemove: _handleRemove,
                   );
                 },
@@ -173,9 +193,10 @@ class BibleVersionsSheet extends StatelessWidget {
 
     return state.copyWith(
       versions: state.versions
-          .map(
-              (entry) => entry.copyWith(isActive: entry.version.id == override))
+          .map((entry) =>
+              entry.copyWith(isActive: entry.version.matchesId(override)))
           .toList(growable: false),
+      activeVersionId: override,
     );
   }
 
@@ -197,8 +218,10 @@ class BibleVersionsSheet extends StatelessWidget {
     );
     if (!confirmed || !context.mounted) return;
 
-    final removed =
-        await context.read<BibleVersionsCubit>().delete(info.version.id);
+    final cubit = context.read<BibleVersionsCubit>();
+    final removed = info.version.isCommunity
+        ? await cubit.deleteCommunity(info.version.id)
+        : await cubit.delete(info.version.id);
     if (!removed && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

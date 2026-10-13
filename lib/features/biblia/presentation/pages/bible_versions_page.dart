@@ -3,6 +3,7 @@ import 'package:eu_sou/features/biblia/bloc/bible_versions_cubit.dart';
 import 'package:eu_sou/features/biblia/modals/remove_version_dialog.dart';
 import 'package:eu_sou/features/biblia/widgets/bible_version_item.dart';
 import 'package:eu_sou/shared/models/bible_version_info.dart';
+import 'package:eu_sou/shared/models/bible_version_ref.dart';
 import 'package:eu_sou/shared/widgets/app_huge_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -156,17 +157,43 @@ class _VersionsPageList extends StatelessWidget {
         icon: HugeIcons.strokeRoundedGlobe02,
       ),
       const Gap(10),
-      ...entries.map(
-        (entry) => Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: _CommunityItem(
-            entry: entry,
-            isDownloaded: state.communityCachedIds.contains(entry.id),
-            progress: state.communityProgress[entry.id],
-          ),
-        ),
-      ),
+      ...entries.map((entry) => _buildCommunityItem(context, entry)),
     ];
+  }
+
+  /// Item da comunidade com seleção liberada quando já baixado.
+  ///
+  /// Enquanto há qualquer download em andamento, as linhas ficam esmaecidas
+  /// (exceto a que está baixando), como nas seções oficiais.
+  Widget _buildCommunityItem(BuildContext context, BebliaCatalogEntry entry) {
+    final progress = state.communityProgress[entry.id];
+    final isDownloading = progress != null &&
+        (progress.status == DownloadStatus.downloading ||
+            progress.status == DownloadStatus.extracting);
+    final isDownloaded = state.communityCachedIds.contains(entry.id);
+    final isBlockedByDownload = state.hasActiveDownloads && !isDownloading;
+    final activeVersionId = state.activeVersionId;
+
+    final item = Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: _CommunityItem(
+        entry: entry,
+        isDownloaded: isDownloaded,
+        isActive: activeVersionId != null &&
+            entry.id.trim().toUpperCase() ==
+                activeVersionId.trim().toUpperCase(),
+        progress: progress,
+        onSelect: isDownloaded && !isBlockedByDownload
+            ? () => _selectCommunity(context, entry)
+            : null,
+        onRemove: isDownloaded && !isBlockedByDownload
+            ? () => _removeCommunity(context, entry)
+            : null,
+      ),
+    );
+
+    if (!isBlockedByDownload) return item;
+    return IgnorePointer(child: Opacity(opacity: 0.45, child: item));
   }
 
   Widget _buildItem(BuildContext context, BibleVersionInfo info) {
@@ -199,6 +226,40 @@ class _VersionsPageList extends StatelessWidget {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  void _selectCommunity(BuildContext context, BebliaCatalogEntry entry) {
+    context.read<BibleVersionsCubit>().selectCommunity(entry);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Versão ativa: ${entry.title}'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _removeCommunity(
+      BuildContext context, BebliaCatalogEntry entry) async {
+    final confirmed = await RemoveVersionDialog.show(
+      context,
+      version: BibleVersionRef.community(
+        id: entry.id,
+        title: entry.title,
+        language: entry.language,
+        year: entry.year,
+      ),
+    );
+    if (!confirmed || !context.mounted) return;
+
+    final removed =
+        await context.read<BibleVersionsCubit>().deleteCommunity(entry.id);
+    if (!removed && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('A versão ativa não pode ser removida.'),
+        ),
+      );
+    }
   }
 
   Future<void> _remove(BuildContext context, BibleVersionInfo info) async {
@@ -256,18 +317,34 @@ class _SectionHeader extends StatelessWidget {
 /// Item compacto de uma Bíblia da comunidade (Beblia).
 ///
 /// Mostra título, idioma/ano e tamanho; botão de baixar com progresso;
-/// badge "Offline" quando já está no cache. Não é selecionável como
-/// versão ativa global — fica disponível para leitura via multiversão.
+/// badge "Offline" quando já está no cache. Baixada, vira opção
+/// selecionável como versão ativa (igual às oficiais).
 class _CommunityItem extends StatelessWidget {
   const _CommunityItem({
     required this.entry,
     required this.isDownloaded,
+    this.isActive = false,
     this.progress,
+    this.onSelect,
+    this.onRemove,
   });
 
   final BebliaCatalogEntry entry;
   final bool isDownloaded;
+
+  /// `true` quando esta versão da comunidade é a ativa global.
+  final bool isActive;
+
   final DownloadProgress? progress;
+
+  /// Chamado ao tocar na linha (selecionar como versão ativa).
+  ///
+  /// `null` quando a versão ainda não está baixada (ou há download em
+  /// andamento) — nesses casos a linha não é selecionável.
+  final VoidCallback? onSelect;
+
+  /// Chamado ao confirmar a remoção do download.
+  final VoidCallback? onRemove;
 
   bool get _isDownloading =>
       progress != null &&
@@ -280,11 +357,19 @@ class _CommunityItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
+    final content = Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        color: isActive
+            ? colorScheme.primary.withValues(alpha: 0.08)
+            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isActive
+              ? colorScheme.primary
+              : colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: isActive ? 1.5 : 1,
+        ),
       ),
       child: Row(
         children: [
@@ -319,6 +404,19 @@ class _CommunityItem extends StatelessWidget {
           const Gap(10),
           _buildTrailing(context, colorScheme),
         ],
+      ),
+    );
+
+    if (onSelect == null) return content;
+
+    return Semantics(
+      button: true,
+      selected: isActive,
+      label: '${entry.title} — comunidade',
+      child: InkWell(
+        onTap: onSelect,
+        borderRadius: BorderRadius.circular(12),
+        child: content,
       ),
     );
   }
@@ -380,6 +478,35 @@ class _CommunityItem extends StatelessWidget {
       );
     }
 
+    if (isDownloaded && isActive) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppHugeIcon(
+            icon: HugeIcons.strokeRoundedCheckmarkCircle01,
+            size: 18,
+            color: colorScheme.primary,
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: colorScheme.primary,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              'ATIVA',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.6,
+                color: colorScheme.onPrimary,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     if (isDownloaded) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -396,9 +523,7 @@ class _CommunityItem extends StatelessWidget {
               size: 18,
               color: colorScheme.onSurfaceVariant,
             ),
-            onPressed: () => context
-                .read<BibleVersionsCubit>()
-                .deleteCommunity(entry.id),
+            onPressed: onRemove,
           ),
         ],
       );

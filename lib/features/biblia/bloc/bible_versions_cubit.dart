@@ -7,6 +7,7 @@ import 'package:eu_sou/core/services/logger_service.dart';
 import 'package:eu_sou/core/services/web_cache_persistence_service.dart';
 import 'package:eu_sou/shared/cubit/bible_version_cubit.dart';
 import 'package:eu_sou/shared/models/bible_version_info.dart';
+import 'package:eu_sou/shared/models/bible_version_ref.dart';
 import 'package:flutter/foundation.dart';
 
 part 'bible_versions_state.dart';
@@ -73,6 +74,7 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
             cachedIds: cachedIds,
             activeId: activeId,
           ),
+          activeVersionId: activeId,
           clearError: true,
         ),
       );
@@ -92,7 +94,11 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
   /// [url] aponta para uma fonte customizada (ex.: um XML simples do
   /// repositório Beblia); quando null, usa o zip USX padrão.
   Future<void> download(String id, {String? url}) async {
-    final version = BibleVersions.fromId(id);
+    final version = BibleVersionRef.tryFromOfficialId(id);
+    if (version == null) {
+      // Ids da comunidade têm fluxo próprio (downloadCommunity).
+      return;
+    }
     if (_downloading.contains(version.id)) return;
 
     _downloading.add(version.id);
@@ -143,9 +149,10 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
   ///
   /// A versão ativa não pode ser removida; retorna `false` nesse caso.
   Future<bool> delete(String id) async {
-    final version = BibleVersions.fromId(id);
+    final version = BibleVersionRef.tryFromOfficialId(id);
+    if (version == null) return false;
 
-    if (version.id == _versionCubit.state.version.id) {
+    if (version.matchesId(_versionCubit.state.version.id)) {
       return false;
     }
 
@@ -173,6 +180,36 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
   /// Define [id] como versão ativa.
   void select(String id) {
     _versionCubit.changeVersionById(id);
+    // Sincroniza imediatamente (o listener do stream resolveria só no
+    // próximo microtask, causando flicker na UI).
+    _syncActiveVersion(_versionCubit.state.version);
+  }
+
+  /// Entrada do catálogo da comunidade com o [id] informado, se existir.
+  BebliaCatalogEntry? communityEntryFor(String id) {
+    final normalized = id.trim().toUpperCase();
+    for (final entry in state.community) {
+      if (entry.id.trim().toUpperCase() == normalized) return entry;
+    }
+    return null;
+  }
+
+  /// Define a versão da comunidade [entry] como ativa.
+  void selectCommunity(BebliaCatalogEntry entry) {
+    final ref = _communityRef(entry);
+    // Primeiro registra os metadados (enriquece uma versão ativa restaurada
+    // sem o catálogo), depois troca de versão.
+    _versionCubit.registerCommunityVersions([ref]);
+    _versionCubit.changeVersion(ref);
+  }
+
+  BibleVersionRef _communityRef(BebliaCatalogEntry entry) {
+    return BibleVersionRef.community(
+      id: entry.id,
+      title: entry.title,
+      language: entry.language,
+      year: entry.year,
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -202,6 +239,12 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
           }
         } catch (_) {}
       }
+
+      // Disponibiliza nome/idioma/ano das versões da comunidade para o
+      // cubit de versão ativa (exibição e restauração por id).
+      _versionCubit.registerCommunityVersions(
+        entries.map(_communityRef).toList(growable: false),
+      );
 
       emit(
         state.copyWith(
@@ -265,7 +308,13 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
   }
 
   /// Remove uma Bíblia da comunidade do cache offline.
+  ///
+  /// A versão ativa não pode ser removida; retorna `false` nesse caso.
   Future<bool> deleteCommunity(String id) async {
+    if (_versionCubit.state.version.matchesId(id)) {
+      return false;
+    }
+
     try {
       await _cacheProvider.removeVersion(id);
 
@@ -298,11 +347,12 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
     required String activeId,
   }) {
     return BibleVersions.values.map((version) {
-      final previous = _entryFor(version.id);
+      final ref = BibleVersionRef.fromOfficial(version);
+      final previous = _entryFor(ref.id);
       return BibleVersionInfo(
-        version: version,
-        isDownloaded: cachedIds.contains(version.id),
-        isActive: version.id == activeId,
+        version: ref,
+        isDownloaded: cachedIds.contains(ref.id),
+        isActive: ref.matchesId(activeId),
         progress: previous?.progress,
       );
     }).toList(growable: false);
@@ -310,7 +360,7 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
 
   BibleVersionInfo? _entryFor(String id) {
     for (final entry in state.versions) {
-      if (entry.version.id == id) return entry;
+      if (entry.version.matchesId(id)) return entry;
     }
     return null;
   }
@@ -320,10 +370,14 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
     BibleVersionInfo Function(BibleVersionInfo entry) update,
   ) {
     final entries = List<BibleVersionInfo>.from(state.versions);
-    final index = entries.indexWhere((entry) => entry.version.id == id);
+    final index =
+        entries.indexWhere((entry) => entry.version.matchesId(id));
 
     if (index == -1) {
-      entries.add(update(BibleVersionInfo(version: BibleVersions.fromId(id))));
+      // Ids da comunidade têm fluxo próprio; não devem entrar aqui.
+      final ref = BibleVersionRef.tryFromOfficialId(id);
+      if (ref == null) return;
+      entries.add(update(BibleVersionInfo(version: ref)));
     } else {
       entries[index] = update(entries[index]);
     }
@@ -338,14 +392,17 @@ class BibleVersionsCubit extends Cubit<BibleVersionsState> {
 
   /// Mantém `isActive` em sincronia quando a versão muda por outro caminho
   /// (ex.: toque em resultado de busca).
-  void _syncActiveVersion(BibleVersions active) {
-    if (state.versions.isEmpty) return;
+  void _syncActiveVersion(BibleVersionRef active) {
+    if (state.versions.isEmpty) {
+      emit(state.copyWith(activeVersionId: active.id));
+      return;
+    }
 
     final entries = state.versions
-        .map((entry) => entry.copyWith(isActive: entry.version == active))
+        .map((entry) => entry.copyWith(isActive: entry.version.matchesId(active.id)))
         .toList(growable: false);
 
-    emit(state.copyWith(versions: entries));
+    emit(state.copyWith(versions: entries, activeVersionId: active.id));
   }
 
   @override
